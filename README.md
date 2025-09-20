@@ -30,7 +30,7 @@ OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案
 
 ```bash
 # 克隆项目（包含所有子模块）
-git clone --recursive https://github.com/ossappender/oss-appender.git
+git clone --recursive https://github.com/kzy77/oss-appender.git
 cd oss-appender
 
 # 构建所有模块
@@ -70,7 +70,7 @@ mvn clean install -pl log4j2-oss-appender
 ```xml
 <!-- logback.xml -->
 <configuration>
-    <appender name="OSS" class="io.github.ossappender.logback.OSSAppender">
+    <appender name="OSS" class="org.logx.logback.OSSAppender">
         <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
         <accessKey>${OSS_ACCESS_KEY}</accessKey>
         <secretKey>${OSS_SECRET_KEY}</secretKey>
@@ -123,7 +123,7 @@ oss-appender/                     # 主仓库
 
 ```bash
 # 1. 克隆仓库
-git clone --recursive https://github.com/ossappender/oss-appender.git
+git clone --recursive https://github.com/kzy77/oss-appender.git
 
 # 2. 验证构建
 mvn validate
@@ -161,7 +161,7 @@ git submodule foreach git pull origin main
 如果遇到问题或有建议，请：
 
 1. 查看 [文档](docs/)
-2. 搜索 [Issues](https://github.com/ossappender/oss-appender/issues)
+2. 搜索 [Issues](https://github.com/kzy77/oss-appender/issues)
 3. 创建新的 Issue
 
 ---
