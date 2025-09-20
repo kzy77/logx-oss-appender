@@ -1,0 +1,15 @@
+[submodule "log-java-producer"]
+	path = log-java-producer
+	url = git@github.com:kzy77/log-java-producer.git
+
+[submodule "log4j-oss-appender"]
+	path = log4j-oss-appender
+	url = git@github.com:kzy77/log4j-oss-appender.git
+
+[submodule "log4j2-oss-appender"]
+	path = log4j2-oss-appender
+	url = git@github.com:kzy77/log4j2-oss-appender.git
+
+[submodule "logback-oss-appender"]
+	path = logback-oss-appender
+	url = git@github.com:kzy77/logback-oss-appender.git
