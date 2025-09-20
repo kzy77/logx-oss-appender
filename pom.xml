@@ -6,7 +6,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <!-- Project Information -->
-    <groupId>io.github.ossappender</groupId>
+    <groupId>org.logx</groupId>
     <artifactId>oss-appender-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
