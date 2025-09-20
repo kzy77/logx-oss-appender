@@ -6,10 +6,10 @@
 
 OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含四个核心模块：
 
-- **log-java-producer** - 核心基础模块，提供日志生产和队列管理
-- **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
-- **log4j2-oss-appender** - Log4j2版本的OSS Appender
-- **logback-oss-appender** - Logback版本的OSS Appender
+- **[log-java-producer](https://github.com/kzy77/log-java-producer)** - 核心基础模块，提供日志生产和队列管理
+- **[log4j-oss-appender](https://github.com/kzy77/log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
+- **[log4j2-oss-appender](https://github.com/kzy77/log4j2-oss-appender)** - Log4j2版本的OSS Appender
+- **[logback-oss-appender](https://github.com/kzy77/logback-oss-appender)** - Logback版本的OSS Appender
 
 ## 特性
 
@@ -102,6 +102,17 @@ oss-appender/                     # 主仓库
 ├── logback-oss-appender/        # [子模块] Logback集成
 └── pom.xml                      # 父POM文件
 ```
+
+### 子模块仓库
+
+各子模块都有独立的GitHub仓库，可以直接跳转查看详细代码和文档：
+
+| 模块名称 | GitHub仓库 | 描述 |
+|---------|-----------|------|
+| **log-java-producer** | [🔗 kzy77/log-java-producer](https://github.com/kzy77/log-java-producer) | 核心基础模块，提供日志生产和队列管理 |
+| **log4j-oss-appender** | [🔗 kzy77/log4j-oss-appender](https://github.com/kzy77/log4j-oss-appender) | Log4j 1.x版本的OSS Appender |
+| **log4j2-oss-appender** | [🔗 kzy77/log4j2-oss-appender](https://github.com/kzy77/log4j2-oss-appender) | Log4j2版本的OSS Appender |
+| **logback-oss-appender** | [🔗 kzy77/logback-oss-appender](https://github.com/kzy77/logback-oss-appender) | Logback版本的OSS Appender |
 
 ## 技术栈
 
