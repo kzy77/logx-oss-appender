@@ -249,7 +249,7 @@ public class LogExample {
 
 ## 项目结构
 
-本项目采用Git Submodules管理的monorepo架构：
+本项目采用单仓库多模块（Monorepo）架构，统一管理所有组件：
 
 ```
 oss-appender/                     # 主仓库
@@ -257,24 +257,30 @@ oss-appender/                     # 主仓库
 ├── docs/                         # 项目文档
 │   ├── architecture.md          # 架构文档
 │   ├── prd.md                   # 产品需求文档
-│   └── developer-guide.md       # 开发者指南
-├── log-java-producer/           # [子模块] 核心处理引擎
-├── log4j-oss-appender/          # [子模块] Log4j集成
-├── log4j2-oss-appender/         # [子模块] Log4j2集成
-├── logback-oss-appender/        # [子模块] Logback集成
+│   ├── developer-guide.md       # 开发者指南
+│   └── git-management.md        # Git管理指南
+├── log-java-producer/           # 核心处理引擎
+├── log4j-oss-appender/          # Log4j集成模块
+├── log4j2-oss-appender/         # Log4j2集成模块
+├── logback-oss-appender/        # Logback集成模块
 └── pom.xml                      # 父POM文件
 ```
 
-### 子模块仓库
+### 模块组件
 
-各子模块都有独立的GitHub仓库，可以直接跳转查看详细代码和文档：
+各模块功能清晰分工，构成完整的日志上传解决方案：
 
-| 模块名称 | GitHub仓库 | 描述 |
-|---------|-----------|------|
-| **log-java-producer** | [🔗 kzy77/log-java-producer](https://github.com/kzy77/log-java-producer) | 核心基础模块，提供日志生产和队列管理 |
-| **log4j-oss-appender** | [🔗 kzy77/log4j-oss-appender](https://github.com/kzy77/log4j-oss-appender) | Log4j 1.x版本的OSS Appender |
-| **log4j2-oss-appender** | [🔗 kzy77/log4j2-oss-appender](https://github.com/kzy77/log4j2-oss-appender) | Log4j2版本的OSS Appender |
-| **logback-oss-appender** | [🔗 kzy77/logback-oss-appender](https://github.com/kzy77/logback-oss-appender) | Logback版本的OSS Appender |
+| 模块名称 | 功能描述 | 依赖关系 |
+|---------|---------|----------|
+| **log-java-producer** | 核心处理引擎，提供队列管理、异步处理、S3接口抽象 | 基础模块，无依赖 |
+| **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖log-java-producer |
+| **log4j2-oss-appender** | Log4j2框架适配器，支持插件配置 | 依赖log-java-producer |
+| **logback-oss-appender** | Logback框架适配器，支持Spring Boot | 依赖log-java-producer |
+
+### 项目管理
+
+本项目采用统一的Git工作流管理，详细说明请参考：
+- [Git管理指南](docs/git-management.md) - 分支策略、版本发布、协作流程
 
 ## 技术栈
 
@@ -409,6 +415,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 - [架构设计文档](docs/architecture.md) - 详细的技术架构说明
 - [产品需求文档](docs/prd.md) - 项目需求和Epic定义
 - [开发者指南](docs/developer-guide.md) - 开发环境设置和贡献指南
+- [Git管理指南](docs/git-management.md) - 分支策略、版本发布、协作流程
 
 ## 开发
 
@@ -428,17 +435,21 @@ mvn test
 mvn spotbugs:check formatter:validate
 ```
 
-### 子模块管理
+### 模块开发
 
 ```bash
-# 更新所有子模块
-git submodule update --remote
+# 构建特定模块
+mvn clean install -pl log4j2-oss-appender
 
-# 更新特定子模块
-git submodule update --remote log-java-producer
+# 测试特定模块
+mvn test -pl log-java-producer
 
-# 拉取子模块的最新更改
-git submodule foreach git pull origin main
+# 检查模块依赖
+mvn dependency:tree -pl logback-oss-appender
+
+# 统一更新版本号
+mvn versions:set -DnewVersion=1.0.0
+mvn versions:commit
 ```
 
 ## 许可证

@@ -1,327 +1,221 @@
-# OSS Appender Brownfield Enhancement PRD
+# OSS Appender 高性能日志组件 PRD
 
-## Intro Project Analysis and Context
+## 项目概述
 
-### 重要性评估
+### 产品背景
 
-在开始创建完整PRD之前，我需要评估这个增强的复杂性。基于我对OSS Appender项目的分析，Git Submodules重构涉及：
+OSS Appender 是一个高性能日志上传组件套件，为Java应用程序提供异步批量日志上传到云对象存储的能力。项目的核心目标是提供**简洁、高性能、可切换**的代码实现，支持Log4j、Log4j2、Logback三大主流日志框架。
 
-- 重组4个独立的git仓库
-- 建立新的主仓库结构
-- 配置submodule依赖关系
-- 更新构建和CI/CD流程
-- 修改文档和开发工作流
+### 核心设计原则
 
-这是一个**重大的架构性变更**，需要全面的规划和多个协调的故事，完全符合brownfield PRD的要求。
+基于深度技术分析和架构设计会议，确定以下核心原则：
 
-### 现有项目概述
+1. **简洁性**：log-java-producer高度抽象提取共性，各框架实现简洁一致
+2. **高性能**：延迟最小 + 内存/CPU占用少 + 高吞吐量
+3. **可切换性**：运行时存储后端切换 + 数据不丢失保证
+4. **资源保护**：确保不影响业务系统，防止资源无限扩张
 
-**分析来源**: IDE-based fresh analysis
+### 变更日志
 
-**当前项目状态**:
-OSS Appender是一个高性能日志上传组件套件，包含四个模块：
-- `log-java-producer`: 核心基础模块，提供日志生产和队列管理
-- `log4j-oss-appender`: Log4j版本的OSS Appender
-- `log4j2-oss-appender`: Log4j2版本的OSS Appender
-- `logback-oss-appender`: Logback版本的OSS Appender
-
-每个模块当前都是独立的git仓库，具有自己的版本历史和远程仓库。
-
-### 可用文档分析
-
-**可用文档**:
-- ✓ 架构文档 (arch.md)
-- ✓ 技术栈信息 (从pom.xml分析得出)
-- ✓ 模块依赖关系
-- ✗ 构建和部署流程文档
-- ✗ 开发者协作指南
-- ✗ CI/CD配置文档
-
-### 增强范围定义
-
-**增强类型**:
-- ✓ 技术栈升级 (Git仓库结构重组)
-- ✓ 集成改进 (统一版本管理)
-
-**增强描述**:
-将四个独立的git仓库转换为统一的monorepo结构，使用Git Submodules管理各组件，以实现更好的版本控制、团队协作和发布管理。
-
-**影响评估**:
-- ✓ 重大影响 (架构变更required)
-
-### 目标和背景上下文
-
-**目标**:
-- 统一版本管理和发布流程
-- 改善团队协作和代码共享
-- 简化依赖管理和构建流程
-- 保持各组件的独立开发能力
-- 建立标准化的文档和工作流
-
-**背景上下文**:
-当前的多仓库结构导致版本同步困难、重复的CI/CD配置、分散的文档管理和复杂的依赖关系维护。通过采用Git Submodules的monorepo方案，可以在保持模块独立性的同时实现统一管理，特别适合这种有明确依赖关系的组件套件。
-
-**变更日志**:
 | 变更 | 日期 | 版本 | 描述 | 作者 |
 |------|------|------|------|------|
+| 重写PRD | 2025-09-20 | 2.0 | 基于技术头脑风暴的核心需求重新定义 | Mary (分析师) |
 | 初始PRD | 2025-09-20 | 1.0 | Git Submodules重构增强PRD | John (PM) |
 
-## Requirements
+## 核心需求
 
-### Functional Requirements
+### 功能需求
 
-**FR1**: 主仓库必须能够通过Git Submodules管理四个现有组件仓库，保持它们的独立git历史和远程仓库连接
+#### FR1: 统一S3标准接口抽象
+**需求**: log-java-producer必须提供基于S3标准的统一存储接口，支持OSS、AWS S3、MinIO等S3兼容存储
+- **接口设计**: 以S3 API为基础，定义`putObject()`核心方法
+- **兼容性**: 支持阿里云OSS、AWS S3、腾讯云COS、MinIO等主流对象存储
+- **可扩展性**: 未来新的S3兼容存储可直接接入
 
-**FR2**: 重构后的结构必须支持单独构建和发布特定的appender组件，不强制整体构建
+#### FR2: 高性能异步处理引擎
+**需求**: 实现基于Disruptor的高性能队列管理，确保延迟最小、吞吐量最大
+- **队列技术**: 使用LMAX Disruptor实现DisruptorBatchingQueue
+- **性能目标**: 延迟最小化，内存和CPU占用最少
+- **批处理优化**: 可配置的批处理大小和刷新间隔
 
-**FR3**: 系统必须提供统一的父POM管理所有子模块的依赖版本，确保版本一致性
+#### FR3: 数据不丢失保障机制
+**需求**: 通过JVM shutdown hook确保应用重启等场景下数据不丢失
+- **保障机制**: JVM shutdown hook + 30秒超时上传
+- **处理策略**: 应用关闭时自动上传队列中剩余日志
+- **可靠性**: 最大化数据保障，最小化停机时间
 
-**FR4**: 重构必须保持现有的Maven依赖关系结构（log-java-producer作为其他三个模块的依赖）
+#### FR4: 资源保护策略
+**需求**: 确保日志组件不影响业务系统性能，防止资源无限扩张
+- **线程管理**: 固定线程池(默认2个)，可配置调整
+- **优先级控制**: 设置较低线程优先级
+- **CPU保护**: CPU繁忙时主动让出CPU
+- **内存保护**: 限制队列大小，防止JVM溢出
 
-**FR5**: 新结构必须支持开发者克隆完整项目或单独工作于特定子模块
+#### FR5: 框架适配器一致性
+**需求**: log4j、log4j2、logback三个框架实现保持简洁和一致性
+- **代码风格**: 统一的代码风格和类结构
+- **配置一致**: 三个框架的配置key保持一致
+- **接口统一**: 统一的错误处理和日志输出
 
-**FR6**: 主仓库必须集成BMAD配置和文档结构，提供统一的项目管理
+### 非功能需求
 
-### Non-Functional Requirements
+#### NFR1: 性能要求
+- **延迟**: 日志写入延迟 < 1ms（99%分位数）
+- **吞吐量**: 支持每秒处理10万+日志条目
+- **资源占用**: 内存占用 < 50MB，CPU占用 < 5%
+- **批处理效率**: 可配置批处理大小优化网络传输
 
-**NFR1**: 重构过程不得破坏任何现有的构建流程，迁移后所有Maven构建必须继续正常工作
+#### NFR2: 可靠性要求
+- **数据保障**: 99.9%数据不丢失率
+- **错误处理**: 失败重试3次，超时保护机制
+- **容量控制**: 队列满时丢弃最老数据，保护系统稳定
+- **监控支持**: 通过错误日志提供运维监控支持
 
-**NFR2**: Git历史必须完整保留，每个子模块的提交历史在submodule化后仍可访问
+#### NFR3: 兼容性要求
+- **Java版本**: 支持Java 8+
+- **框架兼容**: 完整支持Log4j 1.x、Log4j2、Logback
+- **存储兼容**: 支持所有S3兼容对象存储服务
+- **配置兼容**: 向后兼容现有配置格式
 
-**NFR3**: 迁移过程的总停机时间不得超过1个工作日，且必须支持回滚策略
+#### NFR4: 可维护性要求
+- **模块化**: 清晰的模块边界和依赖关系
+- **文档完整**: 详细的API文档和使用指南
+- **测试覆盖**: 单元测试覆盖率 > 90%
+- **代码质量**: 通过静态分析和代码格式化检查
 
-**NFR4**: 新结构的克隆和初始化时间不得超过当前单独克隆四个仓库时间的150%
+## 技术架构
 
-**NFR5**: 文档和配置的维护开销必须显著降低，目标减少30%的重复配置工作
+### 核心组件设计
 
-### Compatibility Requirements
+#### 1. 队列组件 (DisruptorBatchingQueue)
+- **技术**: LMAX Disruptor 3.4.4
+- **容量控制**: 失败重试3次 + 丢弃最老的 + 限制队列/批量大小
+- **背压处理**: 内存缓存 + 错误日志告警
+- **恢复策略**: 保持正常批处理速度
 
-**CR1: 现有API兼容性**: 所有Maven artifacts的groupId、artifactId和版本结构必须保持不变，确保下游项目无需修改依赖配置
+#### 2. 适配器组件 (S3StorageAdapter)
+- **抽象接口**: 基于S3标准的`putObject()`方法
+- **数据保障**: JVM shutdown hook + 30秒超时上传
+- **多云支持**: 统一接口支持OSS/S3/MinIO切换
 
-**CR2: 构建工具兼容性**: 现有的Maven构建命令和IDE集成必须继续工作，不强制改变开发者的本地工作流
+#### 3. 配置管理组件
+- **配置一致性**: 三框架配置key统一
+- **验证机制**: 通过错误日志 + 监控告警
+- **简化设计**: 静态配置，避免热更新复杂性
 
-**CR3: CI/CD集成兼容性**: 现有的构建和发布流程必须能够适配新的仓库结构，或提供明确的迁移路径
+#### 4. 异步化组件
+- **线程模型**: 固定线程池(默认2个)
+- **资源保护**: 低优先级 + CPU让出机制
+- **优雅关闭**: 线程池配合shutdown hook协同工作
 
-**CR4: 开发工作流兼容性**: 子模块的独立开发、测试和发布能力必须保持，团队可以继续按现有节奏工作
+### 技术栈
 
-## Technical Constraints and Integration Requirements
+| 类别 | 技术 | 版本 | 用途 |
+|------|------|------|------|
+| **语言** | Java | 8+ | 开发语言 |
+| **构建** | Maven | 3.9.6 | 构建管理 |
+| **队列** | LMAX Disruptor | 3.4.4 | 高性能队列 |
+| **云存储** | AWS SDK v2 | 2.28.16 | S3兼容接口 |
+| **云存储** | Aliyun OSS SDK | 3.17.4 | 阿里云OSS |
+| **测试** | JUnit 5 | 5.10.1 | 单元测试 |
 
-### Existing Technology Stack
+### 项目结构
 
-**Languages**: Java 8+
-**Frameworks**: Maven (Build), Log4j/Log4j2/Logback (各自的日志框架), Disruptor (高性能队列)
-**Database**: 无直接数据库依赖 (基于文件/对象存储)
-**Infrastructure**: 阿里云OSS, AWS S3兼容存储
-**External Dependencies**:
-- AWS SDK v2.28.16 (S3兼容性)
-- Aliyun OSS SDK v3.17.4
-- 各日志框架的provided依赖
-
-### Integration Approach
-
-**Database Integration Strategy**: 无需数据库集成 - 项目基于对象存储，无状态设计保持不变
-
-**API Integration Strategy**: 保持现有的日志框架插件API契约，submodule结构对外部API调用透明
-
-**Frontend Integration Strategy**: 无前端组件 - 纯后端库项目
-
-**Testing Integration Strategy**:
-- 各子模块保持独立的单元测试
-- 主仓库添加集成测试验证submodule交互
-- 使用Maven Surefire进行跨模块测试协调
-
-### Code Organization and Standards
-
-**File Structure Approach**:
 ```
-oss-appender/                    # 主仓库
-├── .bmad-core/                  # BMAD配置和模板
-├── docs/                        # 统一文档
-├── log-java-producer/           # Submodule
-├── log4j-oss-appender/          # Submodule
-├── log4j2-oss-appender/         # Submodule
-├── logback-oss-appender/        # Submodule
-├── pom.xml                      # 父POM
-└── .gitmodules                  # Submodule配置
+org.logx:oss-appender-parent
+├── org.logx:log-java-producer          # 核心抽象层
+├── org.logx:log4j-oss-appender         # Log4j 1.x适配器
+├── org.logx:log4j2-oss-appender        # Log4j2适配器
+└── org.logx:logback-oss-appender       # Logback适配器
 ```
 
-**Naming Conventions**: 保持现有的包名 `io.github.ossappender`，Maven坐标不变
+## 实施计划
 
-**Coding Standards**: 继承各子项目现有的编码标准，通过父POM统一编译器设置
+### 开发优先级
 
-**Documentation Standards**: 采用BMAD模板统一文档格式，集中在主仓库docs目录
+#### 阶段1: 立即实现 (核心必需功能)
+**目标**: 通过appender实现日志上传到OSS
+1. **设计S3抽象接口** (2-3天)
+   - 定义基于S3标准的统一接口
+   - 确定`putObject()`方法规范
+   - 设计错误处理策略
 
-### Deployment and Operations
+2. **实现log-java-producer核心** (1周)
+   - DisruptorBatchingQueue实现
+   - 异步线程池管理
+   - 配置管理机制
 
-**Build Process Integration**:
-- 父POM聚合所有子模块构建
-- 支持 `mvn clean install` 整体构建
-- 支持 `mvn clean install -pl log4j2-oss-appender` 单模块构建
+3. **开发框架适配器** (1周)
+   - log4j适配器实现
+   - log4j2适配器实现
+   - logback适配器实现
 
-**Deployment Strategy**:
-- 各子模块保持独立发布到Maven Central
-- 主仓库提供release脚本协调版本标记
-- 使用Git tags管理整体版本发布点
+#### 阶段2: 下一步实现 (重要但非紧急)
+**目标**: 防止日志丢失
+- JVM shutdown hook机制
+- 30秒超时保护
+- 数据可靠性测试
 
-**Monitoring and Logging**:
-- 保持现有的日志上传功能不变
-- 添加构建过程监控和submodule状态检查
-- 集成CI/CD管道状态可视化
+#### 阶段3: 未来考虑 (好的想法但优先级较低)
+**目标**: 进一步性能提升
+- 智能批处理优化
+- 高级监控能力
+- 性能调优工具
 
-**Configuration Management**:
-- 统一的Maven属性在父POM中管理
-- 各子模块配置文件保持独立
-- BMAD配置文件纳入版本控制
+### 验收标准
 
-### Risk Assessment and Mitigation
+#### 功能验收
+- ✅ 支持三种日志框架的统一配置
+- ✅ 实现S3兼容的多云存储切换
+- ✅ 高性能异步批处理上传
+- ✅ 数据不丢失保障机制
 
-**Technical Risks**:
-- Submodule同步复杂性可能导致版本不一致
-- 新开发者对Git submodules学习曲线
-- 构建依赖顺序可能引起循环依赖问题
+#### 性能验收
+- ✅ 延迟 < 1ms (99%分位数)
+- ✅ 吞吐量 > 10万条/秒
+- ✅ 内存占用 < 50MB
+- ✅ CPU占用 < 5%
 
-**Integration Risks**:
-- 现有CI/CD流程可能不兼容submodule结构
-- Maven依赖解析在submodule context下的行为变化
-- IDE集成可能需要额外配置
+#### 质量验收
+- ✅ 单元测试覆盖率 > 90%
+- ✅ 通过静态代码分析
+- ✅ 完整的API文档
+- ✅ 详细的使用指南
 
-**Deployment Risks**:
-- 发布过程中submodule版本锁定可能导致不一致
-- 回滚复杂性增加，需要协调多个仓库状态
-- 第三方依赖工具对submodule支持的限制
+## 风险评估
 
-**Mitigation Strategies**:
-- 提供详细的开发者onboarding文档和脚本
-- 实施自动化测试验证submodule版本兼容性
-- 建立clear的版本发布和回滚程序
-- 创建IDE配置模板和import指南
-- 使用Maven Enforcer Plugin确保依赖一致性
+### 技术风险
+1. **性能瓶颈**: Disruptor队列调优复杂性
+   - **缓解**: 建立性能基准测试和调优指南
 
-## Epic and Story Structure
+2. **多云兼容性**: 不同存储服务API差异
+   - **缓解**: S3标准接口抽象，详细的兼容性测试
 
-### Epic Approach
+3. **资源保护**: 复杂业务场景下的资源控制
+   - **缓解**: 完善的资源监控和保护机制
 
-**Epic Structure Decision**: 单一综合Epic，因为Git Submodules重构是一个高度相互依赖的架构变更，需要协调的实施序列来确保系统完整性。
+### 实施风险
+1. **开发复杂度**: 高性能和简洁性的平衡
+   - **缓解**: 渐进式开发，先实现核心功能
 
-## Epic 1: Git Submodules Monorepo Migration
+2. **测试覆盖**: 异步和多线程场景测试困难
+   - **缓解**: 建立专门的并发测试框架
 
-**Epic Goal**: 将OSS Appender的四个独立git仓库安全迁移到统一的monorepo结构，使用Git Submodules管理各组件，实现统一版本控制和文档管理，同时保持各模块的独立开发能力和完整git历史。
+## 成功指标
 
-**Integration Requirements**:
-- 保持所有现有Maven构建功能
-- 维护各子模块的独立发布能力
-- 确保git历史完整性和可追溯性
-- 建立新的协作工作流程和文档结构
+### 技术指标
+- **性能达标**: 满足延迟和吞吐量要求
+- **资源友好**: 不影响业务系统性能
+- **数据可靠**: 99.9%数据不丢失率
+- **易用性**: 配置简单，集成方便
 
-### Story 1.1: 准备主仓库基础设施
-
-As a **项目维护者**,
-I want **建立主仓库结构和基础配置**,
-so that **为submodule迁移提供稳定的基础环境**.
-
-#### Acceptance Criteria
-1. 在oss-appender目录成功初始化git仓库
-2. 创建父POM文件，定义所有子模块的共同配置和版本管理
-3. 建立标准的目录结构和.gitignore配置
-4. 集成BMAD核心配置文件并纳入版本控制
-5. 建立基础的README和项目文档结构
-
-#### Integration Verification
-- **IV1**: 验证父POM可以被Maven正确解析，无语法错误
-- **IV2**: 确认BMAD配置不与现有项目文件冲突
-- **IV3**: 验证git仓库初始化没有影响现有子目录的独立git仓库
-
-### Story 1.2: 迁移核心依赖模块为Submodule
-
-As a **开发者**,
-I want **将log-java-producer转换为第一个submodule**,
-so that **建立submodule模式的基础，为其他模块迁移提供模板**.
-
-#### Acceptance Criteria
-1. 备份log-java-producer现有目录和.git历史
-2. 移除本地log-java-producer目录
-3. 使用git submodule add添加log-java-producer作为submodule
-4. 验证submodule可以正常更新和构建
-5. 确认所有git历史和远程仓库连接保持完整
-
-#### Integration Verification
-- **IV1**: 验证log-java-producer的Maven构建在submodule context下正常工作
-- **IV2**: 确认git历史完整性，所有提交记录可访问
-- **IV3**: 验证性能无明显下降，构建时间在可接受范围内
-
-### Story 1.3: 迁移Log4j系列Appender为Submodules
-
-As a **开发者**,
-I want **将log4j-oss-appender和log4j2-oss-appender转换为submodules**,
-so that **建立依赖子模块的submodule模式，验证依赖关系处理**.
-
-#### Acceptance Criteria
-1. 按照Story 1.2的模式迁移log4j-oss-appender为submodule
-2. 按照Story 1.2的模式迁移log4j2-oss-appender为submodule
-3. 验证这两个模块对log-java-producer的Maven依赖正确解析
-4. 确认所有模块的独立构建和聚合构建都正常工作
-5. 测试跨模块的依赖关系和版本一致性
-
-#### Integration Verification
-- **IV1**: 验证log4j appenders的依赖解析指向正确的log-java-producer版本
-- **IV2**: 确认Maven reactor构建顺序正确处理模块依赖
-- **IV3**: 验证各模块的单独构建不受submodule结构影响
-
-### Story 1.4: 完成Logback Appender迁移并验证完整性
-
-As a **开发者**,
-I want **将logback-oss-appender转换为submodule并验证整体系统完整性**,
-so that **完成所有模块的迁移并确保整体架构的稳定性**.
-
-#### Acceptance Criteria
-1. 将logback-oss-appender迁移为submodule
-2. 运行完整的聚合构建验证所有模块协同工作
-3. 执行所有模块的测试套件确保功能完整性
-4. 验证Maven依赖树正确反映模块间关系
-5. 确认所有构建artifacts正确生成且版本一致
-
-#### Integration Verification
-- **IV1**: 验证完整的`mvn clean install`成功完成所有模块构建
-- **IV2**: 确认所有现有的单元测试和集成测试通过
-- **IV3**: 验证生成的JAR文件与迁移前的功能等价
-
-### Story 1.5: 建立统一的文档和开发工作流
-
-As a **团队成员**,
-I want **统一的文档结构和标准化的开发工作流程**,
-so that **团队可以高效协作并降低新开发者的学习成本**.
-
-#### Acceptance Criteria
-1. 创建详细的开发者指南，包含submodule工作流程
-2. 建立统一的文档结构，整合各模块的README和API文档
-3. 创建IDE配置模板和项目导入指南
-4. 建立版本发布和标记的标准流程
-5. 创建故障排除和常见问题解答文档
-
-#### Integration Verification
-- **IV1**: 验证新开发者可以按照文档成功克隆和构建项目
-- **IV2**: 确认IDE配置模板在主流开发环境中正常工作
-- **IV3**: 验证文档的完整性和准确性，无缺失关键信息
-
-### Story 1.6: 建立CI/CD集成和发布流程
-
-As a **项目维护者**,
-I want **适配的CI/CD流程和自动化发布机制**,
-so that **维护高质量的持续集成和简化的发布管理**.
-
-#### Acceptance Criteria
-1. 更新CI配置以支持submodule结构的构建
-2. 建立自动化的submodule版本检查和同步机制
-3. 创建统一的发布脚本协调所有模块的版本标记
-4. 建立回滚程序和紧急恢复流程
-5. 配置构建状态监控和通知机制
-
-#### Integration Verification
-- **IV1**: 验证CI/CD管道在submodule结构下正确执行所有阶段
-- **IV2**: 确认发布流程能够正确协调所有子模块的版本管理
-- **IV3**: 验证回滚机制的有效性和数据完整性保护
+### 业务指标
+- **用户采用**: 提供简洁易用的日志上传方案
+- **成本优化**: 高效的批处理降低存储和网络成本
+- **运维友好**: 通过标准日志提供监控支持
 
 ---
 
-*本文档创建于 2025-09-20 by John (Product Manager)*
-*🤖 Generated with BMAD™ Core*
+*本PRD基于2025-09-20技术架构头脑风暴会议结果编写，体现了简洁、高性能、可切换的核心设计理念*
+
+🤖 Generated with [Claude Code](https://claude.ai/code) & BMAD™ Core
