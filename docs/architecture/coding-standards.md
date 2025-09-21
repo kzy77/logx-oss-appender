@@ -18,10 +18,10 @@
 #### 包命名
 ```java
 // 统一包命名前缀
-io.github.ossappender.*         // 核心包
-io.github.osslogback.*          // Logback适配器
-io.github.osslog4j.*            // Log4j适配器
-io.github.osslog4j2.*           // Log4j2适配器
+org.logx.*                      // 核心包
+org.logx.logback.*              // Logback适配器
+org.logx.log4j2.*               // Log4j/Log4j2适配器
+org.logx.adapter.*              // 适配器实现包
 ```
 
 #### 类命名

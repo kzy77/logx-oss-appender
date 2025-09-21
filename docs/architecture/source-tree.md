@@ -27,7 +27,7 @@ oss-appender/
 ### 目录结构
 ```
 log-java-producer/
-├── src/main/java/io/github/ossappender/
+├── src/main/java/org/logx/
 │   ├── core/                     # 核心引擎
 │   │   ├── DisruptorBatchingQueue.java    # 高性能队列管理
 │   │   ├── BinaryUploader.java           # 二进制上传器
@@ -83,7 +83,7 @@ S3CompatibleUploader.java
 
 ```
 logback-oss-appender/
-├── src/main/java/io/github/osslogback/
+├── src/main/java/org/logx/
 │   ├── logback/                  # Logback集成层
 │   │   ├── OssAsyncAppender.java         # 异步Appender实现
 │   │   └── JsonLinesLayout.java          # JSON Lines格式化
@@ -98,7 +98,7 @@ logback-oss-appender/
 
 ```
 log4j2-oss-appender/
-├── src/main/java/io/github/ossappender/
+├── src/main/java/org/logx/
 │   ├── log4j2/                  # Log4j2集成层
 │   │   └── S3Appender.java              # Log4j2 Appender插件
 │   └── adapter/                 # 适配器实现
@@ -112,7 +112,7 @@ log4j2-oss-appender/
 
 ```
 log4j-oss-appender/
-├── src/main/java/io/github/ossappender/
+├── src/main/java/org/logx/
 │   ├── log4j2/                  # Log4j适配 (复用log4j2结构)
 │   │   └── S3Appender.java              # Log4j Appender实现
 │   └── adapter/                 # 适配器实现
@@ -125,12 +125,13 @@ log4j-oss-appender/
 ### 统一包前缀策略
 ```java
 // 核心抽象包
-io.github.ossappender.core.*      // 高性能引擎
-io.github.ossappender.s3.*        // S3存储抽象
+org.logx.core.*                   // 高性能引擎
+org.logx.s3.*                     // S3存储抽象
 
 // 框架适配包
-io.github.osslogback.*            // Logback专用包
-io.github.ossappender.*           // Log4j/Log4j2通用包
+org.logx.logback.*                // Logback专用包
+org.logx.log4j2.*                 // Log4j/Log4j2通用包
+org.logx.adapter.*                // 适配器实现包
 ```
 
 ### 配置Key统一
