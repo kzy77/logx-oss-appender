@@ -14,6 +14,31 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - 包括代码说明、进度报告、提交信息、测试输出等
 - 只有技术关键词、API名称、配置键名可以使用英文
 
+**RULE 3**: 代码不能尾行注释，注释应该在代码上一行
+- 禁止在代码行尾添加注释
+- 所有注释必须写在被注释代码的上一行
+- 示例：
+  ```java
+  // 正确：注释在上一行
+  String message = "Hello World";
+
+  String message = "Hello World"; // 错误：尾行注释
+  ```
+
+**RULE 4**: if语句一定要有大括号
+- 所有if语句必须使用大括号，即使只有一行代码
+- 包括if、else if、else、for、while、do-while等所有控制结构
+- 示例：
+  ```java
+  // 正确：使用大括号
+  if (condition) {
+      doSomething();
+  }
+
+  // 错误：缺少大括号
+  if (condition) doSomething();
+  ```
+
 ## Project Overview
 
 OSS Appender is a high-performance Java logging component suite that provides asynchronous batch log uploading to cloud object storage services (Aliyun OSS, AWS S3, MinIO). The project uses a multi-module Git Submodules architecture with a core abstraction layer and framework-specific adapters.
