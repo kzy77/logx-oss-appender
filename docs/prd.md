@@ -181,17 +181,17 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 4. 测试Git Submodules集成工作流
 5. 生成健康检查报告和基础性能指标
 
-### Story 1.6：基础配置管理框架
-**As a** 系统集成者，
-**I want** 有统一的配置管理框架，
-**so that** 可以简化不同存储后端的配置工作。
+### Story 1.4：实现AWS S3适配器
+**As a** 使用AWS S3的开发者，
+**I want** 有S3的具体实现适配器，
+**so that** 可以将日志上传到AWS对象存储。
 
 #### 验收标准
-1. 创建ConfigManager类，支持从环境变量和配置文件读取参数
-2. 实现配置验证机制，确保必需参数完整性
-3. 支持配置热加载和错误恢复
-4. 提供配置示例文件和文档
-5. 编写配置管理的单元测试
+1. 实现S3StorageAdapter类，继承统一存储接口
+2. 集成AWS SDK v2，配置region和credentials
+3. 实现putObject方法，支持multipart upload
+4. 添加AWS特定的错误处理和重试逻辑
+5. 编写S3连接和上传的单元测试
 
 ## Epic 2详细设计：高性能异步队列引擎
 
