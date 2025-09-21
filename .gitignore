@@ -20,6 +20,9 @@ buildNumber.properties
 .project
 .classpath
 
+# Claude Code settings
+.claude/settings.local.json
+
 # OS
 .DS_Store
 .DS_Store?
