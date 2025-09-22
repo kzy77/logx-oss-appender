@@ -10,7 +10,7 @@
   to be greater than:
     4000L
   ```
-- 影响范围：性能阈值校验（Epic 2 高性能异步引擎），不影响 Story 1.5 交付。
+- 影响范围：性能阈值校验（Epic 2 高性能异步引擎），不影响 Epic 1 交付。
 
 ## 复现步骤
 1. 初始化/更新子模块（如需）：`git submodule update --init --recursive`

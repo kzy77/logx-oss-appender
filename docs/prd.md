@@ -169,18 +169,6 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 4. 添加AWS特定的错误处理和重试逻辑
 5. 编写S3连接和上传的单元测试
 
-### Story 1.5：log-java-producer健康检查
-**As a** 运维人员，
-**I want** 验证核心组件的基础功能，
-**so that** 确保技术栈集成正确且可以进行后续开发。
-
-#### 验收标准
-1. 实现HealthChecker类，验证存储连接状态
-2. 创建简单的日志上传测试功能
-3. 验证Maven依赖管理和版本协调
-4. 测试Git Submodules集成工作流
-5. 生成健康检查报告和基础性能指标
-
 ### Story 1.4：实现AWS S3适配器
 **As a** 使用AWS S3的开发者，
 **I want** 有S3的具体实现适配器，

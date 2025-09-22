@@ -438,7 +438,7 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 
 ### 已知性能问题
 
-- Epic 2：`AsyncEngineIntegrationTest.shouldMeetLatencyTarget` 在当前容器/CI 环境下可能因性能抖动导致断言失败，不影响 Story 1.5 交付与评审。
+- Epic 2：`AsyncEngineIntegrationTest.shouldMeetLatencyTarget` 在当前容器/CI 环境下可能因性能抖动导致断言失败，不影响 Epic 1 交付与评审。
 
 ## 联系方式
 
