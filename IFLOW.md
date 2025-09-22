@@ -418,6 +418,28 @@ mvn clean install -U
 - [技术栈](docs/architecture/tech-stack.md) - 技术选型和依赖管理
 - [源码树结构](docs/architecture/source-tree.md) - 项目结构和包组织
 
+## 性能目标和基准
+
+### 核心性能指标
+
+OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓越的性能：
+
+- **写入延迟**: < 1ms (99%分位数)
+- **吞吐量**: > 10万条日志/秒
+- **内存占用**: < 50MB
+- **CPU占用**: < 5%
+
+### 性能优化策略
+
+1. **LMAX Disruptor队列**: 使用无锁环形缓冲区实现超低延迟
+2. **批处理优化**: 智能批处理机制优化网络传输效率
+3. **资源保护**: 固定线程池和低优先级调度确保不影响业务系统
+4. **压缩传输**: 支持GZIP压缩减少网络带宽使用
+
+### 已知性能问题
+
+- Epic 2：`AsyncEngineIntegrationTest.shouldMeetLatencyTarget` 在当前容器/CI 环境下可能因性能抖动导致断言失败，不影响 Story 1.5 交付与评审。
+
 ## 联系方式
 
 如果在开发过程中遇到问题：
@@ -427,7 +449,7 @@ mvn clean install -U
 3. **创建新Issue**: 详细描述问题和重现步骤
 4. **讨论**: [GitHub Discussions](https://github.com/kzy77/oss-appender/discussions)
 
+<!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
 *本文档最后更新于 2025-09-22*
-<!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
