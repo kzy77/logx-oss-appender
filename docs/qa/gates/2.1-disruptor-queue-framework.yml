@@ -1,20 +1,20 @@
 schema: 1
 story: '2.1'
-gate: FAIL
-status_reason: 'Status标记为Done但未实际实现。Epic 2核心基础组件缺失，阻塞后续高性能引擎开发。'
+gate: CONCERNS
+status_reason: '核心实现与单元测试已就绪（DisruptorBatchingQueue 等）；但性能阈值验证依赖基准环境/稳定化策略，当前容器下不具代表性。建议按 Story 2.7 进行性能用例稳定化与阈值参数化后，在基准环境复核。'
 reviewer: 'Quinn'
-updated: '2025-09-22T14:45:00Z'
+updated: '2025-09-22T16:05:00Z'
 top_issues:
   - id: 'ARCH-003'
-    severity: high
-    finding: 'Epic 2核心组件DisruptorBatchingQueue未实现'
-    suggested_action: '立即实现LMAX Disruptor队列框架，这是Epic 2的基础组件'
+    severity: low
+    finding: '核心组件 DisruptorBatchingQueue 已实现并通过核心测试'
+    suggested_action: '无 — 后续仅需保持与架构文档一致性'
   - id: 'PERF-002'
     severity: high
-    finding: '性能目标无法验证 - 缺乏实际性能基准测试'
-    suggested_action: '实现性能测试验证延迟<1ms和吞吐量>100k events/sec目标'
+    finding: '性能目标验证受环境影响：容器/CI 下用例易抖动，无法稳定评估 99% <1ms / >100k eps'
+    suggested_action: '实施 Story 2.7（预热/固定负载、@Tag("perf")、-Pperf-tests、阈值参数化），并在基准环境连跑3次通过'
   - id: 'REQ-003'
-    severity: high
-    finding: 'Dev Agent Record空白表明实现缺失'
-    suggested_action: '完成DisruptorBatchingQueue和LogEvent的实际开发'
+    severity: low
+    finding: 'Dev Agent Record 已补充，覆盖实现与测试证据'
+    suggested_action: '无'
 waiver: { active: false }
