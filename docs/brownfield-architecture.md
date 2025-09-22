@@ -29,16 +29,17 @@ oss-appender/ (主仓库)
 │   ├── S3CompatibleUploader    # 统一S3接口抽象
 │   ├── BinaryUploader          # 二进制上传器
 │   └── UploadHooks            # 生命周期钩子
-├── logback-oss-appender/       # 🔥 Logback适配器 (已完成90%)
-│   ├── OssAsyncAppender       # Logback集成入口
-│   ├── S3LogbackAdapter       # 高性能适配器实现
-│   └── JsonLinesLayout        # NDJSON布局器
+```
+├── logback-oss-appender/     # Logback集成模块
+│   ├── LogbackOSSAppender     # Logback集成入口
+│   └── config/
+│       └── LogbackConfiguration # 配置管理
+```
 ├── log4j2-oss-appender/        # 🔥 Log4j2适配器 (已完成90%)
 │   ├── S3Appender            # Log4j2插件实现
-│   └── S3Log4j2Adapter       # 高性能适配器实现
+│   └── Log4j2Bridge          # Log4j2桥接器
 ├── log4j-oss-appender/         # 🆕 Log4j 1.x适配器 (需实现)
-│   ├── S3Appender            # Log4j 1.x适配器
-│   └── S3Log4jAdapter        # 统一适配器接口
+│   └── S3Appender            # Log4j 1.x适配器
 └── docs/                       # 📚 项目文档
     ├── architecture.md         # 架构文档
     ├── prd.md                 # 产品需求 v3.0
@@ -150,23 +151,19 @@ public final class S3CompatibleUploader implements AutoCloseable {
 
 #### 3.3.1 Logback 适配器（已完成）
 ```java
-// 现有实现：logback-oss-appender/OssAsyncAppender.java
-public final class OssAsyncAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
-    // ✅ 零配置集成：XML/编程式配置支持
-    private S3LogbackAdapter adapter;
-
-    // ✅ 线程安全：UnsynchronizedAppenderBase + 内部队列
-    @Override
-    protected void append(ILoggingEvent event) {
-        byte[] encoded = encoder.encode(event);
-        adapter.offer(new String(encoded, UTF_8));
-    }
+// 现有实现：logback-oss-appender/LogbackOSSAppender.java
+public final class LogbackOSSAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+    private Encoder<ILoggingEvent> encoder;
+    private String endpoint;
+    private String region;
+    private String accessKeyId;
+    // ... 其他字段和方法
 }
 ```
 
 **配置示例（logback-spring.xml）：**
 ```xml
-<appender name="S3_APPENDER" class="io.github.osslogback.logback.OssAsyncAppender">
+<appender name="S3_APPENDER" class="org.logx.logback.LogbackOSSAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
         <pattern>%d{ISO8601} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
@@ -180,15 +177,15 @@ public final class OssAsyncAppender extends UnsynchronizedAppenderBase<ILoggingE
 
 #### 3.3.2 Log4j2 适配器（已完成）
 ```java
-// 现有实现：log4j2-oss-appender/S3Appender.java
-@Plugin(name = "S3Appender", category = "Core", elementType = "appender")
-public final class S3Appender extends AbstractAppender {
+// 现有实现：log4j2-oss-appender/Log4j2OSSAppender.java
+@Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
+public final class Log4j2OSSAppender extends AbstractAppender {
     // ✅ 标准Log4j2插件：自动发现和配置
-    private S3Log4j2Adapter adapter;
+    private final Log4j2Bridge adapter;
 
     // ✅ Builder模式：类型安全的配置构建
-    @PluginBuilderFactory
-    public static Builder newBuilder() { return new Builder(); }
+    @PluginFactory
+    public static Log4j2OSSAppender createAppender(...) { return new Log4j2OSSAppender(...); }
 }
 ```
 
@@ -204,17 +201,16 @@ public final class S3Appender extends AbstractAppender {
 </S3Appender>
 ```
 
-#### 3.3.3 Log4j 1.x 适配器（待实现）
+#### 3.3.3 Log4j 1.x 适配器（已完成）
 ```java
-// 需要实现：log4j-oss-appender/S3Appender.java
-public class S3Appender extends AppenderSkeleton {
-    // 🆕 支持传统企业应用的Log4j 1.x集成
-    private S3Log4jAdapter adapter;
+// 现有实现：log4j-oss-appender/OSSAppender.java
+public class OSSAppender extends AppenderSkeleton {
+    // ✅ 支持传统企业应用的Log4j 1.x集成
+    private Log4j1xBridge adapter;
 
     @Override
     protected void append(LoggingEvent event) {
-        String logLine = layout.format(event);
-        adapter.offer(logLine);
+        adapter.append(event);  // 委托给通用适配器框架
     }
 }
 ```
@@ -289,7 +285,7 @@ System.setProperty("oss.accessKeySecret", ossSk);
 System.setProperty("oss.bucket", "legacy-app-logs");
 
 // 在logback.xml中引用系统属性
-<appender name="S3_APPENDER" class="io.github.osslogback.logback.OssAsyncAppender">
+<appender name="S3_APPENDER" class="org.logx.logback.LogbackOSSAppender">
     <endpoint>${oss.endpoint}</endpoint>
     <accessKeyId>${oss.accessKeyId}</accessKeyId>
     <accessKeySecret>${oss.accessKeySecret}</accessKeySecret>

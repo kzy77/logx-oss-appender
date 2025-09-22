@@ -82,16 +82,27 @@ S3CompatibleUploader.java
 ### Logback适配器: logback-oss-appender
 
 ```
-logback-oss-appender/
-├── src/main/java/org/logx/
-│   ├── logback/                  # Logback集成层
-│   │   ├── OssAsyncAppender.java         # 异步Appender实现
-│   │   └── JsonLinesLayout.java          # JSON Lines格式化
-│   └── adapter/                  # 适配器实现
-│       └── S3LogbackAdapter.java         # Logback-S3桥接
-├── src/test/java/               # Logback专项测试
-└── src/main/resources/
-    └── logback-oss-example.xml  # 配置示例
+```
+logback-oss-appender/               # Logback集成模块
+├── pom.xml                         # 模块POM文件
+├── README.md                       # 使用说明
+├── src/
+│   ├── main/
+│   │   ├── java/org/logx/logback/
+│   │   │   ├── LogbackOSSAppender.java       # 异步Appender实现
+│   │   │   └── config/
+│   │   │       └── LogbackConfiguration.java # 配置管理
+│   │   └── resources/
+│   │       ├── logback-oss-example.xml       # 配置示例
+│   │       └── examples/
+│   │           └── logback-spring.xml        # Spring Boot集成示例
+│   └── test/
+│       └── java/org/logx/logback/
+│           ├── LogbackOSSAppenderTest.java   # Appender功能测试
+│           └── springboot/
+│               └── LogbackOssAutoConfigurationTest.java # Spring Boot自动配置测试
+└── target/                         # 构建输出目录
+```
 ```
 
 ### Log4j2适配器: log4j2-oss-appender
@@ -100,9 +111,9 @@ logback-oss-appender/
 log4j2-oss-appender/
 ├── src/main/java/org/logx/
 │   ├── log4j2/                  # Log4j2集成层
-│   │   └── S3Appender.java              # Log4j2 Appender插件
+│   │   └── Log4j2OSSAppender.java       # Log4j2 Appender插件
 │   └── adapter/                 # 适配器实现
-│       └── S3Log4j2Adapter.java         # Log4j2-S3桥接
+│       └── Log4j2Bridge.java            # Log4j2桥接器
 ├── src/main/resources/META-INF/org/apache/logging/log4j/core/config/plugins/
 │   └── Log4j2Plugins.dat       # Log4j2插件注册
 └── pom.xml
@@ -113,10 +124,10 @@ log4j2-oss-appender/
 ```
 log4j-oss-appender/
 ├── src/main/java/org/logx/
-│   ├── log4j2/                  # Log4j适配 (复用log4j2结构)
-│   │   └── S3Appender.java              # Log4j Appender实现
+│   ├── log4j/                   # Log4j 1.x集成层
+│   │   └── OSSAppender.java             # Log4j 1.x Appender实现
 │   └── adapter/                 # 适配器实现
-│       └── S3Log4j2Adapter.java         # Log4j-S3桥接
+│       └── Log4j1xBridge.java           # Log4j 1.x桥接器
 └── pom.xml
 ```
 
@@ -130,7 +141,8 @@ org.logx.s3.*                     // S3存储抽象
 
 // 框架适配包
 org.logx.logback.*                // Logback专用包
-org.logx.log4j2.*                 // Log4j/Log4j2通用包
+org.logx.log4j.*                  // Log4j 1.x专用包
+org.logx.log4j2.*                 // Log4j2专用包
 org.logx.adapter.*                // 适配器实现包
 ```
 

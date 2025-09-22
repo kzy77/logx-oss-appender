@@ -27,9 +27,9 @@ org.logx.adapter.*              // 适配器实现包
 #### 类命名
 ```java
 // 适配器命名规范
-S3Log4jAdapter                  // Log4j适配器
-S3Log4j2Adapter                 // Log4j2适配器
-S3LogbackAdapter                // Logback适配器
+Log4j1xBridge                   // Log4j 1.x桥接器
+Log4j2Bridge                    // Log4j2桥接器
+LogbackBridge                   // Logback桥接器
 
 // 核心组件命名
 DisruptorBatchingQueue          // 队列管理
@@ -52,12 +52,12 @@ public static final String FLUSH_INTERVAL = "batch.flushInterval";
 #### 依赖注入原则
 ```java
 // 优先使用构造器注入
-public class S3LogbackAdapter {
+public class LogbackBridge {
     private final S3StorageInterface s3Storage;
     private final DisruptorBatchingQueue queue;
 
-    public S3LogbackAdapter(S3StorageInterface s3Storage,
-                           DisruptorBatchingQueue queue) {
+    public LogbackBridge(S3StorageInterface s3Storage,
+                        DisruptorBatchingQueue queue) {
         this.s3Storage = requireNonNull(s3Storage);
         this.queue = requireNonNull(queue);
     }
@@ -173,7 +173,7 @@ public class BatchProcessor {
 ### 单元测试规范
 ```java
 // 测试类命名：ClassName + Test
-public class S3LogbackAdapterTest {
+public class LogbackBridgeTest {
 
     @Test
     public void shouldProcessLogEventSuccessfully() {
