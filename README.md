@@ -460,6 +460,10 @@ mvn versions:commit
 
 欢迎贡献代码！请查看 [开发者指南](docs/developer-guide.md) 了解详细的贡献流程。
 
+## 已知问题
+
+- Epic 2：`AsyncEngineIntegrationTest.shouldMeetLatencyTarget` 在当前容器/CI 环境下可能因性能抖动导致断言失败，不影响 Story 1.5 交付与评审。复现步骤、初步分析与修复建议见：`docs/issues/Epic2-AsyncEngineIntegrationTest-failure.md`。
+
 ## 支持
 
 如果遇到问题或有建议，请：
