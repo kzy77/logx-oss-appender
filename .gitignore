@@ -76,3 +76,7 @@ replay_pid*
 core.[0-9]*
 vgcore.*
 *.core
+# Local tooling (do not commit)
+.gemini/
+.iflow/
+.roomodes
