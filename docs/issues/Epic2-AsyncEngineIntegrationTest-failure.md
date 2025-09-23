@@ -34,6 +34,9 @@
 - 在相同 CI/容器环境下，连续 3 次运行均通过。
 - 文档化阈值与环境要求（README 或 `docs/architecture.md` 补充性能基线说明）。
 
+## 状态
+已计划修复
+
 ## 附件与参考
 - Surefire 报告路径：`log-java-producer/target/surefire-reports/`
 - 相关日志（片段）：见上述失败摘要与 surefire 报告文件。
