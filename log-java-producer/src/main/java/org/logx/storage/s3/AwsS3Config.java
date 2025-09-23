@@ -1,6 +1,6 @@
 package org.logx.storage.s3;
 
-import org.logx.storage.config.StorageConfig;
+import org.logx.storage.StorageConfig;
 import java.time.Duration;
 
 /**

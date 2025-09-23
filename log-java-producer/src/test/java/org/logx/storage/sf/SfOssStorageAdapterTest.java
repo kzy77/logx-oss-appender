@@ -2,7 +2,7 @@ package org.logx.storage.sf;
 
 import org.junit.jupiter.api.Test;
 import org.logx.storage.sf.SfOssStorageAdapter;
-import org.logx.storage.TestS3StorageConfig;
+import org.logx.storage.s3.TestS3StorageConfig;
 import org.logx.storage.StorageConfig;
 
 import java.util.HashMap;

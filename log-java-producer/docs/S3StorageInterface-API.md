@@ -76,7 +76,7 @@ String getBucketName()
 
 ## 配置系统
 
-### S3StorageConfig
+### StorageConfig
 
 抽象配置基类，定义所有 S3 兼容存储的通用配置参数。
 

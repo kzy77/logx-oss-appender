@@ -255,7 +255,7 @@ public class MultiBackendStorageManager {
         this.fallbackBackend = StorageBackend.AWS_S3;
     }
 
-    public void registerStorage(StorageBackend backend, S3StorageConfig config) {
+    public void registerStorage(StorageBackend backend, StorageConfig config) {
         try {
             S3StorageInterface storage = S3StorageFactory.createAdapter(backend, config);
             storageMap.put(backend, storage);

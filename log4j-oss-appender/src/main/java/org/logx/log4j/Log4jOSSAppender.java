@@ -1,16 +1,11 @@
 package org.logx.log4j;
 
-import com.thoughtworks.xstream.XStream;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.Layout;
-import org.apache.log4j.helpers.OnlyOnceErrorHandler;
 import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
-import org.logx.adapter.QueueFullException;
-import org.logx.core.UnifiedErrorHandler;
 import org.logx.log4j.Log4j1xBridge;
-import org.logx.storage.s3.S3StorageConfig;
-import org.logx.storage.s3.StorageBackend;
+import org.logx.storage.StorageConfig;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -19,7 +14,6 @@ import org.logx.storage.s3.StorageBackend;
 public class Log4jOSSAppender extends AppenderSkeleton {
 
     private Log4j1xBridge adapter;
-    private UnifiedErrorHandler errorHandler;
 
     // S3兼容存储配置 - 必需参数
     private String endpoint;
@@ -47,26 +41,23 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     public void activateOptions() {
         super.activateOptions();
 
-        // 初始化统一错误处理器
-        this.errorHandler = new UnifiedErrorHandler("Log4j-OSSAppender");
-
         // 验证必需参数
         if (accessKeyId == null || accessKeyId.trim().isEmpty()) {
-            handleConfigurationError("accessKeyId 不能为空", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+            handleConfigurationError("accessKeyId 不能为空");
             return;
         }
         if (accessKeySecret == null || accessKeySecret.trim().isEmpty()) {
-            handleConfigurationError("accessKeySecret 不能为空", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+            handleConfigurationError("accessKeySecret 不能为空");
             return;
         }
         if (bucket == null || bucket.trim().isEmpty()) {
-            handleConfigurationError("bucket 不能为空", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+            handleConfigurationError("bucket 不能为空");
             return;
         }
 
         try {
             // 构建S3存储配置，根据endpoint自动选择合适的配置类
-            S3StorageConfig config;
+            StorageConfig config;
             if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
                 config = new org.logx.storage.s3.SfOssConfig.Builder()
                     .endpoint(this.endpoint)
@@ -265,16 +256,8 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     /**
      * 处理配置错误的统一方法
      */
-    private void handleConfigurationError(String message, ErrorCode errorCode) {
-        if (errorHandler != null) {
-            ErrorContext context = new ErrorContext.Builder().errorCode(errorCode).type(ErrorType.CONFIGURATION_ERROR)
-                    .severity(ErrorSeverity.HIGH).message(message).addContextData("component", "Log4j-OSSAppender")
-                    .build();
-
-            errorHandler.handleError(context);
-        } else {
-            // 如果统一错误处理器还未初始化，使用Log4j的默认错误处理器
-            getErrorHandler().error(message);
-        }
+    private void handleConfigurationError(String message) {
+        // 使用Log4j的默认错误处理器
+        getErrorHandler().error(message);
     }
 }

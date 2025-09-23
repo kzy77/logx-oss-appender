@@ -1,8 +1,9 @@
-package org.logx.storage.s3;
+package org.logx.config.s3;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.AfterEach;
+import org.logx.storage.s3.AwsS3Config;
 
 import java.time.Duration;
 import java.util.HashMap;

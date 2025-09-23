@@ -1,5 +1,6 @@
 package org.logx.storage;
 
+import org.logx.storage.s3.S3StorageInterface;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
@@ -12,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  *
  * @since 1.0.0
  */
-public interface StorageInterface {
+public interface StorageInterface extends S3StorageInterface {
 
     /**
      * 上传单个对象

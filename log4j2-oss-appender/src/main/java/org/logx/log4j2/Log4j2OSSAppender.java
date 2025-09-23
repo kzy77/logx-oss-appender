@@ -17,11 +17,8 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.logx.log4j2.Log4j2Bridge;
-import org.logx.storage.s3.S3StorageConfig;
-import org.logx.core.AsyncEngine;
-import org.logx.exception.StorageException;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.StorageBackend;
 
 @Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
@@ -29,7 +26,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     private final Log4j2Bridge adapter;
 
     private Log4j2OSSAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
-            final boolean ignoreExceptions, final Property[] properties, final S3StorageConfig adapterConfig) {
+            final boolean ignoreExceptions, final Property[] properties, final StorageConfig adapterConfig) {
         super(name, filter, layout, ignoreExceptions, properties);
         this.adapter = new Log4j2Bridge(adapterConfig);
         this.adapter.setLayout(layout);
@@ -79,7 +76,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         }
 
         // 根据endpoint自动选择合适的配置类
-        S3StorageConfig adapterConfig;
+        StorageConfig adapterConfig;
         if (endpoint != null && endpoint.contains("sf-oss")) {
             adapterConfig = new org.logx.storage.s3.SfOssConfig.Builder()
                 .endpoint(endpoint)

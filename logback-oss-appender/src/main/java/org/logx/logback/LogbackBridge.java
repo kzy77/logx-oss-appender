@@ -3,10 +3,10 @@ package org.logx.logback;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.Encoder;
 import org.logx.adapter.AbstractUniversalAdapter;
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngine;
 import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.s3.S3StorageInterface;
+
 
 /**
  * Logback 桥接器
@@ -15,7 +15,7 @@ import org.logx.storage.s3.S3StorageInterface;
 public class LogbackBridge extends AbstractUniversalAdapter {
     private Encoder<ILoggingEvent> encoder;
     
-    public LogbackBridge(S3StorageConfig config) {
+    public LogbackBridge(StorageConfig config) {
         // 创建S3存储适配器
         this.s3Storage = S3StorageFactory.createAdapter(config);
         

@@ -3,10 +3,10 @@ package org.logx.log4j2;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.logx.adapter.AbstractUniversalAdapter;
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngine;
 import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.s3.S3StorageInterface;
+
 
 import java.io.Serializable;
 
@@ -17,7 +17,7 @@ import java.io.Serializable;
 public class Log4j2Bridge extends AbstractUniversalAdapter {
     private Layout<? extends Serializable> layout;
     
-    public Log4j2Bridge(S3StorageConfig config) {
+    public Log4j2Bridge(StorageConfig config) {
         // 创建S3存储适配器
         this.s3Storage = S3StorageFactory.createAdapter(config);
         

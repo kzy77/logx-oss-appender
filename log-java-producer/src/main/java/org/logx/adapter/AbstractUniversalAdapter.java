@@ -1,6 +1,6 @@
 package org.logx.adapter;
 
-import org.logx.storage.s3.S3StorageInterface;
+import org.logx.storage.StorageInterface;
 import org.logx.core.AsyncEngine;
 
 /**
@@ -9,7 +9,7 @@ import org.logx.core.AsyncEngine;
  */
 public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
     protected AsyncEngine asyncEngine;
-    protected S3StorageInterface s3Storage;
+    protected StorageInterface s3Storage;
     protected boolean started = false;
     
     @Override

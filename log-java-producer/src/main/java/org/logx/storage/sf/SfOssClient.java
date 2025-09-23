@@ -1,7 +1,5 @@
 package org.logx.storage.sf;
 
-import org.logx.storage.sf.PartETag;
-
 /**
  * SF OSS客户端
  * <p>

@@ -1,7 +1,6 @@
 package org.logx.storage.sf;
 
 import org.logx.storage.StorageInterface;
-import org.logx.storage.sf.PartETag;
 
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;

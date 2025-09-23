@@ -260,7 +260,7 @@ GenericS3Config config = GenericS3Config.builder()
 ```java
 // 开发环境配置模板
 public class DevelopmentConfig {
-    public static S3StorageConfig createConfig() {
+    public static StorageConfig createConfig() {
         return TestS3Config.builder()
             .endpoint("http://localhost:9000")  // 本地 MinIO
             .region("us-east-1")
@@ -282,7 +282,7 @@ public class DevelopmentConfig {
 ```java
 // 测试环境配置模板
 public class TestingConfig {
-    public static S3StorageConfig createConfig() {
+    public static StorageConfig createConfig() {
         return TestS3Config.builder()
             .endpoint("https://oss-cn-hangzhou.aliyuncs.com")
             .region("cn-hangzhou")
@@ -303,7 +303,7 @@ public class TestingConfig {
 ```java
 // 生产环境配置模板
 public class ProductionConfig {
-    public static S3StorageConfig createConfig() {
+    public static StorageConfig createConfig() {
         return ProductionS3Config.builder()
             .endpoint(System.getenv("S3_ENDPOINT"))
             .region(System.getenv("S3_REGION"))
@@ -338,7 +338,7 @@ public class ProductionConfig {
 
 ```java
 // 配置创建后立即验证
-S3StorageConfig config = MyS3Config.builder()
+StorageConfig config = MyS3Config.builder()
     .endpoint("https://oss-cn-hangzhou.aliyuncs.com")
     .region("cn-hangzhou")
     .accessKeyId(System.getenv("OSS_ACCESS_KEY_ID"))
@@ -361,7 +361,7 @@ try {
 // 配置工厂模式
 public class S3ConfigFactory {
 
-    public static S3StorageConfig createForEnvironment(String env) {
+    public static StorageConfig createForEnvironment(String env) {
         switch (env.toLowerCase()) {
             case "dev":
                 return createDevelopmentConfig();
@@ -374,7 +374,7 @@ public class S3ConfigFactory {
         }
     }
 
-    private static S3StorageConfig createDevelopmentConfig() {
+    private static StorageConfig createDevelopmentConfig() {
         return DevS3Config.builder()
             .endpoint("http://localhost:9000")
             .region("us-east-1")
@@ -438,7 +438,7 @@ public class S3ConfigFactory {
 
 ```java
 // 启用详细日志进行调试
-S3StorageConfig config = MyS3Config.builder()
+StorageConfig config = MyS3Config.builder()
     .endpoint("https://oss-cn-hangzhou.aliyuncs.com")
     .region("cn-hangzhou")
     .accessKeyId(System.getenv("OSS_ACCESS_KEY_ID"))

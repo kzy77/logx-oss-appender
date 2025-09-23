@@ -2,20 +2,17 @@ package org.logx.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.Layout;
+import ch.qos.logback.core.Encoder;
+import ch.qos.logback.core.status.ErrorStatus;
 import org.logx.logback.LogbackBridge;
-import org.logx.storage.s3.S3StorageConfig;
-import org.logx.core.AsyncEngine;
-import org.logx.exception.StorageException;
-import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageConfig;
 
 /**
  * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
- * UnsynchronizedAppenderBase 避免线程同步开销 - 依赖 Encoder 将 ILoggingEvent 序列化为字符串 - 核心逻辑委托给
+ * AppenderBase 避免线程同步开销 - 依赖 Encoder 将 ILoggingEvent 序列化为字符串 - 核心逻辑委托给
  * 通用适配器框架（复用log-java-producer的高性能组件）
  */
-public final class LogbackOSSAppender extends UnsynchronizedAppenderBase<ILoggingEvent> {
+public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     // Logback必需
     private Encoder<ILoggingEvent> encoder;
@@ -40,35 +37,30 @@ public final class LogbackOSSAppender extends UnsynchronizedAppenderBase<ILoggin
     private long maxBackoffMs = 10000L;
 
     private LogbackBridge adapter;
-    private UnifiedErrorHandler errorHandler;
 
     @Override
     public void start() {
-        // 初始化统一错误处理器
-        this.errorHandler = new UnifiedErrorHandler("Logback-OSSAppender");
-
         if (encoder == null) {
-            handleConfigurationError("No encoder set for the appender named \"" + name + "\"",
-                    ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+            addError("No encoder set for the appender named \"" + name + "\"");
             return;
         }
         try {
             // 验证必需参数
             if (accessKeyId == null || accessKeyId.trim().isEmpty()) {
-                handleConfigurationError("accessKeyId must be set", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+                addError("accessKeyId must be set");
                 return;
             }
             if (accessKeySecret == null || accessKeySecret.trim().isEmpty()) {
-                handleConfigurationError("accessKeySecret must be set", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+                addError("accessKeySecret must be set");
                 return;
             }
             if (bucket == null || bucket.trim().isEmpty()) {
-                handleConfigurationError("bucket must be set", ErrorCode.CONFIG_MISSING_REQUIRED_FIELD);
+                addError("bucket must be set");
                 return;
             }
 
             // 构建S3存储配置，根据endpoint自动选择合适的配置类
-            S3StorageConfig config;
+            StorageConfig config;
             if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
                 config = new org.logx.storage.s3.SfOssConfig.Builder()
                     .endpoint(this.endpoint)
@@ -191,28 +183,12 @@ public final class LogbackOSSAppender extends UnsynchronizedAppenderBase<ILoggin
      * 统一错误处理方法
      */
     private void handleAppendError(String message, Throwable throwable) {
-        if (errorHandler != null) {
-            ErrorContext context = new ErrorContext.Builder().errorCode(ErrorCode.STORAGE_UPLOAD_FAILED)
-                    .type(ErrorType.STORAGE_ERROR).severity(ErrorSeverity.MEDIUM).message(message).throwable(throwable)
-                    .addContextData("component", "Logback-OSSAppender").addContextData("appender", getName()).build();
-
-            errorHandler.handleError(context);
-        } else {
-            // 回退到Logback默认错误处理
-            addError(message, throwable);
-        }
+        // 使用Logback默认错误处理
+        addError(message, throwable);
     }
 
-    private void handleConfigurationError(String message, ErrorCode errorCode) {
-        if (errorHandler != null) {
-            ErrorContext context = new ErrorContext.Builder().errorCode(errorCode).type(ErrorType.CONFIGURATION_ERROR)
-                    .severity(ErrorSeverity.HIGH).message(message).addContextData("component", "Logback-OSSAppender")
-                    .build();
-
-            errorHandler.handleError(context);
-        } else {
-            // 回退到Logback默认错误处理
-            addStatus(new ErrorStatus(message, this));
-        }
+    private void handleConfigurationError(String message) {
+        // 使用Logback默认错误处理
+        addError(message);
     }
 }

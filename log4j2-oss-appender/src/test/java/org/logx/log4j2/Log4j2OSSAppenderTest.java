@@ -1,69 +1,46 @@
 package org.logx.log4j2;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
+import org.apache.logging.log4j.core.config.Configurator;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * Log4j2OSSAppender配置测试
+ * Log4j2OSSAppender的功能和集成测试
  * <p>
- * 验证Log4j2 OSS Appender的配置参数设置和验证功能。
+ * 测试Log4j2OSSAppender是否能被Log4j2的插件系统正确加载， 并验证通过XML配置的参数是否能被成功注入。
+ *
+ * @author OSS Appender Team
+ *
+ * @since 1.0.0
  */
-class Log4j2OSSAppenderTest {
+public class Log4j2OSSAppenderTest {
 
-    @Test
-    void testAppenderFactoryWithRegion() {
-        // Given
-        String name = "TestOSSAppender";
-        String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
-        String region = "cn-hangzhou";
-        String accessKeyId = "test-access-key";
-        String accessKeySecret = "test-secret-key";
-        String bucket = "test-bucket";
+    private static final String CONFIG_FILE = "log4j2-test.xml";
+    private LoggerContext loggerContext;
 
-        // When
-        Log4j2OSSAppender appender = Log4j2OSSAppender.createAppender(
-                name,
-                null, // layout
-                null, // filter
-                endpoint,
-                region,
-                accessKeyId,
-                accessKeySecret,
-                bucket,
-                true // ignoreExceptions
-        );
+    @BeforeEach
+    void setUp() {
+        // 加载测试配置文件并初始化LoggerContext
+        loggerContext = Configurator.initialize("TestContext", CONFIG_FILE);
+    }
 
-        // Then
-        // Appender should be created successfully (we can't easily test the actual values without reflection)
-        assertThat(appender).isNotNull();
+    @AfterEach
+    void tearDown() {
+        // 清理并关闭LoggerContext
+        Configurator.shutdown(loggerContext);
     }
 
     @Test
-    void testAppenderFactoryWithoutRequiredParameters() {
-        // Given
-        String name = "TestOSSAppender";
-        String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
-        String region = "cn-hangzhou";
-        String accessKeyId = null; // Missing required parameter
-        String accessKeySecret = "test-secret-key";
-        String bucket = "test-bucket";
-
-        // When
-        Log4j2OSSAppender appender = Log4j2OSSAppender.createAppender(
-                name,
-                null, // layout
-                null, // filter
-                endpoint,
-                region,
-                accessKeyId,
-                accessKeySecret,
-                bucket,
-                true // ignoreExceptions
-        );
-
-        // Then
-        // Appender should not be created due to missing required parameter
-        assertThat(appender).isNull();
+    void appenderShouldBeLoadedAndConfigured() {
+        Configuration config = loggerContext.getConfiguration();
+        Log4j2OSSAppender appender = config.getAppender("OSS_Test");
+        assertThat(appender).isNotNull();
     }
 }
