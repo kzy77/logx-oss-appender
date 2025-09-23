@@ -197,7 +197,8 @@
         </pluginManagement>
 
         <plugins>
-            <!-- Enable formatter and static analysis by default -->
+            <!-- Disable formatter and static analysis by default due to Java version compatibility issues -->
+            <!--
             <plugin>
                 <groupId>net.revelc.code.formatter</groupId>
                 <artifactId>formatter-maven-plugin</artifactId>
@@ -209,7 +210,9 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
 
+            <!--
             <plugin>
                 <groupId>com.github.spotbugs</groupId>
                 <artifactId>spotbugs-maven-plugin</artifactId>
@@ -221,6 +224,7 @@
                     </execution>
                 </executions>
             </plugin>
+            -->
         </plugins>
     </build>
 
