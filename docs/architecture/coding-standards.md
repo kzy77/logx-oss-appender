@@ -4,7 +4,66 @@
 
 本文档定义了OSS Appender项目的编码标准和规范，确保代码的一致性、可维护性和高质量。
 
+## 关键开发规则（Critical Development Rules）
+
+**RULE 1**: 必须使用中文沟通
+- 所有与用户的交流都必须使用中文
+- 包括代码说明、进度报告、提交信息、测试输出等
+- 只有技术关键词、API名称、配置键名可以使用英文
+
+**RULE 2**: 代码不能尾行注释，注释应该在代码上一行
+- 禁止在代码行尾添加注释
+- 所有注释必须写在被注释代码的上一行
+- 示例：
+```java
+// 正确：注释在上一行
+String message = "Hello World";
+
+String message = "Hello World"; // 错误：尾行注释
+```
+
+**RULE 3**: if语句一定要有大括号
+- 所有if语句必须使用大括号，即使只有一行代码
+- 包括if、else if、else、for、while、do-while等所有控制结构
+- 示例：
+```java
+// 正确：使用大括号
+if (condition) {
+    doSomething();
+}
+
+// 错误：缺少大括号
+if (condition) doSomething();
+```
+
 ## Java编码规范
+
+### 核心编码规则
+
+**RULE 1**: 代码不能尾行注释，注释应该在代码上一行
+- 禁止在代码行尾添加注释
+- 所有注释必须写在被注释代码的上一行
+- 示例：
+  ```java
+  // 正确：注释在上一行
+  String message = "Hello World";
+
+  String message = "Hello World"; // 错误：尾行注释
+  ```
+
+**RULE 2**: if语句一定要有大括号
+- 所有if语句必须使用大括号，即使只有一行代码
+- 包括if、else if、else、for、while、do-while等所有控制结构
+- 示例：
+  ```java
+  // 正确：使用大括号
+  if (condition) {
+      doSomething();
+  }
+
+  // 错误：缺少大括号
+  if (condition) doSomething();
+  ```
 
 ### 基础规范
 - **JDK版本**: Java 8+ (兼容性优先)
