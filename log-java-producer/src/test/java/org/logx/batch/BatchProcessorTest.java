@@ -1,13 +1,11 @@
 package org.logx.batch;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.Timeout;
-import org.logx.core.DisruptorBatchingQueue;
+import org.logx.batch.BatchProcessor.Config;
+import org.logx.batch.BatchProcessor.BatchMetrics;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
 
 import static org.assertj.core.api.Assertions.*;
 

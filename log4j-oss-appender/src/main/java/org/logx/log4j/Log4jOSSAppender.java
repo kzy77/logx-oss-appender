@@ -1,11 +1,11 @@
 package org.logx.log4j;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
-import org.logx.log4j.Log4j1xBridge;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.sf.SfOssConfig;
 import org.logx.storage.s3.AwsS3Config;
+import org.logx.storage.sf.SfOssConfig;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承

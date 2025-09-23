@@ -1,12 +1,9 @@
 package org.logx.storage.sf;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.AwsS3Config;
 
-import java.io.IOException;
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -185,17 +182,21 @@ class SfOssStorageAdapterTest {
                 .build();
         
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        
+        try {
+            Map<String, byte[]> objects = new HashMap<>();
+            objects.put("test/log1.txt", "log1 content".getBytes());
+            objects.put("test/log2.txt", "log2 content".getBytes());
 
-        Map<String, byte[]> objects = new HashMap<>();
-        objects.put("test/log1.txt", "log1 content".getBytes());
-        objects.put("test/log2.txt", "log2 content".getBytes());
+            // When
+            CompletableFuture<Void> future = adapter.putObjects(objects);
 
-        // When
-        CompletableFuture<Void> future = adapter.putObjects(objects);
-
-        // Then
-        assertThat(future).isNotNull();
-        // Note: We can't easily test the actual upload without a real SF OSS service
+            // Then
+            assertThat(future).isNotNull();
+            // Note: We can't easily test the actual upload without a real SF OSS service
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -261,14 +262,18 @@ class SfOssStorageAdapterTest {
                 .build();
         
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        
+        try {
+            // When
+            String backendType = adapter.getBackendType();
 
-        // When
-        String backendType = adapter.getBackendType();
-
-        // Then
-        assertThat(backendType).isNotNull();
-        assertThat(backendType).isNotEmpty();
-        assertThat(backendType).isEqualTo("SF_OSS");
+            // Then
+            assertThat(backendType).isNotNull();
+            assertThat(backendType).isNotEmpty();
+            assertThat(backendType).isEqualTo("SF_OSS");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -284,14 +289,18 @@ class SfOssStorageAdapterTest {
                 .build();
         
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        
+        try {
+            // When
+            String result = adapter.getBucketName();
 
-        // When
-        String result = adapter.getBucketName();
-
-        // Then
-        assertThat(result).isNotNull();
-        assertThat(result).isNotEmpty();
-        assertThat(result).isEqualTo(bucketName);
+            // Then
+            assertThat(result).isNotNull();
+            assertThat(result).isNotEmpty();
+            assertThat(result).isEqualTo(bucketName);
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
