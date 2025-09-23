@@ -53,6 +53,36 @@
 </log4j:configuration>
 ```
 
+### SF OSS配置示例
+```xml
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <appender name="oss" class="io.github.log4j.oss.OssAppender">
+    <param name="endpoint" value="https://sf-oss-cn-north-1.sf-oss.com"/>
+    <param name="region" value="cn-north-1"/>
+    <param name="accessKeyId" value="${sys:SF_OSS_AK}"/>
+    <param name="accessKeySecret" value="${sys:SF_OSS_SK}"/>
+    <param name="bucket" value="your-bucket"/>
+    <param name="keyPrefix" value="app/demo"/>
+    <param name="queueCapacity" value="20000"/>
+    <param name="batchMaxMessages" value="1000"/>
+    <param name="batchMaxBytes" value="524288"/>
+    <param name="flushIntervalMs" value="2000"/>
+    <param name="blockOnFull" value="true"/>
+    <param name="gzipEnabled" value="true"/>
+    <param name="maxRetries" value="5"/>
+    <param name="baseBackoffMs" value="500"/>
+    <param name="maxBackoffMs" value="10000"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{1.} - %m%ex{full}"/>
+    </layout>
+  </appender>
+  <root>
+    <priority value="info"/>
+    <appender-ref ref="oss"/>
+  </root>
+</log4j:configuration>
+```
+
 > 推荐通过 JVM 参数传递密钥，避免硬编码：`-DOSS_AK=xxx -DOSS_SK=yyy`
 
 ## 参数说明

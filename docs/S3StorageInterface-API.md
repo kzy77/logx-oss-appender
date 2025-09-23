@@ -125,6 +125,26 @@ S3StorageInterface storage = new S3StorageAdapter(
 );
 ```
 
+### SF OSS配置
+
+```java
+SfOssConfig config = SfOssConfig.builder()
+    .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
+    .region("cn-north-1")
+    .accessKeyId("SFIA...")
+    .accessKeySecret("your-secret-key")
+    .bucket("my-log-bucket")
+    .build();
+
+S3StorageInterface storage = new SfOssStorageAdapter(
+    config.getEndpoint(),
+    config.getRegion(),
+    config.getAccessKeyId(),
+    config.getAccessKeySecret(),
+    config.getBucket()
+);
+```
+
 ### 从环境变量配置
 
 ```java
@@ -139,6 +159,19 @@ export AWS_DEFAULT_REGION="ap-guangzhou"
 export AWS_S3_BUCKET="my-log-bucket"
 ```
 
+对于SF OSS：
+```java
+SfOssConfig config = SfOssConfig.fromEnvironment();
+```
+
+**环境变量：**
+```bash
+export SF_OSS_ACCESS_KEY_ID="your-access-key-id"
+export SF_OSS_SECRET_ACCESS_KEY="your-secret-access-key"
+export SF_OSS_DEFAULT_REGION="cn-north-1"
+export SF_OSS_BUCKET="my-log-bucket"
+```
+
 ## 支持的存储后端
 
 | 后端类型 | 标识符 | 说明 |
@@ -148,6 +181,7 @@ export AWS_S3_BUCKET="my-log-bucket"
 | MinIO | MINIO | 开源S3兼容存储 |
 | 腾讯云COS | TENCENT_COS | 腾讯云对象存储 |
 | 华为云OBS | HUAWEI_OBS | 华为云对象存储 |
+| SF OSS | SF_OSS | SF对象存储服务 |
 | 通用S3 | GENERIC_S3 | 其他S3兼容服务 |
 
 ## 错误处理

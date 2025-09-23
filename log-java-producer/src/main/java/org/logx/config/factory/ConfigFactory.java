@@ -1,7 +1,7 @@
 package org.logx.config.factory;
 
 import org.logx.config.ConfigManager;
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageBackend;
 import org.logx.storage.s3.S3StorageFactory;
 
@@ -41,7 +41,7 @@ public class ConfigFactory {
      * @throws IllegalArgumentException
      *             如果后端类型不支持
      */
-    public S3StorageConfig createConfig(StorageBackend backend) {
+    public StorageConfig createConfig(StorageBackend backend) {
         switch (backend) {
             case AWS_S3:
                 return createAwsS3Config();
@@ -57,9 +57,9 @@ public class ConfigFactory {
     /**
      * 创建AWS S3配置
      */
-    private S3StorageConfig createAwsS3Config() {
+    private StorageConfig createAwsS3Config() {
         return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("aws.s3.endpoint", "https://s3.amazonaws.com"))
-                .region(getProperty("aws.s3.region", "ap-guangzhou"))
+                .region(getProperty("aws.s3.region", "us-east-1"))
                 .accessKeyId(getRequiredProperty("aws.s3.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("aws.s3.secretAccessKey"))
                 .bucket(getRequiredProperty("aws.s3.bucket"))
@@ -73,9 +73,9 @@ public class ConfigFactory {
     /**
      * 创建MinIO配置
      */
-    private S3StorageConfig createMinioConfig() {
+    private StorageConfig createMinioConfig() {
         return new MinioConfig.Builder().endpoint(getRequiredProperty("minio.endpoint"))
-                .region(getProperty("minio.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("minio.accessKeyId"))
+                .region(getProperty("minio.region", "us-east-1")).accessKeyId(getRequiredProperty("minio.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("minio.secretAccessKey"))
                 .bucket(getRequiredProperty("minio.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("minio.pathStyleAccess", true)) // MinIO默认使用路径风格
@@ -89,9 +89,9 @@ public class ConfigFactory {
     /**
      * 创建通用S3配置
      */
-    private S3StorageConfig createGenericS3Config() {
+    private StorageConfig createGenericS3Config() {
         return new GenericS3Config.Builder().endpoint(getRequiredProperty("s3.endpoint"))
-                .region(getProperty("s3.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("s3.accessKeyId"))
+                .region(getProperty("s3.region", "us-east-1")).accessKeyId(getRequiredProperty("s3.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("s3.secretAccessKey")).bucket(getRequiredProperty("s3.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("s3.pathStyleAccess", false))
                 .connectTimeout(Duration.ofMillis(configManager.getLongProperty("s3.connectTimeout", 30000)))
@@ -121,12 +121,12 @@ public class ConfigFactory {
     /**
      * AWS S3特定配置实现
      */
-    public static class AwsS3Config extends S3StorageConfig {
+    public static class AwsS3Config extends StorageConfig {
         private AwsS3Config(Builder builder) {
             super(builder);
         }
 
-        public static class Builder extends S3StorageConfig.Builder<Builder> {
+        public static class Builder extends StorageConfig.Builder<Builder> {
             @Override
             protected Builder self() {
                 return this;
@@ -142,12 +142,12 @@ public class ConfigFactory {
     /**
      * MinIO特定配置实现
      */
-    public static class MinioConfig extends S3StorageConfig {
+    public static class MinioConfig extends StorageConfig {
         private MinioConfig(Builder builder) {
             super(builder);
         }
 
-        public static class Builder extends S3StorageConfig.Builder<Builder> {
+        public static class Builder extends StorageConfig.Builder<Builder> {
             @Override
             protected Builder self() {
                 return this;
@@ -163,12 +163,12 @@ public class ConfigFactory {
     /**
      * 通用S3配置实现
      */
-    public static class GenericS3Config extends S3StorageConfig {
+    public static class GenericS3Config extends StorageConfig {
         private GenericS3Config(Builder builder) {
             super(builder);
         }
 
-        public static class Builder extends S3StorageConfig.Builder<Builder> {
+        public static class Builder extends StorageConfig.Builder<Builder> {
             @Override
             protected Builder self() {
                 return this;

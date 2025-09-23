@@ -28,6 +28,10 @@ class StorageBackendTest {
         assertThat(StorageBackend.MINIO.getDisplayName()).isEqualTo("MinIO");
         assertThat(StorageBackend.MINIO.getUrlPrefix()).isEqualTo("minio");
         assertThat(StorageBackend.MINIO.isPathStyleDefault()).isTrue();
+        
+        assertThat(StorageBackend.SF_OSS.getDisplayName()).isEqualTo("SF OSS");
+        assertThat(StorageBackend.SF_OSS.getUrlPrefix()).isEqualTo("sf");
+        assertThat(StorageBackend.SF_OSS.isPathStyleDefault()).isTrue();
     }
 
     @ParameterizedTest
@@ -35,7 +39,10 @@ class StorageBackendTest {
             "'https://bucket.oss-cn-beijing.aliyuncs.com', ALIYUN_OSS", "'https://s3.amazonaws.com', AWS_S3",
             "'https://bucket.s3.us-west-2.amazonaws.com', AWS_S3",
             "'https://cos.ap-guangzhou.myqcloud.com', TENCENT_COS",
-            "'https://obs.cn-north-1.myhuaweicloud.com', HUAWEI_OBS", "'http://localhost:9000', MINIO",
+            "'https://obs.cn-north-1.myhuaweicloud.com', HUAWEI_OBS", 
+            "'https://sf-oss-cn-north-1.sf-oss.com', SF_OSS",
+            "'https://bucket.sf-oss-cn-north-1.sf-oss.com', SF_OSS",
+            "'http://localhost:9000', MINIO",
             "'https://play.minio.io:9000', MINIO", "'https://custom-example.com', GENERIC_S3" })
     void testDetectFromEndpoint(String endpoint, StorageBackend expected) {
         // When
@@ -68,6 +75,7 @@ class StorageBackendTest {
             "'https://bucket.s3.amazonaws.com', 'us-west-2', AWS_S3",
             "'https://custom-oss.example.com', 'cn-beijing', ALIYUN_OSS",
             "'https://custom-test.example.com', 'us-east-1', AWS_S3",
+            "'https://sf-oss-cn-north-1.sf-oss.com', 'cn-north-1', SF_OSS",
             "'https://unknown.example.com', 'unknown-region', GENERIC_S3" })
     void testDetectFromConfig(String endpoint, String region, StorageBackend expected) {
         // When
@@ -83,6 +91,7 @@ class StorageBackendTest {
         assertThat(StorageBackend.ALIYUN_OSS.isDomesticCloud()).isTrue();
         assertThat(StorageBackend.TENCENT_COS.isDomesticCloud()).isTrue();
         assertThat(StorageBackend.HUAWEI_OBS.isDomesticCloud()).isTrue();
+        assertThat(StorageBackend.SF_OSS.isDomesticCloud()).isTrue();
 
         // 国际云服务商
         assertThat(StorageBackend.AWS_S3.isInternationalCloud()).isTrue();

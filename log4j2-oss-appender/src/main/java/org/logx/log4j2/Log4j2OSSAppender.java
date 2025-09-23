@@ -78,13 +78,25 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             return null;
         }
 
-        S3StorageConfig adapterConfig = new org.logx.storage.s3.AwsS3Config.Builder()
-            .endpoint(endpoint)
-            .region(region)
-            .accessKeyId(accessKeyId)
-            .accessKeySecret(accessKeySecret)
-            .bucket(bucket)
-            .build();
+        // 根据endpoint自动选择合适的配置类
+        S3StorageConfig adapterConfig;
+        if (endpoint != null && endpoint.contains("sf-oss")) {
+            adapterConfig = new org.logx.storage.s3.SfOssConfig.Builder()
+                .endpoint(endpoint)
+                .region(region)
+                .accessKeyId(accessKeyId)
+                .accessKeySecret(accessKeySecret)
+                .bucket(bucket)
+                .build();
+        } else {
+            adapterConfig = new org.logx.storage.s3.AwsS3Config.Builder()
+                .endpoint(endpoint)
+                .region(region)
+                .accessKeyId(accessKeyId)
+                .accessKeySecret(accessKeySecret)
+                .bucket(bucket)
+                .build();
+        }
 
         try {
             adapterConfig.validateConfig();

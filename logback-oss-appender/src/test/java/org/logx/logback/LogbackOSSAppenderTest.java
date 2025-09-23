@@ -1,23 +1,25 @@
-package org.logx.log4j;
+package org.logx.logback;
 
+import ch.qos.logback.classic.LoggerContext;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.encoder.Encoder;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.io.TempDir;
-
-import java.nio.file.Path;
+import org.slf4j.LoggerFactory;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
 /**
- * Log4jOSSAppender配置测试
+ * LogbackOSSAppender配置测试
  * <p>
- * 验证Log4j 1.x OSS Appender的配置参数设置和验证功能。
+ * 验证Logback OSS Appender的配置参数设置和验证功能。
  */
-class Log4jOSSAppenderTest {
+class LogbackOSSAppenderTest {
 
     @Test
     void testAppenderConfigurationWithRegion() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
+        LogbackOSSAppender appender = new LogbackOSSAppender();
         String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
         String region = "cn-hangzhou";
         String accessKeyId = "test-access-key";
@@ -42,12 +44,12 @@ class Log4jOSSAppenderTest {
     @Test
     void testAppenderConfigurationWithDefaultValues() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
+        LogbackOSSAppender appender = new LogbackOSSAppender();
 
         // Then
         assertThat(appender.getKeyPrefix()).isEqualTo("logs/");
-        assertThat(appender.getMaxQueueSize()).isEqualTo(262144);
-        assertThat(appender.getMaxBatchCount()).isEqualTo(4096);
+        assertThat(appender.getMaxQueueSize()).isEqualTo(65536);
+        assertThat(appender.getMaxBatchCount()).isEqualTo(1000);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(4 * 1024 * 1024);
         assertThat(appender.getFlushIntervalMs()).isEqualTo(2000L);
         assertThat(appender.isDropWhenQueueFull()).isFalse();
@@ -60,17 +62,17 @@ class Log4jOSSAppenderTest {
     @Test
     void testAppenderConfigurationWithCustomValues() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
+        LogbackOSSAppender appender = new LogbackOSSAppender();
         String keyPrefix = "custom-logs/";
-        int maxQueueSize = 100000;
-        int maxBatchCount = 2000;
-        int maxBatchBytes = 2 * 1024 * 1024;
-        long flushIntervalMs = 5000L;
+        int maxQueueSize = 50000;
+        int maxBatchCount = 1500;
+        int maxBatchBytes = 3 * 1024 * 1024;
+        long flushIntervalMs = 3000L;
         boolean dropWhenQueueFull = true;
         boolean multiProducer = true;
-        int maxRetries = 3;
-        long baseBackoffMs = 100L;
-        long maxBackoffMs = 5000L;
+        int maxRetries = 4;
+        long baseBackoffMs = 150L;
+        long maxBackoffMs = 8000L;
 
         // When
         appender.setKeyPrefix(keyPrefix);
@@ -95,5 +97,23 @@ class Log4jOSSAppenderTest {
         assertThat(appender.getMaxRetries()).isEqualTo(maxRetries);
         assertThat(appender.getBaseBackoffMs()).isEqualTo(baseBackoffMs);
         assertThat(appender.getMaxBackoffMs()).isEqualTo(maxBackoffMs);
+    }
+
+    @Test
+    void testAppenderWithoutEncoder() {
+        // Given
+        LogbackOSSAppender appender = new LogbackOSSAppender();
+        appender.setContext(new LoggerContext());
+        appender.setName("TestOSSAppender");
+        appender.setAccessKeyId("test-access-key");
+        appender.setAccessKeySecret("test-secret-key");
+        appender.setBucket("test-bucket");
+
+        // When
+        appender.start();
+
+        // Then
+        // Appender should not start without encoder
+        assertThat(appender.isStarted()).isFalse();
     }
 }

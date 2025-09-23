@@ -67,14 +67,25 @@ public final class LogbackOSSAppender extends UnsynchronizedAppenderBase<ILoggin
                 return;
             }
 
-            // 构建S3存储配置
-            S3StorageConfig config = new org.logx.storage.s3.AwsS3Config.Builder()
-                .endpoint(this.endpoint)
-                .region(this.region)
-                .accessKeyId(this.accessKeyId)
-                .accessKeySecret(this.accessKeySecret)
-                .bucket(this.bucket)
-                .build();
+            // 构建S3存储配置，根据endpoint自动选择合适的配置类
+            S3StorageConfig config;
+            if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
+                config = new org.logx.storage.s3.SfOssConfig.Builder()
+                    .endpoint(this.endpoint)
+                    .region(this.region)
+                    .accessKeyId(this.accessKeyId)
+                    .accessKeySecret(this.accessKeySecret)
+                    .bucket(this.bucket)
+                    .build();
+            } else {
+                config = new org.logx.storage.s3.AwsS3Config.Builder()
+                    .endpoint(this.endpoint)
+                    .region(this.region)
+                    .accessKeyId(this.accessKeyId)
+                    .accessKeySecret(this.accessKeySecret)
+                    .bucket(this.bucket)
+                    .build();
+            }
 
             this.adapter = new LogbackBridge(config);
             this.adapter.setEncoder(encoder);

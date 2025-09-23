@@ -457,7 +457,7 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 2. **搜索Issues**: [GitHub Issues](https://github.com/logx-oss-appender/logx-oss-appender/issues)
 3. **创建新Issue**: 详细描述问题和重现步骤
 4. **讨论**: [GitHub Discussions](https://github.com/logx-oss-appender/logx-oss-appender/discussions)
-
+<!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
 *本文档最后更新于 2025-09-23*

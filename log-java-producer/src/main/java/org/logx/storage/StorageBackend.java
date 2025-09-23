@@ -37,6 +37,11 @@ public enum StorageBackend {
     HUAWEI_OBS("Huawei OBS", "obs", true),
 
     /**
+     * SF OSS存储服务
+     */
+    SF_OSS("SF OSS", "sf", true),
+
+    /**
      * 通用S3兼容存储 适用于其他S3兼容服务
      */
     GENERIC_S3("Generic S3", "s3", true);
@@ -96,6 +101,11 @@ public enum StorageBackend {
         }
 
         String lowerEndpoint = endpoint.toLowerCase();
+
+        // SF OSS检测（放在前面，避免被其他检测匹配）
+        if (lowerEndpoint.contains("sf-oss.com") || lowerEndpoint.contains("sf-oss-")) {
+            return SF_OSS;
+        }
 
         // 阿里云OSS检测
         if (lowerEndpoint.contains("aliyuncs.com") || lowerEndpoint.contains("oss-")) {
@@ -165,7 +175,7 @@ public enum StorageBackend {
      * 检查是否为国内云服务商
      */
     public boolean isDomesticCloud() {
-        return this == ALIYUN_OSS || this == TENCENT_COS || this == HUAWEI_OBS;
+        return this == ALIYUN_OSS || this == TENCENT_COS || this == HUAWEI_OBS || this == SF_OSS;
     }
 
     /**

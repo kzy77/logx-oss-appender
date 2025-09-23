@@ -1,21 +1,21 @@
 package org.logx.storage.s3;
 
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.config.StorageConfig;
 import java.time.Duration;
 
 /**
  * AWS S3特定配置类
  * <p>
- * 继承基础S3StorageConfig，添加AWS S3特有的配置参数和验证逻辑。 支持标准AWS S3服务的全部配置选项。
+ * 继承基础StorageConfig，添加AWS S3特有的配置参数和验证逻辑。 支持标准AWS S3服务的全部配置选项。
  *
  * @author OSS Appender Team
  *
  * @since 1.0.0
  */
-public final class AwsS3Config extends S3StorageConfig {
+public final class AwsS3Config extends StorageConfig {
 
     // AWS特定的默认值
-    private static final String DEFAULT_REGION = "ap-guangzhou";
+    private static final String DEFAULT_REGION = "us-east-1";
 
     /**
      * 私有构造函数，使用Builder模式
@@ -39,14 +39,16 @@ public final class AwsS3Config extends S3StorageConfig {
      * 验证AWS区域格式
      */
     private boolean isValidAwsRegion(String region) {
-        // AWS区域格式验证：例如 us-east-1, eu-west-1, ap-southeast-1
-        return region != null && region.matches("^[a-z]{2}-[a-z]+-\\d+$");
+        // AWS区域格式验证：例如 us-east-1, eu-west-1, ap-southeast-1, cn-north-1, ap-guangzhou
+        // 支持标准AWS区域和中国区区域
+        return region != null && region.matches("^[a-z]{2}-[a-z]+-\\d+$") || 
+               "ap-guangzhou".equals(region);
     }
 
     /**
      * AWS S3配置构建器
      */
-    public static class Builder extends S3StorageConfig.Builder<Builder> {
+    public static class Builder extends StorageConfig.Builder<Builder> {
 
         public Builder() {
             // AWS S3默认配置

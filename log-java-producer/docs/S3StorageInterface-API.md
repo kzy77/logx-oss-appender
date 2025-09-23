@@ -100,7 +100,7 @@ String getBucketName()
 
 ```java
 // 创建具体的配置实现
-public class MyS3Config extends S3StorageConfig {
+public class MyS3Config extends StorageConfig {
     public MyS3Config(Builder builder) {
         super(builder);
     }
@@ -109,7 +109,7 @@ public class MyS3Config extends S3StorageConfig {
         return new Builder();
     }
 
-    public static class Builder extends S3StorageConfig.Builder<Builder> {
+    public static class Builder extends StorageConfig.Builder<Builder> {
         @Override
         protected Builder self() {
             return this;

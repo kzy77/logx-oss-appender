@@ -45,6 +45,28 @@ Maven（示例）：
 </Configuration>
 ```
 
+### SF OSS配置示例
+```xml
+<Configuration packages="io.github.logxossappender.log4j2">
+  <Appenders>
+    <OssAppender name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com" region="cn-north-1"
+                 accessKeyId="${sys:SF_OSS_AK}" accessKeySecret="${sys:SF_OSS_SK}"
+                 bucket="your-bucket" objectPrefix="app-logs/"
+                 queueSize="65536" maxBatchMessages="500" maxBatchBytes="524288"
+                 flushIntervalMillis="1000" gzipEnabled="true" blockWhenQueueFull="true"
+                 maxRetry="5" baseBackoffMillis="200">
+      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
+    </OssAppender>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="oss"/>
+    </Root>
+  </Loggers>
+</Configuration>
+```
+
 或以 System Properties/环境变量方式填充敏感参数：`-DALIYUN_AK=xxx -DALIYUN_SK=yyy`。
 
 > 插件发现：本库内置 `log4j2.component.properties` 指定包扫描路径，无需注解处理器。

@@ -9,7 +9,7 @@
 ### 1. 简单的日志上传
 
 ```java
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.S3StorageFactory;
 import org.logx.storage.StorageBackend;
 import org.logx.s3.S3StorageInterface;
@@ -45,7 +45,7 @@ public class SimpleLogUploadExample {
     }
 
     // 简单配置实现
-    static class TestS3Config extends S3StorageConfig {
+    static class TestS3Config extends StorageConfig {
         public TestS3Config(Builder builder) {
             super(builder);
         }
@@ -54,7 +54,7 @@ public class SimpleLogUploadExample {
             return new Builder();
         }
 
-        public static class Builder extends S3StorageConfig.Builder<Builder> {
+        public static class Builder extends StorageConfig.Builder<Builder> {
             @Override
             protected Builder self() {
                 return this;

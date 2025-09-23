@@ -1,8 +1,10 @@
 package org.logx.storage.s3;
 
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageBackend;
 import org.logx.exception.StorageException;
+import org.logx.storage.sf.SfOssStorageAdapter;
+import org.logx.storage.StorageInterface;
 
 import java.util.Objects;
 
@@ -41,7 +43,7 @@ public class S3StorageFactory {
      * @throws StorageException
      *             如果创建失败
      */
-    public static S3StorageInterface createAdapter(StorageBackend backend, S3StorageConfig config) {
+    public static StorageInterface createAdapter(StorageBackend backend, StorageConfig config) {
         Objects.requireNonNull(backend, "backend cannot be null");
         Objects.requireNonNull(config, "config cannot be null");
 
@@ -69,6 +71,9 @@ public class S3StorageFactory {
             case HUAWEI_OBS:
                 return createHuaweiObsAdapter(config);
 
+            case SF_OSS:
+                return createSfOssAdapter(config);
+
             case GENERIC_S3:
                 return createGenericS3Adapter(config);
 
@@ -90,7 +95,7 @@ public class S3StorageFactory {
      * @throws StorageException
      *             如果创建失败
      */
-    public static S3StorageInterface createAdapter(S3StorageConfig config) {
+    public static StorageInterface createAdapter(StorageConfig config) {
         Objects.requireNonNull(config, "config cannot be null");
 
         // 自动检测后端类型
@@ -107,7 +112,7 @@ public class S3StorageFactory {
      *
      * @return 检测到的存储后端类型
      */
-    public static StorageBackend detectBackend(S3StorageConfig config) {
+    public static StorageBackend detectBackend(StorageConfig config) {
         Objects.requireNonNull(config, "config cannot be null");
 
         return StorageBackend.detectFromConfig(config.getEndpoint(), config.getRegion());
@@ -123,7 +128,7 @@ public class S3StorageFactory {
      *
      * @return true如果兼容，false如果不兼容
      */
-    public static boolean isCompatible(StorageBackend backend, S3StorageConfig config) {
+    public static boolean isCompatible(StorageBackend backend, StorageConfig config) {
         if (backend == null || config == null) {
             return false;
         }
@@ -146,7 +151,7 @@ public class S3StorageFactory {
     /**
      * 创建阿里云OSS适配器
      */
-    private static S3StorageInterface createAliyunOssAdapter(S3StorageConfig config) {
+    private static StorageInterface createAliyunOssAdapter(StorageConfig config) {
         // TODO: 在故事1.3中实现阿里云OSS适配器
         return new MockS3StorageAdapter("ALIYUN_OSS", config.getBucket());
     }
@@ -154,7 +159,7 @@ public class S3StorageFactory {
     /**
      * 创建AWS S3适配器
      */
-    private static S3StorageInterface createAwsS3Adapter(S3StorageConfig config) {
+    private static StorageInterface createAwsS3Adapter(StorageConfig config) {
         // TODO: 在故事1.4中实现AWS S3适配器
         return new MockS3StorageAdapter("AWS_S3", config.getBucket());
     }
@@ -162,7 +167,7 @@ public class S3StorageFactory {
     /**
      * 创建MinIO适配器
      */
-    private static S3StorageInterface createMinioAdapter(S3StorageConfig config) {
+    private static StorageInterface createMinioAdapter(StorageConfig config) {
         // TODO: 在后续故事中实现MinIO适配器
         return new MockS3StorageAdapter("MINIO", config.getBucket());
     }
@@ -170,7 +175,7 @@ public class S3StorageFactory {
     /**
      * 创建腾讯云COS适配器
      */
-    private static S3StorageInterface createTencentCosAdapter(S3StorageConfig config) {
+    private static StorageInterface createTencentCosAdapter(StorageConfig config) {
         // TODO: 在后续故事中实现腾讯云COS适配器
         return new MockS3StorageAdapter("TENCENT_COS", config.getBucket());
     }
@@ -178,15 +183,22 @@ public class S3StorageFactory {
     /**
      * 创建华为云OBS适配器
      */
-    private static S3StorageInterface createHuaweiObsAdapter(S3StorageConfig config) {
+    private static StorageInterface createHuaweiObsAdapter(StorageConfig config) {
         // TODO: 在后续故事中实现华为云OBS适配器
         return new MockS3StorageAdapter("HUAWEI_OBS", config.getBucket());
     }
 
     /**
+     * 创建SF OSS适配器
+     */
+    private static StorageInterface createSfOssAdapter(StorageConfig config) {
+        return new SfOssStorageAdapter(config);
+    }
+
+    /**
      * 创建通用S3适配器
      */
-    private static S3StorageInterface createGenericS3Adapter(S3StorageConfig config) {
+    private static StorageInterface createGenericS3Adapter(StorageConfig config) {
         // TODO: 在后续故事中实现通用S3适配器
         return new MockS3StorageAdapter("GENERIC_S3", config.getBucket());
     }
@@ -194,7 +206,7 @@ public class S3StorageFactory {
     /**
      * 模拟S3存储适配器实现 用于接口设计阶段的测试和验证
      */
-    private static class MockS3StorageAdapter implements S3StorageInterface {
+    private static class MockS3StorageAdapter implements StorageInterface {
         private final String backendType;
         private final String bucketName;
 

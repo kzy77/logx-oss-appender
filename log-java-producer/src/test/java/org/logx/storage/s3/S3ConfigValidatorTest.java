@@ -214,7 +214,7 @@ class S3ConfigValidatorTest {
     @Test
     void shouldValidateEndpointRegionConsistency() {
         ConfigFactory.AwsS3Config config = new ConfigFactory.AwsS3Config.Builder()
-                .endpoint("https://s3.ap-guangzhou.amazonaws.com").region("ap-guangzhou") // 与endpoint不一致的region
+                .endpoint("https://s3.ap-guangzhou.amazonaws.com").region("us-east-1") // 与endpoint不一致的region
                 .accessKeyId("AKIAIOSFODNN7EXAMPLE").accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
                 .bucket("my-test-bucket").build();
 

@@ -1,6 +1,6 @@
 package org.logx.storage.s3;
 
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.config.validator.ConfigValidator;
 
 import java.net.MalformedURLException;
@@ -25,12 +25,12 @@ public class S3ConfigValidator implements ConfigValidator {
 
     @Override
     public ValidationResult validate(Object config) {
-        if (!(config instanceof S3StorageConfig)) {
-            return ValidationResult.invalid(List.of(new ValidationError("config", "Expected S3StorageConfig instance",
-                    "Provide a valid S3StorageConfig object", ErrorType.BUSINESS_LOGIC_ERROR)));
+        if (!(config instanceof StorageConfig)) {
+            return ValidationResult.invalid(List.of(new ValidationError("config", "Expected StorageConfig instance",
+                    "Provide a valid StorageConfig object", ErrorType.BUSINESS_LOGIC_ERROR)));
         }
 
-        S3StorageConfig s3Config = (S3StorageConfig) config;
+        StorageConfig s3Config = (StorageConfig) config;
         List<ValidationError> errors = new ArrayList<>();
 
         // 验证必需字段
@@ -51,7 +51,7 @@ public class S3ConfigValidator implements ConfigValidator {
     /**
      * 验证必需字段
      */
-    private void validateRequiredFields(S3StorageConfig config, List<ValidationError> errors) {
+    private void validateRequiredFields(StorageConfig config, List<ValidationError> errors) {
         if (isNullOrEmpty(config.getEndpoint())) {
             errors.add(new ValidationError("endpoint", "Endpoint is required",
                     "Set endpoint to your S3 service URL (e.g., https://s3.amazonaws.com)",
@@ -82,7 +82,7 @@ public class S3ConfigValidator implements ConfigValidator {
     /**
      * 验证字段格式
      */
-    private void validateFieldFormats(S3StorageConfig config, List<ValidationError> errors) {
+    private void validateFieldFormats(StorageConfig config, List<ValidationError> errors) {
         // 验证endpoint URL格式
         if (!isNullOrEmpty(config.getEndpoint())) {
             try {
@@ -125,7 +125,7 @@ public class S3ConfigValidator implements ConfigValidator {
     /**
      * 验证业务逻辑
      */
-    private void validateBusinessLogic(S3StorageConfig config, List<ValidationError> errors) {
+    private void validateBusinessLogic(StorageConfig config, List<ValidationError> errors) {
         // 验证超时配置
         if (config.getConnectTimeout() != null && config.getConnectTimeout().isNegative()) {
             errors.add(new ValidationError("connectTimeout", "Connect timeout must be non-negative",
@@ -167,7 +167,7 @@ public class S3ConfigValidator implements ConfigValidator {
     /**
      * 验证字段依赖关系
      */
-    private void validateDependencies(S3StorageConfig config, List<ValidationError> errors) {
+    private void validateDependencies(StorageConfig config, List<ValidationError> errors) {
         // 验证endpoint与region的一致性
         if (!isNullOrEmpty(config.getEndpoint()) && !isNullOrEmpty(config.getRegion())) {
             String endpoint = config.getEndpoint().toLowerCase();

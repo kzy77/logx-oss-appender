@@ -3,11 +3,10 @@ package org.logx.s3;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.storage.StorageBackend;
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.s3.S3StorageInterface;
+import org.logx.storage.StorageInterface;
 
-import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +20,7 @@ import static org.assertj.core.api.Assertions.*;
  */
 class S3StorageInterfaceTest {
 
-    private S3StorageInterface storage;
+    private StorageInterface storage;
 
     @BeforeEach
     void setUp() {
@@ -172,7 +171,7 @@ class S3StorageInterfaceTest {
     /**
      * 测试用的S3StorageConfig实现
      */
-    static class TestS3StorageConfig extends org.logx.storage.s3.S3StorageConfig {
+    static class TestS3StorageConfig extends StorageConfig {
 
         public TestS3StorageConfig(Builder builder) {
             super(builder);
@@ -182,7 +181,7 @@ class S3StorageInterfaceTest {
             return new Builder();
         }
 
-        public static class Builder extends org.logx.storage.s3.S3StorageConfig.Builder<Builder> {
+        public static class Builder extends StorageConfig.Builder<Builder> {
             public Builder endpoint(String endpoint) {
                 return super.endpoint(endpoint);
             }

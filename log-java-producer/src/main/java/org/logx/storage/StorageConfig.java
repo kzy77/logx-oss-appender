@@ -1,12 +1,12 @@
-package org.logx.storage.s3;
+package org.logx.storage;
 
 import java.time.Duration;
 import java.util.Objects;
 
 /**
- * S3存储配置抽象基类
+ * 存储配置抽象基类
  * <p>
- * 定义所有S3兼容存储服务的通用配置参数，支持AWS S3、阿里云OSS、MinIO等。 提供配置验证、Builder模式构建和不可变对象特性。
+ * 定义所有存储服务的通用配置参数，支持S3兼容存储（AWS S3、阿里云OSS、MinIO等）和非S3兼容存储（如SF OSS）。 提供配置验证、Builder模式构建和不可变对象特性。
  * <p>
  * 配置类遵循不可变对象设计模式，一旦创建不可修改，确保线程安全。 所有子类应该继承此基类并添加特定存储服务的扩展配置。
  *
@@ -14,7 +14,7 @@ import java.util.Objects;
  *
  * @since 1.0.0
  */
-public abstract class S3StorageConfig {
+public abstract class StorageConfig {
 
     // 必需配置字段
     private final String endpoint;
@@ -33,7 +33,7 @@ public abstract class S3StorageConfig {
     /**
      * 构造函数，由Builder调用创建不可变配置对象
      */
-    protected S3StorageConfig(Builder<?> builder) {
+    protected StorageConfig(Builder<?> builder) {
         this.endpoint = builder.endpoint;
         this.region = builder.region;
         this.accessKeyId = builder.accessKeyId;
@@ -286,7 +286,10 @@ public abstract class S3StorageConfig {
         /**
          * 构建配置对象
          */
-        public abstract S3StorageConfig build();
+        /**
+     * 构建配置对象
+     */
+        public abstract StorageConfig build();
     }
 
     @Override
@@ -295,7 +298,7 @@ public abstract class S3StorageConfig {
             return true;
         if (o == null || getClass() != o.getClass())
             return false;
-        S3StorageConfig that = (S3StorageConfig) o;
+        StorageConfig that = (StorageConfig) o;
         return pathStyleAccess == that.pathStyleAccess && maxConnections == that.maxConnections
                 && enableSsl == that.enableSsl && Objects.equals(endpoint, that.endpoint)
                 && Objects.equals(region, that.region) && Objects.equals(accessKeyId, that.accessKeyId)
@@ -311,7 +314,7 @@ public abstract class S3StorageConfig {
 
     @Override
     public String toString() {
-        return "S3StorageConfig{" + "endpoint='" + endpoint + '\'' + ", region='" + region + '\'' + ", accessKeyId='"
+        return "StorageConfig{" + "endpoint='" + endpoint + '\'' + ", region='" + region + '\'' + ", accessKeyId='"
                 + maskSensitive(accessKeyId) + '\'' + ", bucket='" + bucket + '\'' + ", pathStyleAccess="
                 + pathStyleAccess + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout
                 + ", maxConnections=" + maxConnections + ", enableSsl=" + enableSsl + '}';

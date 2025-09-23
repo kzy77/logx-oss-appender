@@ -66,6 +66,21 @@
 </configuration>
 ```
 
+#### SF OSS
+```xml
+<configuration>
+  <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
+    <endpoint>https://sf-oss-cn-north-1.sf-oss.com</endpoint>
+    <region>cn-north-1</region>
+    <accessKeyId>${SF_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${SF_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${SF_OSS_BUCKET}</bucket>
+    <layout class="io.github.osslogback.logback.JsonLinesLayout"/>
+  </appender>
+  <root level="INFO"><appender-ref ref="SF_OSS"/></root>
+</configuration>
+```
+
 ### 3) 环境变量配置
 
 #### AWS S3
@@ -80,6 +95,14 @@ export S3_BUCKET="your-bucket-name"
 export OSS_ACCESS_KEY_ID="your-access-key-id"
 export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
 export OSS_BUCKET="your-bucket-name"
+```
+
+#### SF OSS
+```bash
+export SF_OSS_ACCESS_KEY_ID="your-access-key-id"
+export SF_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export SF_OSS_BUCKET="your-bucket-name"
+export SF_OSS_DEFAULT_REGION="cn-north-1"
 ```
 
 ### 4) 完整配置选项（可选）
@@ -123,8 +146,8 @@ export OSS_BUCKET="your-bucket-name"
 | `accessKeyId` | 访问密钥ID | ✅ | ✅ | ✅ |
 | `accessKeySecret` | 访问密钥Secret | ✅ | ✅ | ✅ |
 | `bucket` | 存储桶名称 | ✅ | ✅ | ✅ |
-| `endpoint` | 服务端点 | 可选* | ✅必需 | ✅必需 |
-| `region` | 区域标识 | ✅推荐 | 自动检测 | 自动设置 |
+| `endpoint` | 服务端点 | 可选* | ✅必需 | ✅必需 | ✅必需 |
+| `region` | 区域标识 | ✅推荐 | 自动检测 | 自动设置 | ✅推荐 |
 
 *AWS S3 可省略 endpoint，将使用默认端点
 
@@ -168,6 +191,7 @@ export OSS_BUCKET="your-bucket-name"
 | **腾讯云 COS** | ✅ | 无 | 🧪 |
 | **MinIO** | ✅ | 路径风格 | ✅ |
 | **Cloudflare R2** | ✅ | 无 | 🧪 |
+| **SF OSS** | ✅ | 路径风格 | 🧪 |
 | **其他 S3 兼容** | ✅ | 通用模式 | 🧪 |
 
 ## 🔧 最佳实践

@@ -3,7 +3,7 @@ package org.logx.config.factory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.config.ConfigManager;
-import org.logx.storage.s3.S3StorageConfig;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageBackend;
 
 import static org.assertj.core.api.Assertions.*;
@@ -33,7 +33,7 @@ class ConfigFactoryTest {
         configManager.setDefault("aws.s3.secretAccessKey", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
         configManager.setDefault("aws.s3.bucket", "my-test-bucket");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
         assertThat(config).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://s3.amazonaws.com");
@@ -60,7 +60,7 @@ class ConfigFactoryTest {
         configManager.setDefault("aws.s3.connectTimeout", "60000");
         configManager.setDefault("aws.s3.readTimeout", "120000");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
         assertThat(config.getEndpoint()).isEqualTo("https://s3.eu-west-1.amazonaws.com");
         assertThat(config.getRegion()).isEqualTo("eu-west-1");
@@ -82,7 +82,7 @@ class ConfigFactoryTest {
         configManager.setDefault("minio.secretAccessKey", "minioadmin");
         configManager.setDefault("minio.bucket", "logs");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
+        StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
 
         assertThat(config).isInstanceOf(ConfigFactory.MinioConfig.class);
         assertThat(config.getEndpoint()).isEqualTo("http://localhost:9000");
@@ -102,7 +102,7 @@ class ConfigFactoryTest {
         configManager.setDefault("s3.secretAccessKey", "EXAMPLE_SECRET_KEY");
         configManager.setDefault("s3.bucket", "application-logs");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.GENERIC_S3);
+        StorageConfig config = configFactory.createConfig(StorageBackend.GENERIC_S3);
 
         assertThat(config).isInstanceOf(ConfigFactory.GenericS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://storage.example.com");
@@ -174,7 +174,7 @@ class ConfigFactoryTest {
         System.setProperty("aws.s3.bucket", "system-bucket");
 
         try {
-            S3StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+            StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
             // 系统属性应该覆盖默认值
             assertThat(config.getAccessKeyId()).isEqualTo("system-key");
@@ -195,7 +195,7 @@ class ConfigFactoryTest {
         configManager.setDefault("minio.secretAccessKey", "minioadmin");
         configManager.setDefault("minio.bucket", "logs");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
+        StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
 
         // MinIO特定的默认值
         assertThat(config.isPathStyleAccess()).isTrue(); // MinIO默认使用路径风格
@@ -211,7 +211,7 @@ class ConfigFactoryTest {
         configManager.setDefault("aws.s3.connectTimeout", "45000");
         configManager.setDefault("aws.s3.readTimeout", "90000");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
         assertThat(config.getMaxConnections()).isEqualTo(200);
         assertThat(config.getConnectTimeout().toMillis()).isEqualTo(45000);
@@ -226,7 +226,7 @@ class ConfigFactoryTest {
         configManager.setDefault("aws.s3.pathStyleAccess", "true");
         configManager.setDefault("aws.s3.enableSsl", "false");
 
-        S3StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
         assertThat(config.isPathStyleAccess()).isTrue();
         assertThat(config.isEnableSsl()).isFalse();
