@@ -251,9 +251,4 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         // 使用Logback默认错误处理
         addError(message, throwable);
     }
-
-    private void handleConfigurationError(String message) {
-        // 使用Logback默认错误处理
-        addError(message);
-    }
 }

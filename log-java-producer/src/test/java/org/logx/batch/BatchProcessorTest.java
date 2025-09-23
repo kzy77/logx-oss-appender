@@ -312,16 +312,6 @@ class BatchProcessorTest {
             return true; // 总是成功
         }
 
-        public int getBatchCount() {
-            return batchCount.get();
-        }
-
-        public long getTotalMessages() {
-            return totalMessages.get();
-        }
-
-        public long getTotalBytes() {
-            return totalBytes.get();
-        }
+        
     }
 }

@@ -1,14 +1,9 @@
 package org.logx.reliability;
 
-import org.logx.error.UnifiedErrorHandler;
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
-import java.time.Duration;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicLong;
-import java.util.function.Function;
-import java.util.function.Supplier;
 
 /**
  * 重试管理器

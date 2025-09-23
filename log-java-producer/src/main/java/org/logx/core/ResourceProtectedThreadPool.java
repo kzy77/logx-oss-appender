@@ -193,23 +193,16 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
      */
     private double getCurrentCpuUsage() {
         try {
-            // 尝试使用反射获取getProcessCpuLoad方法（适用于HotSpot JVM）
-            if (osMXBean instanceof com.sun.management.OperatingSystemMXBean) {
-                com.sun.management.OperatingSystemMXBean sunOsMXBean = (com.sun.management.OperatingSystemMXBean) osMXBean;
-                double cpuLoad = sunOsMXBean.getProcessCpuLoad();
-                return cpuLoad >= 0 ? cpuLoad : 0.0;
+            // 回退方案：使用系统平均负载
+            double loadAverage = osMXBean.getSystemLoadAverage();
+            int availableProcessors = osMXBean.getAvailableProcessors();
+
+            if (loadAverage >= 0 && availableProcessors > 0) {
+                // 将系统负载转换为使用率（粗略估算）
+                return Math.min(1.0, loadAverage / availableProcessors);
             }
         } catch (Exception e) {
-            // 如果获取失败，返回系统平均负载作为替代
-        }
-
-        // 回退方案：使用系统平均负载
-        double loadAverage = osMXBean.getSystemLoadAverage();
-        int availableProcessors = osMXBean.getAvailableProcessors();
-
-        if (loadAverage >= 0 && availableProcessors > 0) {
-            // 将系统负载转换为使用率（粗略估算）
-            return Math.min(1.0, loadAverage / availableProcessors);
+            // 如果获取失败，返回0
         }
 
         return 0.0; // 无法获取时返回0

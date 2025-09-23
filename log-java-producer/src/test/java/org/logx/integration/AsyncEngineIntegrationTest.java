@@ -69,15 +69,7 @@ class AsyncEngineIntegrationTest {
         batchProcessor.start();
     }
 
-    private void registerHealthCheckers() {
-        // 移除了健康检查注册，因为我们已经简化了错误处理框架
-    }
-
-    private void startComponents() {
-        queue.start();
-        batchProcessor.start();
-        shutdownHandler.registerShutdownHook();
-    }
+    
 
     @Test
     @Timeout(30)
@@ -143,8 +135,6 @@ class AsyncEngineIntegrationTest {
     void shouldMeetLatencyTarget() throws Exception {
         // Given - 目标：99%请求延迟<1ms
         int testMessages = 10000;
-        AtomicLong totalLatency = new AtomicLong(0);
-        AtomicLong messageCount = new AtomicLong(0);
 
         // 使用带时间戳的消息处理器
         TestLatencyProcessor latencyProcessor = new TestLatencyProcessor();
@@ -287,9 +277,6 @@ class AsyncEngineIntegrationTest {
 
         Thread.sleep(2000);
 
-        // 记录处理成功的消息数（模拟实际处理过程）
-        long actualProcessed = messageProcessor.getProcessedCount();
-
         // Then - 验证Epic 2集成
         System.out.println("=== Epic 2集成测试结果 ===");
         System.out.println("消息处理: " + messageProcessor.getProcessedCount());
@@ -360,9 +347,7 @@ class AsyncEngineIntegrationTest {
             return processedCount.get();
         }
 
-        public double getProcessingRate() {
-            return processedCount.get() / Math.max(1.0, (System.currentTimeMillis() - lastTimestamp.get()) / 1000.0);
-        }
+        
     }
 
     /**

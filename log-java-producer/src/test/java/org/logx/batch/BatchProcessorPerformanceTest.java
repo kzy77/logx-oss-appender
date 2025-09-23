@@ -293,20 +293,6 @@ class BatchProcessorPerformanceTest {
             return true;
         }
 
-        public int getBatchCount() {
-            return batchCount.get();
-        }
-
-        public long getTotalMessages() {
-            return totalMessages.get();
-        }
-
-        public long getTotalBytes() {
-            return totalBytes.get();
-        }
-
-        public long getAverageProcessingTimeNs() {
-            return batchCount.get() > 0 ? processingTime.get() / batchCount.get() : 0;
-        }
+        
     }
 }

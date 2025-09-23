@@ -1,7 +1,5 @@
 package org.logx.config.validator;
 
-import org.logx.config.ConfigManager;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

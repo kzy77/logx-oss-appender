@@ -6,11 +6,6 @@ package org.logx.storage.sf;
  * 用于与SF OSS服务进行交互的客户端实现。
  */
 public class SfOssClient {
-    private final String endpoint;
-    private final String region;
-    private final String accessKeyId;
-    private final String secretAccessKey;
-
     /**
      * 构造SF OSS客户端
      *
@@ -20,10 +15,7 @@ public class SfOssClient {
      * @param secretAccessKey 访问密钥Secret
      */
     public SfOssClient(String endpoint, String region, String accessKeyId, String secretAccessKey) {
-        this.endpoint = endpoint;
-        this.region = region;
-        this.accessKeyId = accessKeyId;
-        this.secretAccessKey = secretAccessKey;
+        // 构造函数参数暂未使用，保留以备将来实现
     }
 
     /**

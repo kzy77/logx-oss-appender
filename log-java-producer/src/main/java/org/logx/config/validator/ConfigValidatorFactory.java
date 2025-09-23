@@ -19,8 +19,6 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigValidatorFactory {
 
-    private static final ConfigValidatorFactory INSTANCE = new ConfigValidatorFactory();
-
     private final Map<Class<?>, ConfigValidator> validators = new ConcurrentHashMap<>();
 
     private ConfigValidatorFactory() {

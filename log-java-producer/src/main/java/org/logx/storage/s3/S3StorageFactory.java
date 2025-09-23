@@ -242,10 +242,7 @@ public class S3StorageFactory {
             return java.util.concurrent.CompletableFuture.completedFuture(null);
         }
 
-        public java.util.concurrent.CompletableFuture<Boolean> healthCheck() {
-            // 模拟健康检查总是成功
-            return java.util.concurrent.CompletableFuture.completedFuture(true);
-        }
+        
 
         @Override
         public String getBackendType() {

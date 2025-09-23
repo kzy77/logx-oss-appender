@@ -62,11 +62,8 @@ public final class DisruptorBatchingQueue {
     private final Disruptor<LogEventHolder> disruptor;
     private final RingBuffer<LogEventHolder> ringBuffer;
     private final int batchMaxMessages;
-    private final int batchMaxBytes;
-    private final long flushIntervalMs;
     // 提示：满时可自旋或丢弃
     private final boolean blockOnFull;
-    private final BatchConsumer consumer;
     private volatile boolean started = false;
 
     /**
@@ -90,10 +87,7 @@ public final class DisruptorBatchingQueue {
     public DisruptorBatchingQueue(int capacity, int batchMaxMessages, int batchMaxBytes, long flushIntervalMs,
             boolean blockOnFull, boolean multiProducer, BatchConsumer consumer) {
         this.batchMaxMessages = Math.max(1, batchMaxMessages);
-        this.batchMaxBytes = Math.max(1, batchMaxBytes);
-        this.flushIntervalMs = Math.max(1, flushIntervalMs);
         this.blockOnFull = blockOnFull;
-        this.consumer = consumer;
         EventFactory<LogEventHolder> factory = LogEventHolder::new;
         ProducerType type = multiProducer ? ProducerType.MULTI : ProducerType.SINGLE;
         this.disruptor = new Disruptor<LogEventHolder>(factory, capacity, r -> {
@@ -111,7 +105,7 @@ public final class DisruptorBatchingQueue {
                 if (ev.payload != null) {
                     int size = ev.payload.length;
                     boolean willExceedCount = buffer.size() + 1 > batchMaxMessages;
-                    boolean willExceedBytes = bytes + size > batchMaxBytes;
+                    boolean willExceedBytes = bytes + size > 4 * 1024 * 1024; // 4MB
                     if (willExceedCount || willExceedBytes) {
                         if (!buffer.isEmpty()) {
                             consumer.onBatch(Collections.unmodifiableList(buffer), bytes);
@@ -124,8 +118,8 @@ public final class DisruptorBatchingQueue {
                     ev.clear();
                 }
                 long now = System.currentTimeMillis();
-                boolean timeUp = (now - lastFlush) >= flushIntervalMs;
-                if (endOfBatch || timeUp || buffer.size() >= batchMaxMessages || bytes >= batchMaxBytes) {
+                boolean timeUp = (now - lastFlush) >= 2000L; // 2秒
+                if (endOfBatch || timeUp || buffer.size() >= batchMaxMessages || bytes >= 4 * 1024 * 1024) {
                     if (!buffer.isEmpty()) {
                         consumer.onBatch(Collections.unmodifiableList(buffer), bytes);
                         buffer.clear();

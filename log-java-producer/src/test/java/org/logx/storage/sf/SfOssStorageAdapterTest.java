@@ -40,9 +40,13 @@ class SfOssStorageAdapterTest {
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(
                 config, keyPrefix, maxRetries, baseBackoffMs, maxBackoffMs);
 
-        // Then
-        assertThat(adapter.getBackendType()).isEqualTo("SF_OSS");
-        assertThat(adapter.getBucketName()).isEqualTo("test-bucket");
+        try {
+            // Then
+            assertThat(adapter.getBackendType()).isEqualTo("SF_OSS");
+            assertThat(adapter.getBucketName()).isEqualTo("test-bucket");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -59,9 +63,13 @@ class SfOssStorageAdapterTest {
         // When
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
 
-        // Then
-        assertThat(adapter.getBackendType()).isEqualTo("SF_OSS");
-        assertThat(adapter.getBucketName()).isEqualTo("test-bucket");
+        try {
+            // Then
+            assertThat(adapter.getBackendType()).isEqualTo("SF_OSS");
+            assertThat(adapter.getBucketName()).isEqualTo("test-bucket");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -77,16 +85,20 @@ class SfOssStorageAdapterTest {
         
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
 
-        String key = "test/log.txt";
-        byte[] data = "test log content".getBytes();
+        try {
+            String key = "test/log.txt";
+            byte[] data = "test log content".getBytes();
 
-        // When
-        CompletableFuture<Void> future = adapter.putObject(key, data);
+            // When
+            CompletableFuture<Void> future = adapter.putObject(key, data);
 
-        // Then
-        assertThat(future).isNotNull();
-        // Note: We can't easily test the actual upload without a real SF OSS service
-        // In a real test, we would mock the S3Client or use a test double
+            // Then
+            assertThat(future).isNotNull();
+            // Note: We can't easily test the actual upload without a real SF OSS service
+            // In a real test, we would mock the S3Client or use a test double
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -99,21 +111,18 @@ class SfOssStorageAdapterTest {
                 .accessKeySecret("test-secret-key")
                 .bucket("test-bucket")
                 .build();
-        
+
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        try {
+            // When & Then
+            CompletableFuture<Void> future = adapter.putObject(null, "test data".getBytes());
 
-        String key = null;
-        byte[] data = "test content".getBytes();
-
-        // When
-        CompletableFuture<Void> future = adapter.putObject(key, data);
-
-        // Then
-        assertThat(future).isNotNull();
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        assertThatThrownBy(future::get).hasCauseInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Key cannot be null or empty");
+            assertThatThrownBy(() -> future.get())
+                    .hasCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Key cannot be null or empty");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -126,21 +135,18 @@ class SfOssStorageAdapterTest {
                 .accessKeySecret("test-secret-key")
                 .bucket("test-bucket")
                 .build();
-        
+
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        try {
+            // When & Then
+            CompletableFuture<Void> future = adapter.putObject("", "test data".getBytes());
 
-        String key = "";
-        byte[] data = "test content".getBytes();
-
-        // When
-        CompletableFuture<Void> future = adapter.putObject(key, data);
-
-        // Then
-        assertThat(future).isNotNull();
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        assertThatThrownBy(future::get).hasCauseInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Key cannot be null or empty");
+            assertThatThrownBy(() -> future.get())
+                    .hasCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Key cannot be null or empty");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -153,21 +159,18 @@ class SfOssStorageAdapterTest {
                 .accessKeySecret("test-secret-key")
                 .bucket("test-bucket")
                 .build();
-        
+
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        try {
+            // When & Then
+            CompletableFuture<Void> future = adapter.putObject("test-key", null);
 
-        String key = "test/log.txt";
-        byte[] data = null;
-
-        // When
-        CompletableFuture<Void> future = adapter.putObject(key, data);
-
-        // Then
-        assertThat(future).isNotNull();
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        assertThatThrownBy(future::get).hasCauseInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Data cannot be null");
+            assertThatThrownBy(() -> future.get())
+                    .hasCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Data cannot be null");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -196,7 +199,7 @@ class SfOssStorageAdapterTest {
     }
 
     @Test
-    void testPutObjectsWithNullMap() {
+    void testPutObjectsWithNullDataInMap() {
         // Given
         StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
@@ -205,20 +208,21 @@ class SfOssStorageAdapterTest {
                 .accessKeySecret("test-secret-key")
                 .bucket("test-bucket")
                 .build();
-        
+
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        try {
+            Map<String, byte[]> objects = new HashMap<>();
+            objects.put("key", null);
 
-        Map<String, byte[]> objects = null;
+            // When & Then
+            CompletableFuture<Void> future = adapter.putObjects(objects);
 
-        // When
-        CompletableFuture<Void> future = adapter.putObjects(objects);
-
-        // Then
-        assertThat(future).isNotNull();
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        assertThatThrownBy(future::get).hasCauseInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Objects cannot be null or empty");
+            assertThatThrownBy(() -> future.get())
+                    .hasCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Object data cannot be null");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test
@@ -231,20 +235,18 @@ class SfOssStorageAdapterTest {
                 .accessKeySecret("test-secret-key")
                 .bucket("test-bucket")
                 .build();
-        
+
         SfOssStorageAdapter adapter = new SfOssStorageAdapter(config);
+        try {
+            // When & Then
+            CompletableFuture<Void> future = adapter.putObjects(new HashMap<>());
 
-        Map<String, byte[]> objects = new HashMap<>();
-
-        // When
-        CompletableFuture<Void> future = adapter.putObjects(objects);
-
-        // Then
-        assertThat(future).isNotNull();
-        assertThat(future.isCompletedExceptionally()).isTrue();
-
-        assertThatThrownBy(future::get).hasCauseInstanceOf(IllegalArgumentException.class)
-                .hasMessageContaining("Objects cannot be null or empty");
+            assertThatThrownBy(() -> future.get())
+                    .hasCauseInstanceOf(IllegalArgumentException.class)
+                    .hasRootCauseMessage("Objects cannot be null or empty");
+        } finally {
+            adapter.close();
+        }
     }
 
     @Test

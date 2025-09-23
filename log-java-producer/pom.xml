@@ -32,6 +32,25 @@
       <artifactId>s3</artifactId>
       <version>${aws.sdk.version}</version>
     </dependency>
+    
+    <!-- Dependency Conflict Resolutions -->
+    <dependency>
+      <groupId>org.apache.httpcomponents</groupId>
+      <artifactId>httpcore</artifactId>
+      <version>4.4.16</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.17.1</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>net.bytebuddy</groupId>
+      <artifactId>byte-buddy</artifactId>
+      <version>1.12.21</version>
+    </dependency>
 
     <!-- Test dependencies -->
     <dependency>

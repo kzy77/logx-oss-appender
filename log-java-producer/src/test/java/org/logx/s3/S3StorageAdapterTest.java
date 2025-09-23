@@ -114,9 +114,13 @@ public class S3StorageAdapterTest {
         // When
         S3StorageAdapter simpleAdapter = new S3StorageAdapter("us-west-2", "key", "secret", "bucket");
 
-        // Then
-        assertThat(simpleAdapter.getBucketName()).isEqualTo("bucket");
-        assertThat(simpleAdapter.getBackendType()).isEqualTo("AWS_S3");
+        try {
+            // Then
+            assertThat(simpleAdapter.getBucketName()).isEqualTo("bucket");
+            assertThat(simpleAdapter.getBackendType()).isEqualTo("AWS_S3");
+        } finally {
+            simpleAdapter.close();
+        }
     }
 
     @Test
@@ -125,24 +129,35 @@ public class S3StorageAdapterTest {
         S3StorageAdapter fullAdapter = new S3StorageAdapter("eu-west-1", "key", "secret", "bucket", "prefix", 5, 500L,
                 5000L);
 
-        // Then
-        assertThat(fullAdapter.getBucketName()).isEqualTo("bucket");
-        assertThat(fullAdapter.getBackendType()).isEqualTo("AWS_S3");
+        try {
+            // Then
+            assertThat(fullAdapter.getBucketName()).isEqualTo("bucket");
+            assertThat(fullAdapter.getBackendType()).isEqualTo("AWS_S3");
+        } finally {
+            fullAdapter.close();
+        }
     }
 
     @Test
     void multipartThreshold_shouldBeCorrect() {
-        // 这是一个API测试，验证常量值
-        // 我们通过创建大于5MB的数据来间接测试multipart threshold逻辑
-        byte[] largeData = new byte[6 * 1024 * 1024]; // 6MB
+        // 创建一个新的适配器用于此测试
+        S3StorageAdapter testAdapter = new S3StorageAdapter("us-east-1", "testAccessKey", "testSecretKey", TEST_BUCKET);
+        
+        try {
+            // 这是一个API测试，验证常量值
+            // 我们通过创建大于5MB的数据来间接测试multipart threshold逻辑
+            byte[] largeData = new byte[6 * 1024 * 1024]; // 6MB
 
-        // 当调用putObject时，应该触发multipart upload逻辑
-        // 由于没有真实的S3连接，我们只能验证方法调用不会因为数据大小而崩溃
-        CompletableFuture<Void> result = adapter.putObject("large-file", largeData);
+            // 当调用putObject时，应该触发multipart upload逻辑
+            // 由于没有真实的S3连接，我们只能验证方法调用不会因为数据大小而崩溃
+            CompletableFuture<Void> result = testAdapter.putObject("large-file", largeData);
 
-        // 验证方法调用成功创建了Future对象
-        assertThat(result).isNotNull();
-        assertThat(result.isDone()).isFalse(); // 还没有执行
+            // 验证方法调用成功创建了Future对象
+            assertThat(result).isNotNull();
+            assertThat(result.isDone()).isFalse(); // 还没有执行
+        } finally {
+            testAdapter.close();
+        }
     }
 
     @Test
