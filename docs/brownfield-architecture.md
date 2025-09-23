@@ -23,7 +23,7 @@
 
 ### 2.1 Git Submodules 架构图
 ```
-oss-appender/ (主仓库)
+logx-oss-appender/ (主仓库)
 ├── log-java-producer/          # 🔥 核心抽象层 (已完成95%)
 │   ├── DisruptorBatchingQueue  # LMAX Disruptor高性能队列
 │   ├── S3CompatibleUploader    # 统一S3接口抽象

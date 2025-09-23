@@ -20,9 +20,6 @@ buildNumber.properties
 .project
 .classpath
 
-# Claude Code settings
-.claude/settings.local.json
-
 # OS
 .DS_Store
 .DS_Store?
@@ -77,6 +74,12 @@ core.[0-9]*
 vgcore.*
 *.core
 # Local tooling (do not commit)
+target/
 .gemini/
 .iflow/
 .roomodes
+.claude/
+AGENTS.md
+CLAUDE.md
+
+

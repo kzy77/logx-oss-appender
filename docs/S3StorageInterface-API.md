@@ -2,7 +2,7 @@
 
 ## 概述
 
-`S3StorageInterface` 是OSS Appender项目的核心存储抽象接口，基于S3标准API设计，支持AWS S3、阿里云OSS、MinIO等S3兼容存储服务的统一访问。
+`S3StorageInterface` 是LogX OSS Appender项目的核心存储抽象接口，基于S3标准API设计，支持AWS S3、阿里云OSS、MinIO等S3兼容存储服务的统一访问。
 
 该接口遵循异步操作模式，所有方法都返回`CompletableFuture`，确保非阻塞的高性能日志上传能力。
 

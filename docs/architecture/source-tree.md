@@ -1,13 +1,13 @@
-# 源码树结构 - OSS Appender
+# 源码树结构 - LogX OSS Appender
 
 ## 概述
 
-本文档详细描述OSS Appender项目的源码组织结构，遵循**分层抽象**架构和**统一包命名**原则。项目采用Maven多模块架构，核心抽象层与框架适配层清晰分离。
+本文档详细描述LogX OSS Appender项目的源码组织结构，遵循**分层抽象**架构和**统一包命名**原则。项目采用Maven多模块架构，核心抽象层与框架适配层清晰分离。
 
 ## 项目根目录结构
 
 ```
-oss-appender/
+logx-oss-appender/
 ├── docs/                           # 项目文档
 │   ├── architecture/              # 架构文档
 │   ├── stories/                   # 用户故事
@@ -203,9 +203,9 @@ src/test/java/
 target/
 ├── classes/                    # 编译后的类文件
 ├── test-classes/              # 测试类文件
-├── oss-appender-*.jar         # 构建的JAR包
-├── oss-appender-*-sources.jar # 源码包
-└── oss-appender-*-javadoc.jar # 文档包
+├── logx-oss-appender-*.jar         # 构建的JAR包
+├── logx-oss-appender-*-sources.jar # 源码包
+└── logx-oss-appender-*-javadoc.jar # 文档包
 ```
 
 ## 依赖关系图
@@ -230,7 +230,7 @@ target/
 
 ### 发布包组织
 ```
-oss-appender-release/
+logx-oss-appender-release/
 ├── lib/
 │   ├── log-java-producer-*.jar        # 核心组件
 │   ├── logback-oss-appender-*.jar     # Logback适配器

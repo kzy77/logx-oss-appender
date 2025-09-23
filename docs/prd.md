@@ -1,4 +1,4 @@
-# OSS Appender 产品需求文档 (PRD)
+# LogX OSS Appender 产品需求文档 (PRD)
 
 ## 目标和背景上下文
 
@@ -126,7 +126,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 **so that** 为submodule迁移提供稳定的基础环境。
 
 #### 验收标准
-1. 在oss-appender目录成功初始化git仓库
+1. 在logx-oss-appender目录成功初始化git仓库
 2. 创建父POM文件，定义所有子模块的共同配置和版本管理
 3. 建立标准的目录结构和.gitignore配置
 4. 集成BMAD核心配置文件并纳入版本控制

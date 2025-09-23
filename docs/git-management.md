@@ -2,10 +2,10 @@
 
 ## 项目概述
 
-OSS Appender 采用单仓库多模块（Monorepo）架构，包含以下核心模块：
+LogX OSS Appender 采用单仓库多模块（Monorepo）架构，包含以下核心模块：
 
 ```
-oss-appender/
+logx-oss-appender/
 ├── log-java-producer/          # 核心抽象层
 ├── log4j-oss-appender/         # Log4j 1.x适配器
 ├── log4j2-oss-appender/        # Log4j2适配器
@@ -19,8 +19,8 @@ oss-appender/
 
 #### 1. 克隆项目
 ```bash
-git clone https://github.com/your-org/oss-appender.git
-cd oss-appender
+git clone https://github.com/your-org/logx-oss-appender.git
+cd logx-oss-appender
 ```
 
 #### 2. 分支管理

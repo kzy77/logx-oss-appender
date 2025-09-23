@@ -6,7 +6,7 @@
   <version>0.1.0</version>
   <name>logback-oss-appender</name>
   <description>高性能 Logback Appender，支持 AWS S3 兼容对象存储（阿里云OSS、腾讯云COS、MinIO等）</description>
-  <url>https://github.com/oss-logback/logback-s3-appender</url>
+  <url>https://github.com/logx-oss-appender/logback-oss-appender</url>
 
   <licenses>
     <license>

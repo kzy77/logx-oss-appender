@@ -141,7 +141,7 @@ public class ThreadPoolManager {
         new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
-                Thread t = new Thread(r, "oss-appender-worker");
+                Thread t = new Thread(r, "logx-oss-appender-worker");
                 t.setDaemon(true);
                 t.setPriority(Thread.MIN_PRIORITY); // 低优先级
                 return t;

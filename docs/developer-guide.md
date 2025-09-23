@@ -1,6 +1,6 @@
 # 开发者指南
 
-本文档为OSS Appender项目的开发者提供详细的开发环境设置、工作流程和贡献指南。
+本文档为LogX OSS Appender项目的开发者提供详细的开发环境设置、工作流程和贡献指南。
 
 ## 目录
 
@@ -32,8 +32,8 @@ export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
 
 ```bash
 # 完整克隆（包含所有子模块）
-git clone --recursive https://github.com/ossappender/oss-appender.git
-cd oss-appender
+git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
+cd logx-oss-appender
 
 # 如果已克隆但缺少子模块
 git submodule update --init --recursive
@@ -163,7 +163,7 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
   - 类名: PascalCase (`QueueManager`)
   - 方法名: camelCase (`processLogEvent`)
   - 常量: UPPER_SNAKE_CASE (`DEFAULT_BATCH_SIZE`)
-  - 包名: lowercase.dotted (`io.github.ossappender.core`)
+  - 包名: lowercase.dotted (`io.github.logxossappender.core`)
 
 ### 关键规则
 
@@ -189,11 +189,11 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
 # Fork主仓库和相关子模块仓库到你的GitHub账户
 # 然后克隆你的fork
 
-git clone --recursive https://github.com/你的用户名/oss-appender.git
-cd oss-appender
+git clone --recursive https://github.com/你的用户名/logx-oss-appender.git
+cd logx-oss-appender
 
 # 添加upstream远程仓库
-git remote add upstream https://github.com/ossappender/oss-appender.git
+git remote add upstream https://github.com/logx-oss-appender/logx-oss-appender.git
 ```
 
 ### 2. 创建功能分支
@@ -252,7 +252,7 @@ git push origin feature/新功能描述
 ### IntelliJ IDEA
 
 1. **导入项目**
-   - File → Open → 选择oss-appender目录
+   - File → Open → 选择logx-oss-appender目录
    - 选择"Import as Maven project"
 
 2. **配置Java SDK**
@@ -295,7 +295,7 @@ git submodule update --init --recursive
 ```bash
 # 清理所有缓存
 mvn clean
-rm -rf ~/.m2/repository/io/github/ossappender
+rm -rf ~/.m2/repository/io/github/logxossappender
 
 # 重新构建
 mvn clean install
@@ -383,9 +383,9 @@ mvn clean deploy -Prelease -Dgpg.passphrase=你的GPG密码
 如果在开发过程中遇到问题：
 
 1. **查看文档**: [docs/](../docs/)
-2. **搜索Issues**: [GitHub Issues](https://github.com/ossappender/oss-appender/issues)
+2. **搜索Issues**: [GitHub Issues](https://github.com/logx-oss-appender/logx-oss-appender/issues)
 3. **创建新Issue**: 详细描述问题和重现步骤
-4. **讨论**: [GitHub Discussions](https://github.com/ossappender/oss-appender/discussions)
+4. **讨论**: [GitHub Discussions](https://github.com/logx-oss-appender/logx-oss-appender/discussions)
 
 ---
 

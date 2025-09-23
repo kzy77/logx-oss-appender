@@ -7,13 +7,13 @@
 
     <!-- Project Information -->
     <groupId>org.logx</groupId>
-    <artifactId>oss-appender-parent</artifactId>
+    <artifactId>logx-oss-appender-parent</artifactId>
     <version>1.0.0-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-    <name>OSS Appender Parent</name>
+    <name>LogX OSS Appender Parent</name>
     <description>高性能日志上传组件套件的父项目，使用Git Submodules管理各组件</description>
-    <url>https://github.com/ossappender/oss-appender</url>
+    <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
 
     <!-- Properties -->
     <properties>

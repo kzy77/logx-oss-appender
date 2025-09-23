@@ -1,15 +1,15 @@
-# OSS Appender
+# LogX OSS Appender
 
 一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。
 
 ## 项目概述
 
-OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含四个核心模块：
+LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含四个核心模块：
 
-- **[log-java-producer](https://github.com/kzy77/log-java-producer)** - 核心基础模块，提供日志生产和队列管理
-- **[log4j-oss-appender](https://github.com/kzy77/log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
-- **[log4j2-oss-appender](https://github.com/kzy77/log4j2-oss-appender)** - Log4j2版本的OSS Appender
-- **[logback-oss-appender](https://github.com/kzy77/logback-oss-appender)** - Logback版本的OSS Appender
+- **[log-java-producer](https://github.com/logx-oss-appender/log-java-producer)** - 核心基础模块，提供日志生产和队列管理
+- **[log4j-oss-appender](https://github.com/logx-oss-appender/log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
+- **[log4j2-oss-appender](https://github.com/logx-oss-appender/log4j2-oss-appender)** - Log4j2版本的OSS Appender
+- **[logback-oss-appender](https://github.com/logx-oss-appender/logback-oss-appender)** - Logback版本的OSS Appender
 
 ## 特性
 
@@ -30,8 +30,8 @@ OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案
 
 ```bash
 # 克隆项目（包含所有子模块）
-git clone --recursive https://github.com/kzy77/oss-appender.git
-cd oss-appender
+git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
+cd logx-oss-appender
 
 # 构建所有模块
 mvn clean install
@@ -252,7 +252,7 @@ public class LogExample {
 本项目采用单仓库多模块（Monorepo）架构，统一管理所有组件：
 
 ```
-oss-appender/                     # 主仓库
+logx-oss-appender/                     # 主仓库
 ├── .bmad-core/                   # BMAD项目管理配置
 ├── docs/                         # 项目文档
 │   ├── architecture.md          # 架构文档
@@ -423,7 +423,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 ```bash
 # 1. 克隆仓库
-git clone --recursive https://github.com/kzy77/oss-appender.git
+git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
 
 # 2. 验证构建
 mvn validate
@@ -469,9 +469,9 @@ mvn versions:commit
 如果遇到问题或有建议，请：
 
 1. 查看 [文档](docs/)
-2. 搜索 [Issues](https://github.com/kzy77/oss-appender/issues)
+2. 搜索 [Issues](https://github.com/logx-oss-appender/logx-oss-appender/issues)
 3. 创建新的 Issue
 
 ---
 
-🚀 **OSS Appender - 让日志上传更简单、更高效！**
+🚀 **LogX OSS Appender - 让日志上传更简单、更高效！**

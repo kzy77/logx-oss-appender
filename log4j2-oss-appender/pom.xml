@@ -7,7 +7,7 @@
     <version>0.1.0</version>
     <name>log4j2-oss-appender</name>
     <description>High-performance Log4j2 Appender to upload logs to Aliyun OSS</description>
-    <url>https://github.com/kuangzengye/oss-appender</url>
+    <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

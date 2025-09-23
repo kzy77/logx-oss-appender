@@ -41,7 +41,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-OSS Appender is a high-performance Java logging component suite that provides asynchronous batch log uploading to cloud object storage services (Aliyun OSS, AWS S3, MinIO). The project uses a multi-module Git Submodules architecture with a core abstraction layer and framework-specific adapters.
+LogX OSS Appender is a high-performance Java logging component suite that provides asynchronous batch log uploading to cloud object storage services (Aliyun OSS, AWS S3, MinIO). The project uses a multi-module Git Submodules architecture with a core abstraction layer and framework-specific adapters.
 
 ## Core Architecture
 
@@ -101,7 +101,7 @@ mvn javadoc:javadoc
 
 ```bash
 # Clone with submodules
-git clone --recursive https://github.com/kzy77/oss-appender.git
+git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
 
 # Update submodules
 git submodule update --init --recursive

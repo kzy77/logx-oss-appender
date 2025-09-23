@@ -6,7 +6,7 @@
 
 ## Executive Summary
 
-**Topic:** 根据oss-appender的README继续细化需求
+**Topic:** 根据logx-oss-appender的README继续细化需求
 
 **Session Goals:** 基于现有的高性能日志上传组件套件进一步完善功能需求、用户体验或产品方向，重点关注简洁、高性能、可切换的代码实现
 

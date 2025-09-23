@@ -15,7 +15,7 @@
 Maven（示例）：
 ```xml
 <dependency>
-  <groupId>io.github.ossappender</groupId>
+  <groupId>io.github.logxossappender</groupId>
   <artifactId>log4j2-oss-appender</artifactId>
   <version>0.1.0</version>
 </dependency>
@@ -25,7 +25,7 @@ Maven（示例）：
 
 将下列片段加入你的 `log4j2.xml`：
 ```xml
-<Configuration packages="io.github.ossappender.log4j2">
+<Configuration packages="io.github.logxossappender.log4j2">
   <Appenders>
     <OssAppender name="oss" endpoint="https://oss-cn-hangzhou.aliyuncs.com"
                  accessKeyId="${sys:ALIYUN_AK}" accessKeySecret="${sys:ALIYUN_SK}"

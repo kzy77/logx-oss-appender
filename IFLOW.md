@@ -1,8 +1,8 @@
-# OSS Appender 项目开发流程文档 (IFLOW.md)
+# LogX OSS Appender 项目开发流程文档 (IFLOW.md)
 
 ## 项目概述
 
-OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含四个核心模块：
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含四个核心模块：
 
 - **log-java-producer** - 核心基础模块，提供日志生产和队列管理
 - **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
@@ -14,7 +14,7 @@ OSS Appender 是一个高性能日志上传组件套件，支持将日志异步�
 ### 技术架构
 
 ```
-oss-appender/                     # 主仓库
+logx-oss-appender/                     # 主仓库
 ├── .bmad-core/                   # BMAD项目管理配置
 ├── docs/                         # 项目文档
 │   ├── architecture.md          # 架构文档
@@ -64,8 +64,8 @@ export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
 
 ```bash
 # 完整克隆（包含所有子模块）
-git clone --recursive https://github.com/kzy77/oss-appender.git
-cd oss-appender
+git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
+cd logx-oss-appender
 
 # 如果已克隆但缺少子模块
 git submodule update --init --recursive
@@ -276,11 +276,11 @@ git push origin --delete release/1.2.0
 # Fork主仓库和相关子模块仓库到你的GitHub账户
 # 然后克隆你的fork
 
-git clone --recursive https://github.com/你的用户名/oss-appender.git
-cd oss-appender
+git clone --recursive https://github.com/你的用户名/logx-oss-appender.git
+cd logx-oss-appender
 
 # 添加upstream远程仓库
-git remote add upstream https://github.com/kzy77/oss-appender.git
+git remote add upstream https://github.com/logx-oss-appender/logx-oss-appender.git
 ```
 
 ### 2. 创建功能分支
@@ -445,9 +445,9 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 如果在开发过程中遇到问题：
 
 1. **查看文档**: [docs/](docs/)
-2. **搜索Issues**: [GitHub Issues](https://github.com/kzy77/oss-appender/issues)
+2. **搜索Issues**: [GitHub Issues](https://github.com/logx-oss-appender/logx-oss-appender/issues)
 3. **创建新Issue**: 详细描述问题和重现步骤
-4. **讨论**: [GitHub Discussions](https://github.com/kzy77/oss-appender/discussions)
+4. **讨论**: [GitHub Discussions](https://github.com/logx-oss-appender/logx-oss-appender/discussions)
 
 <!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
