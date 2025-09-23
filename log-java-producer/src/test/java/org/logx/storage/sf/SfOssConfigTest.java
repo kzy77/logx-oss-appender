@@ -335,10 +335,6 @@ class SfOssConfigTest {
         // In a real scenario, the environment variables would need to be set before JVM startup
         
         // When & Then
-        assertThatNoException().isThrownBy(() -> {
-            // This should not throw an exception even if environment variables are not set
-            SfOssConfig config = SfOssConfig.fromEnvironment();
-            // The config may have null values, which is expected when env vars are not set
-        });
+        assertThatNoException().isThrownBy(SfOssConfig::fromEnvironment);
     }
 }

@@ -3,12 +3,14 @@ package org.logx.integration;
 import org.logx.core.DisruptorBatchingQueue;
 import org.logx.core.ResourceProtectedThreadPool;
 import org.logx.batch.BatchProcessor;
+import org.logx.reliability.ShutdownHookHandler;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static org.assertj.core.api.Assertions.*;

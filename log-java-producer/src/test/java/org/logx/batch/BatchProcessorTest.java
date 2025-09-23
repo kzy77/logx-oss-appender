@@ -1,8 +1,8 @@
 package org.logx.batch;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logx.batch.BatchProcessor.Config;
-import org.logx.batch.BatchProcessor.BatchMetrics;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;

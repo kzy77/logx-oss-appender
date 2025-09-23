@@ -60,7 +60,6 @@ public class ConfigValidatorFactory {
      *
      * @return 配置验证器，如果未找到则返回null
      */
-    @SuppressWarnings("unchecked")
     public <T> ConfigValidator getValidator(Class<T> configType) {
         return validators.get(configType);
     }
