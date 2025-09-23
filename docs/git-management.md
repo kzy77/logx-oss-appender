@@ -50,8 +50,12 @@ git push origin feature/new-feature
 ```
 log-java-producer (核心)
     ↓
-log4j-oss-appender ← log4j2-oss-appender ← logback-oss-appender
+log4j-oss-appender
+log4j2-oss-appender
+logback-oss-appender
 ```
+
+三个适配器都直接依赖于核心模块，彼此之间没有依赖关系。
 
 #### 修改依赖时的注意事项
 1. **修改log-java-producer**: 需要测试所有适配器模块

@@ -163,7 +163,7 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
   - 类名: PascalCase (`QueueManager`)
   - 方法名: camelCase (`processLogEvent`)
   - 常量: UPPER_SNAKE_CASE (`DEFAULT_BATCH_SIZE`)
-  - 包名: lowercase.dotted (`io.github.logxossappender.core`)
+  - 包名: lowercase.dotted (`org.logx.core`)
 
 ### 关键规则
 

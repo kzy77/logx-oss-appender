@@ -11,7 +11,7 @@
 Java版本: Java 8+
 编译目标: Java 8 (最大兼容性)
 编码格式: UTF-8
-构建工具: Apache Maven 3.8+
+构建工具: Apache Maven 3.9.6
 ```
 
 **选型理由**: Java 8保证最大企业兼容性，满足大部分生产环境要求
@@ -23,7 +23,7 @@ Java版本: Java 8+
 <dependency>
     <groupId>com.lmax</groupId>
     <artifactId>disruptor</artifactId>
-    <version>4.0.0</version>
+    <version>3.4.4</version>
 </dependency>
 ```
 **作用**: 高性能异步队列引擎
@@ -253,8 +253,9 @@ ENV JAVA_OPTS="-XX:+UseG1GC -XX:MaxGCPauseMillis=200 -Xms256m -Xmx512m"
 ### 依赖版本规范
 ```xml
 <properties>
-    <!-- 主要依赖版本 -->
-    <disruptor.version>3.4.4</disruptor.version>
+    ```xml
+<!-- 主要依赖版本 -->
+    <disruptor.version>4.0.0</disruptor.version>
     <aws.sdk.version>2.28.16</aws.sdk.version>
     <aliyun.oss.version>3.17.4</aliyun.oss.version>
 
