@@ -51,6 +51,7 @@ log4j-oss-appender ← log4j2-oss-appender ← logback-oss-appender
 - **Java**: OpenJDK 8u392 或更高版本
 - **Maven**: 3.9.6 或更高版本
 - **Git**: 2.0+ (支持submodules)
+- **IDE**: IntelliJ IDEA 或 Eclipse（推荐IntelliJ IDEA）
 
 ### 环境变量
 
@@ -440,6 +441,41 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 
 - Epic 2：`AsyncEngineIntegrationTest.shouldMeetLatencyTarget` 在当前容器/CI 环境下可能因性能抖动导致断言失败，不影响 Epic 1 交付与评审。
 
+## 关键开发规则
+
+### 规则1：中文沟通规范
+必须使用中文沟通：
+- 所有与用户的交流都必须使用中文
+- 包括代码说明、进度报告、提交信息、测试输出等
+- 只有技术关键词、API名称、配置键名可以使用英文
+
+### 规则2：代码注释规范
+代码不能尾行注释，注释应该在代码上一行：
+- 禁止在代码行尾添加注释
+- 所有注释必须写在被注释代码的上一行
+- 示例：
+  ```java
+  // 正确：注释在上一行
+  String message = "Hello World";
+
+  String message = "Hello World"; // 错误：尾行注释
+  ```
+
+### 规则3：控制结构规范
+if语句一定要有大括号：
+- 所有if语句必须使用大括号，即使只有一行代码
+- 包括if、else if、else、for、while、do-while等所有控制结构
+- 示例：
+  ```java
+  // 正确：使用大括号
+  if (condition) {
+      doSomething();
+  }
+
+  // 错误：缺少大括号
+  if (condition) doSomething();
+  ```
+
 ## 联系方式
 
 如果在开发过程中遇到问题：
@@ -449,7 +485,6 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 3. **创建新Issue**: 详细描述问题和重现步骤
 4. **讨论**: [GitHub Discussions](https://github.com/logx-oss-appender/logx-oss-appender/discussions)
 
-<!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
-*本文档最后更新于 2025-09-22*
+*本文档最后更新于 2025-09-23*
