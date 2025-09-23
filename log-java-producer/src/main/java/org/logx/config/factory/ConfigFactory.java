@@ -1,10 +1,8 @@
 package org.logx.config.factory;
 
 import org.logx.config.ConfigManager;
-import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageBackend;
-import org.logx.storage.s3.S3StorageFactory;
-
+import org.logx.storage.StorageConfig;
 import java.time.Duration;
 
 /**
@@ -27,7 +25,8 @@ public class ConfigFactory {
      *            配置管理器
      */
     public ConfigFactory(ConfigManager configManager) {
-        this.configManager = configManager;
+        // 创建配置管理器的副本以避免内部表示暴露
+        this.configManager = new ConfigManager(configManager.getConfigFilePath());
     }
 
     /**

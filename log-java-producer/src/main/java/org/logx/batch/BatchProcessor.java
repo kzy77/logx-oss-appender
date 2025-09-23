@@ -2,16 +2,17 @@ package org.logx.batch;
 
 import org.logx.core.DisruptorBatchingQueue;
 import org.logx.core.ResourceProtectedThreadPool;
-
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.zip.GZIPOutputStream;
 
 /**
@@ -262,10 +263,10 @@ public class BatchProcessor implements AutoCloseable {
         for (DisruptorBatchingQueue.LogEvent event : events) {
             // 简单的JSON格式化
             sb.append("{\"timestamp\":").append(event.timestampMs).append(",\"data\":\"")
-                    .append(new String(event.payload)).append("\"}\n");
+                    .append(new String(event.payload, java.nio.charset.StandardCharsets.UTF_8)).append("\"}\n");
         }
 
-        return sb.toString().getBytes();
+        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**
@@ -289,8 +290,8 @@ public class BatchProcessor implements AutoCloseable {
 
         // 性能指标跟踪
         private volatile long lastAdjustmentTime = System.currentTimeMillis();
-        private volatile int successfulBatches = 0;
-        private volatile int failedBatches = 0;
+        private final AtomicLong successfulBatches = new AtomicLong(0);
+        private final AtomicLong failedBatches = new AtomicLong(0);
 
         public AdaptiveBatchSizer(Config config) {
             this.config = config;
@@ -299,9 +300,9 @@ public class BatchProcessor implements AutoCloseable {
 
         public void onBatchProcessed(int messageCount, int bytes, boolean success) {
             if (success) {
-                successfulBatches++;
+                successfulBatches.incrementAndGet();
             } else {
-                failedBatches++;
+                failedBatches.incrementAndGet();
             }
         }
 
@@ -317,13 +318,16 @@ public class BatchProcessor implements AutoCloseable {
 
             // 简单的自适应逻辑
             int current = currentBatchSize.get();
-            if (failedBatches > successfulBatches && current > MIN_BATCH_SIZE) {
+            long failed = failedBatches.get();
+            long successful = successfulBatches.get();
+            
+            if (failed > successful && current > MIN_BATCH_SIZE) {
                 // 失败率高，减小批次
                 int newSize = Math.max(MIN_BATCH_SIZE, current - 10);
                 if (currentBatchSize.compareAndSet(current, newSize)) {
                     adjustmentCount.incrementAndGet();
                 }
-            } else if (successfulBatches > failedBatches * 3 && current < MAX_BATCH_SIZE) {
+            } else if (successful > failed * 3 && current < MAX_BATCH_SIZE) {
                 // 成功率高，增大批次
                 int newSize = Math.min(MAX_BATCH_SIZE, current + 10);
                 if (currentBatchSize.compareAndSet(current, newSize)) {
@@ -332,8 +336,8 @@ public class BatchProcessor implements AutoCloseable {
             }
 
             // 重置计数器
-            successfulBatches = 0;
-            failedBatches = 0;
+            successfulBatches.set(0);
+            failedBatches.set(0);
             lastAdjustmentTime = now;
         }
 

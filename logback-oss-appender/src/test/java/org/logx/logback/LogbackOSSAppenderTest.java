@@ -1,13 +1,8 @@
 package org.logx.logback;
 
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.Encoder;
 import org.junit.jupiter.api.Test;
-import org.slf4j.LoggerFactory;
-
-import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * LogbackOSSAppender配置测试

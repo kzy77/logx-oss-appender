@@ -1,10 +1,12 @@
 package org.logx.storage.sf;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.logx.storage.sf.SfOssStorageAdapter;
-import org.logx.storage.s3.TestS3StorageConfig;
 import org.logx.storage.StorageConfig;
+import org.logx.storage.s3.AwsS3Config;
 
+import java.io.IOException;
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -21,7 +23,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testAdapterConstructionWithAllParameters() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -46,7 +48,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testAdapterConstructionWithMinimalParameters() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -65,7 +67,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectWithValidParameters() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -90,7 +92,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectWithNullKey() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -117,7 +119,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectWithEmptyKey() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -144,7 +146,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectWithNullData() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -171,7 +173,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectsWithValidParameters() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -196,7 +198,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectsWithNullMap() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -222,7 +224,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testPutObjectsWithEmptyMap() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -248,7 +250,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testGetBackendType() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -271,7 +273,7 @@ class SfOssStorageAdapterTest {
     void testGetBucketName() {
         // Given
         String bucketName = "test-bucket";
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")
@@ -293,7 +295,7 @@ class SfOssStorageAdapterTest {
     @Test
     void testClose() {
         // Given
-        StorageConfig config = new TestS3StorageConfig.Builder()
+        StorageConfig config = AwsS3Config.builder()
                 .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
                 .region("cn-north-1")
                 .accessKeyId("test-access-key")

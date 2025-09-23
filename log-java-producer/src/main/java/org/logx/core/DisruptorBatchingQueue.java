@@ -9,7 +9,6 @@ import com.lmax.disruptor.dsl.ProducerType;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.concurrent.Executors;
 
 /**
  * 基于 LMAX Disruptor 的高性能批处理队列实现：低 GC、低延迟。

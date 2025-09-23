@@ -286,9 +286,6 @@ public abstract class StorageConfig {
         /**
          * 构建配置对象
          */
-        /**
-     * 构建配置对象
-     */
         public abstract StorageConfig build();
     }
 

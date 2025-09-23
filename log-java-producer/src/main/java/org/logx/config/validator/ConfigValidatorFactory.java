@@ -34,7 +34,8 @@ public class ConfigValidatorFactory {
      * @return 工厂实例
      */
     public static ConfigValidatorFactory getInstance() {
-        return INSTANCE;
+        // 返回工厂的副本以避免内部表示暴露
+        return new ConfigValidatorFactory();
     }
 
     /**

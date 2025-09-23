@@ -28,20 +28,33 @@ import java.util.concurrent.ConcurrentHashMap;
 public class ConfigManager {
 
     private static final String DEFAULT_CONFIG_FILE = "application.properties";
-    private static final String YAML_CONFIG_FILE = "application.yml";
 
     private final Map<String, String> configCache = new ConcurrentHashMap<>();
     private final Map<String, String> defaultValues = new HashMap<>();
     private Properties fileProperties;
+    // 配置文件路径
     private String configFilePath;
+
+    /**
+     * 获取配置文件路径
+     *
+     * @return 配置文件路径
+     */
+    public String getConfigFilePath() {
+        return configFilePath;
+    }
 
     /**
      * 构造配置管理器
      */
     public ConfigManager() {
-        this.configFilePath = DEFAULT_CONFIG_FILE;
-        loadFileProperties();
-        initializeDefaults();
+        try {
+            this.configFilePath = DEFAULT_CONFIG_FILE;
+            loadFileProperties();
+            initializeDefaults();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize ConfigManager", e);
+        }
     }
 
     /**
@@ -51,9 +64,13 @@ public class ConfigManager {
      *            配置文件路径
      */
     public ConfigManager(String configFilePath) {
-        this.configFilePath = configFilePath;
-        loadFileProperties(configFilePath);
-        initializeDefaults();
+        try {
+            this.configFilePath = configFilePath;
+            loadFileProperties(configFilePath);
+            initializeDefaults();
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to initialize ConfigManager with config file: " + configFilePath, e);
+        }
     }
 
     /**

@@ -23,6 +23,13 @@ public final class AwsS3Config extends StorageConfig {
     private AwsS3Config(Builder builder) {
         super(builder);
     }
+    
+    /**
+     * 私有构造函数，用于Builder模式的复制构造
+     */
+    private AwsS3Config(Builder builder, AwsS3Config config) {
+        super(builder);
+    }
 
     @Override
     public void validateConfig() {

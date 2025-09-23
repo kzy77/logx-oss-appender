@@ -4,7 +4,6 @@ import org.junit.jupiter.api.Test;
 import org.logx.storage.s3.AwsS3Config;
 
 import static org.assertj.core.api.Assertions.*;
-import static org.mockito.Mockito.*;
 
 /**
  * ConfigValidatorAdapter测试类

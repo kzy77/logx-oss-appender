@@ -1,7 +1,6 @@
 package org.logx.storage.s3;
 
 import org.logx.storage.StorageConfig;
-import java.time.Duration;
 
 /**
  * 测试用的S3存储配置类

@@ -6,8 +6,6 @@ import org.logx.storage.s3.AwsS3Config;
 import org.logx.storage.s3.S3ConfigValidator;
 
 import java.time.Duration;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 import static org.assertj.core.api.Assertions.*;
 

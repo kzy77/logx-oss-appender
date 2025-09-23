@@ -51,7 +51,8 @@ public class ErrorContext {
     }
 
     public Throwable getThrowable() {
-        return throwable;
+        // 返回异常的副本以避免内部表示暴露
+        return throwable != null ? new RuntimeException(throwable.getMessage(), throwable.getCause()) : null;
     }
 
     public String getDetails() {
@@ -119,7 +120,8 @@ public class ErrorContext {
         }
 
         public Builder throwable(Throwable throwable) {
-            this.throwable = throwable;
+            // 存储异常的副本以避免内部表示暴露
+            this.throwable = throwable != null ? new RuntimeException(throwable.getMessage(), throwable.getCause()) : null;
             return this;
         }
 

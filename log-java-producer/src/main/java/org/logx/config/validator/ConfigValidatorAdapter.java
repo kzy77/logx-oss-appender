@@ -2,7 +2,6 @@ package org.logx.config.validator;
 
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Collections;
 
 /**
  * 通用配置验证器适配器

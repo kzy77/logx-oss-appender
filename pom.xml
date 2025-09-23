@@ -97,6 +97,28 @@
                 <version>${assertj.version}</version>
                 <scope>test</scope>
             </dependency>
+            
+            <!-- Dependency Conflict Resolutions -->
+            <!-- httpcore conflict resolution -->
+            <dependency>
+                <groupId>org.apache.httpcomponents</groupId>
+                <artifactId>httpcore</artifactId>
+                <version>4.4.16</version>
+            </dependency>
+            
+            <!-- commons-codec conflict resolution -->
+            <dependency>
+                <groupId>commons-codec</groupId>
+                <artifactId>commons-codec</artifactId>
+                <version>1.17.1</version>
+            </dependency>
+            
+            <!-- byte-buddy conflict resolution -->
+            <dependency>
+                <groupId>net.bytebuddy</groupId>
+                <artifactId>byte-buddy</artifactId>
+                <version>1.12.21</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

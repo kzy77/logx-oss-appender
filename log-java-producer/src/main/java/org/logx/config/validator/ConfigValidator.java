@@ -1,8 +1,10 @@
 package org.logx.config.validator;
 
-import java.util.List;
+import org.logx.config.ConfigManager;
+
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * 配置验证器接口
@@ -52,7 +54,8 @@ public interface ConfigValidator {
          * @return 验证错误列表
          */
         public List<ValidationError> getErrors() {
-            return errors;
+            // 返回错误列表的副本以避免内部表示暴露
+            return new ArrayList<>(errors);
         }
 
         /**
@@ -132,7 +135,8 @@ public interface ConfigValidator {
         }
 
         public Throwable getCause() {
-            return cause;
+            // 返回异常的副本以避免内部表示暴露
+            return cause != null ? new RuntimeException(cause.getMessage(), cause.getCause()) : null;
         }
 
         @Override

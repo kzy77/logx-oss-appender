@@ -1,6 +1,7 @@
 package org.logx.reliability;
 
-import java.io.File;
+import org.logx.config.CommonConfig;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -51,12 +52,10 @@ public class LocalCacheManager {
     private static class CacheEntry {
         final String fileName;
         final long sizeBytes;
-        final long timestamp;
 
-        CacheEntry(String fileName, long sizeBytes, long timestamp) {
+        CacheEntry(String fileName, long sizeBytes) {
             this.fileName = fileName;
             this.sizeBytes = sizeBytes;
-            this.timestamp = timestamp;
         }
     }
 
@@ -122,9 +121,8 @@ public class LocalCacheManager {
                         try {
                             String fileName = path.getFileName().toString();
                             long size = Files.size(path);
-                            long timestamp = Files.getLastModifiedTime(path).toMillis();
 
-                            cacheEntries.offer(new CacheEntry(fileName, size, timestamp));
+                            cacheEntries.offer(new CacheEntry(fileName, size));
                             currentCacheSize.addAndGet(size);
                         } catch (IOException e) {
                             System.err.println("Failed to load cache entry: " + path + ", error: " + e.getMessage());
@@ -163,7 +161,7 @@ public class LocalCacheManager {
 
         // 更新缓存信息
         long fileSize = Files.size(filePath);
-        cacheEntries.offer(new CacheEntry(fileName, fileSize, System.currentTimeMillis()));
+        cacheEntries.offer(new CacheEntry(fileName, fileSize));
         currentCacheSize.addAndGet(fileSize);
 
         System.out.println("Log data cached to: " + filePath + ", size: " + fileSize + " bytes");
@@ -200,7 +198,12 @@ public class LocalCacheManager {
             throw new IllegalStateException("LocalCacheManager not initialized");
         }
 
-        String fileName = filePath.getFileName().toString();
+        Path fileNamePath = filePath.getFileName();
+        if (fileNamePath == null) {
+            throw new IllegalArgumentException("Invalid file path: " + filePath);
+        }
+        
+        String fileName = fileNamePath.toString();
 
         // 删除文件
         if (Files.exists(filePath)) {

@@ -233,7 +233,8 @@ public final class S3StorageAdapter implements S3StorageInterface, AutoCloseable
                         .key(key).uploadId(uploadId).build();
                 s3Client.abortMultipartUpload(abortRequest);
             } catch (Exception abortException) {
-                // 忽略清理失败
+                // 记录清理失败但不中断主流程
+                System.err.println("Failed to abort multipart upload: " + abortException.getMessage());
             }
             throw new RuntimeException("Multipart upload failed", e);
         }
