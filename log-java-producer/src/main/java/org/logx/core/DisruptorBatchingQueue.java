@@ -97,11 +97,11 @@ public final class DisruptorBatchingQueue {
         this.consumer = consumer;
         EventFactory<LogEventHolder> factory = LogEventHolder::new;
         ProducerType type = multiProducer ? ProducerType.MULTI : ProducerType.SINGLE;
-        this.disruptor = new Disruptor<>(factory, capacity, Executors.newSingleThreadExecutor(r -> {
+        this.disruptor = new Disruptor<LogEventHolder>(factory, capacity, r -> {
             Thread t = new Thread(r, "oss-disruptor-consumer");
             t.setDaemon(true);
             return t;
-        }), type, new YieldingWaitStrategy());
+        }, type, new YieldingWaitStrategy());
         this.disruptor.handleEventsWith(new EventHandler<LogEventHolder>() {
             private List<LogEvent> buffer = new ArrayList<>(DisruptorBatchingQueue.this.batchMaxMessages);
             private int bytes = 0;

@@ -2,10 +2,12 @@ package org.logx.logback;
 
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
-import ch.qos.logback.core.Encoder;
+import ch.qos.logback.core.encoder.Encoder;
 import ch.qos.logback.core.status.ErrorStatus;
 import org.logx.logback.LogbackBridge;
 import org.logx.storage.StorageConfig;
+import org.logx.storage.sf.SfOssConfig;
+import org.logx.storage.s3.AwsS3Config;
 
 /**
  * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -62,7 +64,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             // 构建S3存储配置，根据endpoint自动选择合适的配置类
             StorageConfig config;
             if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
-                config = new org.logx.storage.s3.SfOssConfig.Builder()
+                config = new SfOssConfig.Builder()
                     .endpoint(this.endpoint)
                     .region(this.region)
                     .accessKeyId(this.accessKeyId)
@@ -70,7 +72,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
                     .bucket(this.bucket)
                     .build();
             } else {
-                config = new org.logx.storage.s3.AwsS3Config.Builder()
+                config = new AwsS3Config.Builder()
                     .endpoint(this.endpoint)
                     .region(this.region)
                     .accessKeyId(this.accessKeyId)
@@ -114,64 +116,128 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
     }
 
     // region setters for logback config
+    public Encoder<ILoggingEvent> getEncoder() {
+        return encoder;
+    }
+
     public void setEncoder(Encoder<ILoggingEvent> encoder) {
         this.encoder = encoder;
+    }
+
+    public String getEndpoint() {
+        return endpoint;
     }
 
     public void setEndpoint(String endpoint) {
         this.endpoint = endpoint;
     }
 
+    public String getRegion() {
+        return region;
+    }
+
     public void setRegion(String region) {
         this.region = region;
+    }
+
+    public String getAccessKeyId() {
+        return accessKeyId;
     }
 
     public void setAccessKeyId(String accessKeyId) {
         this.accessKeyId = accessKeyId;
     }
 
+    public String getAccessKeySecret() {
+        return accessKeySecret;
+    }
+
     public void setAccessKeySecret(String accessKeySecret) {
         this.accessKeySecret = accessKeySecret;
+    }
+
+    public String getBucket() {
+        return bucket;
     }
 
     public void setBucket(String bucket) {
         this.bucket = bucket;
     }
 
+    public String getKeyPrefix() {
+        return keyPrefix;
+    }
+
     public void setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
+    }
+
+    public int getMaxQueueSize() {
+        return maxQueueSize;
     }
 
     public void setMaxQueueSize(int maxQueueSize) {
         this.maxQueueSize = maxQueueSize;
     }
 
+    public int getMaxBatchCount() {
+        return maxBatchCount;
+    }
+
     public void setMaxBatchCount(int maxBatchCount) {
         this.maxBatchCount = maxBatchCount;
+    }
+
+    public int getMaxBatchBytes() {
+        return maxBatchBytes;
     }
 
     public void setMaxBatchBytes(int maxBatchBytes) {
         this.maxBatchBytes = maxBatchBytes;
     }
 
+    public long getFlushIntervalMs() {
+        return flushIntervalMs;
+    }
+
     public void setFlushIntervalMs(long flushIntervalMs) {
         this.flushIntervalMs = flushIntervalMs;
+    }
+
+    public boolean isDropWhenQueueFull() {
+        return dropWhenQueueFull;
     }
 
     public void setDropWhenQueueFull(boolean dropWhenQueueFull) {
         this.dropWhenQueueFull = dropWhenQueueFull;
     }
 
+    public boolean isMultiProducer() {
+        return multiProducer;
+    }
+
     public void setMultiProducer(boolean multiProducer) {
         this.multiProducer = multiProducer;
+    }
+
+    public int getMaxRetries() {
+        return maxRetries;
     }
 
     public void setMaxRetries(int maxRetries) {
         this.maxRetries = maxRetries;
     }
 
+    public long getBaseBackoffMs() {
+        return baseBackoffMs;
+    }
+
     public void setBaseBackoffMs(long baseBackoffMs) {
         this.baseBackoffMs = baseBackoffMs;
+    }
+
+    public long getMaxBackoffMs() {
+        return maxBackoffMs;
     }
 
     public void setMaxBackoffMs(long maxBackoffMs) {

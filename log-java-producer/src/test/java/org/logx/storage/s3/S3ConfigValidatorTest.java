@@ -31,7 +31,7 @@ class S3ConfigValidatorTest {
                 .region("us-east-1").accessKeyId("AKIAIOSFODNN7EXAMPLE")
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isTrue();
         assertThat(result.getErrors()).isEmpty();
@@ -41,11 +41,11 @@ class S3ConfigValidatorTest {
     void shouldRejectNonS3ConfigObject() {
         String invalidConfig = "not a config object";
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(invalidConfig);
+        ConfigValidator.ValidationResult result = validator.validate(invalidConfig);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).hasSize(1);
-        assertThat(result.getErrors().get(0).getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.BUSINESS_LOGIC_ERROR);
+        assertThat(result.getErrors().get(0).getType()).isEqualTo(ConfigValidator.ErrorType.BUSINESS_LOGIC_ERROR);
     }
 
     @Test
@@ -54,14 +54,14 @@ class S3ConfigValidatorTest {
                 // 故意省略region, accessKeyId, accessKeySecret, bucket
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).hasSizeGreaterThanOrEqualTo(4);
 
         // 检查是否包含必需字段错误
-        assertThat(result.getErrors()).extracting(org.logx.config.validator.ConfigValidator.ValidationError::getType)
-                .contains(org.logx.config.validator.ConfigValidator.ErrorType.REQUIRED_FIELD_MISSING);
+        assertThat(result.getErrors()).extracting(ConfigValidator.ValidationError::getType)
+                .contains(ConfigValidator.ErrorType.REQUIRED_FIELD_MISSING);
     }
 
     @Test
@@ -70,12 +70,12 @@ class S3ConfigValidatorTest {
                 .region("us-east-1").accessKeyId("AKIAIOSFODNN7EXAMPLE")
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("endpoint");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.INVALID_FORMAT);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.INVALID_FORMAT);
         });
     }
 
@@ -88,7 +88,7 @@ class S3ConfigValidatorTest {
                 .region("us-east-1").accessKeyId("AKIAIOSFODNN7EXAMPLE")
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
@@ -105,12 +105,12 @@ class S3ConfigValidatorTest {
                 .bucket("Invalid-Bucket-Name-With-Uppercase") // 无效的bucket名称
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("bucket");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.INVALID_FORMAT);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.INVALID_FORMAT);
         });
     }
 
@@ -121,7 +121,7 @@ class S3ConfigValidatorTest {
                 .accessKeySecret("ALSO-SHORT") // 太短的secret key
                 .bucket("my-test-bucket").build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
@@ -143,16 +143,16 @@ class S3ConfigValidatorTest {
                 .readTimeout(Duration.ofSeconds(-1)) // 负数超时
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("connectTimeout");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
         });
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("readTimeout");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
         });
     }
 
@@ -165,16 +165,18 @@ class S3ConfigValidatorTest {
                 .readTimeout(Duration.ofMinutes(10)) // 过大的读取超时
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config, ConfigValidator.ValidationOptions.withWarnings());
 
-        assertThat(result.isValid()).isFalse();
+        assertThat(result.isValid()).isFalse(); // 警告模式下，警告也会导致验证失败
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("connectTimeout");
-            assertThat(error.getMessage()).contains("too large");
+            assertThat(error.getMessage()).contains("is large");
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.WARNING);
         });
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("readTimeout");
-            assertThat(error.getMessage()).contains("too large");
+            assertThat(error.getMessage()).contains("is large");
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.WARNING);
         });
     }
 
@@ -185,30 +187,31 @@ class S3ConfigValidatorTest {
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").maxConnections(0) // 无效的连接数
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anySatisfy(error -> {
-            assertThat(error.getField()).isEqualTo("maxConnections");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
-        });
+        assertThat(result.getErrors()).hasSize(1);
+        assertThat(result.getErrors().get(0).getField()).isEqualTo("maxConnections");
+        assertThat(result.getErrors().get(0).getMessage()).contains("must be positive");
+        assertThat(result.getErrors().get(0).getType()).isEqualTo(ConfigValidator.ErrorType.VALUE_OUT_OF_RANGE);
     }
 
     @Test
     void shouldWarnAboutTooManyConnections() {
         ConfigFactory.AwsS3Config config = new ConfigFactory.AwsS3Config.Builder().endpoint("https://s3.amazonaws.com")
-                .region("us-east-1").accessKeyId("AKIAIOSFODNN7EXAMPLE")
+                .region("us-west-1") // 使用非默认区域
+                .accessKeyId("AKIAIOSFODNN7EXAMPLE")
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket")
                 .maxConnections(2000) // 过多的连接数
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config, ConfigValidator.ValidationOptions.withWarnings());
 
-        assertThat(result.isValid()).isFalse();
-        assertThat(result.getErrors()).anySatisfy(error -> {
-            assertThat(error.getField()).isEqualTo("maxConnections");
-            assertThat(error.getMessage()).contains("too large");
-        });
+        assertThat(result.isValid()).isFalse(); // 警告模式下，警告也会导致验证失败
+        assertThat(result.getErrors()).hasSize(1);
+        assertThat(result.getErrors().get(0).getField()).isEqualTo("maxConnections");
+        assertThat(result.getErrors().get(0).getMessage()).contains("is large");
+        assertThat(result.getErrors().get(0).getType()).isEqualTo(ConfigValidator.ErrorType.WARNING);
     }
 
     @Test
@@ -218,12 +221,12 @@ class S3ConfigValidatorTest {
                 .accessKeyId("AKIAIOSFODNN7EXAMPLE").accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY")
                 .bucket("my-test-bucket").build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("endpoint");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
         });
     }
 
@@ -235,11 +238,11 @@ class S3ConfigValidatorTest {
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").enableSsl(true) // SSL启用但endpoint是HTTP
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result1 = validator.validate(httpConfig);
+        ConfigValidator.ValidationResult result1 = validator.validate(httpConfig);
         assertThat(result1.isValid()).isFalse();
         assertThat(result1.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("enableSsl");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
         });
 
         // SSL禁用但endpoint使用HTTPS
@@ -248,11 +251,11 @@ class S3ConfigValidatorTest {
                 .accessKeySecret("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY").bucket("my-test-bucket").enableSsl(false) // SSL禁用但endpoint是HTTPS
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result2 = validator.validate(httpsConfig);
+        ConfigValidator.ValidationResult result2 = validator.validate(httpsConfig);
         assertThat(result2.isValid()).isFalse();
         assertThat(result2.getErrors()).anySatisfy(error -> {
             assertThat(error.getField()).isEqualTo("enableSsl");
-            assertThat(error.getType()).isEqualTo(org.logx.config.validator.ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
+            assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.DEPENDENCY_CONFLICT);
         });
     }
 
@@ -262,13 +265,13 @@ class S3ConfigValidatorTest {
                 // 故意留空所有必需字段
                 .build();
 
-        org.logx.config.validator.ConfigValidator.ValidationResult result = validator.validate(config);
+        ConfigValidator.ValidationResult result = validator.validate(config);
 
         assertThat(result.isValid()).isFalse();
         assertThat(result.getErrorSummary()).contains("Configuration validation failed");
 
         // 验证每个错误都有建议
-        for (org.logx.config.validator.ConfigValidator.ValidationError error : result.getErrors()) {
+        for (ConfigValidator.ValidationError error : result.getErrors()) {
             assertThat(error.getSuggestion()).isNotNull();
             assertThat(error.getSuggestion()).isNotEmpty();
         }

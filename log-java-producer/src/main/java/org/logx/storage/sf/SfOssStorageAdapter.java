@@ -77,10 +77,14 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     @Override
     public CompletableFuture<Void> putObject(String key, byte[] data) {
         if (key == null || key.trim().isEmpty()) {
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Key cannot be null or empty"));
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Key cannot be null or empty"));
+            return future;
         }
         if (data == null) {
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Data cannot be null"));
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Data cannot be null"));
+            return future;
         }
 
         String fullKey = buildFullKey(key);
@@ -98,17 +102,22 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     @Override
     public CompletableFuture<Void> putObjects(Map<String, byte[]> objects) {
         if (objects == null || objects.isEmpty()) {
-            return CompletableFuture.failedFuture(new IllegalArgumentException("Objects cannot be null or empty"));
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Objects cannot be null or empty"));
+            return future;
         }
 
         // 验证所有key和data都不为空
         for (Map.Entry<String, byte[]> entry : objects.entrySet()) {
             if (entry.getKey() == null || entry.getKey().trim().isEmpty()) {
-                return CompletableFuture
-                        .failedFuture(new IllegalArgumentException("Object key cannot be null or empty"));
+                CompletableFuture<Void> future = new CompletableFuture<>();
+                future.completeExceptionally(new IllegalArgumentException("Object key cannot be null or empty"));
+                return future;
             }
             if (entry.getValue() == null) {
-                return CompletableFuture.failedFuture(new IllegalArgumentException("Object data cannot be null"));
+                CompletableFuture<Void> future = new CompletableFuture<>();
+                future.completeExceptionally(new IllegalArgumentException("Object data cannot be null"));
+                return future;
             }
         }
 

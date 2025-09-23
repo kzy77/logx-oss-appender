@@ -6,6 +6,8 @@ import org.logx.adapter.AbstractUniversalAdapter;
 import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngine;
 import org.logx.storage.s3.S3StorageFactory;
+import org.logx.storage.sf.SfOssConfig;
+import org.logx.storage.s3.AwsS3Config;
 
 
 /**

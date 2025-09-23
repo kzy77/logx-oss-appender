@@ -217,14 +217,15 @@ public class S3StorageFactory {
 
         @Override
         public java.util.concurrent.CompletableFuture<Void> putObject(String key, byte[] data) {
-            // 模拟实现：简单验证参数并返回成功的Future
             if (key == null || key.trim().isEmpty()) {
-                return java.util.concurrent.CompletableFuture
-                        .failedFuture(new IllegalArgumentException("key cannot be null or empty"));
+                java.util.concurrent.CompletableFuture<Void> future = new java.util.concurrent.CompletableFuture<>();
+                future.completeExceptionally(new IllegalArgumentException("key cannot be null or empty"));
+                return future;
             }
             if (data == null) {
-                return java.util.concurrent.CompletableFuture
-                        .failedFuture(new IllegalArgumentException("data cannot be null"));
+                java.util.concurrent.CompletableFuture<Void> future = new java.util.concurrent.CompletableFuture<>();
+                future.completeExceptionally(new IllegalArgumentException("data cannot be null"));
+                return future;
             }
 
             return java.util.concurrent.CompletableFuture.completedFuture(null);
@@ -233,8 +234,9 @@ public class S3StorageFactory {
         @Override
         public java.util.concurrent.CompletableFuture<Void> putObjects(java.util.Map<String, byte[]> objects) {
             if (objects == null || objects.isEmpty()) {
-                return java.util.concurrent.CompletableFuture
-                        .failedFuture(new IllegalArgumentException("objects cannot be null or empty"));
+                java.util.concurrent.CompletableFuture<Void> future = new java.util.concurrent.CompletableFuture<>();
+                future.completeExceptionally(new IllegalArgumentException("objects cannot be null or empty"));
+                return future;
             }
 
             return java.util.concurrent.CompletableFuture.completedFuture(null);

@@ -1,6 +1,8 @@
 package org.logx.config.validator;
 
 import java.util.List;
+import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * 配置验证器接口
@@ -32,7 +34,7 @@ public interface ConfigValidator {
 
         public ValidationResult(boolean valid, List<ValidationError> errors) {
             this.valid = valid;
-            this.errors = errors != null ? errors : List.of();
+            this.errors = errors != null ? errors : Collections.emptyList();
         }
 
         /**
@@ -75,7 +77,7 @@ public interface ConfigValidator {
          * @return 有效的验证结果
          */
         public static ValidationResult valid() {
-            return new ValidationResult(true, List.of());
+            return new ValidationResult(true, Collections.emptyList());
         }
 
         /**
@@ -87,7 +89,7 @@ public interface ConfigValidator {
          * @return 无效的验证结果
          */
         public static ValidationResult invalid(List<ValidationError> errors) {
-            return new ValidationResult(false, errors);
+            return new ValidationResult(false, errors != null ? errors : Collections.emptyList());
         }
     }
 
@@ -99,12 +101,18 @@ public interface ConfigValidator {
         private final String message;
         private final String suggestion;
         private final ErrorType type;
+        private final Throwable cause;
 
         public ValidationError(String field, String message, String suggestion, ErrorType type) {
+            this(field, message, suggestion, type, null);
+        }
+
+        public ValidationError(String field, String message, String suggestion, ErrorType type, Throwable cause) {
             this.field = field;
             this.message = message;
             this.suggestion = suggestion;
             this.type = type;
+            this.cause = cause;
         }
 
         public String getField() {
@@ -121,6 +129,10 @@ public interface ConfigValidator {
 
         public ErrorType getType() {
             return type;
+        }
+
+        public Throwable getCause() {
+            return cause;
         }
 
         @Override
@@ -147,6 +159,56 @@ public interface ConfigValidator {
         /** 权限认证问题 */
         AUTHENTICATION_ERROR,
         /** 业务逻辑错误 */
-        BUSINESS_LOGIC_ERROR
+        BUSINESS_LOGIC_ERROR,
+        /** 配置警告 */
+        WARNING
+    }
+
+    /**
+     * 验证选项
+     */
+    class ValidationOptions {
+        private final boolean strictMode;
+        private final boolean includeWarnings;
+
+        private ValidationOptions(boolean strictMode, boolean includeWarnings) {
+            this.strictMode = strictMode;
+            this.includeWarnings = includeWarnings;
+        }
+
+        public boolean isStrictMode() {
+            return strictMode;
+        }
+
+        public boolean isIncludeWarnings() {
+            return includeWarnings;
+        }
+
+        public static ValidationOptions defaultOptions() {
+            return new ValidationOptions(false, false);
+        }
+
+        public static ValidationOptions strict() {
+            return new ValidationOptions(true, true);
+        }
+
+        public static ValidationOptions withWarnings() {
+            return new ValidationOptions(false, true);
+        }
+    }
+
+    /**
+     * 带选项的验证方法
+     *
+     * @param config
+     *            要验证的配置对象
+     * @param options
+     *            验证选项
+     *
+     * @return 验证结果
+     */
+    default ValidationResult validate(Object config, ValidationOptions options) {
+        // 默认实现忽略选项，保持向后兼容
+        return validate(config);
     }
 }

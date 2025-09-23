@@ -1,7 +1,6 @@
 package org.logx.log4j2;
 
 import java.io.Serializable;
-import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 
 import org.apache.logging.log4j.core.Appender;
@@ -15,10 +14,9 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.apache.logging.log4j.core.layout.PatternLayout;
-import org.logx.log4j2.Log4j2Bridge;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.s3.S3StorageFactory;
+import org.logx.storage.sf.SfOssConfig;
+import org.logx.storage.s3.AwsS3Config;
 
 @Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
@@ -78,7 +76,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         // 根据endpoint自动选择合适的配置类
         StorageConfig adapterConfig;
         if (endpoint != null && endpoint.contains("sf-oss")) {
-            adapterConfig = new org.logx.storage.s3.SfOssConfig.Builder()
+            adapterConfig = new SfOssConfig.Builder()
                 .endpoint(endpoint)
                 .region(region)
                 .accessKeyId(accessKeyId)
@@ -86,7 +84,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
                 .bucket(bucket)
                 .build();
         } else {
-            adapterConfig = new org.logx.storage.s3.AwsS3Config.Builder()
+            adapterConfig = new AwsS3Config.Builder()
                 .endpoint(endpoint)
                 .region(region)
                 .accessKeyId(accessKeyId)

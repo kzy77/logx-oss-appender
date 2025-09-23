@@ -6,6 +6,8 @@ import org.apache.log4j.spi.ErrorCode;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.log4j.Log4j1xBridge;
 import org.logx.storage.StorageConfig;
+import org.logx.storage.sf.SfOssConfig;
+import org.logx.storage.s3.AwsS3Config;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -59,7 +61,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
             // 构建S3存储配置，根据endpoint自动选择合适的配置类
             StorageConfig config;
             if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
-                config = new org.logx.storage.s3.SfOssConfig.Builder()
+                config = new SfOssConfig.Builder()
                     .endpoint(this.endpoint)
                     .region(this.region)
                     .accessKeyId(this.accessKeyId)
@@ -67,7 +69,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
                     .bucket(this.bucket)
                     .build();
             } else {
-                config = new org.logx.storage.s3.AwsS3Config.Builder()
+                config = new AwsS3Config.Builder()
                     .endpoint(this.endpoint)
                     .region(this.region)
                     .accessKeyId(this.accessKeyId)

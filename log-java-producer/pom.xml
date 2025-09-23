@@ -22,9 +22,9 @@
 
   <dependencies>
     <dependency>
-      <groupId>com.lmax</groupId>
-      <artifactId>disruptor</artifactId>
-      <version>3.4.4</version>
+        <groupId>com.lmax</groupId>
+        <artifactId>disruptor</artifactId>
+        <version>4.0.0</version>
     </dependency>
     <!-- AWS SDK for S3 compatibility -->
     <dependency>
