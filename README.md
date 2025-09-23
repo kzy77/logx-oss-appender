@@ -6,10 +6,10 @@
 
 LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含四个核心模块：
 
-- **[log-java-producer](https://github.com/logx-oss-appender/log-java-producer)** - 核心基础模块，提供日志生产和队列管理
-- **[log4j-oss-appender](https://github.com/logx-oss-appender/log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
-- **[log4j2-oss-appender](https://github.com/logx-oss-appender/log4j2-oss-appender)** - Log4j2版本的OSS Appender
-- **[logback-oss-appender](https://github.com/logx-oss-appender/logback-oss-appender)** - Logback版本的OSS Appender
+- **[log-java-producer](log-java-producer)** - 核心基础模块，提供日志生产和队列管理
+- **[log4j-oss-appender](log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
+- **[log4j2-oss-appender](log4j2-oss-appender)** - Log4j2版本的OSS Appender
+- **[logback-oss-appender](logback-oss-appender)** - Logback版本的OSS Appender
 
 ## 特性
 
