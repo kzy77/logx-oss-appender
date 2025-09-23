@@ -110,8 +110,8 @@ storage.healthCheck()
 
 ```java
 AwsS3Config config = AwsS3Config.builder()
-    .endpoint("https://s3.us-east-1.amazonaws.com")
-    .region("us-east-1")
+    .endpoint("https://s3.cn-north-1.amazonaws.com.cn")
+    .region("cn-north-1")
     .accessKeyId("AKIA...")
     .accessKeySecret("your-secret-key")
     .bucket("my-log-bucket")
@@ -135,7 +135,7 @@ AwsS3Config config = AwsS3Config.fromEnvironment();
 ```bash
 export AWS_ACCESS_KEY_ID="your-access-key-id"
 export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
-export AWS_DEFAULT_REGION="us-east-1"
+export AWS_DEFAULT_REGION="cn-north-1"
 export AWS_S3_BUCKET="my-log-bucket"
 ```
 
