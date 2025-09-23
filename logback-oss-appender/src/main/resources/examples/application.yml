@@ -1,0 +1,68 @@
+# Spring Boot application.yml 配置示例
+# Logback OSS Appender 自动配置
+
+spring:
+  application:
+    name: my-spring-boot-app
+  profiles:
+    active: prod
+
+# Logback OSS配置
+logging:
+  logback:
+    oss:
+      # 启用OSS Appender
+      enabled: true
+      
+      # S3兼容存储配置 - 推荐使用环境变量
+      endpoint: ${OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+      region: ${OSS_REGION:cn-hangzhou}
+      access-key-id: ${OSS_ACCESS_KEY_ID}
+      access-key-secret: ${OSS_ACCESS_KEY_SECRET}
+      bucket: ${OSS_BUCKET:${spring.application.name}-logs}
+      
+      # 日志路径配置
+      key-prefix: logs/${spring.application.name}/${spring.profiles.active}/
+      
+      # 性能配置
+      max-queue-size: 65536  # 队列大小（必须是2的幂）
+      max-batch-count: 1000  # 批处理大小
+      max-batch-bytes: 4194304  # 4MB
+      flush-interval-ms: 5000  # 刷新间隔（毫秒）
+      drop-when-queue-full: false  # 队列满时是否丢弃
+      multi-producer: false  # 是否多生产者模式
+      
+      # 重试配置
+      max-retries: 3
+      base-backoff-ms: 200
+      max-backoff-ms: 10000
+      
+      # 日志格式配置
+      pattern: "%d{ISO8601} [%t] %-5level %logger{36} [%X{traceId}] - %msg%n"
+      level: INFO
+
+  # 标准Logback配置
+  level:
+    root: INFO
+    com.mycompany: DEBUG
+    org.springframework: WARN
+    
+# Spring Boot Actuator配置
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,loggers
+  endpoint:
+    health:
+      show-details: always
+  health:
+    defaults:
+      enabled: true
+
+# 环境变量说明：
+# OSS_ACCESS_KEY_ID=your_access_key_id
+# OSS_ACCESS_KEY_SECRET=your_access_key_secret  
+# OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com
+# OSS_REGION=cn-hangzhou
+# OSS_BUCKET=my-app-logs

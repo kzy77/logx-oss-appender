@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+  <Appenders>
+    <!-- OSS对象存储Appender配置示例 -->
+    <OSS name="oss"
+         endpoint="https://oss-cn-hangzhou.aliyuncs.com"
+         region="cn-hangzhou"
+         accessKeyId="${sys:OSS_ACCESS_KEY_ID}"
+         accessKeySecret="${sys:OSS_ACCESS_KEY_SECRET}"
+         bucket="my-logs-bucket"
+         keyPrefix="app-logs/">
+      <PatternLayout pattern="%d{ISO8601} [%t] %-5level %logger{36} - %msg%n"/>
+    </OSS>
+
+    <!-- 控制台输出（用于调试） -->
+    <Console name="console" target="SYSTEM_OUT">
+      <PatternLayout pattern="%-5p %c{1} - %m%n"/>
+    </Console>
+  </Appenders>
+
+  <Loggers>
+    <!-- 根Logger配置 -->
+    <Root level="INFO">
+      <AppenderRef ref="console"/>
+      <AppenderRef ref="oss"/>
+    </Root>
+
+    <!-- 特定包的Logger配置 -->
+    <Logger name="org.logx" level="DEBUG" additivity="false">
+      <AppenderRef ref="console"/>
+    </Logger>
+  </Loggers>
+</Configuration>
+
+
