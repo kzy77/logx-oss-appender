@@ -3,7 +3,7 @@
 ## 正确的依赖结构
 
 ```
-log-java-producer (核心)
+logx-producer (核心)
     ↓
 log4j-oss-appender
 log4j2-oss-appender

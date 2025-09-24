@@ -8,7 +8,7 @@ import org.logx.storage.StorageConfig;
 /**
  * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
  * AppenderBase 避免线程同步开销 - 依赖 Encoder 将 ILoggingEvent 序列化为字符串 - 核心逻辑委托给
- * 通用适配器框架（复用log-java-producer的高性能组件）
+ * 通用适配器框架（复用logx-producer的高性能组件）
  */
 public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 

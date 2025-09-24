@@ -6,7 +6,7 @@ LogX OSS Appender 采用单仓库多模块（Monorepo）架构，包含以下核
 
 ```
 logx-oss-appender/
-├── log-java-producer/          # 核心抽象层
+├── logx-producer/              # 核心抽象层
 ├── logx-s3-adapter/            # S3兼容存储适配器
 ├── logx-sf-oss-adapter/        # SF OSS存储适配器
 ├── log4j-oss-appender/         # Log4j 1.x适配器
@@ -50,7 +50,7 @@ git push origin feature/new-feature
 
 #### Maven模块依赖关系
 ```
-log-java-producer (核心)
+logx-producer (核心)
     ↓
 log4j-oss-appender
 log4j2-oss-appender
@@ -60,7 +60,7 @@ logback-oss-appender
 三个适配器都直接依赖于核心模块，彼此之间没有依赖关系。
 
 #### 修改依赖时的注意事项
-1. **修改log-java-producer**: 需要测试所有适配器模块
+1. **修改logx-producer**: 需要测试所有适配器模块
 2. **修改适配器**: 只影响对应的日志框架
 3. **版本发布**: 统一版本号，同步发布所有模块
 
@@ -85,7 +85,7 @@ logback-oss-appender
 - `chore`: 构建工具、依赖更新
 
 #### Scope范围
-- `core`: log-java-producer核心模块
+- `core`: logx-producer核心模块
 - `log4j`: log4j适配器
 - `log4j2`: log4j2适配器
 - `logback`: logback适配器

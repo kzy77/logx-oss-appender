@@ -24,7 +24,7 @@
 ### 2.1 Git Submodules 架构图
 ```
 logx-oss-appender/ (主仓库)
-├── log-java-producer/          # 🔥 核心抽象层 (已完成95%)
+├── logx-producer/              # 🔥 核心抽象层 (已完成95%)
 │   ├── DisruptorBatchingQueue  # LMAX Disruptor高性能队列
 │   ├── S3StorageAdapter       # S3存储适配器
 │   ├── BinaryUploader          # 二进制上传器
@@ -67,7 +67,7 @@ graph TB
         I[log4j-oss-appender]
     end
 
-    subgraph "核心处理层 (log-java-producer)"
+    subgraph "核心处理层 (logx-producer)"
         J[DisruptorBatchingQueue<br/>LMAX无锁队列]
         K[S3StorageAdapter<br/>S3存储适配器]
     end
@@ -100,7 +100,7 @@ graph TB
 ### 3.1 LMAX Disruptor 队列架构（已完成）
 **核心优势：**
 ```java
-// 现有实现：log-java-producer/DisruptorBatchingQueue.java
+// 现有实现：logx-producer/DisruptorBatchingQueue.java
 public final class DisruptorBatchingQueue {
     // ✅ 环形缓冲器，2的幂次容量，零GC设计
     private final RingBuffer<LogEventHolder> ringBuffer;
@@ -234,7 +234,7 @@ public class OSSAppender extends AppenderSkeleton {
     <version>0.1.0</version>
 </dependency>
 
-<!-- log-java-producer会作为传递依赖自动引入，用户无需手动添加 -->
+<!-- logx-producer会作为传递依赖自动引入，用户无需手动添加 -->
 ```
 
 ### 4.2 零侵入框架集成

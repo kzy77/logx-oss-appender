@@ -45,7 +45,7 @@ git submodule update --init --recursive
 
 本项目使用Git Submodules管理六个独立的组件：
 
-- `log-java-producer` - 核心库
+- `logx-producer` - 核心库
 - `logx-s3-adapter` - S3兼容存储适配器
 - `logx-sf-oss-adapter` - SF OSS存储适配器
 - `log4j-oss-appender` - Log4j适配器
@@ -204,7 +204,7 @@ git remote add upstream https://github.com/logx-oss-appender/logx-oss-appender.g
 git checkout -b feature/新功能描述
 
 # 如果修改子模块，也要在子模块中创建分支
-cd log-java-producer
+cd logx-producer
 git checkout -b feature/新功能描述
 cd ..
 ```
@@ -225,7 +225,7 @@ mvn formatter:validate spotbugs:check
 
 ```bash
 # 如果修改了子模块，先提交子模块更改
-cd log-java-producer
+cd logx-producer
 git add .
 git commit -m "feat: 添加新功能描述"
 git push origin feature/新功能描述

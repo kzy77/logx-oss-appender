@@ -1,6 +1,6 @@
 # Issue: Epic 2 集成测试失败 —— AsyncEngineIntegrationTest.shouldMeetLatencyTarget
 
-- 模块：`log-java-producer`
+- 模块：`logx-producer`
 - 失败用例：`org.logx.integration.AsyncEngineIntegrationTest.shouldMeetLatencyTarget`
 - 失败摘要：断言失败 — 期望处理数量大于 4000，实际为 3269
 - 失败信息：
@@ -15,9 +15,9 @@
 ## 复现步骤
 1. 初始化/更新子模块（如需）：`git submodule update --init --recursive`
 2. 仅运行该测试：
-   - `mvn -q -pl log-java-producer -Dtest=org.logx.integration.AsyncEngineIntegrationTest#shouldMeetLatencyTarget test`
-   - 或运行整个类：`mvn -q -pl log-java-producer -Dtest=org.logx.integration.AsyncEngineIntegrationTest test`
-3. 查看报告：`log-java-producer/target/surefire-reports/org.logx.integration.AsyncEngineIntegrationTest.txt`
+   - `mvn -q -pl logx-producer -Dtest=org.logx.integration.AsyncEngineIntegrationTest#shouldMeetLatencyTarget test`
+   - 或运行整个类：`mvn -q -pl logx-producer -Dtest=org.logx.integration.AsyncEngineIntegrationTest test`
+3. 查看报告：`logx-producer/target/surefire-reports/org.logx.integration.AsyncEngineIntegrationTest.txt`
 
 ## 初步分析
 - 该用例验证性能/吞吐或延迟目标，容易受运行环境（CPU/容器/共享资源）影响。
@@ -38,5 +38,5 @@
 已计划修复
 
 ## 附件与参考
-- Surefire 报告路径：`log-java-producer/target/surefire-reports/`
+- Surefire 报告路径：`logx-producer/target/surefire-reports/`
 - 相关日志（片段）：见上述失败摘要与 surefire 报告文件。

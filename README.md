@@ -6,7 +6,7 @@
 
 LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含四个核心模块：
 
-- **[log-java-producer](log-java-producer)** - 核心基础模块，提供日志生产和队列管理
+- **[logx-producer](logx-producer)** - 核心基础模块，提供日志生产和队列管理
 - **[log4j-oss-appender](log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
 - **[log4j2-oss-appender](log4j2-oss-appender)** - Log4j2版本的OSS Appender
 - **[logback-oss-appender](logback-oss-appender)** - Logback版本的OSS Appender
@@ -259,7 +259,7 @@ logx-oss-appender/                     # 主仓库
 │   ├── prd.md                   # 产品需求文档
 │   ├── developer-guide.md       # 开发者指南
 │   └── git-management.md        # Git管理指南
-├── log-java-producer/           # 核心处理引擎
+├── logx-producer/              # 核心处理引擎
 ├── log4j-oss-appender/          # Log4j集成模块
 ├── log4j2-oss-appender/         # Log4j2集成模块
 ├── logback-oss-appender/        # Logback集成模块
@@ -272,7 +272,7 @@ logx-oss-appender/                     # 主仓库
 
 | 模块名称 | 功能描述 | 依赖关系 |
 |---------|---------|----------|
-| **log-java-producer** | 核心处理引擎，提供队列管理、异步处理、S3接口抽象 | 基础模块，无依赖 |
+| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、S3接口抽象 | 基础模块，无依赖 |
 | **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖log-java-producer |
 | **log4j2-oss-appender** | Log4j2框架适配器，支持插件配置 | 依赖log-java-producer |
 | **logback-oss-appender** | Logback框架适配器，支持Spring Boot | 依赖log-java-producer |
@@ -442,7 +442,7 @@ mvn spotbugs:check formatter:validate
 mvn clean install -pl log4j2-oss-appender
 
 # 测试特定模块
-mvn test -pl log-java-producer
+mvn test -pl logx-producer
 
 # 检查模块依赖
 mvn dependency:tree -pl logback-oss-appender

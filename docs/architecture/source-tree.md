@@ -13,7 +13,7 @@ logx-oss-appender/
 │   ├── stories/                   # 用户故事
 │   ├── prd.md                     # 产品需求文档
 │   └── architecture.md            # 架构总览
-├── log-java-producer/             # 核心抽象层 (高性能组件)
+├── logx-producer/                 # 核心抽象层 (高性能组件)
 ├── logx-s3-adapter/              # S3兼容存储适配器
 ├── logx-sf-oss-adapter/          # SF OSS存储适配器
 ├── log4j-oss-appender/           # Log4j 1.x 适配器
@@ -24,11 +24,11 @@ logx-oss-appender/
 └── README.md                     # 项目说明
 ```
 
-## 核心组件: log-java-producer
+## 核心组件: logx-producer
 
 ### 目录结构
 ```
-log-java-producer/
+logx-producer/
 ├── src/main/java/org/logx/
 │   ├── adapter/                  # 适配器接口
 │   ├── batch/                    # 批处理相关
@@ -299,7 +299,7 @@ target/
                                  │
                      ┌───────────▼───────────┐
                      │                       │
-                     │  log-java-producer    │
+                     │  logx-producer        │
                      │  (核心抽象层)          │
                      │                       │
                      └───────────┬───────────┘
@@ -319,7 +319,7 @@ target/
 ```
 logx-oss-appender-release/
 ├── lib/
-│   ├── log-java-producer-*.jar        # 核心组件
+│   ├── logx-producer-*.jar           # 核心组件
 │   ├── logx-s3-adapter-*.jar          # S3兼容存储适配器
 │   ├── logx-sf-oss-adapter-*.jar      # SF OSS存储适配器
 │   ├── logback-oss-appender-*.jar     # Logback适配器

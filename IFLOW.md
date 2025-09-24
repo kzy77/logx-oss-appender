@@ -4,7 +4,7 @@
 
 LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块：
 
-- **log-java-producer** - 核心基础模块，提供日志生产和队列管理
+- **logx-producer** - 核心基础模块，提供日志生产和队列管理
 - **logx-s3-adapter** - S3兼容存储适配器
 - **logx-sf-oss-adapter** - SF OSS存储适配器
 - **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
@@ -23,7 +23,7 @@ logx-oss-appender/                     # 主仓库
 │   ├── prd.md                   # 产品需求文档
 │   ├── developer-guide.md       # 开发者指南
 │   └── git-management.md        # Git管理指南
-├── log-java-producer/           # 核心处理引擎
+├── logx-producer/              # 核心处理引擎
 ├── logx-s3-adapter/             # S3兼容存储适配器
 ├── logx-sf-oss-adapter/         # SF OSS存储适配器
 ├── log4j-oss-appender/          # Log4j集成模块
@@ -35,7 +35,7 @@ logx-oss-appender/                     # 主仓库
 ### 核心组件依赖关系
 
 ```
-log-java-producer (核心)
+logx-producer (核心)
     ↓
 log4j-oss-appender
 log4j2-oss-appender
@@ -109,7 +109,7 @@ mvn clean install -pl log4j2-oss-appender -am
 mvn test
 
 # 运行特定模块测试
-mvn test -pl log-java-producer
+mvn test -pl logx-producer
 
 # 运行集成测试
 mvn verify -Pintegration-tests
@@ -180,7 +180,7 @@ git push origin feature/new-feature
 - `chore`: 构建工具、依赖更新
 
 #### Scope范围
-- `core`: log-java-producer核心模块
+- `core`: logx-producer核心模块
 - `s3`: logx-s3-adapter模块
 - `sf`: logx-sf-oss-adapter模块
 - `log4j`: log4j适配器

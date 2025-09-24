@@ -28,7 +28,7 @@
 
 #### Ideas Generated:
 
-1. **简洁性定义**：log-java-producer高度抽象提取共性，各框架实现简洁一致
+1. **简洁性定义**：logx-producer高度抽象提取共性，各框架实现简洁一致
 2. **高性能要求**：延迟最小 + 内存/CPU占用少 + 高吞吐量
 3. **可切换性目标**：运行时存储后端切换 + 数据不丢失保证
 4. **核心组件识别**：队列、适配器、配置管理、异步化
@@ -60,7 +60,7 @@
    - Why immediate: 是整个架构的基础，必须首先确定
    - Resources needed: 架构设计师 + 1-2天设计时间
 
-2. **log-java-producer核心实现**
+2. **logx-producer核心实现**
    - Description: 实现队列管理、异步化、配置管理等共性功能
    - Why immediate: 是三个框架适配器的公共基础
    - Resources needed: 核心开发者 + 1周开发时间
@@ -119,7 +119,7 @@
 - Resources needed: 架构设计师，参考AWS S3、阿里云OSS、MinIO文档
 - Timeline: 2-3天完成设计评审
 
-#### #2 Priority: 实现log-java-producer核心
+#### #2 Priority: 实现logx-producer核心
 - Rationale: 提取共性功能，为三个框架适配器提供统一基础
 - Next steps: 1) 实现DisruptorBatchingQueue 2) 异步线程池管理 3) 配置管理机制
 - Resources needed: 核心开发者，熟悉LMAX Disruptor和并发编程

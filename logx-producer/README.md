@@ -1,4 +1,4 @@
-# log-java-producer
+# logx-producer
 
 基础日志生产者模块，提供统一的日志生产接口，支持多种日志框架的适配。
 
@@ -13,8 +13,8 @@
 1. 引入依赖（Maven）：
 ```xml
 <dependency>
-  <groupId>io.github.log-java-producer</groupId>
-  <artifactId>log-java-producer</artifactId>
+  <groupId>org.logx</groupId>
+<artifactId>logx-producer</artifactId>
   <version>0.1.0</version>
 </dependency>
 ```

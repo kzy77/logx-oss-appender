@@ -6,7 +6,7 @@ import org.logx.storage.StorageConfig;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
- * AppenderSkeleton 提供Log4j 1.x标准接口 - 核心逻辑委托给通用适配器框架（复用log-java-producer的高性能组件） - 支持XML和Properties两种配置方式
+ * AppenderSkeleton 提供Log4j 1.x标准接口 - 核心逻辑委托给通用适配器框架（复用logx-producer的高性能组件） - 支持XML和Properties两种配置方式
  */
 public class Log4jOSSAppender extends AppenderSkeleton {
 

@@ -30,7 +30,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 
 ### 功能需求
 
-**FR1**: 统一存储服务接口抽象 - log-java-producer必须提供基于存储服务接口的统一抽象，支持多种云存储服务的无缝切换
+**FR1**: 统一存储服务接口抽象 - logx-producer必须提供基于存储服务接口的统一抽象，支持多种云存储服务的无缝切换
 
 **FR2**: 高性能异步处理引擎 - 实现基于LMAX Disruptor的高性能队列管理，确保日志写入延迟最小化和高吞吐量处理
 
@@ -61,7 +61,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 ### 仓库结构：Git Submodules (Multi-repo)
 
 采用Git Submodules架构，主仓库管理多个子模块：
-- `log-java-producer`（核心抽象层）
+- `logx-producer`（核心抽象层）
 - `logx-s3-adapter`（S3兼容存储适配器）
 - `logx-sf-oss-adapter`（SF OSS存储适配器）
 - `log4j-oss-appender`（Log4j 1.x适配器）
@@ -170,7 +170,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 **so that** 可以获得最小延迟的异步日志处理能力并确保不影响业务系统性能。
 
 #### 验收标准
-1. 集成LMAX Disruptor 3.4.4依赖到log-java-producer模块
+1. 集成LMAX Disruptor 3.4.4依赖到logx-producer模块
 2. 创建DisruptorBatchingQueue类，配置RingBuffer和EventHandler
 3. 实现LogEvent事件类，封装日志数据和元数据
 4. 配置WaitStrategy为YieldingWaitStrategy，平衡延迟和CPU使用
@@ -212,7 +212,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 
 #### 验收标准
 1. 创建OSSAppender类，继承Log4j的AppenderSkeleton
-2. 实现doAppend方法，集成log-java-producer异步队列
+2. 实现doAppend方法，集成logx-producer异步队列
 3. 支持XML和Properties两种配置方式
 4. 添加Log4j特定的Layout和Filter支持
 5. 编写Log4j集成测试，验证配置和日志上传功能
@@ -255,26 +255,17 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 完善整个OSS Appender组件套件的生产部署能力，包括全面的监控体系、性能调优、安全加固、文档完善和CI/CD流程，确保组件达到企业级生产环境的部署和运维标准。
 
 ### 故事点7：框架兼容性和文档体系
-**As a** 企业应用开发者和开发者，
-**I want** 支持各种新老Web框架的无缝集成并有完整的文档体系，
-**so that** 可以在现有技术栈中直接使用OSS Appender并可以快速集成和有效使用。
+**As a** Spring Boot应用开发者，
+**I want** 通过Spring Boot的通用方式无缝集成OSS Appender并有完整的文档体系，
+**so that** 可以在Spring Boot应用中直接使用OSS Appender并可以快速集成和有效使用。
 
 #### 验收标准
-1. **Spring Boot深度集成**：提供auto-configuration，支持@ConfigurationProperties绑定
-2. **传统Spring框架支持**：兼容Spring 4.x/5.x，支持XML和Java配置
-3. **JSP/Servlet容器兼容**：验证Tomcat、Jetty、WebLogic等容器的兼容性
-4. **微服务框架支持**：测试与Dubbo、Spring Cloud等框架的集成
-5. **遗留框架兼容性**：支持Struts 1.x/2.x、JSF等传统Web框架
-6. **统一依赖策略**：提供单一的核心依赖包，通过配置适配不同框架
-7. **框架无关配置**：设计通用的配置接口，支持properties、xml、yaml等多种格式
-8. **传统Web应用支持**：为JSP/Servlet、Struts等传统框架提供简化配置
-9. **Spring环境优化**：提供Spring专用的配置工具类，但不强制依赖Spring Boot
-10. **容器通用性**：确保在Tomcat、Jetty、WebLogic等容器中都能正常工作
-11. 创建完整的API文档，包括Javadoc和示例代码
-12. 编写框架特定的集成指南（Spring Boot、传统Spring、JSP等）
-13. 提供故障排查指南和常见问题解答
-14. 创建性能调优和最佳实践文档
-15. 开发配置生成工具，支持不同框架的配置模板
+1. **Spring Boot集成**：通过标准依赖引入，在Spring Boot应用中使用通用方式接入，不做个性化开发
+2. **统一依赖策略**：提供单一的核心依赖包，通过配置适配Spring Boot应用
+3. 创建完整的API文档，包括Javadoc和示例代码
+4. 编写Spring Boot集成指南
+5. 提供故障排查指南和常见问题解答
+6. 创建性能调优和最佳实践文档
 
 ## Epic 5详细设计：模块化适配器设计
 
@@ -293,10 +284,8 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 4. 提供适配器加载和管理的工厂类
 5. 编写架构设计文档和使用指南
 6. 创建logx-s3-adapter模块，包含所有S3相关的依赖
-7. 移动现有的S3相关代码到此模块
-8. 实现StorageService接口的S3存储服务
-9. 配置Java SPI服务发现文件
-10. 编写模块使用文档和示例
+7. 实现StorageService接口的S3存储服务
+8. 配置Java SPI服务发现文件
 
 ### 故事点9：SF OSS适配器和框架集成
 **As a** 使用SF OSS的开发者和框架适配器用户，
@@ -312,8 +301,6 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 6. 更新所有框架适配器以使用新的存储服务工厂
 7. 保持向后兼容性，用户无需修改现有配置
 8. 添加可选的backendType配置参数
-9. 编写迁移指南和兼容性测试
-10. 验证各种组合的集成场景
 
 ## 检查清单结果报告
 
