@@ -1,5 +1,7 @@
 package org.logx.log4j2;
 
+import org.apache.logging.log4j.core.Layout;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.*;
@@ -20,11 +22,14 @@ class Log4j2OSSAppenderSfOssTest {
         String accessKeyId = "test-access-key";
         String accessKeySecret = "test-secret-key";
         String bucket = "test-bucket";
+        
+        // 创建一个简单的layout
+        Layout<?> layout = PatternLayout.newBuilder().withPattern("%m%n").build();
 
         // When
         Log4j2OSSAppender appender = Log4j2OSSAppender.createAppender(
                 name,
-                null, // layout
+                layout, // layout
                 null, // filter
                 endpoint,
                 region,

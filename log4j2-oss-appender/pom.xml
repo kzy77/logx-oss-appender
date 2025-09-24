@@ -54,6 +54,20 @@
             <version>3.24.2</version>
             <scope>test</scope>
         </dependency>
+        <!-- 添加S3适配器依赖用于测试 -->
+        <dependency>
+            <groupId>org.logx</groupId>
+            <artifactId>logx-s3-adapter</artifactId>
+            <version>0.1.0</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- 添加SF OSS适配器依赖用于测试 -->
+        <dependency>
+            <groupId>org.logx</groupId>
+            <artifactId>logx-sf-oss-adapter</artifactId>
+            <version>0.1.0</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
