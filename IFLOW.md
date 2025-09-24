@@ -2,9 +2,11 @@
 
 ## 项目概述
 
-LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含四个核心模块：
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块：
 
-- **logx-producer** - 核心基础模块，提供日志生产和队列管理
+- **log-java-producer** - 核心基础模块，提供日志生产和队列管理
+- **logx-s3-adapter** - S3兼容存储适配器
+- **logx-sf-oss-adapter** - SF OSS存储适配器
 - **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
 - **log4j2-oss-appender** - Log4j2版本的OSS Appender
 - **logback-oss-appender** - Logback版本的OSS Appender
@@ -21,7 +23,9 @@ logx-oss-appender/                     # 主仓库
 │   ├── prd.md                   # 产品需求文档
 │   ├── developer-guide.md       # 开发者指南
 │   └── git-management.md        # Git管理指南
-├── logx-producer/               # 核心处理引擎
+├── log-java-producer/           # 核心处理引擎
+├── logx-s3-adapter/             # S3兼容存储适配器
+├── logx-sf-oss-adapter/         # SF OSS存储适配器
 ├── log4j-oss-appender/          # Log4j集成模块
 ├── log4j2-oss-appender/         # Log4j2集成模块
 ├── logback-oss-appender/        # Logback集成模块
@@ -31,7 +35,7 @@ logx-oss-appender/                     # 主仓库
 ### 核心组件依赖关系
 
 ```
-logx-producer (核心)
+log-java-producer (核心)
     ↓
 log4j-oss-appender
 log4j2-oss-appender
@@ -68,12 +72,9 @@ export PATH=$JAVA_HOME/bin:$MAVEN_HOME/bin:$PATH
 ### 克隆项目
 
 ```bash
-# 完整克隆（包含所有子模块）
-git clone --recursive https://github.com/logx-oss-appender/logx-oss-appender.git
+# 克隆项目
+git clone https://github.com/logx-oss-appender/logx-oss-appender.git
 cd logx-oss-appender
-
-# 如果已克隆但缺少子模块
-git submodule update --init --recursive
 ```
 
 ## 构建和测试
@@ -179,7 +180,9 @@ git push origin feature/new-feature
 - `chore`: 构建工具、依赖更新
 
 #### Scope范围
-- `core`: logx-producer核心模块
+- `core`: log-java-producer核心模块
+- `s3`: logx-s3-adapter模块
+- `sf`: logx-sf-oss-adapter模块
 - `log4j`: log4j适配器
 - `log4j2`: log4j2适配器
 - `logback`: logback适配器
@@ -278,10 +281,10 @@ git push origin --delete release/1.2.0
 ### 1. Fork和克隆
 
 ```bash
-# Fork主仓库和相关子模块仓库到你的GitHub账户
+# Fork主仓库到你的GitHub账户
 # 然后克隆你的fork
 
-git clone --recursive https://github.com/你的用户名/logx-oss-appender.git
+git clone https://github.com/你的用户名/logx-oss-appender.git
 cd logx-oss-appender
 
 # 添加upstream远程仓库
@@ -292,11 +295,6 @@ git remote add upstream https://github.com/logx-oss-appender/logx-oss-appender.g
 
 ```bash
 git checkout -b feature/新功能描述
-
-# 如果修改子模块，也要在子模块中创建分支
-cd logx-producer
-git checkout -b feature/新功能描述
-cd ..
 ```
 
 ### 3. 开发和测试
@@ -314,24 +312,16 @@ mvn formatter:validate spotbugs:check
 ### 4. 提交更改
 
 ```bash
-# 如果修改了子模块，先提交子模块更改
-cd logx-producer
+# 提交更改
 git add .
 git commit -m "feat: 添加新功能描述"
-git push origin feature/新功能描述
-cd ..
-
-# 提交主仓库更改
-git add .
-git commit -m "feat: 在主仓库中集成新功能"
 git push origin feature/新功能描述
 ```
 
 ### 5. 创建Pull Request
 
-1. 为修改的子模块创建PR（如适用）
-2. 为主仓库创建PR
-3. 确保PR描述清晰，包含更改摘要和测试信息
+1. 为主仓库创建PR
+2. 确保PR描述清晰，包含更改摘要和测试信息
 
 ### 6. 代码审查
 
@@ -343,15 +333,7 @@ git push origin feature/新功能描述
 
 ### 常见问题
 
-#### 1. 子模块更新问题
-
-```bash
-# 如果子模块没有正确更新
-git submodule deinit -f .
-git submodule update --init --recursive
-```
-
-#### 2. Maven构建失败
+#### 1. Maven构建失败
 
 ```bash
 # 清理所有缓存
@@ -362,7 +344,7 @@ rm -rf ~/.m2/repository/org/logx
 mvn clean install
 ```
 
-#### 3. 代码格式问题
+#### 2. 代码格式问题
 
 ```bash
 # 自动修复格式问题
@@ -372,7 +354,7 @@ mvn formatter:format
 mvn formatter:validate
 ```
 
-#### 4. 依赖冲突
+#### 3. 依赖冲突
 
 ```bash
 # 查看依赖树
@@ -464,4 +446,4 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 <!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
-*本文档最后更新于 2025-09-23*
+*本文档最后更新于 2025-09-24*
