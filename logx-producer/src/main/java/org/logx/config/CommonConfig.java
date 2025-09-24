@@ -1,10 +1,11 @@
 package org.logx.config;
 
 /**
- * 通用配置常量定义类 定义所有框架适配器（Log4j、Log4j2、Logback）共享的配置参数名称，确保配置一致性
+ * 通用配置常量定义类
+ * 定义所有框架适配器（Log4j、Log4j2、Logback）共享的配置参数名称，确保配置一致性
+ * 使用统一的LOGX_OSS_前缀环境变量配置
  *
  * @author OSS Appender Team
- *
  * @since 1.0.0
  */
 public final class CommonConfig {
@@ -16,6 +17,7 @@ public final class CommonConfig {
     public static final String ACCESS_KEY_SECRET = "accessKeySecret";
     public static final String BUCKET = "bucket";
     public static final String KEY_PREFIX = "keyPrefix";
+    public static final String OSS_TYPE = "ossType";
 
     // 队列配置
     public static final String MAX_QUEUE_SIZE = "maxQueueSize";
@@ -29,44 +31,13 @@ public final class CommonConfig {
     public static final String MAX_RETRIES = "maxRetries";
     public static final String BASE_BACKOFF_MS = "baseBackoffMs";
     public static final String MAX_BACKOFF_MS = "maxBackoffMs";
+    public static final String MAX_UPLOAD_SIZE_MB = "maxUploadSizeMb";
 
     // 日志格式配置
     public static final String PATTERN = "pattern";
     public static final String LEVEL = "level";
 
-    // 配置前缀（用于不同配置源）
-    public static final String LOG4J_PREFIX = "log4j.appender.oss.";
-    public static final String LOG4J2_PREFIX = "log4j2.oss.";
-    public static final String LOGBACK_PREFIX = "logback.oss.";
-    public static final String SPRING_BOOT_PREFIX = "logging.logback.oss.";
-
-    /**
-     * 获取Log4j配置键
-     */
-    public static String log4jKey(String key) {
-        return LOG4J_PREFIX + key;
-    }
-
-    /**
-     * 获取Log4j2配置键
-     */
-    public static String log4j2Key(String key) {
-        return LOG4J2_PREFIX + key;
-    }
-
-    /**
-     * 获取Logback配置键
-     */
-    public static String logbackKey(String key) {
-        return LOGBACK_PREFIX + key;
-    }
-
-    /**
-     * 获取Spring Boot配置键
-     */
-    public static String springBootKey(String key) {
-        return SPRING_BOOT_PREFIX + key;
-    }
+    
 
     /**
      * 默认配置值
@@ -82,6 +53,8 @@ public final class CommonConfig {
         public static final int MAX_RETRIES = 5;
         public static final long BASE_BACKOFF_MS = 200L;
         public static final long MAX_BACKOFF_MS = 10000L;
+        public static final int MAX_UPLOAD_SIZE_MB = 100; // 默认最大上传文件大小100MB
+        public static final String OSS_TYPE = "SF_OSS"; // 默认OSS类型为SF_OSS
         public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
         public static final String LEVEL = "INFO";
     }
@@ -106,18 +79,22 @@ public final class CommonConfig {
         public static final int MAX_RETRIES_LIMIT = 20;
         public static final long MIN_BACKOFF = 50L;
         public static final long MAX_BACKOFF_LIMIT = 600_000L; // 10分钟
+        public static final int MIN_UPLOAD_SIZE_MB = 1; // 最小1MB
+        public static final int MAX_UPLOAD_SIZE_MB_LIMIT = 1024; // 最大1024MB (1GB)
     }
 
     /**
      * 环境变量名映射
      */
     public static final class EnvVars {
-        public static final String ENDPOINT = "LOG_OSS_ENDPOINT";
-        public static final String REGION = "LOG_OSS_REGION";
-        public static final String ACCESS_KEY_ID = "OSS_ACCESS_KEY_ID";
-        public static final String ACCESS_KEY_SECRET = "OSS_ACCESS_KEY_SECRET";
-        public static final String BUCKET = "OSS_BUCKET";
-        public static final String KEY_PREFIX = "OSS_KEY_PREFIX";
+        public static final String ENDPOINT = "LOGX_OSS_ENDPOINT";
+        public static final String REGION = "LOGX_OSS_REGION";
+        public static final String ACCESS_KEY_ID = "LOGX_OSS_ACCESS_KEY_ID";
+        public static final String ACCESS_KEY_SECRET = "LOGX_OSS_ACCESS_KEY_SECRET";
+        public static final String BUCKET = "LOGX_OSS_BUCKET";
+        public static final String KEY_PREFIX = "LOGX_OSS_KEY_PREFIX";
+        public static final String OSS_TYPE = "LOGX_OSS_TYPE";
+        public static final String MAX_UPLOAD_SIZE_MB = "LOGX_OSS_MAX_UPLOAD_SIZE_MB";
     }
 
     // 配置迁移功能已移除，仅保留核心配置参数

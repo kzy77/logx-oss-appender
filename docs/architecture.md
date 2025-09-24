@@ -294,3 +294,54 @@ sequenceDiagram
 
 ```xml
 <!-- 三个框架的统一配置key -->
+<appender name="OSS" class="org.logx.{framework}.OSSAppender">
+    <!-- 必需参数 -->
+    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <secretAccessKey>${LOGX_OSS_ACCESS_KEY_SECRET}</secretAccessKey>
+    <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
+    <!-- 可选参数 -->
+    <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
+    <batchSize>${LOGX_OSS_BATCH_SIZE:-1000}</batchSize>
+    <flushInterval>${LOGX_OSS_FLUSH_INTERVAL:-5}</flushInterval>
+    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-100}</maxUploadSizeMb>
+</appender>
+```
+
+**配置优先级**:
+系统支持多种配置源，按以下优先级顺序读取配置：
+1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
+2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
+3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
+4. 代码默认值
+
+**属性文件配置支持**:
+支持使用`logx.oss`前缀的属性文件配置方式：
+```properties
+logx.oss.region=ap-guangzhou
+logx.oss.accessKeyId=your-access-key
+logx.oss.accessKeySecret=your-secret-key
+logx.oss.bucket=your-bucket-name
+logx.oss.ossType=SF_OSS
+logx.oss.maxUploadSizeMb=100
+```
+
+**环境变量支持**:
+```bash
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
+export LOGX_OSS_REGION="ap-guangzhou"
+export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_TYPE="SF_OSS"
+export LOGX_OSS_MAX_UPLOAD_SIZE_MB="100"
+```
+
+**配置参数说明**:
+- `region`: 云存储区域，默认值为ap-guangzhou
+- `accessKeyId`: 访问密钥ID
+- `secretAccessKey`: 访问密钥Secret
+- `bucketName`: 存储桶名称
+- `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
+- `batchSize`: 批处理大小，默认1000条日志
+- `flushInterval`: 刷新间隔，默认5秒
+- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认100MB

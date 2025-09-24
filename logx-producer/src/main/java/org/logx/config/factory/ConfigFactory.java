@@ -8,7 +8,9 @@ import java.time.Duration;
 /**
  * 配置工厂类
  * <p>
- * 根据存储后端类型创建相应的配置对象，支持从ConfigManager读取统一配置。 提供默认值管理和配置模板功能。
+ * 根据存储后端类型创建相应的配置对象，支持从ConfigManager读取统一配置。
+ * 支持logx.oss前缀风格配置，如logx.oss.region=ap-guangzhou。
+ * 提供默认值管理和配置模板功能。
  *
  * @author OSS Appender Team
  *
@@ -57,31 +59,31 @@ public class ConfigFactory {
      * 创建AWS S3配置
      */
     private StorageConfig createAwsS3Config() {
-        return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("aws.s3.endpoint", "https://s3.amazonaws.com"))
-                .region(getProperty("aws.s3.region", "us-east-1"))
-                .accessKeyId(getRequiredProperty("aws.s3.accessKeyId"))
-                .accessKeySecret(getRequiredProperty("aws.s3.secretAccessKey"))
-                .bucket(getRequiredProperty("aws.s3.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("aws.s3.pathStyleAccess", false))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("aws.s3.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("aws.s3.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("aws.s3.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("aws.s3.enableSsl", true)).build();
+        return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("logx.oss.endpoint", "https://s3.amazonaws.com"))
+                .region(getProperty("logx.oss.region", "us-east-1"))
+                .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
+                .bucket(getRequiredProperty("logx.oss.bucket"))
+                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
+                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
+                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
+                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
+                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true)).build();
     }
 
     /**
      * 创建MinIO配置
      */
     private StorageConfig createMinioConfig() {
-        return new MinioConfig.Builder().endpoint(getRequiredProperty("minio.endpoint"))
-                .region(getProperty("minio.region", "us-east-1")).accessKeyId(getRequiredProperty("minio.accessKeyId"))
-                .accessKeySecret(getRequiredProperty("minio.secretAccessKey"))
-                .bucket(getRequiredProperty("minio.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("minio.pathStyleAccess", true)) // MinIO默认使用路径风格
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("minio.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("minio.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("minio.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("minio.enableSsl", false)) // MinIO开发环境通常不用SSL
+        return new MinioConfig.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
+                .region(getProperty("logx.oss.region", "us-east-1")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
+                .bucket(getRequiredProperty("logx.oss.bucket"))
+                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true)) // MinIO默认使用路径风格
+                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
+                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
+                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
+                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", false)) // MinIO开发环境通常不用SSL
                 .build();
     }
 
@@ -89,14 +91,14 @@ public class ConfigFactory {
      * 创建通用S3配置
      */
     private StorageConfig createGenericS3Config() {
-        return new GenericS3Config.Builder().endpoint(getRequiredProperty("s3.endpoint"))
-                .region(getProperty("s3.region", "us-east-1")).accessKeyId(getRequiredProperty("s3.accessKeyId"))
-                .accessKeySecret(getRequiredProperty("s3.secretAccessKey")).bucket(getRequiredProperty("s3.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("s3.pathStyleAccess", false))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("s3.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("s3.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("s3.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("s3.enableSsl", true)).build();
+        return new GenericS3Config.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
+                .region(getProperty("logx.oss.region", "us-east-1")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret")).bucket(getRequiredProperty("logx.oss.bucket"))
+                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
+                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
+                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
+                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
+                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true)).build();
     }
 
     /**

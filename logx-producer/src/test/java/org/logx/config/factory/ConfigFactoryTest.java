@@ -25,25 +25,24 @@ class ConfigFactoryTest {
         configManager = new ConfigManager();
         configFactory = new ConfigFactory(configManager);
         // 清除系统属性以避免测试间干扰
-        System.clearProperty("aws.s3.accessKeyId");
-        System.clearProperty("aws.s3.secretAccessKey");
-        System.clearProperty("aws.s3.bucket");
-        System.clearProperty("minio.endpoint");
-        System.clearProperty("minio.accessKeyId");
-        System.clearProperty("minio.secretAccessKey");
-        System.clearProperty("minio.bucket");
-        System.clearProperty("s3.endpoint");
-        System.clearProperty("s3.accessKeyId");
-        System.clearProperty("s3.secretAccessKey");
-        System.clearProperty("s3.bucket");
+        System.clearProperty("logx.oss.accessKeyId");
+        System.clearProperty("logx.oss.secretAccessKey");
+        System.clearProperty("logx.oss.bucket");
+        System.clearProperty("logx.oss.endpoint");
+        System.clearProperty("logx.oss.region");
+        System.clearProperty("logx.oss.pathStyleAccess");
+        System.clearProperty("logx.oss.enableSsl");
+        System.clearProperty("logx.oss.maxConnections");
+        System.clearProperty("logx.oss.connectTimeout");
+        System.clearProperty("logx.oss.readTimeout");
     }
 
     @Test
     void shouldCreateAwsS3ConfigWithDefaults() {
         // 设置最少必需的配置
-        configManager.setDefault("aws.s3.accessKeyId", "AKIAIOSFODNN7EXAMPLE");
-        configManager.setDefault("aws.s3.secretAccessKey", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
-        configManager.setDefault("aws.s3.bucket", "my-test-bucket");
+        configManager.setDefault("logx.oss.accessKeyId", "AKIAIOSFODNN7EXAMPLE");
+        configManager.setDefault("logx.oss.accessKeySecret", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+        configManager.setDefault("logx.oss.bucket", "my-test-bucket");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
@@ -61,16 +60,16 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateAwsS3ConfigWithCustomValues() {
         // 设置自定义配置
-        configManager.setDefault("aws.s3.endpoint", "https://s3.eu-west-1.amazonaws.com");
-        configManager.setDefault("aws.s3.region", "eu-west-1");
-        configManager.setDefault("aws.s3.accessKeyId", "CUSTOM_ACCESS_KEY");
-        configManager.setDefault("aws.s3.secretAccessKey", "CUSTOM_SECRET_KEY");
-        configManager.setDefault("aws.s3.bucket", "custom-bucket");
-        configManager.setDefault("aws.s3.pathStyleAccess", "true");
-        configManager.setDefault("aws.s3.enableSsl", "false");
-        configManager.setDefault("aws.s3.maxConnections", "100");
-        configManager.setDefault("aws.s3.connectTimeout", "60000");
-        configManager.setDefault("aws.s3.readTimeout", "120000");
+        configManager.setDefault("logx.oss.endpoint", "https://s3.eu-west-1.amazonaws.com");
+        configManager.setDefault("logx.oss.region", "eu-west-1");
+        configManager.setDefault("logx.oss.accessKeyId", "CUSTOM_ACCESS_KEY");
+        configManager.setDefault("logx.oss.accessKeySecret", "CUSTOM_SECRET_KEY");
+        configManager.setDefault("logx.oss.bucket", "custom-bucket");
+        configManager.setDefault("logx.oss.pathStyleAccess", "true");
+        configManager.setDefault("logx.oss.enableSsl", "false");
+        configManager.setDefault("logx.oss.maxConnections", "100");
+        configManager.setDefault("logx.oss.connectTimeout", "60000");
+        configManager.setDefault("logx.oss.readTimeout", "120000");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
@@ -89,10 +88,10 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateMinioConfigWithDefaults() {
         // 设置必需的MinIO配置
-        configManager.setDefault("minio.endpoint", "http://localhost:9000");
-        configManager.setDefault("minio.accessKeyId", "minioadmin");
-        configManager.setDefault("minio.secretAccessKey", "minioadmin");
-        configManager.setDefault("minio.bucket", "logs");
+        configManager.setDefault("logx.oss.endpoint", "http://localhost:9000");
+        configManager.setDefault("logx.oss.accessKeyId", "minioadmin");
+        configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
+        configManager.setDefault("logx.oss.bucket", "logs");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
 
@@ -109,10 +108,10 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateGenericS3ConfigWithDefaults() {
         // 设置必需的通用S3配置
-        configManager.setDefault("s3.endpoint", "https://storage.example.com");
-        configManager.setDefault("s3.accessKeyId", "EXAMPLE_ACCESS_KEY");
-        configManager.setDefault("s3.secretAccessKey", "EXAMPLE_SECRET_KEY");
-        configManager.setDefault("s3.bucket", "application-logs");
+        configManager.setDefault("logx.oss.endpoint", "https://storage.example.com");
+        configManager.setDefault("logx.oss.accessKeyId", "EXAMPLE_ACCESS_KEY");
+        configManager.setDefault("logx.oss.accessKeySecret", "EXAMPLE_SECRET_KEY");
+        configManager.setDefault("logx.oss.bucket", "application-logs");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.GENERIC_S3);
 
@@ -137,12 +136,12 @@ class ConfigFactoryTest {
     @Test
     void shouldThrowExceptionForEmptyRequiredProperties() {
         // 设置空的必需属性
-        configManager.setDefault("aws.s3.accessKeyId", "");
-        configManager.setDefault("aws.s3.secretAccessKey", "valid-secret");
-        configManager.setDefault("aws.s3.bucket", "valid-bucket");
+        configManager.setDefault("logx.oss.accessKeyId", "");
+        configManager.setDefault("logx.oss.accessKeySecret", "valid-secret");
+        configManager.setDefault("logx.oss.bucket", "valid-bucket");
 
         assertThatThrownBy(() -> configFactory.createConfig(StorageBackend.AWS_S3))
-                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("aws.s3.accessKeyId");
+                .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("logx.oss.accessKeyId");
     }
 
     @Test
@@ -153,34 +152,34 @@ class ConfigFactoryTest {
 
         // 创建一个会触发default分支的测试场景比较困难，
         // 但我们可以通过测试所有支持的backend来确保覆盖率
-        configManager.setDefault("aws.s3.accessKeyId", "test");
-        configManager.setDefault("aws.s3.secretAccessKey", "test");
-        configManager.setDefault("aws.s3.bucket", "test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
-        configManager.setDefault("minio.endpoint", "http://test");
-        configManager.setDefault("minio.accessKeyId", "test");
-        configManager.setDefault("minio.secretAccessKey", "test");
-        configManager.setDefault("minio.bucket", "test");
+        configManager.setDefault("logx.oss.endpoint", "http://test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
-        configManager.setDefault("s3.endpoint", "https://test");
-        configManager.setDefault("s3.accessKeyId", "test");
-        configManager.setDefault("s3.secretAccessKey", "test");
-        configManager.setDefault("s3.bucket", "test");
+        configManager.setDefault("logx.oss.endpoint", "https://test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
         // 验证所有支持的backend都能正常创建配置
-        configManager.setDefault("aws.s3.accessKeyId", "test");
-        configManager.setDefault("aws.s3.secretAccessKey", "test");
-        configManager.setDefault("aws.s3.bucket", "test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
-        configManager.setDefault("minio.endpoint", "http://test");
-        configManager.setDefault("minio.accessKeyId", "test");
-        configManager.setDefault("minio.secretAccessKey", "test");
-        configManager.setDefault("minio.bucket", "test");
+        configManager.setDefault("logx.oss.endpoint", "http://test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
-        configManager.setDefault("s3.endpoint", "https://test");
-        configManager.setDefault("s3.accessKeyId", "test");
-        configManager.setDefault("s3.secretAccessKey", "test");
-        configManager.setDefault("s3.bucket", "test");
+        configManager.setDefault("logx.oss.endpoint", "https://test");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
 
         assertThat(configFactory.createConfig(StorageBackend.AWS_S3)).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(configFactory.createConfig(StorageBackend.MINIO)).isInstanceOf(ConfigFactory.MinioConfig.class);
@@ -191,37 +190,36 @@ class ConfigFactoryTest {
     @Test
     void shouldUseSystemPropertiesOverDefaults() {
         // 设置默认值
-        configManager.setDefault("aws.s3.accessKeyId", "default-key");
-        configManager.setDefault("aws.s3.secretAccessKey", "default-secret");
-        configManager.setDefault("aws.s3.bucket", "default-bucket");
+        configManager.setDefault("logx.oss.accessKeyId", "default-key");
+        configManager.setDefault("logx.oss.accessKeySecret", "default-secret");
+        configManager.setDefault("logx.oss.bucket", "default-bucket");
 
         // 设置系统属性
-        System.setProperty("aws.s3.accessKeyId", "system-key");
-        System.setProperty("aws.s3.secretAccessKey", "system-secret");
-        System.setProperty("aws.s3.bucket", "system-bucket");
+        System.setProperty("logx.oss.accessKeyId", "system-key");
+        System.setProperty("logx.oss.accessKeySecret", "system-secret");
+        System.setProperty("logx.oss.bucket", "system-bucket");
 
         try {
             StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
             // 系统属性应该覆盖默认值
             assertThat(config.getAccessKeyId()).isEqualTo("system-key");
-            assertThat(config.getBucket()).isEqualTo("system-bucket");
-            // 没有系统属性的字段应该使用默认值
             assertThat(config.getAccessKeySecret()).isEqualTo("system-secret");
+            assertThat(config.getBucket()).isEqualTo("system-bucket");
         } finally {
             // 清理系统属性
-            System.clearProperty("aws.s3.accessKeyId");
-            System.clearProperty("aws.s3.secretAccessKey");
-            System.clearProperty("aws.s3.bucket");
+            System.clearProperty("logx.oss.accessKeyId");
+            System.clearProperty("logx.oss.accessKeySecret");
+            System.clearProperty("logx.oss.bucket");
         }
     }
 
     @Test
     void shouldHandleMinioSpecificDefaults() {
-        configManager.setDefault("minio.endpoint", "http://localhost:9000");
-        configManager.setDefault("minio.accessKeyId", "minioadmin");
-        configManager.setDefault("minio.secretAccessKey", "minioadmin");
-        configManager.setDefault("minio.bucket", "logs");
+        configManager.setDefault("logx.oss.endpoint", "http://localhost:9000");
+        configManager.setDefault("logx.oss.accessKeyId", "minioadmin");
+        configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
+        configManager.setDefault("logx.oss.bucket", "logs");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
 
@@ -232,12 +230,12 @@ class ConfigFactoryTest {
 
     @Test
     void shouldParseNumericPropertiesCorrectly() {
-        configManager.setDefault("aws.s3.accessKeyId", "test");
-        configManager.setDefault("aws.s3.secretAccessKey", "test");
-        configManager.setDefault("aws.s3.bucket", "test");
-        configManager.setDefault("aws.s3.maxConnections", "200");
-        configManager.setDefault("aws.s3.connectTimeout", "45000");
-        configManager.setDefault("aws.s3.readTimeout", "90000");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
+        configManager.setDefault("logx.oss.maxConnections", "200");
+        configManager.setDefault("logx.oss.connectTimeout", "45000");
+        configManager.setDefault("logx.oss.readTimeout", "90000");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 
@@ -248,11 +246,11 @@ class ConfigFactoryTest {
 
     @Test
     void shouldParseBooleanPropertiesCorrectly() {
-        configManager.setDefault("aws.s3.accessKeyId", "test");
-        configManager.setDefault("aws.s3.secretAccessKey", "test");
-        configManager.setDefault("aws.s3.bucket", "test");
-        configManager.setDefault("aws.s3.pathStyleAccess", "true");
-        configManager.setDefault("aws.s3.enableSsl", "false");
+        configManager.setDefault("logx.oss.accessKeyId", "test");
+        configManager.setDefault("logx.oss.accessKeySecret", "test");
+        configManager.setDefault("logx.oss.bucket", "test");
+        configManager.setDefault("logx.oss.pathStyleAccess", "true");
+        configManager.setDefault("logx.oss.enableSsl", "false");
 
         StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
 

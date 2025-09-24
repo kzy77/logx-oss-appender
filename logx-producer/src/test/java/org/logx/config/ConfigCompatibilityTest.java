@@ -130,27 +130,30 @@ class ConfigCompatibilityTest {
 
     // 辅助方法：检查Log4j配置是否包含字段
     private boolean hasFieldInLog4jConfig(String field) {
-        String log4jKey = CommonConfig.log4jKey(field);
+        // Log4j使用log4j.appender.oss.前缀
+        String log4jKey = "log4j.appender.oss." + field;
         return log4jConfig.containsKey(log4jKey);
     }
 
     // 辅助方法：检查Log4j2配置是否包含字段
     private boolean hasFieldInLog4j2Config(String field) {
-        String log4j2Key = CommonConfig.log4j2Key(field);
+        // Log4j2使用log4j2.oss.前缀
+        String log4j2Key = "log4j2.oss." + field;
         return log4j2Config.containsKey(log4j2Key);
     }
 
     // 辅助方法：检查Logback配置是否包含字段
     private boolean hasFieldInLogbackConfig(String field) {
-        String logbackKey = CommonConfig.logbackKey(field);
+        // Logback使用logback.oss.前缀
+        String logbackKey = "logback.oss." + field;
         return logbackConfig.containsKey(logbackKey);
     }
 
     // 辅助方法：检查Spring Boot配置是否包含字段
     private boolean hasFieldInSpringBootConfig(String field) {
-        // Spring Boot使用kebab-case
+        // Spring Boot使用kebab-case和logging.logback.oss.前缀
         String springBootField = convertToKebabCase(field);
-        String springBootKey = CommonConfig.springBootKey(springBootField);
+        String springBootKey = "logging.logback.oss." + springBootField;
         return springBootConfig.containsKey(springBootKey);
     }
 
