@@ -44,6 +44,8 @@
     <!-- Modules (Submodules for Git Submodules migration) -->
     <modules>
         <module>log-java-producer</module>
+        <module>logx-s3-adapter</module>
+        <module>logx-sf-oss-adapter</module>
         <module>log4j-oss-appender</module>
         <module>log4j2-oss-appender</module>
         <module>logback-oss-appender</module>

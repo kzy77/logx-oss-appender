@@ -3,8 +3,6 @@ package org.logx.log4j;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.s3.AwsS3Config;
-import org.logx.storage.sf.SfOssConfig;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -23,6 +21,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
     // 应用行为配置 - 可选参数，提供最优默认值
     private String keyPrefix = "logs/";
+    private String backendType; // 新增：后端类型配置
     private int maxQueueSize = 262144;
     private int maxBatchCount = 4096;
     private int maxBatchBytes = 4 * 1024 * 1024;
@@ -55,25 +54,16 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         }
 
         try {
-            // 构建S3存储配置，根据endpoint自动选择合适的配置类
-            StorageConfig config;
-            if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
-                config = new SfOssConfig.Builder()
-                    .endpoint(this.endpoint)
-                    .region(this.region)
-                    .accessKeyId(this.accessKeyId)
-                    .accessKeySecret(this.accessKeySecret)
-                    .bucket(this.bucket)
-                    .build();
-            } else {
-                config = new AwsS3Config.Builder()
-                    .endpoint(this.endpoint)
-                    .region(this.region)
-                    .accessKeyId(this.accessKeyId)
-                    .accessKeySecret(this.accessKeySecret)
-                    .bucket(this.bucket)
-                    .build();
-            }
+            // 构建存储配置
+            StorageConfig config = new StorageConfigBuilder()
+                .backendType(this.backendType)
+                .endpoint(this.endpoint)
+                .region(this.region)
+                .accessKeyId(this.accessKeyId)
+                .accessKeySecret(this.accessKeySecret)
+                .bucket(this.bucket)
+                .keyPrefix(this.keyPrefix)
+                .build();
 
             this.adapter = new Log4j1xBridge(config);
             this.adapter.setLayout(layout);
@@ -176,6 +166,14 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
     public void setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
+    }
+
+    public String getBackendType() {
+        return backendType;
+    }
+
+    public void setBackendType(String backendType) {
+        this.backendType = backendType;
     }
 
     public int getMaxQueueSize() {

@@ -1,5 +1,7 @@
 package org.logx.storage.s3;
 
+import org.logx.storage.StorageInterface;
+import org.logx.storage.StorageConfig;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -31,11 +33,11 @@ import java.util.stream.Collectors;
  *
  * @since 1.0.0
  */
-public final class S3StorageAdapter implements S3StorageInterface, AutoCloseable {
+public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
     private static final long MULTIPART_THRESHOLD = 5L * 1024 * 1024; // 5MB
     private static final int PART_SIZE = 5 * 1024 * 1024; // 5MB per part
-    private static final String BACKEND_TYPE = "AWS_S3";
+    private static final String BACKEND_TYPE = "S3";
 
     private final S3Client s3Client;
     private final String bucketName;
@@ -46,16 +48,10 @@ public final class S3StorageAdapter implements S3StorageInterface, AutoCloseable
     private final long maxBackoffMs;
 
     /**
-     * 构造AWS S3存储适配器
+     * 构造S3存储适配器
      *
-     * @param region
-     *            AWS区域，如 us-east-1
-     * @param accessKeyId
-     *            AWS访问密钥ID
-     * @param secretAccessKey
-     *            AWS访问密钥Secret
-     * @param bucketName
-     *            S3存储桶名称
+     * @param config
+     *            存储配置
      * @param keyPrefix
      *            对象键前缀，默认 "logs/"
      * @param maxRetries
@@ -65,8 +61,11 @@ public final class S3StorageAdapter implements S3StorageInterface, AutoCloseable
      * @param maxBackoffMs
      *            最大退避时间（毫秒），默认10000ms
      */
-    public S3StorageAdapter(String region, String accessKeyId, String secretAccessKey, String bucketName,
-            String keyPrefix, int maxRetries, long baseBackoffMs, long maxBackoffMs) {
+    public S3StorageAdapter(StorageConfig config, String keyPrefix, int maxRetries, long baseBackoffMs, long maxBackoffMs) {
+        String region = config.getRegion();
+        String accessKeyId = config.getAccessKeyId();
+        String secretAccessKey = config.getAccessKeySecret();
+        String bucketName = config.getBucket();
         this.bucketName = bucketName;
         this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logs";
         this.maxRetries = Math.max(0, maxRetries);
@@ -84,8 +83,8 @@ public final class S3StorageAdapter implements S3StorageInterface, AutoCloseable
     /**
      * 简化构造函数：使用默认重试参数
      */
-    public S3StorageAdapter(String region, String accessKeyId, String secretAccessKey, String bucketName) {
-        this(region, accessKeyId, secretAccessKey, bucketName, "logs", 3, 200L, 10000L);
+    public S3StorageAdapter(StorageConfig config) {
+        this(config, config.getKeyPrefix() != null ? config.getKeyPrefix() : "logs", 3, 200L, 10000L);
     }
 
     @Override

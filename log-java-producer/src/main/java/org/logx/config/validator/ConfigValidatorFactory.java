@@ -1,8 +1,5 @@
 package org.logx.config.validator;
 
-import org.logx.storage.s3.AwsS3Config;
-import org.logx.storage.s3.S3ConfigValidator;
-
 import java.util.Map;
 import java.util.List;
 import java.util.ArrayList;
@@ -23,7 +20,7 @@ public class ConfigValidatorFactory {
 
     private ConfigValidatorFactory() {
         // 注册默认验证器
-        registerValidator(AwsS3Config.class, new S3ConfigValidator());
+        // 注意：具体的验证器实现已移到适配器模块中
     }
 
     /**
@@ -127,14 +124,10 @@ public class ConfigValidatorFactory {
     }
     
     /**
-     * 仅供测试使用：清理所有非默认的注册验证器
+     * 仅供测试使用：清理所有注册的验证器
      */
     public void clearNonDefaultValidators() {
-        // 只保留默认的AwsS3Config验证器
-        ConfigValidator defaultValidator = validators.get(AwsS3Config.class);
+        // 清理所有验证器
         validators.clear();
-        if (defaultValidator != null) {
-            validators.put(AwsS3Config.class, defaultValidator);
-        }
     }
 }

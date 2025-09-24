@@ -13,6 +13,7 @@
 2. **高性能**：延迟最小 + 内存/CPU占用少 + 高吞吐量
 3. **可切换性**：运行时存储后端切换 + 数据不丢失保证
 4. **资源保护**：确保不影响业务系统，防止资源无限扩张
+5. **低侵入性**：用户按需引入存储适配器，避免不必要的依赖
 
 ### 变更日志
 
@@ -25,28 +26,33 @@
 
 ### 技术概要
 
-OSS Appender 采用**分层抽象架构**，其中log-java-producer作为高度抽象的核心层，提供基于S3标准的统一存储接口、LMAX Disruptor高性能队列管理和资源保护机制。三个框架适配器（log4j、log4j2、logback）作为简洁一致的集成层，确保配置统一和代码风格一致。架构的核心目标是**零业务影响**的高性能日志转发，通过固定线程池、低优先级调度和CPU让出机制实现资源保护，同时通过JVM shutdown hook确保数据不丢失。
+OSS Appender 采用**分层抽象架构**，其中log-java-producer作为高度抽象的核心层，提供基于存储服务接口的统一抽象、LMAX Disruptor高性能队列管理和资源保护机制。三个框架适配器（log4j、log4j2、logback）作为简洁一致的集成层，确保配置统一和代码风格一致。架构的核心目标是**零业务影响**的高性能日志转发，通过固定线程池、低优先级调度和CPU让出机制实现资源保护，同时通过JVM shutdown hook确保数据不丢失。
+
+通过模块化设计和Java SPI机制，我们将具体的云存储SDK依赖分离到独立的适配器模块中，用户可以根据需要选择引入相应的适配器，从而实现低侵入性的架构设计。
 
 ### 高层概览
 
-**架构风格：** 分层抽象 + 统一接口
+**架构风格：** 分层抽象 + 统一接口 + 模块化设计
 - 核心抽象层：log-java-producer提取所有框架共性
 - 适配器层：三个框架的简洁一致实现
-- 存储抽象层：基于S3标准的多云支持
+- 存储抽象层：基于存储服务接口的多云支持
+- 模块化层：独立的云存储适配器模块
 
 **技术栈：** Java 8+ + Maven + 高性能组件
 - LMAX Disruptor：高性能异步队列
-- S3兼容接口：统一的多云存储抽象
+- 存储服务接口：统一的多云存储抽象
 - 固定线程池：资源可控的异步处理
+- Java SPI：运行时服务发现机制
 
 **主要数据流：**
-应用程序 → 框架适配器 → DisruptorBatchingQueue → 批处理引擎 → S3存储接口 → 云存储
+应用程序 → 框架适配器 → DisruptorBatchingQueue → 批处理引擎 → 存储服务接口 → 云存储适配器 → 云存储
 
 **关键架构决策：**
-1. **S3标准统一**: 以S3 API为基础的存储抽象，简化多云支持
+1. **存储服务抽象**: 以存储服务接口为基础的存储抽象，支持多种云存储
 2. **资源保护优先**: 固定线程池+低优先级+CPU让出，确保不影响业务
 3. **数据可靠性**: JVM shutdown hook + 30秒超时，保障数据不丢失
 4. **配置一致性**: 三框架统一配置key，提升用户体验
+5. **低侵入性设计**: 模块化适配器，用户按需引入
 
 ### 高层项目图
 
@@ -71,8 +77,13 @@ graph TB
                 DQ[DisruptorBatchingQueue<br/>高性能队列]
                 TP[固定线程池<br/>资源保护]
                 SH[Shutdown Hook<br/>数据保障]
-                S3[S3存储接口<br/>多云抽象]
+                SS[存储服务接口<br/>多云抽象]
             end
+        end
+        
+        subgraph "存储适配器层"
+            S3A[logx-s3-adapter<br/>S3兼容存储]
+            SFOA[logx-sf-oss-adapter<br/>SF OSS存储]
         end
     end
 
@@ -80,6 +91,7 @@ graph TB
         OSS[阿里云OSS]
         S3C[AWS S3兼容]
         MIN[MinIO/其他]
+        SFO[SF OSS]
     end
 
     APP1 --> L4J
@@ -93,16 +105,20 @@ graph TB
     LP --> DQ
     LP --> TP
     LP --> SH
-    LP --> S3
+    LP --> SS
 
-    S3 --> OSS
-    S3 --> S3C
-    S3 --> MIN
+    SS -- SPI --> S3A
+    SS -- SPI --> SFOA
+
+    S3A --> OSS
+    S3A --> S3C
+    S3A --> MIN
+    SFOA --> SFO
 ```
 
 ### 架构和设计模式
 
-- **抽象工厂模式**: S3存储接口提供统一的多云存储抽象 - _理由：_ 简化多云支持，降低vendor lock-in风险
+- **服务提供者接口模式**: 存储服务接口配合Java SPI实现运行时动态加载适配器 - _理由：_ 实现低侵入性的模块化设计
 
 - **生产者-消费者模式**: DisruptorBatchingQueue实现高性能异步处理 - _理由：_ 满足延迟最小和高吞吐量的性能要求
 
@@ -113,6 +129,8 @@ graph TB
 - **数据保障模式**: JVM shutdown hook + 超时机制 - _理由：_ 在保持简洁的同时实现数据不丢失
 
 - **统一配置模式**: 三框架配置key保持一致 - _理由：_ 提升用户体验，降低学习成本
+
+- **模块化设计模式**: 独立的适配器模块实现关注点分离 - _理由：_ 降低依赖侵入性，提高可维护性
 
 ## 技术栈
 
@@ -127,8 +145,8 @@ graph TB
 | **语言** | Java | 8+ | 主要开发语言 | 企业兼容性，确保广泛可用性 |
 | **构建系统** | Maven | 3.9.6 | 构建和依赖管理 | 统一的父POM管理，简化版本控制 |
 | **队列引擎** | LMAX Disruptor | 3.4.4 | 高性能异步队列 | 延迟最小，吞吐量最大的核心技术 |
-| **存储SDK** | AWS SDK v2 | 2.28.16 | S3兼容接口 | S3标准统一抽象的技术基础 |
-| **存储SDK** | Aliyun OSS SDK | 3.17.4 | 阿里云OSS | S3兼容模式下的主要目标平台 |
+| **存储SDK** | AWS SDK v2 | 2.28.16 | S3兼容接口 | S3标准统一抽象的技术基础（在logx-s3-adapter模块中） |
+| **存储SDK** | Aliyun OSS SDK | 3.17.4 | 阿里云OSS | S3兼容模式下的主要目标平台（在logx-s3-adapter模块中） |
 | **GroupId** | org.logx | - | 统一命名空间 | 简洁的组织标识，避免长命名 |
 | **测试框架** | JUnit 5 | 5.10.1 | 单元测试 | 现代测试框架，支持并发测试 |
 | **断言库** | AssertJ | 3.24.2 | 流式断言 | 提高测试代码可读性 |
@@ -157,12 +175,16 @@ graph TB
 - 背压处理: 内存缓存 + 错误日志告警
 ```
 
-#### S3StorageInterface
+#### StorageService
 ```java
 // 统一存储抽象
-public interface S3StorageInterface {
-    void putObject(String key, byte[] data);
-    // 基于S3标准，支持OSS/S3/MinIO
+public interface StorageService {
+    CompletableFuture<Void> putObject(String key, byte[] data);
+    CompletableFuture<Void> putObjects(Map<String, byte[]> objects);
+    String getBackendType();
+    String getBucketName();
+    void close();
+    boolean supportsBackend(String backendType);
 }
 ```
 
@@ -227,13 +249,19 @@ graph TD
         DQ[DisruptorBatchingQueue<br/>高性能队列]
         TP[ThreadPoolManager<br/>资源保护]
         SH[ShutdownHookHandler<br/>数据保障]
-        S3I[S3StorageInterface<br/>存储抽象]
+        SS[StorageService<br/>存储抽象]
+    end
+    
+    subgraph "存储适配器层"
+        S3A[logx-s3-adapter<br/>S3兼容存储]
+        SFOA[logx-sf-oss-adapter<br/>SF OSS存储]
     end
 
     subgraph "存储层"
         OSS[阿里云OSS]
         S3[AWS S3]
         MIN[MinIO]
+        SFO[SF OSS]
     end
 
     APP --> L4J
@@ -245,13 +273,17 @@ graph TD
     LB --> DQ
 
     DQ --> TP
-    TP --> S3I
+    TP --> SS
     SH -.-> DQ
     SH -.-> TP
 
-    S3I --> OSS
-    S3I --> S3
-    S3I --> MIN
+    SS -- SPI --> S3A
+    SS -- SPI --> SFOA
+
+    S3A --> OSS
+    S3A --> S3
+    S3A --> MIN
+    SFOA --> SFO
 ```
 
 ## 核心工作流
@@ -330,6 +362,9 @@ sequenceDiagram
     <!-- 资源保护参数 -->
     <threadPoolSize>2</threadPoolSize>
     <maxQueueSize>10000</maxQueueSize>
+    
+    <!-- 可选参数：指定后端类型 -->
+    <backendType>S3</backendType>
 </appender>
 ```
 
@@ -443,6 +478,19 @@ logger.info("OSS appender performance: avg_latency={}ms, throughput={}/s",
     <artifactId>logback-oss-appender</artifactId>
     <version>1.0.0</version>
 </dependency>
+
+<!-- 根据需要选择引入相应的存储适配器 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-s3-adapter</artifactId>
+    <version>1.0.0</version>
+</dependency>
+
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-sf-oss-adapter</artifactId>
+    <version>1.0.0</version>
+</dependency>
 ```
 
 ### 生产环境部署
@@ -521,7 +569,7 @@ void testHighThroughput() {
 基于头脑风暴确定的开发计划：
 
 #### 阶段1: 核心功能实现 (2-3周)
-1. **S3抽象接口设计** (2-3天)
+1. **存储服务抽象接口设计** (2-3天)
 2. **log-java-producer核心** (1周)
 3. **框架适配器开发** (1周)
 
@@ -534,6 +582,11 @@ void testHighThroughput() {
 - 性能基准测试
 - 调优指南编写
 - 监控能力增强
+
+#### 阶段4: 模块化改进 (1-2周)
+- 独立存储适配器模块开发
+- Java SPI机制集成
+- 向后兼容性验证
 
 ---
 

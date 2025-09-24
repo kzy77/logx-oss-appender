@@ -4,8 +4,9 @@ import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.adapter.AbstractUniversalAdapter;
 import org.logx.storage.StorageConfig;
+import org.logx.storage.StorageService;
+import org.logx.storage.StorageServiceFactory;
 import org.logx.core.AsyncEngine;
-import org.logx.storage.s3.S3StorageFactory;
 
 
 /**
@@ -16,11 +17,14 @@ public class Log4j1xBridge extends AbstractUniversalAdapter {
     private Layout layout;
     
     public Log4j1xBridge(StorageConfig config) {
-        // 创建S3存储适配器
-        this.s3Storage = S3StorageFactory.createAdapter(config);
+        // 使用存储服务工厂创建存储服务
+        StorageService storageService = StorageServiceFactory.createStorageService(config);
+        
+        // 从存储服务获取存储接口
+        this.s3Storage = storageService;
         
         // 创建异步引擎
-        this.asyncEngine = AsyncEngine.create(this.s3Storage);
+        this.asyncEngine = AsyncEngine.create(storageService);
     }
     
     public void setLayout(Layout layout) {

@@ -1,6 +1,6 @@
 package org.logx.core;
 
-import org.logx.storage.StorageInterface;
+import org.logx.storage.StorageService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -42,11 +42,11 @@ public interface AsyncEngine {
      * 创建并返回一个AsyncEngine的实例
      *
      * @param storage
-     *            存储接口的实现
+     *            存储服务的实现
      *
      * @return AsyncEngine的实例
      */
-    static AsyncEngine create(StorageInterface storage) {
+    static AsyncEngine create(StorageService storage) {
         // 返回一个模拟实现，以便在核心引擎完成前进行集成
         return new MockAsyncEngine(storage);
     }
@@ -57,9 +57,9 @@ public interface AsyncEngine {
  */
 class MockAsyncEngine implements AsyncEngine {
 
-    private final StorageInterface s3Storage;
+    private final StorageService s3Storage;
 
-    public MockAsyncEngine(StorageInterface s3Storage) {
+    public MockAsyncEngine(StorageService s3Storage) {
         this.s3Storage = s3Storage;
     }
 

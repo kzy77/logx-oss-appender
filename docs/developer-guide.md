@@ -43,9 +43,11 @@ git submodule update --init --recursive
 
 ### 理解项目结构
 
-本项目使用Git Submodules管理四个独立的组件：
+本项目使用Git Submodules管理六个独立的组件：
 
 - `log-java-producer` - 核心库
+- `logx-s3-adapter` - S3兼容存储适配器
+- `logx-sf-oss-adapter` - SF OSS存储适配器
 - `log4j-oss-appender` - Log4j适配器
 - `log4j2-oss-appender` - Log4j2适配器
 - `logback-oss-appender` - Logback适配器

@@ -1,6 +1,6 @@
 package org.logx.adapter;
 
-import org.logx.storage.StorageInterface;
+import org.logx.storage.StorageService;
 import org.logx.core.AsyncEngine;
 
 /**
@@ -9,7 +9,7 @@ import org.logx.core.AsyncEngine;
  */
 public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
     protected AsyncEngine asyncEngine;
-    protected StorageInterface s3Storage;
+    protected StorageService s3Storage;
     protected boolean started = false;
     
     @Override
@@ -38,6 +38,11 @@ public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
         try {
             if (asyncEngine != null) {
                 asyncEngine.stop(5, java.util.concurrent.TimeUnit.SECONDS);
+            }
+            
+            // 关闭存储服务
+            if (s3Storage != null) {
+                s3Storage.close();
             }
             
             started = false;

@@ -31,6 +31,7 @@ class Log4j2OSSAppenderSfOssTest {
                 accessKeyId,
                 accessKeySecret,
                 bucket,
+                "SF_OSS", // backendType
                 true // ignoreExceptions
         );
 

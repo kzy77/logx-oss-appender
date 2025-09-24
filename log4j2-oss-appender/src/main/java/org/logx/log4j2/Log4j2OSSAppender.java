@@ -15,8 +15,6 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.sf.SfOssConfig;
-import org.logx.storage.s3.AwsS3Config;
 
 @Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
@@ -57,10 +55,13 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     @PluginFactory
     public static Log4j2OSSAppender createAppender(@PluginAttribute("name") final String name,
             @PluginElement("Layout") Layout<? extends Serializable> layout,
-            @PluginElement("Filter") final Filter filter, @PluginAttribute("endpoint") final String endpoint,
-            @PluginAttribute("region") final String region, @PluginAttribute("accessKeyId") final String accessKeyId,
+            @PluginElement("Filter") final Filter filter, 
+            @PluginAttribute("endpoint") final String endpoint,
+            @PluginAttribute("region") final String region, 
+            @PluginAttribute("accessKeyId") final String accessKeyId,
             @PluginAttribute("accessKeySecret") final String accessKeySecret,
             @PluginAttribute("bucket") final String bucket,
+            @PluginAttribute("backendType") final String backendType,
             @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) final boolean ignoreExceptions) {
 
         if (name == null) {
@@ -73,25 +74,15 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             return null;
         }
 
-        // 根据endpoint自动选择合适的配置类
-        StorageConfig adapterConfig;
-        if (endpoint != null && endpoint.contains("sf-oss")) {
-            adapterConfig = new SfOssConfig.Builder()
-                .endpoint(endpoint)
-                .region(region)
-                .accessKeyId(accessKeyId)
-                .accessKeySecret(accessKeySecret)
-                .bucket(bucket)
-                .build();
-        } else {
-            adapterConfig = new AwsS3Config.Builder()
-                .endpoint(endpoint)
-                .region(region)
-                .accessKeyId(accessKeyId)
-                .accessKeySecret(accessKeySecret)
-                .bucket(bucket)
-                .build();
-        }
+        // 构建存储配置
+        StorageConfig adapterConfig = new StorageConfigBuilder()
+            .backendType(backendType)
+            .endpoint(endpoint)
+            .region(region)
+            .accessKeyId(accessKeyId)
+            .accessKeySecret(accessKeySecret)
+            .bucket(bucket)
+            .build();
 
         try {
             adapterConfig.validateConfig();

@@ -5,12 +5,12 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.logx</groupId>
-  <artifactId>log-java-producer</artifactId>
+  <artifactId>logx-sf-oss-adapter</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
 
-  <name>log-java-producer</name>
-  <description>通用日志批处理与上传核心库，供 Log4j/Logback Appender 复用</description>
+  <name>logx-sf-oss-adapter</name>
+  <description>SF OSS适配器模块，提供对SF OSS存储的支持</description>
   <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
 
   <properties>
@@ -20,36 +20,11 @@
   </properties>
 
   <dependencies>
+    <!-- 核心模块依赖 -->
     <dependency>
-        <groupId>com.lmax</groupId>
-        <artifactId>disruptor</artifactId>
-        <version>3.4.4</version>
-    </dependency>
-    
-    <!-- SLF4J for logging -->
-    <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.36</version>
-    </dependency>
-    
-    <!-- Dependency Conflict Resolutions -->
-    <dependency>
-      <groupId>org.apache.httpcomponents</groupId>
-      <artifactId>httpcore</artifactId>
-      <version>4.4.13</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>commons-codec</groupId>
-      <artifactId>commons-codec</artifactId>
-      <version>1.11</version>
-    </dependency>
-    
-    <dependency>
-      <groupId>net.bytebuddy</groupId>
-      <artifactId>byte-buddy</artifactId>
-      <version>1.14.10</version>
+      <groupId>org.logx</groupId>
+      <artifactId>log-java-producer</artifactId>
+      <version>0.1.0</version>
     </dependency>
 
     <!-- Test dependencies -->
@@ -95,5 +70,3 @@
   </build>
 
 </project>
-
-

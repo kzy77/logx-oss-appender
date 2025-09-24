@@ -4,8 +4,7 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.encoder.Encoder;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.sf.SfOssConfig;
-import org.logx.storage.s3.AwsS3Config;
+import org.logx.logback.StorageConfigBuilder;
 
 /**
  * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -26,6 +25,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     // 应用行为配置 - 可选参数，提供最优默认值
     private String keyPrefix = "logs/";
+    private String backendType; // 新增：后端类型配置
     private int maxQueueSize = 65536; // 64K - 必须是2的幂
     private int maxBatchCount = 1000;
     private int maxBatchBytes = 4 * 1024 * 1024;
@@ -59,25 +59,16 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
                 return;
             }
 
-            // 构建S3存储配置，根据endpoint自动选择合适的配置类
-            StorageConfig config;
-            if (this.endpoint != null && this.endpoint.contains("sf-oss")) {
-                config = new SfOssConfig.Builder()
-                    .endpoint(this.endpoint)
-                    .region(this.region)
-                    .accessKeyId(this.accessKeyId)
-                    .accessKeySecret(this.accessKeySecret)
-                    .bucket(this.bucket)
-                    .build();
-            } else {
-                config = new AwsS3Config.Builder()
-                    .endpoint(this.endpoint)
-                    .region(this.region)
-                    .accessKeyId(this.accessKeyId)
-                    .accessKeySecret(this.accessKeySecret)
-                    .bucket(this.bucket)
-                    .build();
-            }
+            // 构建存储配置
+            StorageConfig config = new StorageConfigBuilder()
+                .backendType(this.backendType)
+                .endpoint(this.endpoint)
+                .region(this.region)
+                .accessKeyId(this.accessKeyId)
+                .accessKeySecret(this.accessKeySecret)
+                .bucket(this.bucket)
+                .keyPrefix(this.keyPrefix)
+                .build();
 
             this.adapter = new LogbackBridge(config);
             this.adapter.setEncoder(encoder);
@@ -168,6 +159,14 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     public void setKeyPrefix(String keyPrefix) {
         this.keyPrefix = keyPrefix;
+    }
+
+    public String getBackendType() {
+        return backendType;
+    }
+
+    public void setBackendType(String backendType) {
+        this.backendType = backendType;
     }
 
     public int getMaxQueueSize() {

@@ -5,32 +5,34 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.logx</groupId>
-  <artifactId>log-java-producer</artifactId>
+  <artifactId>logx-s3-adapter</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
 
-  <name>log-java-producer</name>
-  <description>通用日志批处理与上传核心库，供 Log4j/Logback Appender 复用</description>
+  <name>logx-s3-adapter</name>
+  <description>S3适配器模块，提供对AWS S3、阿里云OSS、腾讯云COS等S3兼容存储的支持</description>
   <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>
     <maven.compiler.target>1.8</maven.compiler.target>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <aws.sdk.version>2.28.16</aws.sdk.version>
   </properties>
 
   <dependencies>
+    <!-- 核心模块依赖 -->
     <dependency>
-        <groupId>com.lmax</groupId>
-        <artifactId>disruptor</artifactId>
-        <version>3.4.4</version>
+      <groupId>org.logx</groupId>
+      <artifactId>log-java-producer</artifactId>
+      <version>0.1.0</version>
     </dependency>
     
-    <!-- SLF4J for logging -->
+    <!-- AWS SDK for S3 compatibility -->
     <dependency>
-      <groupId>org.slf4j</groupId>
-      <artifactId>slf4j-api</artifactId>
-      <version>1.7.36</version>
+      <groupId>software.amazon.awssdk</groupId>
+      <artifactId>s3</artifactId>
+      <version>${aws.sdk.version}</version>
     </dependency>
     
     <!-- Dependency Conflict Resolutions -->
@@ -95,5 +97,3 @@
   </build>
 
 </project>
-
-

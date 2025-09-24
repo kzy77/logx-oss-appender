@@ -7,6 +7,8 @@ LogX OSS Appender 采用单仓库多模块（Monorepo）架构，包含以下核
 ```
 logx-oss-appender/
 ├── log-java-producer/          # 核心抽象层
+├── logx-s3-adapter/            # S3兼容存储适配器
+├── logx-sf-oss-adapter/        # SF OSS存储适配器
 ├── log4j-oss-appender/         # Log4j 1.x适配器
 ├── log4j2-oss-appender/        # Log4j2适配器
 ├── logback-oss-appender/       # Logback适配器

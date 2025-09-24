@@ -4,24 +4,20 @@ import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * 存储接口
+ * 存储服务接口
  * <p>
  * 定义所有存储服务的通用接口，支持多种存储后端（S3兼容存储、SF OSS等）。
  *
  * @author OSS Appender Team
- *
  * @since 1.0.0
  */
-public interface StorageInterface {
+public interface StorageService extends StorageInterface {
 
     /**
      * 上传单个对象
      *
-     * @param key
-     *            对象键
-     * @param data
-     *            对象数据
-     *
+     * @param key  对象键
+     * @param data 对象数据
      * @return CompletableFuture表示异步操作结果
      */
     CompletableFuture<Void> putObject(String key, byte[] data);
@@ -29,9 +25,7 @@ public interface StorageInterface {
     /**
      * 批量上传多个对象
      *
-     * @param objects
-     *            对象映射，键为对象键，值为对象数据
-     *
+     * @param objects 对象映射，键为对象键，值为对象数据
      * @return CompletableFuture表示异步操作结果
      */
     CompletableFuture<Void> putObjects(Map<String, byte[]> objects);
@@ -54,4 +48,12 @@ public interface StorageInterface {
      * 关闭存储服务，释放资源
      */
     void close();
+
+    /**
+     * 检查当前存储服务是否支持指定的后端类型
+     *
+     * @param backendType 后端类型
+     * @return 是否支持
+     */
+    boolean supportsBackend(String backendType);
 }
