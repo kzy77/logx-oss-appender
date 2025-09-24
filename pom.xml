@@ -43,7 +43,7 @@
 
     <!-- Modules (Submodules for Git Submodules migration) -->
     <modules>
-        <module>log-java-producer</module>
+        <module>logx-producer</module>
         <module>logx-s3-adapter</module>
         <module>logx-sf-oss-adapter</module>
         <module>log4j-oss-appender</module>

@@ -24,8 +24,9 @@
     <!-- 核心模块依赖 -->
     <dependency>
       <groupId>org.logx</groupId>
-      <artifactId>log-java-producer</artifactId>
+      <artifactId>logx-producer</artifactId>
       <version>0.1.0</version>
+      <scope>compile</scope>
     </dependency>
     
     <!-- AWS SDK for S3 compatibility -->

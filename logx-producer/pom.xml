@@ -5,11 +5,11 @@
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.logx</groupId>
-  <artifactId>log-java-producer</artifactId>
+  <artifactId>logx-producer</artifactId>
   <version>0.1.0</version>
   <packaging>jar</packaging>
 
-  <name>log-java-producer</name>
+  <name>logx-producer</name>
   <description>通用日志批处理与上传核心库，供 Log4j/Logback Appender 复用</description>
   <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
 

@@ -4,7 +4,7 @@
 
 LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含四个核心模块：
 
-- **log-java-producer** - 核心基础模块，提供日志生产和队列管理
+- **logx-producer** - 核心基础模块，提供日志生产和队列管理
 - **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
 - **log4j2-oss-appender** - Log4j2版本的OSS Appender
 - **logback-oss-appender** - Logback版本的OSS Appender
@@ -21,7 +21,7 @@ logx-oss-appender/                     # 主仓库
 │   ├── prd.md                   # 产品需求文档
 │   ├── developer-guide.md       # 开发者指南
 │   └── git-management.md        # Git管理指南
-├── log-java-producer/           # 核心处理引擎
+├── logx-producer/               # 核心处理引擎
 ├── log4j-oss-appender/          # Log4j集成模块
 ├── log4j2-oss-appender/         # Log4j2集成模块
 ├── logback-oss-appender/        # Logback集成模块
@@ -31,7 +31,7 @@ logx-oss-appender/                     # 主仓库
 ### 核心组件依赖关系
 
 ```
-log-java-producer (核心)
+logx-producer (核心)
     ↓
 log4j-oss-appender
 log4j2-oss-appender
@@ -179,7 +179,7 @@ git push origin feature/new-feature
 - `chore`: 构建工具、依赖更新
 
 #### Scope范围
-- `core`: log-java-producer核心模块
+- `core`: logx-producer核心模块
 - `log4j`: log4j适配器
 - `log4j2`: log4j2适配器
 - `logback`: logback适配器
@@ -294,7 +294,7 @@ git remote add upstream https://github.com/logx-oss-appender/logx-oss-appender.g
 git checkout -b feature/新功能描述
 
 # 如果修改子模块，也要在子模块中创建分支
-cd log-java-producer
+cd logx-producer
 git checkout -b feature/新功能描述
 cd ..
 ```
@@ -315,7 +315,7 @@ mvn formatter:validate spotbugs:check
 
 ```bash
 # 如果修改了子模块，先提交子模块更改
-cd log-java-producer
+cd logx-producer
 git add .
 git commit -m "feat: 添加新功能描述"
 git push origin feature/新功能描述

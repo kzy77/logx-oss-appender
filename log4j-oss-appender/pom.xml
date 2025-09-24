@@ -25,8 +25,9 @@
   <dependencies>
     <dependency>
       <groupId>org.logx</groupId>
-      <artifactId>log-java-producer</artifactId>
+      <artifactId>logx-producer</artifactId>
       <version>0.1.0</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>log4j</groupId>

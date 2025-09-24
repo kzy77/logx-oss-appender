@@ -24,11 +24,12 @@
     </properties>
 
     <dependencies>
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>log-java-producer</artifactId>
-            <version>0.1.0</version>
-        </dependency>
+    <dependency>
+      <groupId>org.logx</groupId>
+      <artifactId>logx-producer</artifactId>
+      <version>0.1.0</version>
+      <scope>compile</scope>
+    </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-api</artifactId>
