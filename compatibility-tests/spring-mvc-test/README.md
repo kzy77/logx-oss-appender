@@ -1,0 +1,41 @@
+# Spring MVC兼容性测试应用
+
+## 概述
+此应用用于验证OSS Appender在Spring MVC环境中的兼容性。
+
+## 功能特性
+1. 验证XML配置方式的兼容性
+2. 测试程序化配置方式
+3. 验证与Spring上下文的集成
+4. 执行性能基准测试
+
+## 构建和部署
+
+### 构建项目
+```bash
+mvn clean package
+```
+
+### 部署应用
+将生成的WAR文件部署到支持Servlet 4.0的Web容器中，如Tomcat 9+。
+
+## 测试端点
+- `GET /test-log` - 生成各种级别的日志消息
+- `GET /test-exception` - 生成异常日志消息
+
+## 配置方式
+
+### XML配置
+使用 `web.xml` 文件配置Spring MVC和Logback
+
+### 程序化配置
+使用 `WebConfig` 和 `WebAppInitializer` 类进行程序化配置
+
+### 系统属性配置
+支持通过系统属性覆盖配置：
+- `oss.appender.s3.bucket` - S3存储桶
+- `oss.appender.s3.keyPrefix` - 对象key前缀
+- `oss.appender.s3.region` - 存储区域
+- `oss.appender.batch.size` - 批处理大小
+- `oss.appender.batch.flushInterval` - 刷新间隔
+- `oss.appender.queue.capacity` - 队列容量

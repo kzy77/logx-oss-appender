@@ -49,6 +49,12 @@
         <module>log4j-oss-appender</module>
         <module>log4j2-oss-appender</module>
         <module>logback-oss-appender</module>
+        <module>compatibility-tests/spring-boot-test</module>
+        <module>compatibility-tests/spring-mvc-test</module>
+        <module>compatibility-tests/jsp-servlet-test</module>
+        <module>compatibility-tests/multi-framework-test</module>
+        <module>compatibility-tests/config-consistency-test</module>
+        <module>compatibility-tests/performance-test</module>
     </modules>
 
     <!-- Dependency Management -->

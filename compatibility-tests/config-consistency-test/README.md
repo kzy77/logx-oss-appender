@@ -1,0 +1,87 @@
+# 配置一致性验证工具
+
+## 概述
+此工具用于验证OSS Appender在不同框架中的配置参数一致性。
+
+## 功能特性
+1. 验证所有框架使用相同配置参数名称
+2. 测试环境变量覆盖的一致性
+3. 验证配置验证机制的一致性
+4. 测试错误配置的处理一致性
+5. 验证配置加载机制的一致性
+6. 验证配置更新机制的一致性
+7. 验证配置值的一致性
+
+## 构建和运行
+
+### 构建项目
+```bash
+mvn clean compile
+```
+
+### 运行工具
+```bash
+mvn exec:java -Dexec.mainClass="org.logx.compatibility.config.ConfigConsistencyVerificationMain"
+```
+
+### 运行测试
+```bash
+mvn test
+```
+
+## 验证内容
+
+### 配置参数一致性
+验证所有框架使用相同的配置参数名称：
+- `s3.bucket` - S3存储桶
+- `s3.keyPrefix` - 对象key前缀
+- `s3.region` - 存储区域
+- `batch.size` - 批处理大小
+- `batch.flushInterval` - 刷新间隔
+- `queue.capacity` - 队列容量
+- `s3.accessKeyId` - 访问密钥ID
+- `s3.secretAccessKey` - 秘密访问密钥
+- `s3.endpoint` - S3端点
+- `compression.enabled` - 压缩启用
+- `compression.type` - 压缩类型
+
+### 环境变量一致性
+验证所有框架支持相同的环境变量：
+- `OSS_APPENDER_S3_BUCKET` - S3存储桶
+- `OSS_APPENDER_S3_KEY_PREFIX` - 对象key前缀
+- `OSS_APPENDER_S3_REGION` - 存储区域
+- `OSS_APPENDER_BATCH_SIZE` - 批处理大小
+- `OSS_APPENDER_BATCH_FLUSH_INTERVAL` - 刷新间隔
+- `OSS_APPENDER_QUEUE_CAPACITY` - 队列容量
+- `OSS_APPENDER_S3_ACCESS_KEY_ID` - 访问密钥ID
+- `OSS_APPENDER_S3_SECRET_ACCESS_KEY` - 秘密访问密钥
+- `OSS_APPENDER_S3_ENDPOINT` - S3端点
+- `OSS_APPENDER_COMPRESSION_ENABLED` - 压缩启用
+- `OSS_APPENDER_COMPRESSION_TYPE` - 压缩类型
+
+### 验证机制一致性
+验证所有框架使用相同的配置验证机制：
+- 所有框架都使用S3ConfigValidator进行配置验证
+- 所有框架都使用相同的验证规则
+- 所有框架都使用相同的验证错误消息
+
+### 错误处理一致性
+验证所有框架使用相同的错误处理机制：
+- 所有框架都使用统一的错误处理机制
+- 所有框架都使用相同的错误日志格式
+- 所有框架都使用相同的错误恢复策略
+
+### 配置加载机制一致性
+验证所有框架使用相同的配置加载机制：
+- 所有框架都遵循相同的配置加载优先级：环境变量 > 系统属性 > 配置文件
+- 所有框架都支持相同的配置回退机制
+
+### 配置更新机制一致性
+验证所有框架使用相同的配置更新机制：
+- 所有框架都支持运行时配置更新
+- 所有框架都支持配置重新加载
+
+### 配置值一致性
+验证所有框架配置值的一致性：
+- 验证关键配置参数在所有框架中的值是否一致
+- 验证配置参数缺失情况的一致性检测

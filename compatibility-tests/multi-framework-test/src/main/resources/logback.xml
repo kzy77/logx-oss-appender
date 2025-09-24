@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- 控制台输出 -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- OSS Appender配置 -->
+    <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
+        <!-- S3配置 -->
+        <s3Bucket>test-bucket</s3Bucket>
+        <s3KeyPrefix>logs/logback/</s3KeyPrefix>
+        <s3Region>us-east-1</s3Region>
+        
+        <!-- 批处理配置 -->
+        <batchSize>100</batchSize>
+        <flushInterval>5000</flushInterval>
+        
+        <!-- 队列配置 -->
+        <queueCapacity>10000</queueCapacity>
+    </appender>
+
+    <!-- 根日志配置 -->
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="OSS"/>
+    </root>
+</configuration>
