@@ -1,171 +1,211 @@
-# Test Design: Story 6. 配置统一和兼容性测试
+# 测试设计: 故事 6.0
 
-Date: 2025-09-24
-Designer: Quinn (Test Architect)
+日期: 2025-09-24
+设计师: Quinn (测试架构师)
 
-## Test Strategy Overview
+## 测试策略概述
 
-This test design document covers all acceptance criteria for story point 6 "配置统一和兼容性测试" (Configuration Unification and Compatibility Testing). The goal is to ensure that all three logging frameworks (Log4j, Log4j2, and Logback) use the same configuration parameters and undergo comprehensive compatibility testing to standardize deployment and maintenance processes.
+- 总测试场景数: 31
+- 单元测试: 15 (48%)
+- 集成测试: 13 (42%)
+- 端到端测试: 3 (10%)
+- 优先级分布: P0: 14, P1: 11, P2: 6
 
-### Test Coverage Summary
+## 按验收标准划分的测试场景
 
-- Total test scenarios: 36
-- Unit tests: 12 (33%)
-- Integration tests: 18 (50%)
-- E2E tests: 6 (17%)
-- Priority distribution: P0: 15, P1: 14, P2: 7
+### AC1: 创建CommonConfig类，定义统一的配置参数名称，包括将backend更改为ossType，默认为SF_OSS
 
-## Test Scenarios by Acceptance Criteria
+#### 场景
 
-### AC1: 创建CommonConfig类，定义统一的配置参数名称
-
-#### Scenarios
-
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-001 | Unit        | P0       | Validate CommonConfig parameter names consistency | Pure validation logic    |
-| 6.0-UNIT-002 | Unit        | P1       | Validate CommonConfig parameter mapping | Pure transformation logic |
-| 6.0-INT-001  | Integration | P0       | Test CommonConfig integration with all frameworks | Component interaction validation |
-| 6.0-E2E-001  | E2E         | P1       | Verify unified parameter names across frameworks | Critical path validation |
+| 6.0-UNIT-001 | Unit        | P0       | 验证CommonConfig类常量定义     | 纯配置定义验证    |
+| 6.0-UNIT-002 | Unit        | P0       | 验证CommonConfig默认值    | 纯配置验证逻辑    |
+| 6.0-UNIT-003 | Unit        | P1       | 验证CommonConfig验证规则    | 纯验证规则逻辑    |
+| 6.0-INT-001  | Integration | P0       | 验证CommonConfig在各框架中的使用 | 配置类集成验证     |
 
 ### AC2: 实现StorageConfig配置验证，验证所有必需参数完整性
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-003 | Unit        | P0       | Validate required parameter completeness | Pure validation logic |
-| 6.0-UNIT-004 | Unit        | P1       | Validate parameter format and range checks | Pure validation logic |
-| 6.0-INT-002  | Integration | P0       | Test StorageConfig validation in all frameworks | Component interaction validation |
-| 6.0-INT-003  | Integration | P1       | Test validation error handling | Error condition validation |
-| 6.0-E2E-002  | E2E         | P1       | Verify configuration validation across frameworks | Critical path validation |
+| 6.0-UNIT-004 | Unit        | P0       | 验证StorageConfig必需参数验证 | 纯验证逻辑    |
+| 6.0-UNIT-005 | Unit        | P0       | 验证StorageConfig参数范围验证 | 纯验证逻辑    |
+| 6.0-INT-002  | Integration | P0       | 验证StorageConfig构建和验证 | 配置验证集成     |
+| 6.0-INT-003  | Integration | P1       | 验证StorageConfig错误处理 | 错误场景验证     |
 
-### AC3: 支持环境变量覆盖，简化容器化部署
+### AC3: 支持环境变量覆盖，简化容器化部署，使用LOGX_OSS_前缀
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-005 | Unit        | P0       | Validate environment variable override logic | Pure transformation logic |
-| 6.0-UNIT-006 | Unit        | P1       | Validate 12-factor app configuration principles | Pure validation logic |
-| 6.0-INT-004  | Integration | P0       | Test environment variable override in all frameworks | Component interaction validation |
-| 6.0-INT-005  | Integration | P1       | Test environment variable precedence | Configuration flow validation |
-| 6.0-E2E-003  | E2E         | P1       | Verify environment variable support in containerized deployment | Critical deployment scenario |
+| 6.0-UNIT-006 | Unit        | P0       | 验证ConfigManager环境变量支持 | 纯环境变量处理逻辑    |
+| 6.0-INT-004  | Integration | P0       | 验证环境变量覆盖功能 | 环境变量集成验证     |
+| 6.0-INT-005  | Integration | P1       | 验证环境变量优先级 | 配置优先级验证     |
 
 ### AC4: 编写配置兼容性测试，确保三框架配置一致性
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-007 | Unit        | P0       | Validate configuration mapping consistency | Pure transformation logic |
-| 6.0-INT-006  | Integration | P0       | Test configuration compatibility suite | Component interaction validation |
-| 6.0-INT-007  | Integration | P0       | Test three-framework configuration consistency | Cross-framework validation |
-| 6.0-INT-008  | Integration | P1       | Test environment variable override functionality | Configuration flow validation |
-| 6.0-E2E-004  | E2E         | P0       | Verify configuration compatibility across frameworks | Critical path validation |
+| 6.0-INT-006  | Integration | P0       | 验证三框架配置参数一致性 | 跨框架配置验证     |
+| 6.0-INT-007  | Integration | P0       | 验证三框架配置值一致性 | 跨框架配置验证     |
+| 6.0-INT-008  | Integration | P1       | 验证配置一致性工具功能 | 工具功能验证     |
 
 ### AC5: 实现UnifiedErrorHandler，处理三框架的异常情况
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-008 | Unit        | P0       | Validate UnifiedErrorHandler creation | Pure logic validation |
-| 6.0-UNIT-009 | Unit        | P0       | Validate exception handling and mapping | Pure logic validation |
-| 6.0-INT-009  | Integration | P0       | Test UnifiedErrorHandler integration | Component interaction validation |
-| 6.0-INT-010  | Integration | P1       | Test error categorization and mapping | Error handling validation |
-| 6.0-E2E-005  | E2E         | P0       | Verify UnifiedErrorHandler across frameworks | Critical path validation |
+| 6.0-UNIT-007 | Unit        | P0       | 验证UnifiedErrorHandler错误处理 | 纯错误处理逻辑    |
+| 6.0-UNIT-008 | Unit        | P0       | 验证UnifiedErrorHandler日志格式 | 日志格式验证    |
+| 6.0-INT-009  | Integration | P0       | 验证UnifiedErrorHandler在各框架中的集成 | 错误处理集成     |
 
 ### AC6: 创建统一的日志格式和错误代码规范
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-UNIT-010 | Unit        | P0       | Validate unified log format specification | Pure format validation |
-| 6.0-UNIT-011 | Unit        | P0       | Validate error code system creation | Pure logic validation |
-| 6.0-INT-011  | Integration | P0       | Test structured log output implementation | Component interaction validation |
-| 6.0-INT-012  | Integration | P1       | Test error code consistency | Cross-component validation |
+| 6.0-UNIT-009 | Unit        | P1       | 验证日志格式一致性 | 日志格式验证    |
+| 6.0-UNIT-010 | Unit        | P1       | 验证错误代码规范 | 错误代码验证    |
 
 ### AC7: 编写错误处理测试，验证各种故障场景
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-013  | Integration | P0       | Test error handling test suite creation | Test framework validation |
-| 6.0-INT-014  | Integration | P0       | Test various failure scenarios | Error condition validation |
-| 6.0-INT-015  | Integration | P1       | Test error recovery mechanisms | Resilience validation |
-| 6.0-E2E-006  | E2E         | P1       | Verify error handling in real-world scenarios | Critical path validation |
+| 6.0-INT-010  | Integration | P0       | 验证网络错误处理 | 网络故障场景     |
+| 6.0-INT-011  | Integration | P0       | 验证认证错误处理 | 认证故障场景     |
+| 6.0-INT-012  | Integration | P0       | 验证存储错误处理 | 存储故障场景     |
+| 6.0-INT-013  | Integration | P1       | 验证配置错误处理 | 配置故障场景     |
 
 ### AC8: 创建跨框架功能测试套件，验证核心功能一致性
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-016  | Integration | P0       | Test cross-framework functional test suite | Test framework validation |
-| 6.0-INT-017  | Integration | P0       | Test core functionality consistency | Cross-framework validation |
-| 6.0-INT-018  | Integration | P0       | Test configuration compatibility verification | Configuration validation |
-| 6.0-INT-019  | Integration | P0       | Test error handling consistency verification | Error handling validation |
-| 6.0-INT-020  | Integration | P0       | Test concurrent scenario verification | Concurrency validation |
+| 6.0-INT-014  | Integration | P0       | 验证三框架日志输出一致性 | 核心功能验证     |
+| 6.0-INT-015  | Integration | P0       | 验证三框架性能一致性 | 性能验证     |
+| 6.0-E2E-001  | E2E         | P0       | 验证三框架共存场景 | 端到端验证     |
 
 ### AC9: 执行性能基准测试，确保三框架性能相当
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-021  | Integration | P0       | Test performance benchmark suite creation | Test framework validation |
-| 6.0-INT-022  | Integration | P0       | Test three-framework performance comparison | Performance validation |
-| 6.0-INT-023  | Integration | P1       | Test performance consistency verification | Performance validation |
-| 6.0-INT-024  | Integration | P1       | Test performance report generation | Reporting validation |
+| 6.0-INT-016  | Integration | P0       | 验证三框架吞吐量一致性 | 性能基准测试     |
+| 6.0-INT-017  | Integration | P0       | 验证三框架延迟一致性 | 性能基准测试     |
+| 6.0-INT-018  | Integration | P1       | 验证三框架资源使用一致性 | 性能基准测试     |
 
 ### AC10: 测试配置兼容性，验证参数映射正确性
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-025  | Integration | P0       | Test configuration compatibility suite | Test framework validation |
-| 6.0-INT-026  | Integration | P0       | Test three-framework parameter mapping | Configuration validation |
-| 6.0-INT-027  | Integration | P1       | Test configuration consistency verification | Configuration validation |
+| 6.0-INT-019  | Integration | P0       | 验证ConfigFactory参数映射 | 配置映射验证     |
+| 6.0-INT-020  | Integration | P1       | 验证配置文件参数映射 | 配置映射验证     |
 
 ### AC11: 验证错误处理一致性，确保故障行为统一
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-028  | Integration | P0       | Test error handling consistency suite | Test framework validation |
-| 6.0-INT-029  | Integration | P0       | Test three-framework error handling behavior | Error handling validation |
-| 6.0-INT-030  | Integration | P1       | Test error handling consistency verification | Error handling validation |
+| 6.0-INT-021  | Integration | P0       | 验证三框架错误日志一致性 | 错误处理验证     |
+| 6.0-INT-022  | Integration | P0       | 验证三框架错误恢复一致性 | 错误处理验证     |
 
 ### AC12: 执行并发测试，验证多框架并存场景
 
-#### Scenarios
+#### 场景
 
-| ID           | Level       | Priority | Test                      | Justification            |
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
 | ------------ | ----------- | -------- | ------------------------- | ------------------------ |
-| 6.0-INT-031  | Integration | P0       | Test concurrent test suite creation | Test framework validation |
-| 6.0-INT-032  | Integration | P0       | Test multi-framework coexistence scenarios | Concurrency validation |
-| 6.0-INT-033  | Integration | P1       | Test concurrent processing capability verification | Performance validation |
+| 6.0-INT-023  | Integration | P0       | 验证高并发场景下的配置隔离 | 并发验证     |
+| 6.0-INT-024  | Integration | P0       | 验证高并发场景下的日志输出 | 并发验证     |
+| 6.0-INT-025  | Integration | P1       | 验证资源竞争处理 | 并发验证     |
 
-## Risk Coverage
+### AC13: 添加maxUploadSizeMb配置参数支持，控制单个上传文件最大大小
 
-This test design addresses the following key risks:
+#### 场景
 
-1. **Configuration Inconsistency Risk**: By validating unified configuration parameters across all three frameworks
-2. **Deployment Complexity Risk**: By ensuring environment variable support for containerized deployments
-3. **Error Handling Inconsistency Risk**: By implementing and testing UnifiedErrorHandler across frameworks
-4. **Performance Degradation Risk**: By executing performance benchmark tests
-5. **Compatibility Risk**: By comprehensive cross-framework compatibility testing
-6. **Operational Risk**: By standardizing logging format and error codes
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-UNIT-011 | Unit        | P0       | 验证maxUploadSizeMb参数定义 | 配置参数验证     |
+| 6.0-UNIT-012 | Unit        | P0       | 验证maxUploadSizeMb验证规则 | 验证规则验证     |
+| 6.0-INT-026  | Integration | P0       | 验证maxUploadSizeMb配置支持 | 配置集成验证     |
 
-## Recommended Execution Order
+### AC14: 支持logx.oss前缀风格配置，如logx.oss.region=ap-guangzhou
 
-1. P0 Unit tests (fail fast on critical logic issues)
-2. P0 Integration tests (validate core functionality)
-3. P0 E2E tests (validate critical user journeys)
-4. P1 tests in order (core functionality validation)
-5. P2 tests (secondary features)
+#### 场景
+
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-UNIT-013 | Unit        | P0       | 验证logx.oss前缀配置支持 | 配置解析验证     |
+| 6.0-INT-027  | Integration | P0       | 验证logx.oss前缀配置映射 | 配置映射验证     |
+
+### AC15: 实现配置优先级顺序：JVM系统属性 > 环境变量 > 配置文件属性 > 代码默认值
+
+#### 场景
+
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-UNIT-014 | Unit        | P0       | 验证ConfigManager优先级逻辑 | 优先级逻辑验证     |
+| 6.0-INT-028  | Integration | P0       | 验证配置优先级顺序 | 优先级集成验证     |
+| 6.0-INT-029  | Integration | P1       | 验证优先级覆盖场景 | 优先级场景验证     |
+
+### AC16: 配置统一和兼容性测试
+
+#### 场景
+
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-INT-030  | Integration | P0       | 验证配置一致性测试套件 | 测试套件验证     |
+| 6.0-INT-031  | Integration | P0       | 测试并发测试套件创建 | 测试框架验证     |
+| 6.0-E2E-002  | E2E         | P1       | 验证完整的配置兼容性测试 | 端到端验证     |
+
+### AC17: 错误处理一致性测试
+
+#### 场景
+
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-INT-032  | Integration | P0       | 验证错误处理一致性测试套件 | 测试套件验证     |
+| 6.0-E2E-003  | E2E         | P2       | 验证完整的错误处理一致性测试 | 端到端验证     |
+
+### AC18: 跨框架功能测试
+
+#### 场景
+
+| ID           | 级别        | 优先级 | 测试                      | 理由            |
+| ------------ | ----------- | -------- | ------------------------- | ------------------------ |
+| 6.0-INT-033  | Integration | P0       | 验证跨框架功能测试套件 | 测试套件验证     |
+
+## 风险覆盖
+
+| 测试场景 | 缓解的风险 |
+| -------- | ------------ |
+| 6.0-UNIT-001 | 配置参数不一致风险 |
+| 6.0-UNIT-004 | 配置验证失败风险 |
+| 6.0-INT-004 | 环境变量配置错误风险 |
+| 6.0-INT-006 | 跨框架配置不一致风险 |
+| 6.0-INT-010 | 网络故障处理不当风险 |
+| 6.0-INT-014 | 核心功能不一致风险 |
+| 6.0-INT-016 | 性能不一致风险 |
+| 6.0-INT-023 | 并发安全风险 |
+
+## 推荐执行顺序
+
+1. P0 单元测试 (快速失败)
+2. P0 集成测试
+3. P0 端到端测试
+4. P1 测试按顺序执行
+5. P2+ 根据时间安排执行
