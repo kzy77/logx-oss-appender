@@ -3,7 +3,9 @@ package org.logx.batch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.logx.storage.StorageService;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -18,20 +20,52 @@ import static org.assertj.core.api.Assertions.*;
  */
 class BatchProcessorTest {
 
+    /**
+     * 简单的存储服务模拟实现
+     */
+    private static class MockStorageService implements StorageService {
+        @Override
+        public CompletableFuture<Void> putObject(String key, byte[] data) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        @Override
+        public String getBackendType() {
+            return "MOCK";
+        }
+
+        @Override
+        public String getBucketName() {
+            return "test-bucket";
+        }
+
+        @Override
+        public void close() {
+            // 空实现
+        }
+
+        @Override
+        public boolean supportsBackend(String backendType) {
+            return "MOCK".equals(backendType);
+        }
+    }
+
     private BatchProcessor processor;
     private TestBatchConsumer consumer;
+    private StorageService storageService;
 
     @BeforeEach
     void setUp() {
         consumer = new TestBatchConsumer();
+        storageService = new MockStorageService();
         processor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(10).flushIntervalMs(100)
-                .enableCompression(true).compressionThreshold(100), consumer);
+                .enableCompression(true).compressionThreshold(100), consumer, storageService);
     }
 
     @Test
     void shouldCreateBatchProcessorWithDefaultConfig() {
         // When
-        BatchProcessor defaultProcessor = new BatchProcessor(consumer);
+        BatchProcessor defaultProcessor = new BatchProcessor(consumer, new MockStorageService());
 
         // Then
         assertThat(defaultProcessor).isNotNull();
@@ -98,7 +132,7 @@ class BatchProcessorTest {
         // Given
         BatchProcessor timeBasedProcessor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(100) // 大批次，不会被数量触发
                 .flushIntervalMs(200), // 200ms超时
-                consumer);
+                consumer, new MockStorageService());
 
         timeBasedProcessor.start();
 
@@ -184,7 +218,7 @@ class BatchProcessorTest {
         // Given - 启用自适应批处理
         BatchProcessor adaptiveProcessor = new BatchProcessor(
                 BatchProcessor.Config.defaultConfig().batchSize(20).enableAdaptiveSize(true).flushIntervalMs(100),
-                consumer);
+                consumer, new MockStorageService());
 
         adaptiveProcessor.start();
 
@@ -216,7 +250,7 @@ class BatchProcessorTest {
         // Given - 高压缩阈值，小消息不压缩
         BatchProcessor noCompressionProcessor = new BatchProcessor(
                 BatchProcessor.Config.defaultConfig().batchSize(5).enableCompression(true).compressionThreshold(10000), // 10KB阈值，小消息不会压缩
-                consumer);
+                consumer, new MockStorageService());
 
         noCompressionProcessor.start();
 

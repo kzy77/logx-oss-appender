@@ -19,6 +19,7 @@
 
 | 日期 | 版本 | 描述 | 作者 |
 |------|---------|-------------|--------|
+| 2025-09-24 | 2.1 | 更新数据处理流程，核心层控制数据分片 | Winston (架构师) |
 | 2025-09-20 | 2.0 | 基于技术头脑风暴重新设计架构 | Mary (分析师) |
 | 2025-09-20 | 1.0 | Git Submodules迁移的初始架构文档 | Winston (架构师) |
 
@@ -48,106 +49,16 @@ OSS Appender 采用**分层抽象架构**，其中log-java-producer作为高度�
 应用程序 → 框架适配器 → DisruptorBatchingQueue → 批处理引擎 → 存储服务接口 → 云存储适配器 → 云存储
 
 **关键架构决策：**
-1. **存储服务抽象**: 以存储服务接口为基础的存储抽象，支持多种云存储
-2. **资源保护优先**: 固定线程池+低优先级+CPU让出，确保不影响业务
-3. **数据可靠性**: JVM shutdown hook + 30秒超时，保障数据不丢失
-4. **配置一致性**: 三框架统一配置key，提升用户体验
-5. **低侵入性设计**: 模块化适配器，用户按需引入
-
-### 高层项目图
-
-```mermaid
-graph TB
-    subgraph "业务应用层"
-        APP1[Java应用程序<br/>Log4j]
-        APP2[Java应用程序<br/>Log4j2]
-        APP3[Java应用程序<br/>Logback]
-    end
-
-    subgraph "OSS Appender 组件套件"
-        subgraph "框架适配器层"
-            L4J[log4j-oss-appender<br/>org.logx]
-            L4J2[log4j2-oss-appender<br/>org.logx]
-            LB[logback-oss-appender<br/>org.logx]
-        end
-
-        subgraph "核心抽象层"
-            LP[log-java-producer<br/>org.logx]
-            subgraph "核心组件"
-                DQ[DisruptorBatchingQueue<br/>高性能队列]
-                TP[固定线程池<br/>资源保护]
-                SH[Shutdown Hook<br/>数据保障]
-                SS[存储服务接口<br/>多云抽象]
-            end
-        end
-        
-        subgraph "存储适配器层"
-            S3A[logx-s3-adapter<br/>S3兼容存储]
-            SFOA[logx-sf-oss-adapter<br/>SF OSS存储]
-        end
-    end
-
-    subgraph "云存储层"
-        OSS[阿里云OSS]
-        S3C[AWS S3兼容]
-        MIN[MinIO/其他]
-        SFO[SF OSS]
-    end
-
-    APP1 --> L4J
-    APP2 --> L4J2
-    APP3 --> LB
-
-    L4J --> LP
-    L4J2 --> LP
-    LB --> LP
-
-    LP --> DQ
-    LP --> TP
-    LP --> SH
-    LP --> SS
-
-    SS -- SPI --> S3A
-    SS -- SPI --> SFOA
-
-    S3A --> OSS
-    S3A --> S3C
-    S3A --> MIN
-    SFOA --> SFO
-```
-
-### 架构和设计模式
-
-- **服务提供者接口模式**: 存储服务接口配合Java SPI实现运行时动态加载适配器 - _理由：_ 实现低侵入性的模块化设计
-
-- **生产者-消费者模式**: DisruptorBatchingQueue实现高性能异步处理 - _理由：_ 满足延迟最小和高吞吐量的性能要求
-
-- **适配器模式**: 框架特定适配器统一到log-java-producer核心 - _理由：_ 实现简洁性原则，保持配置和代码一致性
-
-- **资源保护模式**: 固定线程池+低优先级+CPU让出的组合策略 - _理由：_ 确保日志组件不影响业务系统性能
-
-- **数据保障模式**: JVM shutdown hook + 超时机制 - _理由：_ 在保持简洁的同时实现数据不丢失
-
-- **统一配置模式**: 三框架配置key保持一致 - _理由：_ 提升用户体验，降低学习成本
-
-- **模块化设计模式**: 独立的适配器模块实现关注点分离 - _理由：_ 降低依赖侵入性，提高可维护性
 
 ## 技术栈
 
-### 核心技术选择
-
-基于头脑风暴确定的技术选择，优先考虑性能、简洁性和资源保护：
-
-### 技术栈表
-
-| 类别 | 技术 | 版本 | 用途 | 设计原理 |
-|----------|------------|---------|---------|-----------|
-| **语言** | Java | 8+ | 主要开发语言 | 企业兼容性，确保广泛可用性 |
-| **构建系统** | Maven | 3.9.6 | 构建和依赖管理 | 统一的父POM管理，简化版本控制 |
-| **队列引擎** | LMAX Disruptor | 3.4.4 | 高性能异步队列 | 延迟最小，吞吐量最大的核心技术 |
-| **存储SDK** | AWS SDK v2 | 2.28.16 | S3兼容接口 | S3标准统一抽象的技术基础（在logx-s3-adapter模块中） |
-| **存储SDK** | Aliyun OSS SDK | 3.17.4 | 阿里云OSS | S3兼容模式下的主要目标平台（在logx-s3-adapter模块中） |
-| **GroupId** | org.logx | - | 统一命名空间 | 简洁的组织标识，避免长命名 |
+| 组件 | 名称 | 版本 | 用途 | 备注 |
+|------|------|------|------|------|
+| **语言** | Java | 8+ | 核心开发语言 | 兼容性优先 |
+| **构建工具** | Maven | 3.9.6 | 项目构建 | 模块化管理 |
+| **高性能队列** | LMAX Disruptor | 3.4.4 | 异步处理 | 核心依赖 |
+| **云存储SDK** | AWS SDK | 2.28.16 | S3兼容存储 | 云存储适配 |
+| **云存储SDK** | Aliyun OSS SDK | 3.17.4 | 阿里云OSS | 云存储适配 |
 | **测试框架** | JUnit 5 | 5.10.1 | 单元测试 | 现代测试框架，支持并发测试 |
 | **断言库** | AssertJ | 3.24.2 | 流式断言 | 提高测试代码可读性 |
 | **静态分析** | SpotBugs | 4.8.3 | 代码质量 | 确保高质量代码交付 |
@@ -180,12 +91,19 @@ graph TB
 // 统一存储抽象
 public interface StorageService {
     CompletableFuture<Void> putObject(String key, byte[] data);
-    CompletableFuture<Void> putObjects(Map<String, byte[]> objects);
     String getBackendType();
     String getBucketName();
     void close();
     boolean supportsBackend(String backendType);
 }
+```
+
+#### DataShardingProcessor (新增)
+```java
+// 数据分片处理器
+- 控制传递给存储适配器的数据大小
+- 自动分片大文件（>100MB）
+- 简化存储适配器实现
 ```
 
 #### ThreadPoolManager
@@ -231,6 +149,25 @@ public interface StorageService {
 - SLF4J: 完整兼容性支持
 ```
 
+### 3. 存储适配器层 (简化后)
+
+#### logx-s3-adapter
+```java
+// S3兼容存储适配器
+- 只负责具体的上传实现
+- 不再处理数据分片逻辑
+- 依赖核心层的数据分片处理
+- 不再提供putObjects方法，只提供putObject方法
+```
+
+#### logx-sf-oss-adapter
+```java
+// SF OSS存储适配器
+- 只负责具体的上传实现
+- 不再提供putObjects方法，只提供putObject方法
+- 依赖核心层的数据分片处理
+```
+
 ### 组件交互图
 
 ```mermaid
@@ -247,6 +184,7 @@ graph TD
 
     subgraph "核心抽象层 (log-java-producer)"
         DQ[DisruptorBatchingQueue<br/>高性能队列]
+        DSP[DataShardingProcessor<br/>数据分片处理]
         TP[ThreadPoolManager<br/>资源保护]
         SH[ShutdownHookHandler<br/>数据保障]
         SS[StorageService<br/>存储抽象]
@@ -272,7 +210,8 @@ graph TD
     L4J2 --> DQ
     LB --> DQ
 
-    DQ --> TP
+    DQ --> DSP
+    DSP --> TP
     TP --> SS
     SH -.-> DQ
     SH -.-> TP
@@ -295,6 +234,7 @@ sequenceDiagram
     participant App as 业务应用
     participant Adapter as 框架适配器
     participant Queue as DisruptorQueue
+    participant Sharding as 数据分片处理器
     participant Pool as 线程池
     participant Storage as S3接口
     participant Cloud as 云存储
@@ -305,7 +245,14 @@ sequenceDiagram
     Note over Queue: 低延迟入队<1ms
 
     loop 批处理循环
-        Queue->>Pool: poll批次(大小/时间触发)
+        Queue->>Sharding: 提交批次数据
+        Sharding->>Sharding: 检查数据大小
+        alt 数据过大(>100MB)
+            Sharding->>Sharding: 自动分片
+            Sharding->>Pool: 提交分片数据
+        else 正常数据
+            Sharding->>Pool: 提交原始数据
+        end
         Pool->>Pool: 格式化+压缩
         Pool->>Storage: putObject(key, data)
         Storage->>Cloud: HTTPS上传
@@ -348,248 +295,3 @@ sequenceDiagram
 
 ```xml
 <!-- 三个框架的统一配置key -->
-<appender name="OSS" class="org.logx.{framework}.OSSAppender">
-    <!-- 必需参数 -->
-    <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-    <accessKey>${OSS_ACCESS_KEY}</accessKey>
-    <secretKey>${OSS_SECRET_KEY}</secretKey>
-    <bucketName>my-log-bucket</bucketName>
-
-    <!-- 性能参数 -->
-    <batchSize>100</batchSize>
-    <flushInterval>5000</flushInterval>
-
-    <!-- 资源保护参数 -->
-    <threadPoolSize>2</threadPoolSize>
-    <maxQueueSize>10000</maxQueueSize>
-    
-    <!-- 可选参数：指定后端类型 -->
-    <backendType>S3</backendType>
-</appender>
-```
-
-### 环境变量支持
-
-```bash
-# 推荐的环境变量配置
-export OSS_ACCESS_KEY="your-access-key"
-export OSS_SECRET_KEY="your-secret-key"
-export OSS_BUCKET_NAME="your-bucket-name"
-export OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-```
-
-## 性能设计
-
-### 性能目标
-
-基于头脑风暴确定的高性能要求：
-
-| 指标 | 目标值 | 实现策略 |
-|------|--------|----------|
-| **写入延迟** | < 1ms (99%) | Disruptor无锁队列 |
-| **吞吐量** | > 10万条/秒 | 批处理+异步上传 |
-| **内存占用** | < 50MB | 有界队列+压缩 |
-| **CPU占用** | < 5% | 低优先级+CPU让出 |
-
-### 资源保护机制
-
-```java
-// 核心资源保护代码示例
-public class ThreadPoolManager {
-    private final ThreadPoolExecutor executor;
-
-    public ThreadPoolManager(int poolSize) {
-        this.executor = new ThreadPoolExecutor(
-            poolSize, poolSize,
-            0L, TimeUnit.MILLISECONDS,
-            new LinkedBlockingQueue<>(1000), // 有界队列
-            r -> {
-                Thread t = new Thread(r);
-                t.setPriority(Thread.MIN_PRIORITY); // 低优先级
-                t.setDaemon(true);
-                return t;
-            }
-        );
-    }
-
-    public void execute(Runnable task) {
-        if (isCpuBusy()) {
-            Thread.yield(); // CPU让出
-        }
-        executor.execute(task);
-    }
-}
-```
-
-## 错误处理策略
-
-### 分层错误处理
-
-基于简洁性原则的错误处理：
-
-#### 队列层错误
-- **队列满**: 丢弃最老数据，记录WARNING日志
-- **处理失败**: 重试3次，失败后丢弃并记录ERROR日志
-
-#### 存储层错误
-- **网络错误**: 指数退避重试，最多3次
-- **认证错误**: 立即失败，记录ERROR日志
-- **服务限流**: 等待后重试，记录WARN日志
-
-#### 应用层保护
-- **异常隔离**: 所有异常在适配器层捕获，不传播到业务代码
-- **降级策略**: 存储不可用时，继续正常日志输出到控制台
-
-### 监控和告警
-
-```java
-// 基于日志的监控支持
-logger.error("OSS upload failed after 3 retries",
-    "batch_size={}, endpoint={}, error={}",
-    batchSize, endpoint, exception.getMessage());
-
-logger.warn("Queue capacity exceeded, dropping {} old entries",
-    droppedCount);
-
-logger.info("OSS appender performance: avg_latency={}ms, throughput={}/s",
-    avgLatency, throughput);
-```
-
-## 部署和集成
-
-### Maven依赖
-
-```xml
-<!-- 选择对应的框架适配器 -->
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>log4j-oss-appender</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>log4j2-oss-appender</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>logback-oss-appender</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<!-- 根据需要选择引入相应的存储适配器 -->
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>logx-s3-adapter</artifactId>
-    <version>1.0.0</version>
-</dependency>
-
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>logx-sf-oss-adapter</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-
-### 生产环境部署
-
-#### 容器化部署
-```dockerfile
-# 环境变量配置
-ENV OSS_ACCESS_KEY=""
-ENV OSS_SECRET_KEY=""
-ENV OSS_BUCKET_NAME="app-logs"
-ENV OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-```
-
-#### Spring Boot集成
-```yaml
-# application.yml
-logging:
-  config: classpath:logback-spring.xml
-
-# 推荐的生产配置
-oss:
-  appender:
-    batch-size: 500
-    flush-interval: 10000
-    thread-pool-size: 4
-```
-
-## 安全考虑
-
-### 认证和授权
-- **IAM最佳实践**: 使用最小权限原则
-- **凭据管理**: 环境变量或云厂商凭据服务
-- **网络安全**: 强制HTTPS/TLS 1.2+
-
-### 数据保护
-- **传输加密**: 所有云存储通信使用TLS
-- **静态加密**: 云厂商托管的服务端加密
-- **敏感数据**: 避免在日志中记录凭据或敏感信息
-
-## 测试策略
-
-### 测试覆盖
-
-基于头脑风暴确定的质量要求：
-
-- **单元测试**: 覆盖率 > 90%，重点测试核心组件
-- **集成测试**: 多云存储兼容性测试
-- **性能测试**: 延迟和吞吐量基准测试
-- **并发测试**: 多线程场景下的数据一致性
-
-### 测试工具
-
-```java
-// 性能测试示例
-@Test
-void testHighThroughput() {
-    // 测试10万条日志的处理性能
-    int logCount = 100000;
-    long startTime = System.currentTimeMillis();
-
-    for (int i = 0; i < logCount; i++) {
-        logger.info("Test message {}", i);
-    }
-
-    long duration = System.currentTimeMillis() - startTime;
-    double throughput = logCount * 1000.0 / duration;
-
-    assertThat(throughput).isGreaterThan(100000); // 10万条/秒
-}
-```
-
-## 后续步骤
-
-### 实施优先级
-
-基于头脑风暴确定的开发计划：
-
-#### 阶段1: 核心功能实现 (2-3周)
-1. **存储服务抽象接口设计** (2-3天)
-2. **log-java-producer核心** (1周)
-3. **框架适配器开发** (1周)
-
-#### 阶段2: 可靠性增强 (1-2周)
-- JVM shutdown hook机制
-- 数据不丢失测试验证
-- 错误处理完善
-
-#### 阶段3: 性能优化 (持续)
-- 性能基准测试
-- 调优指南编写
-- 监控能力增强
-
-#### 阶段4: 模块化改进 (1-2周)
-- 独立存储适配器模块开发
-- Java SPI机制集成
-- 向后兼容性验证
-
----
-
-*本架构文档基于2025-09-20技术头脑风暴会议结果编写，体现了简洁、高性能、可切换的核心设计理念。所有技术决策都以不影响业务系统为前提，确保企业级的稳定性和可靠性。*
-
-🤖 Generated with [Claude Code](https://claude.ai/code) & BMAD™ Core

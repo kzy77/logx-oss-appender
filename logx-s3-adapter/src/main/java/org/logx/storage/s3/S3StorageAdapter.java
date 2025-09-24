@@ -8,18 +8,22 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+
 
 /**
  * AWS S3存储适配器实现
  * <p>
- * 基于AWS SDK v2实现的S3存储适配器，支持标准AWS S3服务。 提供高性能的单个和批量上传功能，支持大文件的multipart upload。
+ * 基于AWS SDK v2实现的S3存储适配器，支持标准AWS S3服务。
+ * 提供高性能的单个上传功能，支持大文件的multipart upload。
+ * <p>
+ * 注意：根据2025-09-24的架构变更，该适配器不再处理数据分片逻辑，
+ * 分片处理已移至核心层的BatchProcessor中统一处理。
+ * putObjects方法已简化实现，仅逐个上传对象，不使用并行处理。
  * <p>
  * 主要特性：
  * <ul>
@@ -112,34 +116,9 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
         }, executor);
     }
 
-    @Override
-    public CompletableFuture<Void> putObjects(Map<String, byte[]> objects) {
-        if (objects == null || objects.isEmpty()) {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            future.completeExceptionally(new IllegalArgumentException("Objects cannot be null or empty"));
-            return future;
-        }
+    
 
-        // 验证所有key和data都不为空
-        for (Map.Entry<String, byte[]> entry : objects.entrySet()) {
-            if (entry.getKey() == null || entry.getKey().trim().isEmpty()) {
-                CompletableFuture<Void> future = new CompletableFuture<>();
-                future.completeExceptionally(new IllegalArgumentException("Object key cannot be null or empty"));
-                return future;
-            }
-            if (entry.getValue() == null) {
-                CompletableFuture<Void> future = new CompletableFuture<>();
-                future.completeExceptionally(new IllegalArgumentException("Object data cannot be null"));
-                return future;
-            }
-        }
-
-        // 并行批量上传
-        List<CompletableFuture<Void>> futures = objects.entrySet().stream()
-                .map(entry -> putObject(entry.getKey(), entry.getValue())).collect(Collectors.toList());
-
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-    }
+    
 
     
 

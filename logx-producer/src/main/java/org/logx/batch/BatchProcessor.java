@@ -2,9 +2,12 @@ package org.logx.batch;
 
 import org.logx.core.DisruptorBatchingQueue;
 import org.logx.core.ResourceProtectedThreadPool;
+import org.logx.storage.StorageService;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
@@ -23,6 +26,7 @@ import java.util.zip.GZIPOutputStream;
  * <li>时间触发机制，超时自动刷新，默认5秒</li>
  * <li>动态批处理大小调整，根据队列深度自适应</li>
  * <li>批处理压缩，减少网络传输数据量</li>
+ * <li>数据分片处理，控制传递给存储适配器的数据大小</li>
  * <li>完整的性能监控和统计</li>
  * </ul>
  *
@@ -37,10 +41,13 @@ public class BatchProcessor implements AutoCloseable {
     private static final int MAX_BATCH_SIZE = 10000;
     private static final long DEFAULT_FLUSH_INTERVAL_MS = 5000L; // 5秒
     private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024; // 1KB
+    private static final int DEFAULT_SHARDING_THRESHOLD = 100 * 1024 * 1024; // 100MB
+    private static final int DEFAULT_SHARD_SIZE = 10 * 1024 * 1024; // 10MB
 
     // 批处理配置
     private final Config config;
     private final BatchConsumer consumer;
+    private final StorageService storageService;
 
     // 队列和线程池
     private final DisruptorBatchingQueue queue;
@@ -56,6 +63,9 @@ public class BatchProcessor implements AutoCloseable {
     private final AtomicLong totalBytesProcessed = new AtomicLong(0);
     private final AtomicLong totalBytesCompressed = new AtomicLong(0);
     private final AtomicLong totalCompressionSavings = new AtomicLong(0);
+
+    // 分片处理统计
+    private final AtomicLong totalShardsCreated = new AtomicLong(0);
 
     // 运行状态
     private volatile boolean started = false;
@@ -88,10 +98,13 @@ public class BatchProcessor implements AutoCloseable {
      *            批处理配置
      * @param consumer
      *            批次消费者
+     * @param storageService
+     *            存储服务
      */
-    public BatchProcessor(Config config, BatchConsumer consumer) {
+    public BatchProcessor(Config config, BatchConsumer consumer, StorageService storageService) {
         this.config = config;
         this.consumer = consumer;
+        this.storageService = storageService;
 
         // 创建线程池
         this.threadPool = new ResourceProtectedThreadPool(
@@ -118,8 +131,8 @@ public class BatchProcessor implements AutoCloseable {
     /**
      * 使用默认配置构造批处理器
      */
-    public BatchProcessor(BatchConsumer consumer) {
-        this(Config.defaultConfig(), consumer);
+    public BatchProcessor(BatchConsumer consumer, StorageService storageService) {
+        this(Config.defaultConfig(), consumer, storageService);
     }
 
     /**
@@ -171,7 +184,7 @@ public class BatchProcessor implements AutoCloseable {
     public BatchMetrics getMetrics() {
         return new BatchMetrics(totalBatchesProcessed.get(), totalMessagesProcessed.get(), totalBytesProcessed.get(),
                 totalBytesCompressed.get(), totalCompressionSavings.get(), adaptiveSizer.getCurrentBatchSize(),
-                adaptiveSizer.getAdjustmentCount());
+                adaptiveSizer.getAdjustmentCount(), totalShardsCreated.get());
     }
 
     /**
@@ -226,28 +239,87 @@ public class BatchProcessor implements AutoCloseable {
                     totalCompressionSavings.addAndGet(originalSize - finalData.length);
                 }
 
-                // 提交到消费者处理
-                boolean success = consumer.processBatch(finalData, originalSize, shouldCompress, events.size());
-
-                if (success) {
-                    // 更新统计
-                    totalBatchesProcessed.incrementAndGet();
-                    totalMessagesProcessed.addAndGet(events.size());
-                    totalBytesProcessed.addAndGet(originalSize);
-
-                    // 通知自适应调整器
-                    adaptiveSizer.onBatchProcessed(events.size(), originalSize, true);
+                // 检查是否需要分片处理
+                if (originalSize > config.shardingThreshold && config.enableSharding) {
+                    // 执行分片处理
+                    boolean success = processSharding("logs/batch-" + System.currentTimeMillis() + ".log", serializedData);
+                    if (success) {
+                        // 更新统计
+                        totalBatchesProcessed.incrementAndGet();
+                        totalMessagesProcessed.addAndGet(events.size());
+                        totalBytesProcessed.addAndGet(originalSize);
+                        adaptiveSizer.onBatchProcessed(events.size(), originalSize, true);
+                    } else {
+                        adaptiveSizer.onBatchProcessed(events.size(), originalSize, false);
+                    }
+                    return success;
                 } else {
-                    adaptiveSizer.onBatchProcessed(events.size(), originalSize, false);
-                }
+                    // 提交到消费者处理
+                    boolean success = consumer.processBatch(finalData, originalSize, shouldCompress, events.size());
 
-                return success;
+                    if (success) {
+                        // 更新统计
+                        totalBatchesProcessed.incrementAndGet();
+                        totalMessagesProcessed.addAndGet(events.size());
+                        totalBytesProcessed.addAndGet(originalSize);
+
+                        // 通知自适应调整器
+                        adaptiveSizer.onBatchProcessed(events.size(), originalSize, true);
+                    } else {
+                        adaptiveSizer.onBatchProcessed(events.size(), originalSize, false);
+                    }
+
+                    return success;
+                }
 
             } catch (Exception e) {
                 System.err.println("批处理失败: " + e.getMessage());
+                e.printStackTrace();
                 adaptiveSizer.onBatchProcessed(events.size(), totalBytes, false);
                 return false;
             }
+        }
+    }
+
+    /**
+     * 处理数据分片
+     *
+     * @param key  原始键名
+     * @param data 数据
+     * @return 是否处理成功
+     */
+    private boolean processSharding(String key, byte[] data) {
+        try {
+            // 计算分片数量
+            int shardCount = (int) Math.ceil((double) data.length / config.shardSize);
+            
+            // 如果只需要一个分片，则直接上传
+            if (shardCount <= 1) {
+                return consumer.processBatch(data, data.length, false, 1);
+            }
+
+            // 逐个上传所有分片
+            for (int i = 0; i < shardCount; i++) {
+                int start = i * config.shardSize;
+                int end = Math.min(start + config.shardSize, data.length);
+                int length = end - start;
+
+                byte[] shardData = new byte[length];
+                System.arraycopy(data, start, shardData, 0, length);
+
+                String shardKey = key + "_part_" + String.format("%04d", i + 1);
+                totalShardsCreated.incrementAndGet();
+                
+                // 上传单个分片
+                CompletableFuture<Void> future = storageService.putObject(shardKey, shardData);
+                future.get(30, TimeUnit.SECONDS); // 30秒超时
+            }
+
+            return true;
+        } catch (Exception e) {
+            System.err.println("分片处理失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         }
     }
 
@@ -357,6 +429,9 @@ public class BatchProcessor implements AutoCloseable {
         private boolean enableCompression = true;
         private int compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
         private boolean enableAdaptiveSize = true;
+        private boolean enableSharding = true;
+        private int shardingThreshold = DEFAULT_SHARDING_THRESHOLD;
+        private int shardSize = DEFAULT_SHARD_SIZE;
 
         public static Config defaultConfig() {
             return new Config();
@@ -392,6 +467,21 @@ public class BatchProcessor implements AutoCloseable {
             return this;
         }
 
+        public Config enableSharding(boolean enableSharding) {
+            this.enableSharding = enableSharding;
+            return this;
+        }
+
+        public Config shardingThreshold(int shardingThreshold) {
+            this.shardingThreshold = shardingThreshold;
+            return this;
+        }
+
+        public Config shardSize(int shardSize) {
+            this.shardSize = shardSize;
+            return this;
+        }
+
         // Getters
         public int getBatchSize() {
             return batchSize;
@@ -416,6 +506,18 @@ public class BatchProcessor implements AutoCloseable {
         public boolean isEnableAdaptiveSize() {
             return enableAdaptiveSize;
         }
+
+        public boolean isEnableSharding() {
+            return enableSharding;
+        }
+
+        public int getShardingThreshold() {
+            return shardingThreshold;
+        }
+
+        public int getShardSize() {
+            return shardSize;
+        }
     }
 
     /**
@@ -429,9 +531,11 @@ public class BatchProcessor implements AutoCloseable {
         private final long totalCompressionSavings;
         private final int currentBatchSize;
         private final long adjustmentCount;
+        private final long totalShardsCreated;
 
         public BatchMetrics(long totalBatchesProcessed, long totalMessagesProcessed, long totalBytesProcessed,
-                long totalBytesCompressed, long totalCompressionSavings, int currentBatchSize, long adjustmentCount) {
+                long totalBytesCompressed, long totalCompressionSavings, int currentBatchSize, long adjustmentCount,
+                long totalShardsCreated) {
             this.totalBatchesProcessed = totalBatchesProcessed;
             this.totalMessagesProcessed = totalMessagesProcessed;
             this.totalBytesProcessed = totalBytesProcessed;
@@ -439,6 +543,7 @@ public class BatchProcessor implements AutoCloseable {
             this.totalCompressionSavings = totalCompressionSavings;
             this.currentBatchSize = currentBatchSize;
             this.adjustmentCount = adjustmentCount;
+            this.totalShardsCreated = totalShardsCreated;
         }
 
         // Getters
@@ -470,6 +575,10 @@ public class BatchProcessor implements AutoCloseable {
             return adjustmentCount;
         }
 
+        public long getTotalShardsCreated() {
+            return totalShardsCreated;
+        }
+
         public double getCompressionRatio() {
             return totalBytesProcessed > 0 ? (double) totalCompressionSavings / totalBytesProcessed : 0.0;
         }
@@ -482,9 +591,10 @@ public class BatchProcessor implements AutoCloseable {
         public String toString() {
             return String.format(
                     "BatchMetrics{batches=%d, messages=%d, bytes=%d, compressed=%d, "
-                            + "savings=%d (%.1f%%), currentBatchSize=%d, adjustments=%d}",
+                            + "savings=%d (%.1f%%), currentBatchSize=%d, adjustments=%d, shards=%d}",
                     totalBatchesProcessed, totalMessagesProcessed, totalBytesProcessed, totalBytesCompressed,
-                    totalCompressionSavings, getCompressionRatio() * 100, currentBatchSize, adjustmentCount);
+                    totalCompressionSavings, getCompressionRatio() * 100, currentBatchSize, adjustmentCount,
+                    totalShardsCreated);
         }
     }
 }

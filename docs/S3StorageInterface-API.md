@@ -128,7 +128,7 @@ S3StorageInterface storage = new S3StorageAdapter(
 ### SF OSS配置
 
 ```java
-SfOssConfig config = SfOssConfig.builder()
+StorageConfig config = StorageConfig.builder()
     .endpoint("https://sf-oss-cn-north-1.sf-oss.com")
     .region("cn-north-1")
     .accessKeyId("SFIA...")
@@ -136,13 +136,7 @@ SfOssConfig config = SfOssConfig.builder()
     .bucket("my-log-bucket")
     .build();
 
-S3StorageInterface storage = new SfOssStorageAdapter(
-    config.getEndpoint(),
-    config.getRegion(),
-    config.getAccessKeyId(),
-    config.getAccessKeySecret(),
-    config.getBucket()
-);
+S3StorageInterface storage = new SfOssStorageAdapter(config);
 ```
 
 ### 从环境变量配置
@@ -161,7 +155,7 @@ export AWS_S3_BUCKET="my-log-bucket"
 
 对于SF OSS：
 ```java
-SfOssConfig config = SfOssConfig.fromEnvironment();
+StorageConfig config = StorageConfig.fromEnvironment();
 ```
 
 **环境变量：**

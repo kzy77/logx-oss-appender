@@ -2,26 +2,24 @@ package org.logx.storage.sf;
 
 import org.logx.storage.StorageInterface;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ForkJoinPool;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * SF OSS存储适配器实现
  * <p>
  * 基于SF OSS特有SDK实现的存储适配器，支持SF OSS服务。
- * 提供高性能的单个和批量上传功能，支持大文件的分片上传。
+ * 提供高性能的单个和批量上传功能。
  * <p>
  * 主要特性：
  * <ul>
- * <li>智能分片上传：>5MB数据自动使用分片上传</li>
  * <li>SF OSS特定错误处理和重试逻辑</li>
  * <li>连接健康检查和权限验证</li>
  * </ul>
+ * <p>
+ * 注意：根据2025-09-24的架构变更，该适配器不再处理数据分片逻辑，
+ * 分片处理已移至核心层的BatchProcessor中统一处理。
  *
  * @author OSS Appender Team
  *
@@ -29,8 +27,6 @@ import java.util.stream.Collectors;
  */
 public final class SfOssStorageAdapter implements StorageInterface, AutoCloseable {
 
-    private static final long MULTIPART_THRESHOLD = 5L * 1024 * 1024; // 5MB
-    private static final int PART_SIZE = 5 * 1024 * 1024; // 5MB per part
     private static final String BACKEND_TYPE = "SF_OSS";
 
     private final SfOssClient sfOssClient;
@@ -90,43 +86,11 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
         String fullKey = buildFullKey(key);
 
         return CompletableFuture.supplyAsync(() -> {
-            // 根据数据大小选择上传方式
-            if (data.length > MULTIPART_THRESHOLD) {
-                return uploadMultipart(fullKey, data);
-            } else {
-                return uploadStandard(fullKey, data);
-            }
+            return uploadStandard(fullKey, data);
         }, executor);
     }
 
-    @Override
-    public CompletableFuture<Void> putObjects(Map<String, byte[]> objects) {
-        if (objects == null || objects.isEmpty()) {
-            CompletableFuture<Void> future = new CompletableFuture<>();
-            future.completeExceptionally(new IllegalArgumentException("Objects cannot be null or empty"));
-            return future;
-        }
-
-        // 验证所有key和data都不为空
-        for (Map.Entry<String, byte[]> entry : objects.entrySet()) {
-            if (entry.getKey() == null || entry.getKey().trim().isEmpty()) {
-                CompletableFuture<Void> future = new CompletableFuture<>();
-                future.completeExceptionally(new IllegalArgumentException("Object key cannot be null or empty"));
-                return future;
-            }
-            if (entry.getValue() == null) {
-                CompletableFuture<Void> future = new CompletableFuture<>();
-                future.completeExceptionally(new IllegalArgumentException("Object data cannot be null"));
-                return future;
-            }
-        }
-
-        // 并行批量上传
-        List<CompletableFuture<Void>> futures = objects.entrySet().stream()
-                .map(entry -> putObject(entry.getKey(), entry.getValue())).collect(Collectors.toList());
-
-        return CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
-    }
+    
 
     
 
@@ -148,61 +112,13 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     }
 
     /**
-     * 标准上传方式（用于小于5MB的数据）
+     * 标准上传方式
      */
     private Void uploadStandard(String key, byte[] data) {
         return executeWithRetry(() -> {
             sfOssClient.putObject(bucketName, key, data);
             return null;
         });
-    }
-
-    /**
-     * 分片上传方式（用于大于5MB的数据）
-     */
-    private Void uploadMultipart(String key, byte[] data) {
-        // 1. 初始化分片上传
-        String uploadId = executeWithRetry(() -> sfOssClient.initiateMultipartUpload(bucketName, key));
-
-        List<PartETag> partETags = new ArrayList<>();
-
-        try {
-            // 2. 分片上传数据
-            int partNumber = 1;
-            int offset = 0;
-
-            while (offset < data.length) {
-                final int currentPartNumber = partNumber;
-                int length = Math.min(PART_SIZE, data.length - offset);
-                byte[] partData = new byte[length];
-                System.arraycopy(data, offset, partData, 0, length);
-
-                PartETag partETag = executeWithRetry(() -> 
-                    sfOssClient.uploadPart(bucketName, key, uploadId, currentPartNumber, partData));
-
-                partETags.add(partETag);
-
-                offset += length;
-                partNumber++;
-            }
-
-            // 3. 完成分片上传
-            executeWithRetry(() -> {
-                sfOssClient.completeMultipartUpload(bucketName, key, uploadId, partETags);
-                return null;
-            });
-
-        } catch (Exception e) {
-            // 上传失败时清理分片
-            try {
-                sfOssClient.abortMultipartUpload(bucketName, key, uploadId);
-            } catch (Exception abortException) {
-                // 忽略清理失败
-            }
-            throw new RuntimeException("Multipart upload failed", e);
-        }
-
-        return null;
     }
 
     /**

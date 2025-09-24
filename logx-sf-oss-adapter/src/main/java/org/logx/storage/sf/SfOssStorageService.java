@@ -3,7 +3,6 @@ package org.logx.storage.sf;
 import org.logx.storage.StorageService;
 import org.logx.storage.StorageConfig;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,11 +35,6 @@ public class SfOssStorageService implements StorageService {
     @Override
     public CompletableFuture<Void> putObject(String key, byte[] data) {
         return sfOssAdapter.putObject(key, data);
-    }
-
-    @Override
-    public CompletableFuture<Void> putObjects(Map<String, byte[]> objects) {
-        return sfOssAdapter.putObjects(objects);
     }
 
     @Override

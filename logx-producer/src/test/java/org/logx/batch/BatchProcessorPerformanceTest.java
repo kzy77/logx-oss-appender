@@ -3,7 +3,9 @@ package org.logx.batch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.logx.storage.StorageService;
 
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -20,6 +22,36 @@ import static org.assertj.core.api.Assertions.*;
  */
 class BatchProcessorPerformanceTest {
 
+    /**
+     * 简单的存储服务模拟实现
+     */
+    private static class MockStorageService implements StorageService {
+        @Override
+        public CompletableFuture<Void> putObject(String key, byte[] data) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        @Override
+        public String getBackendType() {
+            return "MOCK";
+        }
+
+        @Override
+        public String getBucketName() {
+            return "test-bucket";
+        }
+
+        @Override
+        public void close() {
+            // 空实现
+        }
+
+        @Override
+        public boolean supportsBackend(String backendType) {
+            return "MOCK".equals(backendType);
+        }
+    }
+
     private HighPerformanceBatchConsumer consumer;
 
     @BeforeEach
@@ -32,7 +64,7 @@ class BatchProcessorPerformanceTest {
     void shouldAchieveHighThroughputTarget() throws InterruptedException {
         // Given - 配置高性能批处理器
         BatchProcessor processor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(500) // 大批次提高吞吐量
-                .flushIntervalMs(1000).enableCompression(true).compressionThreshold(512), consumer);
+                .flushIntervalMs(1000).enableCompression(true).compressionThreshold(512), consumer, new MockStorageService());
 
         processor.start();
 
@@ -82,7 +114,7 @@ class BatchProcessorPerformanceTest {
         // Given - 大数据压缩测试
         BatchProcessor processor = new BatchProcessor(
                 BatchProcessor.Config.defaultConfig().batchSize(100).enableCompression(true).compressionThreshold(100), // 低阈值确保压缩
-                consumer);
+                consumer, new MockStorageService());
 
         processor.start();
 
@@ -124,7 +156,7 @@ class BatchProcessorPerformanceTest {
     void shouldOptimizeBatchSizeAdaptively() throws InterruptedException {
         // Given - 自适应批处理测试
         BatchProcessor processor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(50) // 起始批次大小
-                .enableAdaptiveSize(true).flushIntervalMs(500), consumer);
+                .enableAdaptiveSize(true).flushIntervalMs(500), consumer, new MockStorageService());
 
         processor.start();
 
@@ -166,7 +198,7 @@ class BatchProcessorPerformanceTest {
         BatchProcessor processor = new BatchProcessor(
                 BatchProcessor.Config.defaultConfig().batchSize(50).batchSizeBytes(8192) // 8KB字节限制
                         .enableCompression(true),
-                consumer);
+                consumer, new MockStorageService());
 
         processor.start();
 
@@ -207,7 +239,7 @@ class BatchProcessorPerformanceTest {
     void shouldMeasureBatchingVsNoBatchingPerformance() throws InterruptedException {
         // Test 1: 无批处理（批次大小为1）
         BatchProcessor noBatchProcessor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(1) // 每条消息一个批次
-                .enableCompression(false), consumer);
+                .enableCompression(false), consumer, new MockStorageService());
 
         noBatchProcessor.start();
 
@@ -230,7 +262,7 @@ class BatchProcessorPerformanceTest {
         // Test 2: 大批处理
         consumer = new HighPerformanceBatchConsumer(); // 重置消费者
         BatchProcessor batchProcessor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(100) // 大批次
-                .enableCompression(false), consumer);
+                .enableCompression(false), consumer, new MockStorageService());
 
         batchProcessor.start();
 

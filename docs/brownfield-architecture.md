@@ -26,7 +26,7 @@
 logx-oss-appender/ (主仓库)
 ├── log-java-producer/          # 🔥 核心抽象层 (已完成95%)
 │   ├── DisruptorBatchingQueue  # LMAX Disruptor高性能队列
-│   ├── S3CompatibleUploader    # 统一S3接口抽象
+│   ├── S3StorageAdapter       # S3存储适配器
 │   ├── BinaryUploader          # 二进制上传器
 │   └── UploadHooks            # 生命周期钩子
 ```
@@ -69,7 +69,7 @@ graph TB
 
     subgraph "核心处理层 (log-java-producer)"
         J[DisruptorBatchingQueue<br/>LMAX无锁队列]
-        K[S3CompatibleUploader<br/>多云存储接口]
+        K[S3StorageAdapter<br/>S3存储适配器]
     end
 
     subgraph "存储层"
@@ -124,8 +124,8 @@ public final class DisruptorBatchingQueue {
 ### 3.2 S3兼容抽象层（已完成）
 **统一接口设计：**
 ```java
-// 现有实现：log-java-producer/S3CompatibleUploader.java
-public final class S3CompatibleUploader implements AutoCloseable {
+// 现有实现：logx-s3-adapter/S3StorageAdapter.java
+public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     // ✅ 基于AWS SDK v2，天然支持所有S3兼容存储
     private final S3Client s3Client;
 

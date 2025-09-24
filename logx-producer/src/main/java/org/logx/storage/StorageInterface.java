@@ -1,6 +1,5 @@
 package org.logx.storage;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,16 +24,6 @@ public interface StorageInterface {
      * @return CompletableFuture表示异步操作结果
      */
     CompletableFuture<Void> putObject(String key, byte[] data);
-
-    /**
-     * 批量上传多个对象
-     *
-     * @param objects
-     *            对象映射，键为对象键，值为对象数据
-     *
-     * @return CompletableFuture表示异步操作结果
-     */
-    CompletableFuture<Void> putObjects(Map<String, byte[]> objects);
 
     /**
      * 获取后端类型

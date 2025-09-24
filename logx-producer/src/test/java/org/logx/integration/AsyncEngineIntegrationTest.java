@@ -4,11 +4,13 @@ import org.logx.core.DisruptorBatchingQueue;
 import org.logx.core.ResourceProtectedThreadPool;
 import org.logx.batch.BatchProcessor;
 import org.logx.reliability.ShutdownHookHandler;
+import org.logx.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,9 +36,40 @@ import static org.assertj.core.api.Assertions.*;
  */
 class AsyncEngineIntegrationTest {
 
+    /**
+     * 简单的存储服务模拟实现
+     */
+    private static class MockStorageService implements StorageService {
+        @Override
+        public CompletableFuture<Void> putObject(String key, byte[] data) {
+            return CompletableFuture.completedFuture(null);
+        }
+
+        @Override
+        public String getBackendType() {
+            return "MOCK";
+        }
+
+        @Override
+        public String getBucketName() {
+            return "test-bucket";
+        }
+
+        @Override
+        public void close() {
+            // 空实现
+        }
+
+        @Override
+        public boolean supportsBackend(String backendType) {
+            return "MOCK".equals(backendType);
+        }
+    }
+
     // Epic 2核心组件
     private final TestMessageProcessor messageProcessor = new TestMessageProcessor();
-    private final BatchProcessor batchProcessor = new BatchProcessor(messageProcessor);
+    private final StorageService storageService = new MockStorageService();
+    private final BatchProcessor batchProcessor = new BatchProcessor(messageProcessor, storageService);
     private final DisruptorBatchingQueue queue = new DisruptorBatchingQueue(4096, 50, 1024 * 1024, 1, false, false, messageProcessor);
     private final ResourceProtectedThreadPool threadPool = new ResourceProtectedThreadPool(
         new ResourceProtectedThreadPool.Config()

@@ -3,13 +3,15 @@ package org.logx.storage.s3;
 import org.logx.storage.StorageService;
 import org.logx.storage.StorageConfig;
 
-import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
  * S3存储服务实现
  * <p>
  * 基于S3StorageAdapter实现的存储服务，支持标准AWS S3服务和S3兼容存储。
+ * <p>
+ * 注意：根据2025-09-24的架构变更，该服务不再处理数据分片逻辑，
+ * 分片处理已移至核心层的BatchProcessor中统一处理。
  *
  * @author OSS Appender Team
  * @since 1.0.0
@@ -36,11 +38,6 @@ public class S3StorageService implements StorageService {
     @Override
     public CompletableFuture<Void> putObject(String key, byte[] data) {
         return s3Adapter.putObject(key, data);
-    }
-
-    @Override
-    public CompletableFuture<Void> putObjects(Map<String, byte[]> objects) {
-        return s3Adapter.putObjects(objects);
     }
 
     @Override

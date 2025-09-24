@@ -49,8 +49,8 @@ log-java-producer/
 │       ├── StorageInterface.java        # 存储接口
 │       └── s3/                  # S3存储实现
 │           ├── AwsS3Config.java         # AWS S3配置
-│           ├── S3CompatibleConfig.java        # S3兼容配置管理
-│           ├── S3CompatibleUploader.java      # S3兼容上传器
+│           ├── S3Config.java                  # S3配置管理
+│           ├── S3StorageAdapter.java          # S3存储适配器
 │           ├── S3ConfigValidator.java         # S3配置验证器
 │           ├── S3StorageAdapter.java          # S3存储适配器
 │           ├── S3StorageFactory.java          # S3存储工厂
@@ -123,9 +123,9 @@ AwsS3Config.java
 ├── 特性: AWS SDK集成
 └── 扩展: 支持AWS特有配置项
 
-// S3兼容配置管理
-S3CompatibleConfig.java
-├── 功能: S3兼容配置实现
+// S3配置管理
+S3Config.java
+├── 功能: S3配置实现
 ├── 多云支持: AWS S3, 阿里云OSS, 腾讯云COS
 └── 运行时切换: 热配置更新
 
@@ -153,10 +153,10 @@ S3StorageInterface.java
 ├── 实现: 统一S3操作API
 └── 扩展: 支持新的S3操作
 
-// S3兼容上传实现
-S3CompatibleUploader.java
-├── 功能: S3兼容上传实现
-├── 实现: 统一S3 API调用
+// S3存储适配器
+S3StorageAdapter.java
+├── 功能: S3存储适配器实现
+├── 实现: 适配不同云服务商
 ├── 多云SDK适配 (AWS, Aliyun)
 └── 失败重试与降级策略
 ```
