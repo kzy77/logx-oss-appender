@@ -25,8 +25,8 @@ public class ConfigFactory {
      *            配置管理器
      */
     public ConfigFactory(ConfigManager configManager) {
-        // 创建配置管理器的副本以避免内部表示暴露
-        this.configManager = new ConfigManager(configManager.getConfigFilePath());
+        // 直接使用传入的配置管理器，避免重新加载导致配置丢失
+        this.configManager = configManager;
     }
 
     /**

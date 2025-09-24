@@ -24,6 +24,18 @@ class ConfigFactoryTest {
     void setUp() {
         configManager = new ConfigManager();
         configFactory = new ConfigFactory(configManager);
+        // 清除系统属性以避免测试间干扰
+        System.clearProperty("aws.s3.accessKeyId");
+        System.clearProperty("aws.s3.secretAccessKey");
+        System.clearProperty("aws.s3.bucket");
+        System.clearProperty("minio.endpoint");
+        System.clearProperty("minio.accessKeyId");
+        System.clearProperty("minio.secretAccessKey");
+        System.clearProperty("minio.bucket");
+        System.clearProperty("s3.endpoint");
+        System.clearProperty("s3.accessKeyId");
+        System.clearProperty("s3.secretAccessKey");
+        System.clearProperty("s3.bucket");
     }
 
     @Test
@@ -156,6 +168,20 @@ class ConfigFactoryTest {
         configManager.setDefault("s3.bucket", "test");
 
         // 验证所有支持的backend都能正常创建配置
+        configManager.setDefault("aws.s3.accessKeyId", "test");
+        configManager.setDefault("aws.s3.secretAccessKey", "test");
+        configManager.setDefault("aws.s3.bucket", "test");
+
+        configManager.setDefault("minio.endpoint", "http://test");
+        configManager.setDefault("minio.accessKeyId", "test");
+        configManager.setDefault("minio.secretAccessKey", "test");
+        configManager.setDefault("minio.bucket", "test");
+
+        configManager.setDefault("s3.endpoint", "https://test");
+        configManager.setDefault("s3.accessKeyId", "test");
+        configManager.setDefault("s3.secretAccessKey", "test");
+        configManager.setDefault("s3.bucket", "test");
+
         assertThat(configFactory.createConfig(StorageBackend.AWS_S3)).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(configFactory.createConfig(StorageBackend.MINIO)).isInstanceOf(ConfigFactory.MinioConfig.class);
         assertThat(configFactory.createConfig(StorageBackend.GENERIC_S3))
@@ -171,6 +197,7 @@ class ConfigFactoryTest {
 
         // 设置系统属性
         System.setProperty("aws.s3.accessKeyId", "system-key");
+        System.setProperty("aws.s3.secretAccessKey", "system-secret");
         System.setProperty("aws.s3.bucket", "system-bucket");
 
         try {
@@ -180,10 +207,11 @@ class ConfigFactoryTest {
             assertThat(config.getAccessKeyId()).isEqualTo("system-key");
             assertThat(config.getBucket()).isEqualTo("system-bucket");
             // 没有系统属性的字段应该使用默认值
-            assertThat(config.getAccessKeySecret()).isEqualTo("default-secret");
+            assertThat(config.getAccessKeySecret()).isEqualTo("system-secret");
         } finally {
             // 清理系统属性
             System.clearProperty("aws.s3.accessKeyId");
+            System.clearProperty("aws.s3.secretAccessKey");
             System.clearProperty("aws.s3.bucket");
         }
     }

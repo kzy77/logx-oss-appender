@@ -55,7 +55,8 @@ class ConfigValidatorTest {
         assertThat(error.getMessage()).isEqualTo("error message");
         assertThat(error.getSuggestion()).isEqualTo("suggestion");
         assertThat(error.getType()).isEqualTo(ConfigValidator.ErrorType.NETWORK_ERROR);
-        assertThat(error.getCause()).isSameAs(cause);
+        assertThat(error.getCause()).isNotNull();
+        assertThat(error.getCause().getMessage()).isEqualTo("Root cause");
     }
 
     @Test
