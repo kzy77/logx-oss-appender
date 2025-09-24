@@ -122,7 +122,7 @@ public class BatchProcessor implements AutoCloseable {
         this.adaptiveSizer = new AdaptiveBatchSizer(config);
 
         // 创建队列
-        this.queue = new DisruptorBatchingQueue(1024, // capacity
+        this.queue = new DisruptorBatchingQueue(512, // capacity (优化内存使用，从1024调整为512)
                 config.batchSize, config.batchSizeBytes, config.flushIntervalMs, false, // blockOnFull
                 false, // multiProducer
                 new InternalBatchConsumer());

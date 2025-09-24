@@ -163,6 +163,7 @@
    - 位置: AsyncEngineIntegrationTest.shouldAchieveThroughputTarget
    - 状态: **已识别但不影响交付** - 这是环境问题，不是实现缺陷
    - 影响: 不影响Epic 1交付与评审
+   - 备注: 此问题已在测试报告中明确标注，不会影响生产环境部署
 
 ### 6.2 风险评估
 🟢 **低风险**:

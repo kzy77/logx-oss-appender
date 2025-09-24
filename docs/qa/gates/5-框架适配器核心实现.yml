@@ -14,7 +14,8 @@ waiver: { active: false }
 top_issues:
   - severity: low
     description: "Log4j2测试环境配置问题"
-    status: identified
+    status: resolved
+    resolution: "已添加S3和SF OSS适配器的测试依赖，测试环境配置完整"
 
 # Risk summary
 risk_summary:

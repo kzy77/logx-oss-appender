@@ -70,12 +70,12 @@ class AsyncEngineIntegrationTest {
     private final TestMessageProcessor messageProcessor = new TestMessageProcessor();
     private final StorageService storageService = new MockStorageService();
     private final BatchProcessor batchProcessor = new BatchProcessor(messageProcessor, storageService);
-    private final DisruptorBatchingQueue queue = new DisruptorBatchingQueue(4096, 50, 1024 * 1024, 1, false, false, messageProcessor);
+    private final DisruptorBatchingQueue queue = new DisruptorBatchingQueue(2048, 50, 1024 * 1024, 1, false, false, messageProcessor);
     private final ResourceProtectedThreadPool threadPool = new ResourceProtectedThreadPool(
         new ResourceProtectedThreadPool.Config()
-            .corePoolSize(4)
-            .maximumPoolSize(8)
-            .queueCapacity(1000)
+            .corePoolSize(2)
+            .maximumPoolSize(4)
+            .queueCapacity(500)
     );
     private final ShutdownHookHandler shutdownHandler = new ShutdownHookHandler();
 
