@@ -91,13 +91,15 @@ implementation 'org.logx:logback-oss-appender:0.1.0'
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration>
-    <appender name="OSS" class="org.logx.log4j.OSSAppender">
+    <appender name="OSS" class="org.logx.log4j.Log4jOSSAppender">
         <param name="endpoint" value="https://oss-cn-hangzhou.aliyuncs.com"/>
-        <param name="accessKey" value="${OSS_ACCESS_KEY}"/>
-        <param name="secretKey" value="${OSS_SECRET_KEY}"/>
-        <param name="bucketName" value="my-log-bucket"/>
-        <param name="batchSize" value="100"/>
-        <param name="flushInterval" value="5000"/>
+        <param name="accessKeyId" value="${OSS_ACCESS_KEY_ID}"/>
+        <param name="accessKeySecret" value="${OSS_ACCESS_KEY_SECRET}"/>
+        <param name="bucket" value="my-log-bucket"/>
+        <param name="region" value="cn-hangzhou"/>
+        <param name="keyPrefix" value="logs/app/"/>
+        <param name="maxBatchCount" value="1000"/>
+        <param name="flushIntervalMs" value="2000"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -117,13 +119,15 @@ implementation 'org.logx:logback-oss-appender:0.1.0'
 log4j.rootLogger=INFO, OSS
 
 # OSS Appender配置
-log4j.appender.OSS=org.logx.log4j.OSSAppender
+log4j.appender.OSS=org.logx.log4j.Log4jOSSAppender
 log4j.appender.OSS.endpoint=https://oss-cn-hangzhou.aliyuncs.com
-log4j.appender.OSS.accessKey=${OSS_ACCESS_KEY}
-log4j.appender.OSS.secretKey=${OSS_SECRET_KEY}
-log4j.appender.OSS.bucketName=my-log-bucket
-log4j.appender.OSS.batchSize=100
-log4j.appender.OSS.flushInterval=5000
+log4j.appender.OSS.accessKeyId=${OSS_ACCESS_KEY_ID}
+log4j.appender.OSS.accessKeySecret=${OSS_ACCESS_KEY_SECRET}
+log4j.appender.OSS.bucket=my-log-bucket
+log4j.appender.OSS.region=cn-hangzhou
+log4j.appender.OSS.keyPrefix=logs/app/
+log4j.appender.OSS.maxBatchCount=1000
+log4j.appender.OSS.flushIntervalMs=2000
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
 log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
@@ -134,14 +138,16 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 <!-- log4j2.xml -->
 <Configuration>
     <Appenders>
-        <OSSAppender name="OSS">
+        <OSS name="OSS">
             <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-            <accessKey>${env:OSS_ACCESS_KEY}</accessKey>
-            <secretKey>${env:OSS_SECRET_KEY}</secretKey>
-            <bucketName>my-log-bucket</bucketName>
-            <batchSize>100</batchSize>
-            <flushInterval>5000</flushInterval>
-        </OSSAppender>
+            <accessKeyId>${env:OSS_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${env:OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+            <bucket>my-log-bucket</bucket>
+            <region>cn-hangzhou</region>
+            <keyPrefix>logs/app/</keyPrefix>
+            <maxBatchCount>1000</maxBatchCount>
+            <flushIntervalMs>2000</flushIntervalMs>
+        </OSS>
     </Appenders>
     <Loggers>
         <Root level="INFO">
@@ -156,13 +162,18 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 ```xml
 <!-- logback.xml -->
 <configuration>
-    <appender name="OSS" class="org.logx.logback.OSSAppender">
+    <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
         <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-        <accessKey>${OSS_ACCESS_KEY}</accessKey>
-        <secretKey>${OSS_SECRET_KEY}</secretKey>
-        <bucketName>my-log-bucket</bucketName>
-        <batchSize>100</batchSize>
-        <flushInterval>5000</flushInterval>
+        <accessKeyId>${OSS_ACCESS_KEY_ID}</accessKeyId>
+        <accessKeySecret>${OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+        <bucket>my-log-bucket</bucket>
+        <region>cn-hangzhou</region>
+        <keyPrefix>logs/app/</keyPrefix>
+        <maxBatchCount>1000</maxBatchCount>
+        <flushIntervalMs>2000</flushIntervalMs>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
     </appender>
 
     <root level="INFO">
@@ -180,23 +191,25 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | 参数名 | 类型 | 说明 | 示例 |
 |--------|------|------|------|
 | **endpoint** | String | 对象存储服务的访问端点 | `https://oss-cn-hangzhou.aliyuncs.com` |
-| **accessKey** | String | 访问密钥ID | `${OSS_ACCESS_KEY}` |
-| **secretKey** | String | 访问密钥Secret | `${OSS_SECRET_KEY}` |
-| **bucketName** | String | 存储桶名称 | `my-log-bucket` |
+| **accessKeyId** | String | 访问密钥ID | `${OSS_ACCESS_KEY_ID}` |
+| **accessKeySecret** | String | 访问密钥Secret | `${OSS_ACCESS_KEY_SECRET}` |
+| **bucket** | String | 存储桶名称 | `my-log-bucket` |
 
 #### 可选参数
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| **batchSize** | Integer | 100 | 批量上传的日志条数 |
-| **flushInterval** | Integer | 5000 | 强制刷新间隔(毫秒) |
+| **region** | String | us-east-1 | 存储区域 |
 | **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
-| **timePattern** | String | yyyy/MM/dd/HH | 时间分区模式 |
-| **compression** | Boolean | true | 是否启用GZIP压缩 |
-| **maxFileSize** | String | 10MB | 单个文件最大大小 |
-| **bufferSize** | Integer | 8192 | 内部缓冲区大小 |
-| **connectTimeout** | Integer | 10000 | 连接超时时间(毫秒) |
-| **socketTimeout** | Integer | 50000 | Socket超时时间(毫秒) |
+| **maxQueueSize** | Integer | 65536 (Logback) / 262144 (Log4j) / 65536 (Log4j2) | 队列最大大小 |
+| **maxBatchCount** | Integer | 1000 (Logback) / 4096 (Log4j) / 1000 (Log4j2) | 批量上传的日志条数 |
+| **maxBatchBytes** | Integer | 4194304 (4MB) | 批量上传的最大字节数 |
+| **flushIntervalMs** | Long | 2000 | 强制刷新间隔(毫秒) |
+| **dropWhenQueueFull** | Boolean | false | 队列满时是否丢弃日志 |
+| **multiProducer** | Boolean | false | 是否支持多生产者 |
+| **maxRetries** | Integer | 5 | 最大重试次数 |
+| **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
+| **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
 
 #### 云服务商端点示例
 
@@ -224,10 +237,11 @@ http://localhost:9000                    # 本地MinIO
 
 ```bash
 # 设置环境变量
-export OSS_ACCESS_KEY="your-access-key"
-export OSS_SECRET_KEY="your-secret-key"
-export OSS_BUCKET_NAME="your-bucket-name"
+export OSS_ACCESS_KEY_ID="your-access-key-id"
+export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export OSS_BUCKET="your-bucket-name"
 export OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export OSS_REGION="cn-hangzhou"
 ```
 
 ### Java代码示例
@@ -273,9 +287,9 @@ logx-oss-appender/                     # 主仓库
 | 模块名称 | 功能描述 | 依赖关系 |
 |---------|---------|----------|
 | **logx-producer** | 核心处理引擎，提供队列管理、异步处理、S3接口抽象 | 基础模块，无依赖 |
-| **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖log-java-producer |
-| **log4j2-oss-appender** | Log4j2框架适配器，支持插件配置 | 依赖log-java-producer |
-| **logback-oss-appender** | Logback框架适配器，支持Spring Boot | 依赖log-java-producer |
+| **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖logx-producer |
+| **log4j2-oss-appender** | Log4j2框架适配器，支持插件配置 | 依赖logx-producer |
+| **logback-oss-appender** | Logback框架适配器，支持Spring Boot | 依赖logx-producer |
 
 ### 项目管理
 
@@ -298,23 +312,24 @@ logx-oss-appender/                     # 主仓库
 <!-- 高性能配置示例 (Log4j2) -->
 <Configuration>
     <Appenders>
-        <OSSAppender name="OSS">
+        <OSS name="OSS">
             <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-            <accessKey>${env:OSS_ACCESS_KEY}</accessKey>
-            <secretKey>${env:OSS_SECRET_KEY}</secretKey>
-            <bucketName>my-log-bucket</bucketName>
+            <accessKeyId>${env:OSS_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${env:OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+            <bucket>my-log-bucket</bucket>
+            <region>cn-hangzhou</region>
 
             <!-- 性能调优参数 -->
-            <batchSize>500</batchSize>           <!-- 增大批量大小 -->
-            <flushInterval>10000</flushInterval> <!-- 增加刷新间隔 -->
-            <bufferSize>16384</bufferSize>       <!-- 增大缓冲区 -->
-            <compression>true</compression>       <!-- 启用压缩节省带宽 -->
-
-            <!-- 文件分区策略 -->
+            <maxBatchCount>5000</maxBatchCount>     <!-- 增大批量大小 -->
+            <flushIntervalMs>10000</flushIntervalMs> <!-- 增加刷新间隔 -->
+            <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小 -->
             <keyPrefix>logs/app/</keyPrefix>
-            <timePattern>yyyy/MM/dd/HH</timePattern>
-            <maxFileSize>50MB</maxFileSize>
-        </OSSAppender>
+
+            <!-- 重试策略 -->
+            <maxRetries>3</maxRetries>
+            <baseBackoffMs>500</baseBackoffMs>
+            <maxBackoffMs>5000</maxBackoffMs>
+        </OSS>
     </Appenders>
     <Loggers>
         <!-- 使用异步Logger提升性能 -->
@@ -388,10 +403,11 @@ logging:
   config: classpath:logback-spring.xml
 
 # 环境变量
-OSS_ACCESS_KEY: ${OSS_ACCESS_KEY}
-OSS_SECRET_KEY: ${OSS_SECRET_KEY}
-OSS_BUCKET_NAME: ${OSS_BUCKET_NAME:app-logs}
+OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
+OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
+OSS_BUCKET: ${OSS_BUCKET:app-logs}
 OSS_ENDPOINT: ${OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+OSS_REGION: ${OSS_REGION:cn-hangzhou}
 ```
 
 #### Docker部署
@@ -402,10 +418,11 @@ FROM openjdk:8-jre-alpine
 COPY app.jar /app.jar
 
 # 设置环境变量
-ENV OSS_ACCESS_KEY=""
-ENV OSS_SECRET_KEY=""
-ENV OSS_BUCKET_NAME="app-logs"
+ENV OSS_ACCESS_KEY_ID=""
+ENV OSS_ACCESS_KEY_SECRET=""
+ENV OSS_BUCKET="app-logs"
 ENV OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+ENV OSS_REGION="cn-hangzhou"
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
