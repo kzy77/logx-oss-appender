@@ -2,6 +2,8 @@ package org.logx.storage.s3;
 
 import org.logx.storage.StorageInterface;
 import org.logx.storage.StorageConfig;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
@@ -39,6 +41,7 @@ import java.util.List;
  */
 public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
+    private static final Logger logger = LoggerFactory.getLogger(S3StorageAdapter.class);
     private static final long MULTIPART_THRESHOLD = 5L * 1024 * 1024; // 5MB
     private static final int PART_SIZE = 5 * 1024 * 1024; // 5MB per part
     private static final String BACKEND_TYPE = "S3";
@@ -211,8 +214,10 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
                         .key(key).uploadId(uploadId).build();
                 s3Client.abortMultipartUpload(abortRequest);
             } catch (Exception abortException) {
-                // 记录清理失败但不中断主流程
-                System.err.println("Failed to abort multipart upload: " + abortException.getMessage());
+                // 记录清理失败并包装异常
+                logger.warn("Failed to abort multipart upload for key: {} with uploadId: {}", key, uploadId, abortException);
+                // 将清理异常添加到主异常中作为被抑制的异常
+                e.addSuppressed(abortException);
             }
             throw new RuntimeException("Multipart upload failed", e);
         }
