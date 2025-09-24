@@ -24,7 +24,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 | 2025-09-24 | 3.1 | 更新PRD以反映模块化适配器设计 | Winston (架构师) |
 | 2025-09-20 | 3.0 | 基于需求分析重新初始化PRD | John (PM) |
 | 2025-09-20 | 2.0 | 基于技术头脑风暴的核心需求重新定义 | Mary (分析师) |
-| 2025-09-20 | 1.0 | Git Submodules重构增强PRD | John (PM) |
+| 2025-09-20 | 1.0 | 单仓库多模块重构增强PRD | John (PM) |
 
 ## 需求
 
@@ -58,9 +58,8 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 
 ## 技术假设
 
-### 仓库结构：Git Submodules (Multi-repo)
-
-采用Git Submodules架构，主仓库管理多个子模块：
+### 仓库结构：单仓库多模块 (Monorepo)
+采用单仓库多模块架构，统一管理所有组件：
 - `logx-producer`（核心抽象层）
 - `logx-s3-adapter`（S3兼容存储适配器）
 - `logx-sf-oss-adapter`（SF OSS存储适配器）
@@ -91,7 +90,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 - **语言版本**：Java 8+ （确保企业环境兼容性）
 - **构建工具**：Maven 3.9.6（统一的依赖管理和版本协调）
 - **高性能队列**：LMAX Disruptor 3.4.4（业界最高性能的无锁队列）
-- **云存储SDK**：在独立的适配器模块中引入（AWS SDK v2 2.28.16 + Aliyun OSS SDK 3.17.4）
+- **云存储SDK**：在独立的适配器模块中引入（AWS SDK v2 2.28.16）
 
 **关键设计决策**：
 - **存储服务抽象**：以存储服务接口作为抽象标准，支持多种云存储

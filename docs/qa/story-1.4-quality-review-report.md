@@ -7,14 +7,14 @@
 - ✅ AC2: AWS SDK v2集成已完成 - 客户端在构造函数中正确配置
 - ✅ AC3: putObject和multipart upload已实现 - 大于5MB文件自动切换
 - ✅ AC4: AWS特定错误处理已实现 - `executeWithRetry`方法包含重试和异常分类
-- ✅ AC5: 单元测试已编写并通过 - `S3StorageAdapterTest`包含13个测试用例，全部通过
+- ✅ AC5: 实现统一配置，去除后端检测逻辑
 
 ### 功能完整性
 AWS S3适配器已完整实现所有规划功能：
 - 标准S3 API集成
 - Multipart upload支持（>5MB自动切换）
 - AWS特定错误处理和重试机制
-- 区域配置和自动检测
+- 统一区域配置
 - 健康检查和权限验证
 
 ## 2. 风险评估

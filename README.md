@@ -301,7 +301,7 @@ logx-oss-appender/                     # 主仓库
 - **语言**: Java 8+
 - **构建工具**: Maven 3.9.6
 - **核心依赖**: LMAX Disruptor 4.0.0
-- **云存储**: AWS SDK 2.28.16, Aliyun OSS SDK 3.17.4
+- **云存储**: AWS SDK 2.28.16
 - **测试**: JUnit 5, Mockito, AssertJ
 
 ## 高级配置

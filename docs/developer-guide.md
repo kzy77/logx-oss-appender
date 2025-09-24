@@ -5,7 +5,7 @@
 ## 目录
 
 - [开发环境设置](#开发环境设置)
-- [Git Submodules工作流](#git-submodules工作流)
+- [单仓库多模块工作流](#单仓库多模块工作流)
 - [构建和测试](#构建和测试)
 - [代码规范](#代码规范)
 - [贡献流程](#贡献流程)
@@ -39,11 +39,11 @@ cd logx-oss-appender
 git submodule update --init --recursive
 ```
 
-## Git Submodules工作流
+## 单仓库多模块工作流
 
 ### 理解项目结构
 
-本项目使用Git Submodules管理六个独立的组件：
+本项目使用单仓库多模块管理六个独立的组件：
 
 - `logx-producer` - 核心库
 - `logx-s3-adapter` - S3兼容存储适配器
@@ -59,13 +59,13 @@ git submodule update --init --recursive
 git submodule update --remote
 
 # 更新特定子模块
-git submodule update --remote log-java-producer
+git submodule update --remote logx-producer
 
 # 查看子模块状态
 git submodule status
 
 # 进入子模块进行开发
-cd log-java-producer
+cd logx-producer
 git checkout main
 # 进行修改...
 git add .
@@ -74,15 +74,15 @@ git push origin main
 
 # 返回主仓库并提交子模块更新
 cd ..
-git add log-java-producer
-git commit -m "更新log-java-producer子模块"
+git add logx-producer
+git commit -m "更新logx-producer子模块"
 ```
 
 ### 子模块开发工作流
 
 1. **在子模块中开发**
    ```bash
-   cd log-java-producer
+   cd logx-producer
    git checkout -b feature/新功能
    # 开发新功能...
    git push origin feature/新功能
@@ -92,9 +92,9 @@ git commit -m "更新log-java-producer子模块"
 
 3. **合并后更新主仓库**
    ```bash
-   git submodule update --remote log-java-producer
-   git add log-java-producer
-   git commit -m "更新log-java-producer到最新版本"
+   git submodule update --remote logx-producer
+   git add logx-producer
+   git commit -m "更新logx-producer到最新版本"
    ```
 
 ## 构建和测试
@@ -129,7 +129,7 @@ mvn clean install -pl log4j2-oss-appender -am
 mvn test
 
 # 运行特定模块测试
-mvn test -pl log-java-producer
+mvn test -pl logx-producer
 
 # 运行集成测试
 mvn verify -Pintegration-tests
