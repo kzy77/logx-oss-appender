@@ -1,4 +1,4 @@
-# 故事点10: SF OSS适配器和框架集成
+# 故事点9: SF OSS适配器和框架集成
 
 ## Status
 Draft
