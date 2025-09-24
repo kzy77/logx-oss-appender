@@ -112,8 +112,8 @@ public final class CommonConfig {
      * 环境变量名映射
      */
     public static final class EnvVars {
-        public static final String ENDPOINT = "OSS_ENDPOINT";
-        public static final String REGION = "OSS_REGION";
+        public static final String ENDPOINT = "LOG_OSS_ENDPOINT";
+        public static final String REGION = "LOG_OSS_REGION";
         public static final String ACCESS_KEY_ID = "OSS_ACCESS_KEY_ID";
         public static final String ACCESS_KEY_SECRET = "OSS_ACCESS_KEY_SECRET";
         public static final String BUCKET = "OSS_BUCKET";

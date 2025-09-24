@@ -237,11 +237,11 @@ http://localhost:9000                    # 本地MinIO
 
 ```bash
 # 设置环境变量
-export OSS_ACCESS_KEY_ID="your-access-key-id"
-export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOG_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
 export OSS_BUCKET="your-bucket-name"
-export OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export OSS_REGION="cn-hangzhou"
+export LOG_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOG_OSS_REGION="cn-hangzhou"
 ```
 
 ### Java代码示例
@@ -403,11 +403,11 @@ logging:
   config: classpath:logback-spring.xml
 
 # 环境变量
-OSS_ACCESS_KEY_ID: ${OSS_ACCESS_KEY_ID}
-OSS_ACCESS_KEY_SECRET: ${OSS_ACCESS_KEY_SECRET}
+OSS_ACCESS_KEY_ID: ${LOG_OSS_ACCESS_KEY_ID}
+OSS_ACCESS_KEY_SECRET: ${LOG_OSS_ACCESS_KEY_SECRET}
 OSS_BUCKET: ${OSS_BUCKET:app-logs}
-OSS_ENDPOINT: ${OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
-OSS_REGION: ${OSS_REGION:cn-hangzhou}
+LOG_OSS_ENDPOINT: ${LOG_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+LOG_OSS_REGION: ${LOG_OSS_REGION:cn-hangzhou}
 ```
 
 #### Docker部署
@@ -418,11 +418,11 @@ FROM openjdk:8-jre-alpine
 COPY app.jar /app.jar
 
 # 设置环境变量
-ENV OSS_ACCESS_KEY_ID=""
-ENV OSS_ACCESS_KEY_SECRET=""
+ENV LOG_OSS_ACCESS_KEY_ID=""
+ENV LOG_OSS_ACCESS_KEY_SECRET=""
 ENV OSS_BUCKET="app-logs"
-ENV OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-ENV OSS_REGION="cn-hangzhou"
+ENV LOG_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+ENV LOG_OSS_REGION="cn-hangzhou"
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```

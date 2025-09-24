@@ -162,7 +162,7 @@ StorageConfig config = StorageConfig.fromEnvironment();
 ```bash
 export SF_OSS_ACCESS_KEY_ID="your-access-key-id"
 export SF_OSS_SECRET_ACCESS_KEY="your-secret-access-key"
-export SF_OSS_DEFAULT_REGION="cn-north-1"
+export LOG_SF_OSS_DEFAULT_REGION="cn-north-1"
 export SF_OSS_BUCKET="my-log-bucket"
 ```
 

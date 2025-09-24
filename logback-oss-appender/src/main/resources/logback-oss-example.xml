@@ -1,6 +1,6 @@
 <configuration>
     <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <endpoint>${OSS_ENDPOINT}</endpoint>
+        <endpoint>${LOG_OSS_ENDPOINT}</endpoint>
         <accessKeyId>${OSS_AK}</accessKeyId>
         <accessKeySecret>${OSS_SK}</accessKeySecret>
         <bucket>${OSS_BUCKET}</bucket>

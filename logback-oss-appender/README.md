@@ -1,12 +1,11 @@
-# Logback S3 Compatible Appender
+# Logback OSS Appender
 
-高性能 Logback Appender，支持所有 AWS S3 兼容对象存储服务。
+高性能 Logback Appender，支持所有 S3 兼容对象存储服务。
 
 ## 🌟 特性
 
-- **🌐 通用兼容**：支持 AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2 等所有 S3 兼容存储
-- **⚡ 零配置开箱即用**：基于 AWS SDK v2，自动检测云厂商并应用最优配置
-- **🚀 极致性能**：异步批处理、NDJSON格式、gzip压缩、无锁队列
+- **🌐 通用兼容**：支持 AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2、SF OSS 等所有 S3 兼容存储
+- **🚀 极致性能**：异步批处理、gzip压缩、无锁队列
 - **💾 不落盘**：日志直接入内存队列并异步上传
 - **🔒 不丢日志**：可配置为生产侧阻塞等待，确保写入
 - **🛠️ 可调优**：所有性能参数可按需调整
@@ -15,9 +14,25 @@
 
 ### 1) 引入依赖（Maven）
 ```xml
+<!-- 核心依赖 -->
 <dependency>
-  <groupId>io.github.oss-logback</groupId>
+  <groupId>org.logx</groupId>
   <artifactId>logback-oss-appender</artifactId>
+  <version>0.1.0</version>
+</dependency>
+
+<!-- 存储适配器（根据需要选择） -->
+<!-- S3兼容存储适配器 -->
+<dependency>
+  <groupId>org.logx</groupId>
+  <artifactId>logx-s3-adapter</artifactId>
+  <version>0.1.0</version>
+</dependency>
+
+<!-- 或 SF OSS存储适配器 -->
+<dependency>
+  <groupId>org.logx</groupId>
+  <artifactId>logx-sf-oss-adapter</artifactId>
   <version>0.1.0</version>
 </dependency>
 ```
@@ -28,11 +43,14 @@
 ```xml
 <configuration>
   <appender name="S3" class="org.logx.logback.LogbackOSSAppender">
-    <accessKeyId>${AWS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${AWS_SECRET_ACCESS_KEY}</accessKeySecret>
-    <bucket>${S3_BUCKET}</bucket>
-    <region>us-east-1</region>
-    <layout class="io.github.osslogback.logback.JsonLinesLayout"/>
+    <accessKeyId>${LOG_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOG_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOG_OSS_BUCKET}</bucket>
+    <region>${LOG_OSS_REGION:-us-east-1}</region>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <charset>UTF-8</charset>
+    </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="S3"/></root>
 </configuration>
@@ -42,11 +60,13 @@
 ```xml
 <configuration>
   <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-    <accessKeyId>${OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${OSS_BUCKET}</bucket>
-    <layout class="io.github.osslogback.logback.JsonLinesLayout"/>
+    <endpoint>${LOG_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+    <accessKeyId>${LOG_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOG_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOG_OSS_BUCKET}</bucket>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="OSS"/></root>
 </configuration>
@@ -56,11 +76,13 @@
 ```xml
 <configuration>
   <appender name="MINIO" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>http://localhost:9000</endpoint>
-    <accessKeyId>${MINIO_ACCESS_KEY}</accessKeyId>
-    <accessKeySecret>${MINIO_SECRET_KEY}</accessKeySecret>
-    <bucket>${MINIO_BUCKET}</bucket>
-    <layout class="io.github.osslogback.logback.JsonLinesLayout"/>
+    <endpoint>${LOG_OSS_ENDPOINT:-http://localhost:9000}</endpoint>
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET}</bucket>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="MINIO"/></root>
 </configuration>
@@ -70,12 +92,14 @@
 ```xml
 <configuration>
   <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>https://sf-oss-cn-north-1.sf-oss.com</endpoint>
-    <region>cn-north-1</region>
-    <accessKeyId>${SF_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${SF_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${SF_OSS_BUCKET}</bucket>
-    <layout class="io.github.osslogback.logback.JsonLinesLayout"/>
+    <endpoint>${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
+    <region>${LOG_OSS_REGION:-cn-north-1}</region>
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET}</bucket>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="SF_OSS"/></root>
 </configuration>
@@ -85,24 +109,23 @@
 
 #### AWS S3
 ```bash
-export AWS_ACCESS_KEY_ID="your-access-key-id"
-export AWS_SECRET_ACCESS_KEY="your-secret-access-key"
-export S3_BUCKET="your-bucket-name"
+export LOG_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOG_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name}
 ```
 
 #### 阿里云 OSS
 ```bash
-export OSS_ACCESS_KEY_ID="your-access-key-id"
-export OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export OSS_BUCKET="your-bucket-name"
+export LOG_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOG_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name"
 ```
 
 #### SF OSS
 ```bash
-export SF_OSS_ACCESS_KEY_ID="your-access-key-id"
-export SF_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export SF_OSS_BUCKET="your-bucket-name"
-export SF_OSS_DEFAULT_REGION="cn-north-1"
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name"
 ```
 
 ### 4) 完整配置选项（可选）
@@ -111,11 +134,11 @@ export SF_OSS_DEFAULT_REGION="cn-north-1"
 <configuration>
   <appender name="S3" class="org.logx.logback.LogbackOSSAppender">
     <!-- 必需配置 -->
-    <endpoint>https://s3.amazonaws.com</endpoint>          <!-- 仅非AWS S3需要 -->
-    <region>us-east-1</region>                            <!-- AWS区域或等效区域 -->
-    <accessKeyId>${ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${BUCKET}</bucket>
+    <endpoint>${LOG_OSS_ENDPOINT:-https://s3.amazonaws.com}</endpoint>          <!-- 仅非AWS S3需要 -->
+    <region>${LOG_OSS_REGION:-us-east-1}</region>                            <!-- AWS区域或等效区域 -->
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET}</bucket>
 
     <!-- 可选配置（显示默认值） -->
     <appName>default-app</appName>                    <!-- 应用标识 -->

@@ -6,6 +6,11 @@ package org.logx.storage.sf;
  * 用于与SF OSS服务进行交互的客户端实现。
  */
 public class SfOssClient implements AutoCloseable {
+    private final String endpoint;
+    private final String region;
+    private final String accessKeyId;
+    private final String secretAccessKey;
+
     /**
      * 构造SF OSS客户端
      *
@@ -15,7 +20,10 @@ public class SfOssClient implements AutoCloseable {
      * @param secretAccessKey 访问密钥Secret
      */
     public SfOssClient(String endpoint, String region, String accessKeyId, String secretAccessKey) {
-        // 构造函数参数暂未使用，保留以备将来实现
+        this.endpoint = endpoint;
+        this.region = region;
+        this.accessKeyId = accessKeyId;
+        this.secretAccessKey = secretAccessKey;
     }
 
     /**
@@ -38,7 +46,7 @@ public class SfOssClient implements AutoCloseable {
             throw new IllegalArgumentException("Data cannot be null");
         }
         // 在实际实现中，这里会调用SF OSS的API来上传对象
-        System.out.println("SF OSS: Uploading object to bucket " + bucketName + " with key " + key);
+        System.out.println("SF OSS: Uploading object to bucket " + bucketName + " with key " + key + " at endpoint " + endpoint);
     }
 
     

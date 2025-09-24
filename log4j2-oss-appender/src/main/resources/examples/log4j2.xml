@@ -12,15 +12,15 @@
     <Appenders>
         <!-- 控制台Appender -->
         <Console name="Console" target="SYSTEM_OUT">
-            <PatternLayout pattern="${LOG_PATTERN}"/>
+            <PatternLayout pattern="${LOG_PATTERN}" charset="UTF-8"/>
         </Console>
 
         <!-- OSS Appender：上传日志到对象存储 -->
         <OSS name="OSS"
-             endpoint="${sys:OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"
-             region="${sys:OSS_REGION:-cn-hangzhou}"
-             accessKeyId="${sys:OSS_ACCESS_KEY_ID}"
-             accessKeySecret="${sys:OSS_ACCESS_KEY_SECRET}"
+             endpoint="${sys:LOG_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"
+             region="${sys:LOG_OSS_REGION:-cn-hangzhou}"
+             accessKeyId="${sys:LOG_OSS_ACCESS_KEY_ID}"
+             accessKeySecret="${sys:LOG_OSS_ACCESS_KEY_SECRET}"
              bucket="${sys:OSS_BUCKET:-${APP_NAME}-logs}"
              keyPrefix="logs/${APP_ENV}/">
             <PatternLayout pattern="${LOG_PATTERN}"/>
