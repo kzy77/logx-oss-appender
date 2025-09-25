@@ -4,7 +4,7 @@
 
 ## 项目概述
 
-LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含六个核心模块：
+LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决方案，包含十二个核心模块：
 
 - **[logx-producer](logx-producer)** - 核心基础模块，提供日志生产和队列管理
 - **[logx-s3-adapter](logx-s3-adapter)** - S3兼容存储适配器，支持AWS S3、阿里云OSS、腾讯云COS、MinIO等
@@ -12,6 +12,12 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 - **[log4j-oss-appender](log4j-oss-appender)** - Log4j 1.x版本的OSS Appender
 - **[log4j2-oss-appender](log4j2-oss-appender)** - Log4j2版本的OSS Appender
 - **[logback-oss-appender](logback-oss-appender)** - Logback版本的OSS Appender
+- **[sf-log4j-oss-appender](sf-log4j-oss-appender)** - SF OSS存储服务的Log4j 1.x All-in-One包
+- **[sf-log4j2-oss-appender](sf-log4j2-oss-appender)** - SF OSS存储服务的Log4j2 All-in-One包
+- **[sf-logback-oss-appender](sf-logback-oss-appender)** - SF OSS存储服务的Logback All-in-One包
+- **[s3-log4j-oss-appender](s3-log4j-oss-appender)** - S3兼容存储服务的Log4j 1.x All-in-One包
+- **[s3-log4j2-oss-appender](s3-log4j2-oss-appender)** - S3兼容存储服务的Log4j2 All-in-One包
+- **[s3-logback-oss-appender](s3-logback-oss-appender)** - S3兼容存储服务的Logback All-in-One包
 
 ## 特性
 
