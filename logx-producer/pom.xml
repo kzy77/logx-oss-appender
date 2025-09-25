@@ -4,9 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.logx</groupId>
+  <parent>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-oss-appender-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
   <artifactId>logx-producer</artifactId>
-  <version>0.1.0</version>
   <packaging>jar</packaging>
 
   <name>logx-producer</name>
@@ -23,52 +27,44 @@
     <dependency>
         <groupId>com.lmax</groupId>
         <artifactId>disruptor</artifactId>
-        <version>3.4.4</version>
     </dependency>
     
     <!-- SLF4J for logging -->
     <dependency>
       <groupId>org.slf4j</groupId>
       <artifactId>slf4j-api</artifactId>
-      <version>1.7.36</version>
     </dependency>
     
     <!-- Dependency Conflict Resolutions -->
     <dependency>
       <groupId>org.apache.httpcomponents</groupId>
       <artifactId>httpcore</artifactId>
-      <version>4.4.13</version>
     </dependency>
     
     <dependency>
       <groupId>commons-codec</groupId>
       <artifactId>commons-codec</artifactId>
-      <version>1.11</version>
     </dependency>
     
     <dependency>
       <groupId>net.bytebuddy</groupId>
       <artifactId>byte-buddy</artifactId>
-      <version>1.14.10</version>
     </dependency>
 
     <!-- Test dependencies -->
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.10.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.24.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.8.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -4,9 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>org.logx</groupId>
+  <parent>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-oss-appender-parent</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
+  </parent>
+
   <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
   <packaging>jar</packaging>
 
   <name>logx-sf-oss-adapter</name>
@@ -24,7 +28,6 @@
     <dependency>
       <groupId>org.logx</groupId>
       <artifactId>logx-producer</artifactId>
-      <version>0.1.0</version>
       <scope>compile</scope>
     </dependency>
 
@@ -32,19 +35,16 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>5.10.1</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>3.24.2</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.mockito</groupId>
       <artifactId>mockito-core</artifactId>
-      <version>5.8.0</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
