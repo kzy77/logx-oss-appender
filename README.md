@@ -21,6 +21,62 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 
 所有模块都遵循统一的包命名规范和配置Key标准，确保系统的一致性和可维护性。
 
+## Maven项目结构优化
+
+为了更好地管理项目的版本和依赖关系，我们对Maven项目结构进行了优化：
+
+- **统一父POM版本为1.0.0-SNAPSHOT**
+- **所有子模块继承父POM版本，移除硬编码版本号**
+- **在父POM中统一管理所有内部模块和第三方依赖版本**
+- **优化依赖管理，使用dependencyManagement统一版本控制**
+- **添加日志框架版本属性定义**
+
+### 版本管理策略
+
+本项目采用统一的版本管理策略，所有子模块都继承自父POM的版本号，确保版本一致性：
+
+1. **父POM版本**：所有子模块的版本号统一由父POM管理，当前版本为`1.0.0-SNAPSHOT`
+2. **子模块版本继承**：子模块无需声明版本号，自动继承父POM的版本
+3. **依赖版本统一管理**：所有第三方依赖和内部模块依赖的版本在父POM的`dependencyManagement`中统一定义
+4. **版本属性定义**：关键依赖的版本通过属性定义，便于统一维护和升级
+
+### 依赖管理优化
+
+我们对项目的依赖管理进行了优化，主要体现在以下几个方面：
+
+1. **内部模块依赖**：所有内部模块（如`logx-producer`、`log4j2-oss-appender`等）的版本在父POM中统一管理，子模块直接引用无需指定版本号
+2. **第三方依赖版本控制**：通过`dependencyManagement`统一管理第三方依赖版本，确保所有模块使用一致的依赖版本
+3. **日志框架版本属性**：为常用的日志框架（Log4j、Log4j2、Logback）定义了版本属性，便于维护和升级
+
+### 使用说明
+
+在使用本项目的模块时，您无需再指定版本号，Maven会自动从父POM继承版本：
+
+```xml
+<!-- 推荐的依赖引入方式（无需指定版本号） -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-logback-oss-appender</artifactId>
+</dependency>
+
+<!-- 旧的引入方式（不推荐） -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-logback-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+对于Gradle项目，同样无需指定版本号：
+
+```gradle
+// 推荐的依赖引入方式（无需指定版本号）
+implementation 'org.logx:sf-logback-oss-appender'
+
+// 旧的引入方式（不推荐）
+implementation 'org.logx:sf-logback-oss-appender:0.1.0'
+```
+
 ## 特性
 
 ✅ **高性能异步处理** - 使用LMAX Disruptor实现低延迟队列
@@ -48,7 +104,6 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-logback-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -85,7 +140,6 @@ export LOG_OSS_BUCKET="your-bucket-name"
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-log4j-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -123,7 +177,6 @@ export LOG_OSS_BUCKET="your-bucket-name"
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-log4j2-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -182,21 +235,18 @@ mvn clean install -pl log4j2-oss-appender
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-log4j-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- SF Log4j2 -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-log4j2-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- SF Logback -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>sf-logback-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- S3兼容存储服务（阿里云OSS、AWS S3等） -->
@@ -204,21 +254,18 @@ mvn clean install -pl log4j2-oss-appender
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>s3-log4j-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- S3 Log4j2 -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>s3-log4j2-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- S3 Logback -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>s3-logback-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -230,19 +277,16 @@ mvn clean install -pl log4j2-oss-appender
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>log4j-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>log4j2-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logback-oss-appender</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- 存储适配器（选择其一） -->
@@ -250,14 +294,12 @@ mvn clean install -pl log4j2-oss-appender
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logx-s3-adapter</artifactId>
-    <version>0.1.0</version>
 </dependency>
 
 <!-- SF OSS存储适配器 -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logx-sf-oss-adapter</artifactId>
-    <version>0.1.0</version>
 </dependency>
 ```
 
@@ -268,39 +310,39 @@ mvn clean install -pl log4j2-oss-appender
 ```groovy
 // SF OSS存储服务
 // SF Log4j 1.x
-implementation 'org.logx:sf-log4j-oss-appender:0.1.0'
+implementation 'org.logx:sf-log4j-oss-appender'
 
 // SF Log4j2
-implementation 'org.logx:sf-log4j2-oss-appender:0.1.0'
+implementation 'org.logx:sf-log4j2-oss-appender'
 
 // SF Logback
-implementation 'org.logx:sf-logback-oss-appender:0.1.0'
+implementation 'org.logx:sf-logback-oss-appender'
 
 // S3兼容存储服务
 // S3 Log4j 1.x
-implementation 'org.logx:s3-log4j-oss-appender:0.1.0'
+implementation 'org.logx:s3-log4j-oss-appender'
 
 // S3 Log4j2
-implementation 'org.logx:s3-log4j2-oss-appender:0.1.0'
+implementation 'org.logx:s3-log4j2-oss-appender'
 
 // S3 Logback
-implementation 'org.logx:s3-logback-oss-appender:0.1.0'
+implementation 'org.logx:s3-logback-oss-appender'
 ```
 
 ##### 方式二：分别引入框架适配器和存储适配器
 
 ```groovy
 // 日志框架适配器（选择其一）
-implementation 'org.logx:log4j-oss-appender:0.1.0'
-implementation 'org.logx:log4j2-oss-appender:0.1.0'
-implementation 'org.logx:logback-oss-appender:0.1.0'
+implementation 'org.logx:log4j-oss-appender'
+implementation 'org.logx:log4j2-oss-appender'
+implementation 'org.logx:logback-oss-appender'
 
 // 存储适配器（选择其一）
 // S3兼容存储适配器
-implementation 'org.logx:logx-s3-adapter:0.1.0'
+implementation 'org.logx:logx-s3-adapter'
 
 // SF OSS存储适配器
-implementation 'org.logx:logx-sf-oss-adapter:0.1.0'
+implementation 'org.logx:logx-sf-oss-adapter'
 ```
 
 #### 非Maven/Gradle项目依赖引入
@@ -312,23 +354,23 @@ implementation 'org.logx:logx-sf-oss-adapter:0.1.0'
 通过CI/CD构建后上传到Maven仓库，可以从Maven仓库下载所需的JAR包：
 
 1. **All-in-One包**（推荐）：每个包都包含了日志框架适配器和对应的存储适配器
-   - `sf-log4j-oss-appender-0.1.0.jar` - SF OSS + Log4j 1.x
-   - `sf-log4j2-oss-appender-0.1.0.jar` - SF OSS + Log4j2
-   - `sf-logback-oss-appender-0.1.0.jar` - SF OSS + Logback
-   - `s3-log4j-oss-appender-0.1.0.jar` - S3兼容存储 + Log4j 1.x
-   - `s3-log4j2-oss-appender-0.1.0.jar` - S3兼容存储 + Log4j2
-   - `s3-logback-oss-appender-0.1.0.jar` - S3兼容存储 + Logback
+   - `sf-log4j-oss-appender-{version}.jar` - SF OSS + Log4j 1.x
+   - `sf-log4j2-oss-appender-{version}.jar` - SF OSS + Log4j2
+   - `sf-logback-oss-appender-{version}.jar` - SF OSS + Logback
+   - `s3-log4j-oss-appender-{version}.jar` - S3兼容存储 + Log4j 1.x
+   - `s3-log4j2-oss-appender-{version}.jar` - S3兼容存储 + Log4j2
+   - `s3-logback-oss-appender-{version}.jar` - S3兼容存储 + Logback
 
 2. **分别引入组件**：
    - 日志框架适配器（选择其一）：
-     - `log4j-oss-appender-0.1.0.jar` - Log4j 1.x适配器
-     - `log4j2-oss-appender-0.1.0.jar` - Log4j2适配器
-     - `logback-oss-appender-0.1.0.jar` - Logback适配器
+     - `log4j-oss-appender-{version}.jar` - Log4j 1.x适配器
+     - `log4j2-oss-appender-{version}.jar` - Log4j2适配器
+     - `logback-oss-appender-{version}.jar` - Logback适配器
    - 核心组件：
-     - `logx-producer-0.1.0.jar` - 核心日志处理引擎
+     - `logx-producer-{version}.jar` - 核心日志处理引擎
    - 存储适配器（选择其一）：
-     - `logx-s3-adapter-0.1.0.jar` - S3兼容存储适配器
-     - `logx-sf-oss-adapter-0.1.0.jar` - SF OSS存储适配器
+     - `logx-s3-adapter-{version}.jar` - S3兼容存储适配器
+     - `logx-sf-oss-adapter-{version}.jar` - SF OSS存储适配器
 
 ##### 2. 环境要求
 
@@ -746,7 +788,7 @@ mvn test -pl logx-producer
 mvn dependency:tree -pl logback-oss-appender
 
 # 统一更新版本号
-mvn versions:set -DnewVersion=1.0.0
+mvn versions:set -DnewVersion=1.0.0-SNAPSHOT
 mvn versions:commit
 ```
 
