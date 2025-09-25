@@ -19,6 +19,8 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 - **[s3-log4j2-oss-appender](s3-log4j2-oss-appender)** - S3兼容存储服务的Log4j2 All-in-One包
 - **[s3-logback-oss-appender](s3-logback-oss-appender)** - S3兼容存储服务的Logback All-in-One包
 
+所有模块都遵循统一的包命名规范和配置Key标准，确保系统的一致性和可维护性。
+
 ## 特性
 
 ✅ **高性能异步处理** - 使用LMAX Disruptor实现低延迟队列
@@ -33,6 +35,123 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 
 - Java 8 或更高版本
 - Maven 3.6+
+
+### SDK使用快速开始
+
+以下是以Logback和SF-OSS的All-in-One包为主要示例的快速开始指南：
+
+#### 主要示例：Logback + SF-OSS快速开始
+
+1. **添加依赖**
+```xml
+<!-- 使用All-in-One包（推荐） -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-logback-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+2. **最简配置（以SF OSS为例）**
+```xml
+<configuration>
+  <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
+    <endpoint>${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET}</bucket>
+    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+    </encoder>
+  </appender>
+  <root level="INFO"><appender-ref ref="SF_OSS"/></root>
+</configuration>
+```
+
+3. **环境变量配置**
+```bash
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name"
+```
+
+#### 其他框架示例
+
+##### Log4j 1.x + SF-OSS快速开始
+
+1. **添加依赖**
+```xml
+<!-- 使用All-in-One包（推荐） -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+2. **最简配置（以SF OSS为例）**
+```xml
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+  <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
+    <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
+    <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
+    <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
+    <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
+    <layout class="org.apache.log4j.PatternLayout">
+      <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{1.} - %m%ex{full}"/>
+    </layout>
+  </appender>
+  <root>
+    <priority value="info"/>
+    <appender-ref ref="oss"/>
+  </root>
+</log4j:configuration>
+```
+
+3. **环境变量配置**
+```bash
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name"
+```
+
+##### Log4j2 + SF-OSS快速开始
+
+1. **添加依赖**
+```xml
+<!-- 使用All-in-One包（推荐） -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j2-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+2. **最简配置（以SF OSS为例）**
+```xml
+<Configuration>
+  <Appenders>
+    <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
+                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
+                 bucket="${sys:LOGX_OSS_BUCKET}">
+      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
+    </OSS>
+  </Appenders>
+
+  <Loggers>
+    <Root level="info">
+      <AppenderRef ref="oss"/>
+    </Root>
+  </Loggers>
+</Configuration>
+```
+
+3. **环境变量配置**
+```bash
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOG_OSS_BUCKET="your-bucket-name"
+```
 
 ### 构建项目
 
@@ -219,172 +338,9 @@ implementation 'org.logx:logx-sf-oss-adapter:0.1.0'
   - Log4j2 2.22.1或更高版本
   - Logback 1.2.13或更高版本
 
-### SDK使用快速开始
-
-根据你使用的日志框架，选择对应的快速开始指南：
-
-#### Log4j 1.x 快速开始
-
-1. **添加依赖**
-```xml
-<!-- 核心依赖 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>log4j-oss-appender</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 存储适配器（根据需要选择） -->
-<!-- S3兼容存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-s3-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 或 SF OSS存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-```
-
-2. **最简配置（以SF OSS为例）**
-```xml
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-  <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
-    <param name="region" value="${LOG_OSS_REGION:-cn-north-1}"/>
-    <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
-    <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
-    <param name="bucket" value="your-bucket"/>
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{1.} - %m%ex{full}"/>
-    </layout>
-  </appender>
-  <root>
-    <priority value="info"/>
-    <appender-ref ref="oss"/>
-  </root>
-</log4j:configuration>
-```
-
-3. **环境变量配置**
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-```
-
-#### Log4j2 快速开始
-
-1. **添加依赖**
-```xml
-<!-- 核心依赖 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>log4j2-oss-appender</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 存储适配器（根据需要选择） -->
-<!-- S3兼容存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-s3-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 或 SF OSS存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-```
-
-2. **最简配置（以SF OSS为例）**
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
-                 region="${sys:LOG_OSS_REGION:-cn-north-1}"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
-
-3. **环境变量配置**
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-export LOG_OSS_REGION="cn-north-1"
-```
-
-#### Logback 快速开始
-
-1. **添加依赖**
-```xml
-<!-- 核心依赖 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logback-oss-appender</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 存储适配器（根据需要选择） -->
-<!-- S3兼容存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-s3-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-
-<!-- 或 SF OSS存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
-</dependency>
-```
-
-2. **最简配置（以SF OSS为例）**
-```xml
-<configuration>
-  <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
-    <region>${LOG_OSS_REGION:-cn-north-1}</region>
-    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOGX_OSS_BUCKET}</bucket>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
-  <root level="INFO"><appender-ref ref="SF_OSS"/></root>
-</configuration>
-```
-
-3. **环境变量配置**
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-export LOG_OSS_REGION="cn-north-1"
-```
-
 ### 基本使用
+
+在完成快速开始的配置后，你可以按照以下方式使用LogX OSS Appender：
 
 #### Log4j 1.x 示例
 
@@ -394,14 +350,14 @@ export LOG_OSS_REGION="cn-north-1"
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration>
     <appender name="OSS" class="org.logx.log4j.Log4jOSSAppender">
-        <param name="endpoint" value="https://oss-cn-hangzhou.aliyuncs.com"/>
-        <param name="accessKeyId" value="${OSS_ACCESS_KEY_ID}"/>
-        <param name="accessKeySecret" value="${OSS_ACCESS_KEY_SECRET}"/>
-        <param name="bucket" value="my-log-bucket"/>
-        <param name="region" value="cn-hangzhou"/>
-        <param name="keyPrefix" value="logs/app/"/>
-        <param name="maxBatchCount" value="4096"/>
-        <param name="flushIntervalMs" value="2000"/>
+        <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
+        <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
+        <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
+        <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
+        <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
+        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logs/app/}"/>
+        <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-4096}"/>
+        <param name="flushIntervalMs" value="${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -422,14 +378,14 @@ log4j.rootLogger=INFO, OSS
 
 # OSS Appender配置
 log4j.appender.OSS=org.logx.log4j.Log4jOSSAppender
-log4j.appender.OSS.endpoint=https://oss-cn-hangzhou.aliyuncs.com
-log4j.appender.OSS.accessKeyId=${OSS_ACCESS_KEY_ID}
-log4j.appender.OSS.accessKeySecret=${OSS_ACCESS_KEY_SECRET}
-log4j.appender.OSS.bucket=my-log-bucket
-log4j.appender.OSS.region=cn-hangzhou
-log4j.appender.OSS.keyPrefix=logs/app/
-log4j.appender.OSS.maxBatchCount=4096
-log4j.appender.OSS.flushIntervalMs=2000
+log4j.appender.OSS.endpoint=${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}
+log4j.appender.OSS.accessKeyId=${LOGX_OSS_ACCESS_KEY_ID}
+log4j.appender.OSS.accessKeySecret=${LOGX_OSS_ACCESS_KEY_SECRET}
+log4j.appender.OSS.bucket=${LOGX_OSS_BUCKET}
+log4j.appender.OSS.region=${LOGX_OSS_REGION:-cn-hangzhou}
+log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logs/app/}
+log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-4096}
+log4j.appender.OSS.flushIntervalMs=${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
 log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
@@ -441,14 +397,14 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 <Configuration>
     <Appenders>
         <OSS name="OSS">
-            <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-            <accessKeyId>${env:OSS_ACCESS_KEY_ID}</accessKeyId>
-            <accessKeySecret>${env:OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-            <bucket>my-log-bucket</bucket>
-            <region>cn-hangzhou</region>
-            <keyPrefix>logs/app/</keyPrefix>
-            <maxBatchCount>1000</maxBatchCount>
-            <flushIntervalMs>2000</flushIntervalMs>
+            <endpoint>${sys:LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+            <accessKeyId>${sys:LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${sys:LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+            <bucket>${sys:LOGX_OSS_BUCKET}</bucket>
+            <region>${sys:LOGX_OSS_REGION:-cn-hangzhou}</region>
+            <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
+            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-1000}</maxBatchCount>
+            <flushIntervalMs>${sys:LOGX_OSS_FLUSH_INTERVAL_MS:-2000}</flushIntervalMs>
         </OSS>
     </Appenders>
     <Loggers>
@@ -464,15 +420,15 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 ```xml
 <!-- logback.xml -->
 <configuration>
-    <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-        <accessKeyId>${OSS_ACCESS_KEY_ID}</accessKeyId>
-        <accessKeySecret>${OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-        <bucket>my-log-bucket</bucket>
-        <region>cn-hangzhou</region>
-        <keyPrefix>logs/app/</keyPrefix>
-        <maxBatchCount>1000</maxBatchCount>
-        <flushIntervalMs>2000</flushIntervalMs>
+    <appender name="OSS" class="="org.logx.logback.LogbackOSSAppender">
+        <endpoint>${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+        <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+        <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+        <bucket>${LOGX_OSS_BUCKET}</bucket>
+        <region>${LOGX_OSS_REGION:-cn-hangzhou}</region>
+        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
+        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-1000}</maxBatchCount>
+        <flushIntervalMs>${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}</flushIntervalMs>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -482,7 +438,6 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
         <appender-ref ref="OSS"/>
     </root>
 </configuration>
-```
 
 ### 配置参数说明
 
@@ -493,8 +448,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | 参数名 | 类型 | 说明 | 示例 |
 |--------|------|------|------|
 | **endpoint** | String | 对象存储服务的访问端点 | `https://oss-cn-hangzhou.aliyuncs.com` |
-| **accessKeyId** | String | 访问密钥ID | `${OSS_ACCESS_KEY_ID}` |
-| **accessKeySecret** | String | 访问密钥Secret | `${OSS_ACCESS_KEY_SECRET}` |
+| **accessKeyId** | String | 访问密钥ID | `${LOGX_OSS_ACCESS_KEY_ID}` |
+| **accessKeySecret** | String | 访问密钥Secret | `${LOGX_OSS_ACCESS_KEY_SECRET}` |
 | **bucket** | String | 存储桶名称 | `my-log-bucket` |
 
 #### 可选参数
@@ -512,6 +467,14 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **maxRetries** | Integer | 5 | 最大重试次数 |
 | **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
 | **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
+
+#### 配置优先级
+
+系统支持多种配置源，按以下优先级顺序读取配置：
+1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
+2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
+3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
+4. 代码默认值
 
 #### 云服务商端点示例
 
@@ -539,11 +502,11 @@ http://localhost:9000                    # 本地MinIO
 
 ```bash
 # 设置环境变量
-export LOG_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOG_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export OSS_BUCKET="your-bucket-name"
-export LOG_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export LOG_OSS_REGION="cn-hangzhou"
+export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOGX_OSS_REGION="cn-hangzhou"
 ```
 
 ### Java代码示例
@@ -565,7 +528,7 @@ public class LogExample {
 
 ## 项目结构
 
-本项目采用单仓库多模块（Monorepo）架构，统一管理所有组件：
+本项目采用单仓库多模块（Monorepo）架构，统一管理所有组件，遵循分层抽象架构和统一包命名原则：
 
 ```
 logx-oss-appender/                     # 主仓库
@@ -586,11 +549,21 @@ logx-oss-appender/                     # 主仓库
 
 ### 模块组件
 
-各模块功能清晰分工，构成完整的日志上传解决方案：
+各模块功能清晰分工，构成完整的日志上传解决方案，遵循正确的依赖结构：
+
+```
+logx-producer (核心)
+    ↓
+log4j-oss-appender
+log4j2-oss-appender
+logback-oss-appender
+```
+
+三个适配器都直接依赖于核心模块，彼此之间没有依赖关系。
 
 | 模块名称 | 功能描述 | 依赖关系 |
 |---------|---------|----------|
-| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、S3接口抽象 | 基础模块，无依赖 |
+| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、存储接口抽象 | 基础模块，无依赖 |
 | **logx-s3-adapter** | S3兼容存储适配器，支持AWS S3、阿里云OSS、腾讯云COS、MinIO等 | 依赖logx-producer |
 | **logx-sf-oss-adapter** | SF OSS存储适配器，专门支持SF OSS存储服务 | 依赖logx-producer |
 | **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖logx-producer |
@@ -606,9 +579,11 @@ logx-oss-appender/                     # 主仓库
 
 - **语言**: Java 8+
 - **构建工具**: Maven 3.9.6
-- **核心依赖**: LMAX Disruptor 4.0.0
+- **核心依赖**: LMAX Disruptor 3.4.4
 - **云存储**: AWS SDK 2.28.16
 - **测试**: JUnit 5, Mockito, AssertJ
+
+详细技术栈信息请参考 [技术栈文档](docs/architecture/tech-stack.md)。
 
 ## 高级配置
 
@@ -709,10 +684,10 @@ logging:
   config: classpath:logback-spring.xml
 
 # 环境变量
-OSS_ACCESS_KEY_ID: ${LOG_OSS_ACCESS_KEY_ID}
-OSS_ACCESS_KEY_SECRET: ${LOG_OSS_ACCESS_KEY_SECRET}
-OSS_BUCKET: ${OSS_BUCKET:app-logs}
-LOG_OSS_ENDPOINT: ${LOG_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+OSS_ACCESS_KEY_ID: ${LOGX_OSS_ACCESS_KEY_ID}
+OSS_ACCESS_KEY_SECRET: ${LOGX_OSS_ACCESS_KEY_SECRET}
+OSS_BUCKET: ${LOGX_OSS_BUCKET:app-logs}
+LOG_OSS_ENDPOINT: ${LOGX_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
 LOG_OSS_REGION: ${LOG_OSS_REGION:cn-hangzhou}
 ```
 
@@ -724,11 +699,11 @@ FROM openjdk:8-jre-alpine
 COPY app.jar /app.jar
 
 # 设置环境变量
-ENV LOG_OSS_ACCESS_KEY_ID=""
-ENV LOG_OSS_ACCESS_KEY_SECRET=""
-ENV OSS_BUCKET="app-logs"
-ENV LOG_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-ENV LOG_OSS_REGION="cn-hangzhou"
+ENV LOGX_OSS_ACCESS_KEY_ID=""
+ENV LOGX_OSS_ACCESS_KEY_SECRET=""
+ENV LOGX_OSS_BUCKET="app-logs"
+ENV LOGX_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+ENV LOGX_OSS_REGION="cn-hangzhou"
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
@@ -774,6 +749,8 @@ mvn dependency:tree -pl logback-oss-appender
 mvn versions:set -DnewVersion=1.0.0
 mvn versions:commit
 ```
+
+详细开发指南请参考 [开发者指南](docs/developer-guide.md) 和 [编码标准](docs/architecture/coding-standards.md)。
 
 ## 许可证
 
