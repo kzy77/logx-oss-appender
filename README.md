@@ -44,45 +44,174 @@ mvn clean install -pl log4j2-oss-appender
 
 ### 安装依赖
 
-根据你使用的日志框架选择对应的依赖：
+根据你使用的日志框架和存储服务选择对应的依赖：
 
 #### Maven 依赖
 
+##### 方式一：使用All-in-One包（推荐）
+只需引入一个包即可，自动包含日志框架适配器和对应的存储适配器：
+
 ```xml
-<!-- Log4j 1.x -->
+<!-- SF OSS存储服务 -->
+<!-- SF Log4j 1.x -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- SF Log4j2 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j2-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- SF Logback -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-logback-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- S3兼容存储服务（阿里云OSS、AWS S3等） -->
+<!-- S3 Log4j 1.x -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-log4j-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- S3 Log4j2 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-log4j2-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- S3 Logback -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-logback-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+```
+
+##### 方式二：分别引入框架适配器和存储适配器
+如果需要更灵活的配置，可以分别引入框架适配器和存储适配器：
+
+```xml
+<!-- 日志框架适配器（选择其一） -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>log4j-oss-appender</artifactId>
     <version>0.1.0</version>
 </dependency>
 
-<!-- Log4j2 -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>log4j2-oss-appender</artifactId>
     <version>0.1.0</version>
 </dependency>
 
-<!-- Logback -->
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logback-oss-appender</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- 存储适配器（选择其一） -->
+<!-- S3兼容存储适配器 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-s3-adapter</artifactId>
+    <version>0.1.0</version>
+</dependency>
+
+<!-- SF OSS存储适配器 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>logx-sf-oss-adapter</artifactId>
     <version>0.1.0</version>
 </dependency>
 ```
 
 #### Gradle 依赖
 
+##### 方式一：使用All-in-One包（推荐）
+
 ```groovy
-// Log4j 1.x
-implementation 'org.logx:log4j-oss-appender:0.1.0'
+// SF OSS存储服务
+// SF Log4j 1.x
+implementation 'org.logx:sf-log4j-oss-appender:0.1.0'
 
-// Log4j2
-implementation 'org.logx:log4j2-oss-appender:0.1.0'
+// SF Log4j2
+implementation 'org.logx:sf-log4j2-oss-appender:0.1.0'
 
-// Logback
-implementation 'org.logx:logback-oss-appender:0.1.0'
+// SF Logback
+implementation 'org.logx:sf-logback-oss-appender:0.1.0'
+
+// S3兼容存储服务
+// S3 Log4j 1.x
+implementation 'org.logx:s3-log4j-oss-appender:0.1.0'
+
+// S3 Log4j2
+implementation 'org.logx:s3-log4j2-oss-appender:0.1.0'
+
+// S3 Logback
+implementation 'org.logx:s3-logback-oss-appender:0.1.0'
 ```
+
+##### 方式二：分别引入框架适配器和存储适配器
+
+```groovy
+// 日志框架适配器（选择其一）
+implementation 'org.logx:log4j-oss-appender:0.1.0'
+implementation 'org.logx:log4j2-oss-appender:0.1.0'
+implementation 'org.logx:logback-oss-appender:0.1.0'
+
+// 存储适配器（选择其一）
+// S3兼容存储适配器
+implementation 'org.logx:logx-s3-adapter:0.1.0'
+
+// SF OSS存储适配器
+implementation 'org.logx:logx-sf-oss-adapter:0.1.0'
+```
+
+#### 非Maven/Gradle项目依赖引入
+
+对于不使用Maven或Gradle的项目，可以通过以下方式引入依赖：
+
+##### 1. 直接使用JAR包
+
+通过CI/CD构建后上传到Maven仓库，可以从Maven仓库下载所需的JAR包：
+
+1. **All-in-One包**（推荐）：每个包都包含了日志框架适配器和对应的存储适配器
+   - `sf-log4j-oss-appender-0.1.0.jar` - SF OSS + Log4j 1.x
+   - `sf-log4j2-oss-appender-0.1.0.jar` - SF OSS + Log4j2
+   - `sf-logback-oss-appender-0.1.0.jar` - SF OSS + Logback
+   - `s3-log4j-oss-appender-0.1.0.jar` - S3兼容存储 + Log4j 1.x
+   - `s3-log4j2-oss-appender-0.1.0.jar` - S3兼容存储 + Log4j2
+   - `s3-logback-oss-appender-0.1.0.jar` - S3兼容存储 + Logback
+
+2. **分别引入组件**：
+   - 日志框架适配器（选择其一）：
+     - `log4j-oss-appender-0.1.0.jar` - Log4j 1.x适配器
+     - `log4j2-oss-appender-0.1.0.jar` - Log4j2适配器
+     - `logback-oss-appender-0.1.0.jar` - Logback适配器
+   - 核心组件：
+     - `logx-producer-0.1.0.jar` - 核心日志处理引擎
+   - 存储适配器（选择其一）：
+     - `logx-s3-adapter-0.1.0.jar` - S3兼容存储适配器
+     - `logx-sf-oss-adapter-0.1.0.jar` - SF OSS存储适配器
+
+##### 2. 环境要求
+
+- Java 8或更高版本
+- 对应的日志框架版本：
+  - Log4j 1.2.17或更高版本
+  - Log4j2 2.22.1或更高版本
+  - Logback 1.2.13或更高版本
 
 ### SDK使用快速开始
 

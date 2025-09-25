@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>org.logx</groupId>
+  <artifactId>sf-log4j-oss-appender</artifactId>
+  <version>0.1.0</version>
+  <packaging>jar</packaging>
+
+  <name>SF Log4j OSS Appender</name>
+  <description>高性能 Log4j 1.x Appender，将应用日志实时上传到SF OSS对象存储（All-in-One包）</description>
+  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+
+  <properties>
+    <maven.compiler.source>8</maven.compiler.source>
+    <maven.compiler.target>8</maven.compiler.target>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <log4j.version>1.2.17</log4j.version>
+    <slf4j.version>2.0.12</slf4j.version>
+    <junit.version>5.10.1</junit.version>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.logx</groupId>
+      <artifactId>log4j-oss-appender</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+    
+    <dependency>
+      <groupId>org.logx</groupId>
+      <artifactId>logx-sf-oss-adapter</artifactId>
+      <version>0.1.0</version>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.11.0</version>
+        <configuration>
+          <source>${maven.compiler.source}</source>
+          <target>${maven.compiler.target}</target>
+          <encoding>${project.build.sourceEncoding}</encoding>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+
+</project>
