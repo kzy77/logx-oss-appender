@@ -56,7 +56,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         try {
             // 构建存储配置
             StorageConfig config = new StorageConfigBuilder()
-                .backendType(this.ossType)
+                .backendType(this.ossType != null && !this.ossType.isEmpty() ? this.ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
                 .endpoint(this.endpoint)
                 .region(this.region)
                 .accessKeyId(this.accessKeyId)
