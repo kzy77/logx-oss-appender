@@ -1,8 +1,8 @@
 # S3 适配器模块
 
-## 模块介绍
+S3 适配器模块为 LogX OSS Appender 提供对 AWS S3、阿里云OSS、腾讯云COS 等 S3 兼容存储服务的支持。
 
-S3 适配器模块为 LogX OSS Appender 提供对 AWS S3、阿里云OSS、腾讯云COS 等 S3 兼容存储服务的支持。该模块实现了统一的存储服务接口，将日志数据上传到 S3 兼容的存储桶中。
+有关详细说明，请参考 [根目录文档](../README.md)。
 
 ## 架构变更说明 (2025-09-24)
 
@@ -48,6 +48,21 @@ logx.storage.region=cn-hangzhou
 logx.storage.accessKeyId=your-access-key-id
 logx.storage.accessKeySecret=your-access-key-secret
 logx.storage.bucket=your-bucket-name
+
+# 性能调优参数
+logx.storage.keyPrefix=logs/
+logx.storage.maxQueueSize=100000
+logx.storage.maxBatchCount=10000
+logx.storage.maxBatchBytes=104857600
+logx.storage.flushIntervalMs=2000
+logx.storage.dropWhenQueueFull=true
+logx.storage.multiProducer=false
+logx.storage.maxRetries=5
+logx.storage.baseBackoffMs=200
+logx.storage.maxBackoffMs=10000
+
+# 数据分片配置
+logx.storage.maxUploadSizeMb=20
 ```
 
 ## 设计特点

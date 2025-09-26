@@ -1,64 +1,33 @@
 # Log4j2 OSS Appender
 
-高性能 Log4j2 Appender，支持所有 S3 兼容对象存储服务。
+Log4j2框架的OSS Appender，用于将日志异步上传到S3兼容对象存储服务。
 
-## 🌟 特性
-
-- **🌐 通用兼容**：支持 AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2、SF OSS 等所有 S3 兼容存储
-- **🚀 极致性能**：异步批处理、gzip压缩、无锁队列
-- **💾 不落盘**：日志直接入内存队列并异步上传
-- **🔒 不丢日志**：可配置为生产侧阻塞等待，确保写入
-- **🛠️ 可调优**：所有性能参数可按需调整
+有关详细特性说明，请参考 [根目录文档](../README.md)。
 
 ## 🚀 快速开始
 
-### 1) 引入依赖（Maven）
+为简化依赖管理，推荐使用All-in-One包：
+
+### Maven依赖
+
 ```xml
-<!-- 核心依赖 -->
+<!-- S3兼容存储服务 -->
 <dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>log4j2-oss-appender</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-log4j2-oss-appender</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
-<!-- 存储适配器（根据需要选择） -->
-<!-- S3兼容存储适配器 -->
+<!-- 或SF OSS存储服务 -->
 <dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-s3-adapter</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
-</dependency>
-
-<!-- 或 SF OSS存储适配器 -->
-<dependency>
-  <groupId>org.logx</groupId>
-  <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>1.0.0-SNAPSHOT</version>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j2-oss-appender</artifactId>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
-### 2) 最简配置（推荐）
+### 配置示例
 
-#### AWS S3
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="${sys:LOG_OSS_ENDPOINT:-https://s3.amazonaws.com}"
-                 accessKeyId="${sys:LOG_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOG_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket" region="${sys:LOG_OSS_REGION:-us-east-1}">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n" charset="UTF-8"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
-
-#### 阿里云 OSS
 ```xml
 <Configuration>
   <Appenders>
@@ -77,120 +46,25 @@
 </Configuration>
 ```
 
-#### MinIO
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="${sys:LOG_OSS_ENDPOINT:-http://localhost:9000}"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
-    </OSS>
-  </Appenders>
+### 环境变量配置
 
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
-
-#### SF OSS
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
-                 region="${sys:LOG_OSS_REGION:-cn-north-1}"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
-
-### 3) 环境变量配置
-
-#### AWS S3
-```bash
-export LOG_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOG_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name}
-```
-
-#### 阿里云 OSS
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOG_OSS_BUCKET="your-bucket-name"
 ```
 
-#### SF OSS
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-```
-
-### 4) 完整配置选项（可选）
-
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="https://s3.amazonaws.com" region="${sys:LOG_OSS_REGION:-us-east-1}"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket" keyPrefix="logs/"
-                 maxQueueSize="65536" maxBatchCount="1000" maxBatchBytes="4194304"
-                 flushIntervalMs="2000" dropWhenQueueFull="false"
-                 maxRetries="5" baseBackoffMs="200" maxBackoffMs="10000">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
+有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
 
 ## 📋 配置说明
 
-### 必需配置
-| 参数 | 说明 | AWS S3 | 阿里云OSS | MinIO |
-|------|------|--------|-----------|--------|
-| `accessKeyId` | 访问密钥ID | ✅ | ✅ | ✅ |
-| `accessKeySecret` | 访问密钥Secret | ✅ | ✅ | ✅ |
-| `bucket` | 存储桶名称 | ✅ | ✅ | ✅ |
-| `endpoint` | 服务端点 | 可选* | ✅必需 | ✅必需 | ✅必需 |
-| `region` | 区域标识 | ✅推荐 | 自动检测 | 自动设置 | ✅推荐 |
+有关详细配置说明，请参考 [根目录文档](../README.md#可选参数)。
 
-*AWS S3 可省略 endpoint，将使用默认端点
-
-### 🎯 性能调优参数
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `maxQueueSize` | 65536 | 内存队列容量，影响内存使用和丢日志风险 |
-| `maxBatchCount` | 1000 | 单次上传最大日志条数 |
-| `maxBatchBytes` | 4194304 | 单次上传最大字节数(4MB) |
-| `flushIntervalMs` | 2000 | 强制刷新间隔(毫秒) |
-| `dropWhenQueueFull` | false | 队列满时丢弃vs阻塞，false保证不丢日志 |
-
-### 📦 输出格式参数
-| 参数 | 默认值 | 说明 |
-|------|--------|------|
-| `keyPrefix` | logs/ | 对象键前缀 |
-| `pattern` | %d{ISO8601} %level %logger - %msg%n | 日志输出格式 |
+以下为Log4j2特定配置参数：
 
 ## 🏗️ 架构设计
+
+有关详细架构设计说明，请参考 [根目录文档](../README.md)。
 
 ### S3 兼容性
 - **标准协议**：基于 AWS SDK v2，遵循 S3 API 标准
@@ -204,19 +78,9 @@ export LOG_OSS_BUCKET="your-bucket-name"
 - **指数退避重试**：网络异常时自动重试，避免雪崩效应
 - **异步队列**：基于高性能队列，无锁设计，超低延迟
 
-### 云厂商支持
-
-| 存储服务 | 自动检测 | 特殊配置 | 测试状态 |
-|----------|----------|----------|----------|
-| **AWS S3** | ✅ | 无 | ✅ |
-| **阿里云 OSS** | ✅ | 无 | ✅ |
-| **腾讯云 COS** | ✅ | 无 | 🧪 |
-| **MinIO** | ✅ | 路径风格 | ✅ |
-| **Cloudflare R2** | ✅ | 无 | 🧪 |
-| **SF OSS** | ✅ | 路径风格 | 🧪 |
-| **其他 S3 兼容** | ✅ | 通用模式 | 🧪 |
-
 ## 🔧 最佳实践
+
+有关详细最佳实践说明，请参考 [根目录文档](../README.md)。
 
 ### 生产环境推荐配置
 ```xml
@@ -229,16 +93,6 @@ export LOG_OSS_BUCKET="your-bucket-name"
 <OSS name="oss" ... 
      maxQueueSize="16384" maxBatchCount="500" flushIntervalMs="500">
 ```
-
-### 安全建议
-- 使用环境变量或密钥管理服务存储凭证
-- 定期轮换访问密钥
-- 为应用分配最小权限的 IAM 策略
-
-### 监控建议
-- 监控队列积压情况
-- 设置上传失败告警
-- 定期检查存储成本
 
 ## 📄 许可证
 

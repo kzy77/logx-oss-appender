@@ -101,7 +101,7 @@ public interface StorageService {
 ```java
 // 数据分片处理器
 - 控制传递给存储适配器的数据大小
-- 自动分片大文件（>100MB）
+- 自动分片大文件（>20MB）
 - 简化存储适配器实现
 ```
 
@@ -323,7 +323,7 @@ logx.oss.accessKeyId=your-access-key
 logx.oss.accessKeySecret=your-secret-key
 logx.oss.bucket=your-bucket-name
 logx.oss.ossType=SF_OSS
-logx.oss.maxUploadSizeMb=100
+logx.oss.maxUploadSizeMb=20
 ```
 
 **环境变量支持**:
@@ -333,7 +333,7 @@ export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
 export LOGX_OSS_REGION="ap-guangzhou"
 export LOGX_OSS_BUCKET="your-bucket-name"
 export LOGX_OSS_TYPE="SF_OSS"
-export LOGX_OSS_MAX_UPLOAD_SIZE_MB="100"
+export LOGX_OSS_MAX_UPLOAD_SIZE_MB="20"
 ```
 
 **配置参数说明**:
@@ -344,4 +344,4 @@ export LOGX_OSS_MAX_UPLOAD_SIZE_MB="100"
 - `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
 - `batchSize`: 批处理大小，默认1000条日志
 - `flushInterval`: 刷新间隔，默认5秒
-- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认100MB
+- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认20MB
