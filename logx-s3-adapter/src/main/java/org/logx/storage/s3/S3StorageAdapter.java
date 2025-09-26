@@ -42,8 +42,8 @@ import java.util.List;
 public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(S3StorageAdapter.class);
-    private static final long MULTIPART_THRESHOLD = 5L * 1024 * 1024; // 5MB
-    private static final int PART_SIZE = 5 * 1024 * 1024; // 5MB per part
+    private static final long MULTIPART_THRESHOLD = 20L * 1024 * 1024; // 20MB
+    private static final int PART_SIZE = 20 * 1024 * 1024; // 20MB per part
     private static final String BACKEND_TYPE = "S3";
 
     private final S3Client s3Client;

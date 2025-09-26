@@ -26,36 +26,6 @@ Log4j 1.x框架的OSS Appender，用于将日志异步上传到S3兼容对象存
 </dependency>
 ```
 
-### 配置示例
-
-```xml
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-  <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
-    <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
-    <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
-    <param name="bucket" value="your-bucket"/>
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{1.} - %m%ex{full}"/>
-    </layout>
-  </appender>
-  <root>
-    <priority value="info"/>
-    <appender-ref ref="oss"/>
-  </root>
-</log4j:configuration>
-```
-
-### 环境变量配置
-
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-```
-
-有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
-
 ## 📋 配置说明
 
 有关详细配置说明，请参考 [根目录文档](../README.md#可选参数)。

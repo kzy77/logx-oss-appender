@@ -41,7 +41,7 @@ public class BatchProcessor implements AutoCloseable {
     private static final int MAX_BATCH_SIZE = 10000;
     private static final long DEFAULT_FLUSH_INTERVAL_MS = 5000L; // 5秒
     private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024; // 1KB
-    private static final int DEFAULT_SHARDING_THRESHOLD = 100 * 1024 * 1024; // 100MB
+    private static final int DEFAULT_SHARDING_THRESHOLD = org.logx.config.CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB * 1024 * 1024; // 20MB
     private static final int DEFAULT_SHARD_SIZE = 10 * 1024 * 1024; // 10MB
 
     // 批处理配置

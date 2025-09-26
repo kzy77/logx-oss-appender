@@ -26,36 +26,6 @@ Log4j2框架的OSS Appender，用于将日志异步上传到S3兼容对象存储
 </dependency>
 ```
 
-### 配置示例
-
-```xml
-<Configuration>
-  <Appenders>
-    <OSS name="oss" endpoint="https://oss-cn-hangzhou.aliyuncs.com"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="oss"/>
-    </Root>
-  </Loggers>
-</Configuration>
-```
-
-### 环境变量配置
-
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-```
-
-有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
-
 ## 📋 配置说明
 
 有关详细配置说明，请参考 [根目录文档](../README.md#可选参数)。

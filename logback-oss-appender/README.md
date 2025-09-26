@@ -26,33 +26,6 @@ Logback框架的OSS Appender，用于将日志异步上传到S3兼容对象存�
 </dependency>
 ```
 
-### 配置示例
-
-```xml
-<configuration>
-  <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOG_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-    <accessKeyId>${LOG_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOG_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOG_OSS_BUCKET}</bucket>
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
-  <root level="INFO"><appender-ref ref="OSS"/></root>
-</configuration>
-```
-
-### 环境变量配置
-
-```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-```
-
-有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
-
 ## 📋 配置说明
 
 有关详细配置说明，请参考 [根目录文档](../README.md#可选参数)。
