@@ -169,7 +169,9 @@ public class ConfigConsistencyVerifier {
      */
     public Map<String, String> loadPropertiesConfig(String filePath) throws IOException {
         Properties props = new Properties();
-        props.load(new File(filePath).toURI().toURL().openStream());
+        try (java.io.InputStream inputStream = new File(filePath).toURI().toURL().openStream()) {
+            props.load(inputStream);
+        }
         
         Map<String, String> configMap = new HashMap<>();
         for (Map.Entry<Object, Object> entry : props.entrySet()) {

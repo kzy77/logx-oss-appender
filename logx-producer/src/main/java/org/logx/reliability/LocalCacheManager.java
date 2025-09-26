@@ -113,19 +113,15 @@ public class LocalCacheManager {
      * 加载现有的缓存文件信息
      */
     private void loadExistingCacheEntries() {
-        try {
-            Files.list(cacheDir).filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".log"))
+        try (java.util.stream.Stream<java.nio.file.Path> pathStream = Files.list(cacheDir)) {
+            pathStream.filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".log"))
                     .forEach(path -> {
                         try {
-                            // 添加空指针检查
-                            java.nio.file.Path fileNamePath = path.getFileName();
-                            if (fileNamePath != null) {
-                                String fileName = fileNamePath.toString();
-                                long size = Files.size(path);
+                            String fileName = path.getFileName().toString();
+                            long size = Files.size(path);
 
-                                cacheEntries.offer(new CacheEntry(fileName, size));
-                                currentCacheSize.addAndGet(size);
-                            }
+                            cacheEntries.offer(new CacheEntry(fileName, size));
+                            currentCacheSize.addAndGet(size);
                         } catch (IOException e) {
                             System.err.println("Failed to load cache entry: " + path + ", error: " + e.getMessage());
                         }
