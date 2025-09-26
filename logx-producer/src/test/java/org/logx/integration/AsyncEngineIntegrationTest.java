@@ -24,7 +24,7 @@ import static org.assertj.core.api.Assertions.*;
  * <p>
  * 测试目标：
  * <ul>
- * <li>吞吐量：10万+/秒</li>
+ * <li>吞吐量：1万+/秒</li>
  * <li>延迟：99%请求<1ms</li>
  * <li>资源占用：内存<50MB，CPU<5%</li>
  * <li>故障恢复和长期稳定性</li>
@@ -106,7 +106,7 @@ class AsyncEngineIntegrationTest {
     @Test
     @Timeout(30)
     void shouldAchieveThroughputTarget() throws Exception {
-        // Given - 目标：10万+/秒吞吐量
+        // Given - 目标：1万+/秒吞吐量
         int targetMessages = 50000; // 测试环境使用5万条
         byte[] message = "High throughput test message for Epic 2 validation".getBytes();
 
@@ -342,7 +342,7 @@ class AsyncEngineIntegrationTest {
 
         // 性能目标
         System.out.println("\n性能目标:");
-        System.out.println("- 吞吐量: 10万+/秒 (测试环境1万+/秒)");
+        System.out.println("- 吞吐量: 1万+/秒");
         System.out.println("- 延迟: 99%请求<1ms (测试环境平均<10ms)");
         System.out.println("- 内存: <50MB (测试环境<100MB)");
         System.out.println("- CPU: <5% (测试环境<50%)");
