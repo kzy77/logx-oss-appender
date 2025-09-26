@@ -100,7 +100,7 @@ public enum StorageBackend {
             return GENERIC_S3;
         }
 
-        String lowerEndpoint = endpoint.toLowerCase();
+        String lowerEndpoint = endpoint.toLowerCase(java.util.Locale.ENGLISH);
 
         // SF OSS检测（放在前面，避免被其他检测匹配）
         if (lowerEndpoint.contains("sf-oss.com") || lowerEndpoint.contains("sf-oss-")) {
@@ -152,7 +152,7 @@ public enum StorageBackend {
 
         // 如果检测为通用S3，进一步基于区域信息判断
         if (detected == GENERIC_S3 && region != null) {
-            String lowerRegion = region.toLowerCase();
+            String lowerRegion = region.toLowerCase(java.util.Locale.ENGLISH);
 
             if (lowerRegion.startsWith("cn-") || lowerRegion.contains("china")) {
                 // 中国区域，可能是阿里云或腾讯云

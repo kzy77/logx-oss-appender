@@ -203,7 +203,7 @@ public class ConfigManager {
         if (value == null) {
             return defaultValue;
         }
-        String trimmedValue = value.trim().toLowerCase();
+        String trimmedValue = value.trim().toLowerCase(java.util.Locale.ENGLISH);
         return "true".equals(trimmedValue) || "yes".equals(trimmedValue) || "1".equals(trimmedValue);
     }
 
@@ -298,14 +298,14 @@ public class ConfigManager {
         }
 
         // 转换为大写，用下划线替换点号
-        String envKey = key.toUpperCase().replace('.', '_');
+        String envKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
         value = System.getenv(envKey);
         if (value != null) {
             return value;
         }
 
         // 转换为全大写
-        value = System.getenv(key.toUpperCase());
+        value = System.getenv(key.toUpperCase(java.util.Locale.ENGLISH));
         if (value != null) {
             return value;
         }

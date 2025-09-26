@@ -113,7 +113,8 @@ public interface ConfigValidator {
             this.message = message;
             this.suggestion = suggestion;
             this.type = type;
-            this.cause = cause;
+            // 存储异常的副本以避免内部表示暴露
+            this.cause = cause != null ? new RuntimeException(cause.getMessage(), cause.getCause()) : null;
         }
 
         public String getField() {

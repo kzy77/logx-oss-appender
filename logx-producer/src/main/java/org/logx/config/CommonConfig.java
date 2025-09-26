@@ -64,7 +64,7 @@ public final class CommonConfig {
      */
     public static final class Validation {
         // 必需字段
-        public static final String[] REQUIRED_FIELDS = { ACCESS_KEY_ID, ACCESS_KEY_SECRET, BUCKET };
+        static final String[] REQUIRED_FIELDS = { ACCESS_KEY_ID, ACCESS_KEY_SECRET, BUCKET };
 
         // 数值范围
         public static final int MIN_QUEUE_SIZE = 1024;

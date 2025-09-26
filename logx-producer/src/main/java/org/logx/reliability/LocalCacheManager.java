@@ -117,11 +117,15 @@ public class LocalCacheManager {
             Files.list(cacheDir).filter(Files::isRegularFile).filter(path -> path.toString().endsWith(".log"))
                     .forEach(path -> {
                         try {
-                            String fileName = path.getFileName().toString();
-                            long size = Files.size(path);
+                            // 添加空指针检查
+                            java.nio.file.Path fileNamePath = path.getFileName();
+                            if (fileNamePath != null) {
+                                String fileName = fileNamePath.toString();
+                                long size = Files.size(path);
 
-                            cacheEntries.offer(new CacheEntry(fileName, size));
-                            currentCacheSize.addAndGet(size);
+                                cacheEntries.offer(new CacheEntry(fileName, size));
+                                currentCacheSize.addAndGet(size);
+                            }
                         } catch (IOException e) {
                             System.err.println("Failed to load cache entry: " + path + ", error: " + e.getMessage());
                         }

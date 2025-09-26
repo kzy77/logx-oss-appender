@@ -7,9 +7,9 @@ package org.logx.storage.sf;
  */
 public class SfOssClient implements AutoCloseable {
     private final String endpoint;
-    private final String region;
-    private final String accessKeyId;
-    private final String secretAccessKey;
+    // private final String region;
+    // private final String accessKeyId;
+    // private final String secretAccessKey;
 
     /**
      * 构造SF OSS客户端
@@ -21,9 +21,9 @@ public class SfOssClient implements AutoCloseable {
      */
     public SfOssClient(String endpoint, String region, String accessKeyId, String secretAccessKey) {
         this.endpoint = endpoint;
-        this.region = region;
-        this.accessKeyId = accessKeyId;
-        this.secretAccessKey = secretAccessKey;
+        // this.region = region;
+        // this.accessKeyId = accessKeyId;
+        // this.secretAccessKey = secretAccessKey;
     }
 
     /**

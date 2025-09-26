@@ -201,8 +201,12 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
                 // 将系统负载转换为使用率（粗略估算）
                 return Math.min(1.0, loadAverage / availableProcessors);
             }
+        } catch (UnsupportedOperationException e) {
+            // 如果系统不支持获取负载平均值，返回0
+            System.err.println("System does not support getSystemLoadAverage: " + e.getMessage());
         } catch (Exception e) {
-            // 如果获取失败，返回0
+            // 如果获取失败，记录错误并返回0
+            System.err.println("Failed to get CPU usage: " + e.getMessage());
         }
 
         return 0.0; // 无法获取时返回0
@@ -280,7 +284,7 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
      */
     private static class ResourceProtectedThreadFactory implements ThreadFactory {
         private final AtomicInteger threadNumber = new AtomicInteger(1);
-        private final String namePrefix = "oss-appender-protected-";
+        private static final String namePrefix = "oss-appender-protected-";
 
         @Override
         public Thread newThread(Runnable r) {

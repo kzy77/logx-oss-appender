@@ -87,7 +87,8 @@ public class RetryManager {
             this.result = result;
             this.success = success;
             this.attemptCount = attemptCount;
-            this.lastException = lastException;
+            // 存储异常的副本以避免内部表示暴露
+            this.lastException = lastException != null ? new RuntimeException(lastException.getMessage(), lastException.getCause()) : null;
         }
 
         public T getResult() {

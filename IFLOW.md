@@ -2,14 +2,25 @@
 
 ## 项目概述
 
-LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块：
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS、AWS S3兼容的对象存储服务以及其他云存储服务。项目采用单仓库多模块（Monorepo）架构，包含十二个核心模块：
 
+### 基础核心模块
 - **logx-producer** - 核心基础模块，提供日志生产和队列管理
-- **logx-s3-adapter** - S3兼容存储适配器
-- **logx-sf-oss-adapter** - SF OSS存储适配器
+- **logx-s3-adapter** - S3兼容存储适配器，支持AWS S3、阿里云OSS、腾讯云COS、MinIO等
+- **logx-sf-oss-adapter** - SF OSS存储适配器，专门支持SF OSS存储服务
+
+### 框架适配器模块
 - **log4j-oss-appender** - Log4j 1.x版本的OSS Appender
 - **log4j2-oss-appender** - Log4j2版本的OSS Appender
 - **logback-oss-appender** - Logback版本的OSS Appender
+
+### All-in-One集成包
+- **sf-log4j-oss-appender** - SF OSS存储服务的Log4j 1.x All-in-One包
+- **sf-log4j2-oss-appender** - SF OSS存储服务的Log4j2 All-in-One包
+- **sf-logback-oss-appender** - SF OSS存储服务的Logback All-in-One包
+- **s3-log4j-oss-appender** - S3兼容存储服务的Log4j 1.x All-in-One包
+- **s3-log4j2-oss-appender** - S3兼容存储服务的Log4j2 All-in-One包
+- **s3-logback-oss-appender** - S3兼容存储服务的Logback All-in-One包
 
 ## 项目架构
 
@@ -29,6 +40,12 @@ logx-oss-appender/                     # 主仓库
 ├── log4j-oss-appender/          # Log4j集成模块
 ├── log4j2-oss-appender/         # Log4j2集成模块
 ├── logback-oss-appender/        # Logback集成模块
+├── sf-log4j-oss-appender/       # SF OSS Log4j All-in-One包
+├── sf-log4j2-oss-appender/      # SF OSS Log4j2 All-in-One包
+├── sf-logback-oss-appender/     # SF OSS Logback All-in-One包
+├── s3-log4j-oss-appender/       # S3 Log4j All-in-One包
+├── s3-log4j2-oss-appender/      # S3 Log4j2 All-in-One包
+├── s3-logback-oss-appender/     # S3 Logback All-in-One包
 └── pom.xml                      # 父POM文件
 ```
 
@@ -40,17 +57,24 @@ logx-producer (核心)
 log4j-oss-appender
 log4j2-oss-appender
 logback-oss-appender
+    ↓
+sf-log4j-oss-appender
+sf-log4j2-oss-appender
+sf-logback-oss-appender
+s3-log4j-oss-appender
+s3-log4j2-oss-appender
+s3-logback-oss-appender
 ```
 
-三个适配器都直接依赖于核心模块，彼此之间没有依赖关系。
+基础核心模块和框架适配器模块都直接依赖于logx-producer核心模块，All-in-One集成包依赖于对应的框架适配器模块和存储适配器模块，彼此之间没有其他依赖关系。
 
 ### 技术栈
 
 - **语言**: Java 8+
 - **构建工具**: Maven 3.9.6
 - **核心依赖**: LMAX Disruptor 3.4.4
-- **云存储**: AWS SDK 2.28.16
-- **测试**: JUnit 5, Mockito, AssertJ
+- **云存储**: AWS SDK 2.28.16, 阿里云OSS SDK 3.17.4
+- **测试**: JUnit 5.10.1, Mockito 5.8.0, AssertJ 3.24.2
 
 ## 开发环境设置
 
@@ -58,7 +82,7 @@ logback-oss-appender
 
 - **Java**: OpenJDK 8u392 或更高版本
 - **Maven**: 3.9.6 或更高版本
-- **Git**: 2.0+ (支持submodules)
+- **Git**: 2.0+
 - **IDE**: IntelliJ IDEA 或 Eclipse（推荐IntelliJ IDEA）
 
 ### 环境变量
@@ -114,6 +138,9 @@ mvn test -pl logx-producer
 # 运行集成测试
 mvn verify -Pintegration-tests
 
+# 运行兼容性测试
+mvn verify -Pcompatibility-tests
+
 # 生成测试报告
 mvn surefire-report:report
 ```
@@ -134,6 +161,76 @@ mvn spotbugs:check
 mvn org.owasp:dependency-check-maven:check -Psecurity
 ```
 
+## All-in-One包使用说明
+
+为了简化用户的集成过程，项目提供了All-in-One集成包，每个包都包含了日志框架适配器和对应的存储适配器：
+
+### Maven依赖
+
+```xml
+<!-- SF OSS存储服务 -->
+<!-- SF Log4j 1.x -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j-oss-appender</artifactId>
+</dependency>
+
+<!-- SF Log4j2 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-log4j2-oss-appender</artifactId>
+</dependency>
+
+<!-- SF Logback -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>sf-logback-oss-appender</artifactId>
+</dependency>
+
+<!-- S3兼容存储服务（阿里云OSS、AWS S3等） -->
+<!-- S3 Log4j 1.x -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-log4j-oss-appender</artifactId>
+</dependency>
+
+<!-- S3 Log4j2 -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-log4j2-oss-appender</artifactId>
+</dependency>
+
+<!-- S3 Logback -->
+<dependency>
+    <groupId>org.logx</groupId>
+    <artifactId>s3-logback-oss-appender</artifactId>
+</dependency>
+```
+
+### Gradle依赖
+
+```gradle
+// SF OSS存储服务
+// SF Log4j 1.x
+implementation 'org.logx:sf-log4j-oss-appender'
+
+// SF Log4j2
+implementation 'org.logx:sf-log4j2-oss-appender'
+
+// SF Logback
+implementation 'org.logx:sf-logback-oss-appender'
+
+// S3兼容存储服务
+// S3 Log4j 1.x
+implementation 'org.logx:s3-log4j-oss-appender'
+
+// S3 Log4j2
+implementation 'org.logx:s3-log4j2-oss-appender'
+
+// S3 Logback
+implementation 'org.logx:s3-logback-oss-appender'
+```
+
 ## Git 工作流程
 
 ### 分支管理
@@ -142,6 +239,8 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
 - **develop**: 开发分支，集成最新功能
 - **feature/***: 功能分支，开发新特性
 - **hotfix/***: 热修复分支，紧急修复
+
+
 
 ### 功能开发流程
 
@@ -364,6 +463,26 @@ mvn dependency:tree
 mvn clean install -U
 ```
 
+
+
+## 模块化适配器设计
+
+本项目采用模块化适配器设计，通过Java SPI（Service Provider Interface）机制实现运行时动态加载存储适配器，降低依赖侵入性，为用户提供更灵活的集成选项。
+
+### 设计原理
+
+1. **核心模块无直接依赖**：logx-producer核心模块不直接依赖任何具体的云存储SDK
+2. **独立适配器模块**：每个云存储服务都有独立的适配器模块（如logx-s3-adapter、logx-sf-oss-adapter）
+3. **SPI服务发现**：通过Java SPI机制在运行时动态发现和加载适配器
+4. **统一接口抽象**：所有适配器实现统一的StorageService接口
+
+### 使用优势
+
+- **按需引入**：用户只需引入需要的存储适配器，避免不必要的依赖
+- **运行时切换**：支持通过配置参数在不同存储服务间切换
+- **扩展性强**：可以轻松添加新的存储服务适配器
+- **低侵入性**：核心模块与具体实现解耦
+
 ## BMAD 开发流程
 
 本项目使用BMAD（Brownfield Methodology for Agile Development）开发方法论，包含以下核心组件：
@@ -392,6 +511,30 @@ mvn clean install -U
 - `2.x.*.md` - Epic 2: 高性能异步队列
 - `3.x.*.md` - Epic 3: 多框架适配器
 - `4.x.*.md` - Epic 4: 生产就绪特性
+- `5.x.*.md` - Epic 5: 模块化适配器设计
+
+## 统一配置标准
+
+所有框架适配器使用统一的配置参数标准，确保配置一致性和易用性：
+
+### 必需参数
+- `endpoint` - 对象存储服务的访问端点
+- `accessKeyId` - 访问密钥ID
+- `accessKeySecret` - 访问密钥Secret
+- `bucket` - 存储桶名称
+
+### 可选参数
+- `region` - 存储区域，默认值为ap-guangzhou
+- `keyPrefix` - 对象存储中的文件路径前缀，默认为logs/
+- `backendType` - 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
+- `maxUploadSizeMb` - 单个上传文件最大大小（MB），默认100MB
+
+### 配置优先级
+系统支持多种配置源，按以下优先级顺序读取配置：
+1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
+2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
+3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
+4. 代码默认值
 
 ## 项目文档
 
@@ -422,6 +565,7 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 2. **批处理优化**: 智能批处理机制优化网络传输效率
 3. **资源保护**: 固定线程池和低优先级调度确保不影响业务系统
 4. **压缩传输**: 支持GZIP压缩减少网络带宽使用
+5. **数据分片处理**: 核心层控制传递给存储适配器的数据大小，自动分片大文件（>100MB），简化存储适配器实现
 
 ### 已知性能问题
 
@@ -446,4 +590,4 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 <!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
-*本文档最后更新于 2025-09-24*
+*本文档最后更新于 2025-09-26*

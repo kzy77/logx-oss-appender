@@ -27,7 +27,7 @@ public class ConfigFactory {
      *            配置管理器
      */
     public ConfigFactory(ConfigManager configManager) {
-        // 直接使用传入的配置管理器，避免重新加载导致配置丢失
+        // 配置管理器是复杂对象，直接引用即可
         this.configManager = configManager;
     }
 

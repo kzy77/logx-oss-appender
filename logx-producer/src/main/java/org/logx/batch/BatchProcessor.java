@@ -104,6 +104,7 @@ public class BatchProcessor implements AutoCloseable {
     public BatchProcessor(Config config, BatchConsumer consumer, StorageService storageService) {
         this.config = config;
         this.consumer = consumer;
+        // 存储服务是接口，直接引用即可
         this.storageService = storageService;
 
         // 创建线程池
@@ -316,6 +317,18 @@ public class BatchProcessor implements AutoCloseable {
             }
 
             return true;
+        } catch (InterruptedException e) {
+            System.err.println("分片处理被中断: " + e.getMessage());
+            Thread.currentThread().interrupt();
+            return false;
+        } catch (java.util.concurrent.ExecutionException e) {
+            System.err.println("分片处理执行失败: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        } catch (java.util.concurrent.TimeoutException e) {
+            System.err.println("分片处理超时: " + e.getMessage());
+            e.printStackTrace();
+            return false;
         } catch (Exception e) {
             System.err.println("分片处理失败: " + e.getMessage());
             e.printStackTrace();

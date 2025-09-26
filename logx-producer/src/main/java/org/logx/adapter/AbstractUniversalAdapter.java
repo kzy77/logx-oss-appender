@@ -10,7 +10,7 @@ import org.logx.core.AsyncEngine;
 public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
     protected AsyncEngine asyncEngine;
     protected StorageService s3Storage;
-    protected boolean started = false;
+    private boolean started = false;
     
     @Override
     public void start() {

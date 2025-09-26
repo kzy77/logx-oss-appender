@@ -146,7 +146,9 @@ public class ShutdownHookHandler {
             long totalTime = (System.currentTimeMillis() - startTime) / 1000;
             System.out.println("OSS Appender shutdown process completed in " + totalTime + "s");
 
-        } catch (Exception e) {
+        } catch (RuntimeException e) {
+            System.err.println("Runtime error during shutdown process: " + e.getMessage());
+        } catch (Error e) {
             System.err.println("Error during shutdown process: " + e.getMessage());
         }
     }
@@ -163,8 +165,12 @@ public class ShutdownHookHandler {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
             registered.set(false);
             System.out.println("OSS Appender shutdown hook unregistered");
+        } catch (IllegalStateException e) {
+            // 可能已经在执行中，这是正常情况
+            System.out.println("Shutdown hook is already running, cannot unregister");
         } catch (Exception e) {
-            // 可能已经在执行中，忽略错误
+            // 记录其他异常但不抛出，避免影响业务
+            System.err.println("Failed to unregister shutdown hook: " + e.getMessage());
         }
     }
 
