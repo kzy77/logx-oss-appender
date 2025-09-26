@@ -24,7 +24,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     // 应用行为配置 - 可选参数，提供最优默认值
     private String keyPrefix = "logs/";
-    private String backendType; // 新增：后端类型配置
+    private String ossType; // 新增：存储类型配置
     private int maxQueueSize = 65536; // 64K - 必须是2的幂
     private int maxBatchCount = 1000;
     private int maxBatchBytes = 4 * 1024 * 1024;
@@ -60,7 +60,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
             // 构建存储配置
             StorageConfig config = new StorageConfigBuilder()
-                .backendType(this.backendType)
+                .backendType(this.ossType)
                 .endpoint(this.endpoint)
                 .region(this.region)
                 .accessKeyId(this.accessKeyId)
@@ -160,12 +160,12 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         this.keyPrefix = keyPrefix;
     }
 
-    public String getBackendType() {
-        return backendType;
+    public String getOssType() {
+        return ossType;
     }
 
-    public void setBackendType(String backendType) {
-        this.backendType = backendType;
+    public void setOssType(String ossType) {
+        this.ossType = ossType;
     }
 
     public int getMaxQueueSize() {

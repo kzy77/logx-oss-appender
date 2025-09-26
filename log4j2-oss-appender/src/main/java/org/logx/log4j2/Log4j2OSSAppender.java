@@ -61,7 +61,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             @PluginAttribute("accessKeyId") final String accessKeyId,
             @PluginAttribute("accessKeySecret") final String accessKeySecret,
             @PluginAttribute("bucket") final String bucket,
-            @PluginAttribute("backendType") final String backendType,
+            @PluginAttribute("ossType") final String ossType,
             @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) final boolean ignoreExceptions) {
 
         if (name == null) {
@@ -76,7 +76,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 构建存储配置
         StorageConfig adapterConfig = new StorageConfigBuilder()
-            .backendType(backendType)
+            .backendType(ossType)
             .endpoint(endpoint)
             .region(region)
             .accessKeyId(accessKeyId)

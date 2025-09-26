@@ -7,7 +7,7 @@
              accessKeyId="TEST_ACCESS_KEY"
              accessKeySecret="TEST_SECRET_KEY"
              bucket="test-bucket"
-             backendType="S3">
+             ossType="S3">
             <PatternLayout>
                 <Pattern>%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n</Pattern>
             </PatternLayout>

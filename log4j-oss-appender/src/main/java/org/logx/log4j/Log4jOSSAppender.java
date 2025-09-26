@@ -21,7 +21,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
     // 应用行为配置 - 可选参数，提供最优默认值
     private String keyPrefix = "logs/";
-    private String backendType; // 新增：后端类型配置
+    private String ossType; // 新增：存储类型配置
     private int maxQueueSize = 262144;
     private int maxBatchCount = 4096;
     private int maxBatchBytes = 4 * 1024 * 1024;
@@ -56,7 +56,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         try {
             // 构建存储配置
             StorageConfig config = new StorageConfigBuilder()
-                .backendType(this.backendType)
+                .backendType(this.ossType)
                 .endpoint(this.endpoint)
                 .region(this.region)
                 .accessKeyId(this.accessKeyId)
@@ -168,12 +168,12 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         this.keyPrefix = keyPrefix;
     }
 
-    public String getBackendType() {
-        return backendType;
+    public String getOssType() {
+        return ossType;
     }
 
-    public void setBackendType(String backendType) {
-        this.backendType = backendType;
+    public void setOssType(String ossType) {
+        this.ossType = ossType;
     }
 
     public int getMaxQueueSize() {

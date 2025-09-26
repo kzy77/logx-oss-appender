@@ -53,7 +53,7 @@ public final class CommonConfig {
         public static final int MAX_RETRIES = 5;
         public static final long BASE_BACKOFF_MS = 200L;
         public static final long MAX_BACKOFF_MS = 10000L;
-        public static final int MAX_UPLOAD_SIZE_MB = 100; // 默认最大上传文件大小100MB
+        public static final int MAX_UPLOAD_SIZE_MB = 20; // 默认最大上传文件大小20MB
         public static final String OSS_TYPE = "SF_OSS"; // 默认OSS类型为SF_OSS
         public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
         public static final String LEVEL = "INFO";
