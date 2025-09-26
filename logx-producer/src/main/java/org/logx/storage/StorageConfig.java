@@ -145,12 +145,12 @@ public class StorageConfig {
             } else if (endpoint.contains("myhuaweicloud.com")) {
                 builder.backendType("S3");
             } else {
-                // 默认使用S3
-                builder.backendType("S3");
+                // 默认使用CommonConfig中定义的默认值
+                builder.backendType(CommonConfig.Defaults.OSS_TYPE);
             }
         } else {
-            // 默认使用S3
-            builder.backendType("S3");
+            // 默认使用CommonConfig中定义的默认值
+            builder.backendType(CommonConfig.Defaults.OSS_TYPE);
         }
 
         return builder.build();
@@ -217,7 +217,7 @@ public class StorageConfig {
         private String accessKeyId;
         private String accessKeySecret;
         private String bucket;
-        private String keyPrefix = "logs";
+        private String keyPrefix = CommonConfig.Defaults.KEY_PREFIX;
         private boolean pathStyleAccess = false;
         private Duration connectTimeout = Duration.ofSeconds(30);
         private Duration readTimeout = Duration.ofSeconds(60);

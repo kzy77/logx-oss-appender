@@ -607,7 +607,7 @@ public class StorageServiceFactory {
 ### 可选参数
 - `region` - 存储区域，默认值为ap-guangzhou
 - `keyPrefix` - 对象存储中的文件路径前缀，默认为logs/
-- `backendType` - 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
+- `ossType` - 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
 - `maxUploadSizeMb` - 单个上传文件最大大小（MB），默认100MB
 
 ### 配置优先级
@@ -624,7 +624,7 @@ logx.oss.region=ap-guangzhou
 logx.oss.accessKeyId=your-access-key
 logx.oss.accessKeySecret=your-secret-key
 logx.oss.bucket=your-bucket-name
-logx.oss.backendType=SF_OSS
+logx.oss.ossType=SF_OSS
 logx.oss.maxUploadSizeMb=100
 ```
 
