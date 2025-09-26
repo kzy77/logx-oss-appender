@@ -46,7 +46,7 @@ logx-producer作为核心模块，不直接依赖任何具体的云存储SDK。�
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>logx-producer</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
@@ -56,14 +56,14 @@ logx-producer作为核心模块，不直接依赖任何具体的云存储SDK。�
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>logx-s3-adapter</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 或 SF OSS存储 -->
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 

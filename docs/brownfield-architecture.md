@@ -225,13 +225,13 @@ public class OSSAppender extends AppenderSkeleton {
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logback-oss-appender</artifactId>  <!-- Logback用户 -->
-    <version>0.1.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>log4j2-oss-appender</artifactId>   <!-- Log4j2用户 -->
-    <version>0.1.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
 <!-- logx-producer会作为传递依赖自动引入，用户无需手动添加 -->

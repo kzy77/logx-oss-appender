@@ -30,7 +30,7 @@ S3 存储适配器，基于 AWS SDK 实现的存储适配器，支持所有 S3 �
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logx-s3-adapter</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 

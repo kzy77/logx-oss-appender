@@ -29,7 +29,7 @@ SF OSS 存储适配器，基于 SF OSS 特有 SDK 实现的存储适配器，支
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>logx-sf-oss-adapter</artifactId>
-    <version>0.1.0</version>
+    <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 

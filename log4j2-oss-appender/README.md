@@ -18,7 +18,7 @@
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>log4j2-oss-appender</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 存储适配器（根据需要选择） -->
@@ -26,14 +26,14 @@
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>logx-s3-adapter</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 
 <!-- 或 SF OSS存储适配器 -->
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>logx-sf-oss-adapter</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 

@@ -20,7 +20,7 @@
 <dependency>
   <groupId>org.logx</groupId>
   <artifactId>s3-logback-oss-appender</artifactId>
-  <version>0.1.0</version>
+  <version>1.0.0-SNAPSHOT</version>
 </dependency>
 ```
 
