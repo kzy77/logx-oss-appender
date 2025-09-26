@@ -483,6 +483,46 @@ mvn clean install -U
 - **扩展性强**：可以轻松添加新的存储服务适配器
 - **低侵入性**：核心模块与具体实现解耦
 
+### 实现细节
+
+#### 存储服务接口
+```java
+public interface StorageService {
+    CompletableFuture<Void> putObject(String key, byte[] data);
+    String getBackendType();
+    String getBucketName();
+    void close();
+    boolean supportsBackend(String backendType);
+}
+```
+
+#### Java SPI配置
+在适配器模块的`META-INF/services/`目录下创建服务配置文件：
+```
+META-INF/services/org.logx.producer.storage.StorageService
+```
+文件内容为具体实现类的全限定名：
+```
+org.logx.s3.adapter.S3StorageAdapter
+org.logx.sf.oss.adapter.SfOssStorageAdapter
+```
+
+#### 适配器工厂
+通过`StorageServiceFactory`工厂类加载适配器：
+```java
+public class StorageServiceFactory {
+    public static StorageService createStorageService(StorageConfig config) {
+        ServiceLoader<StorageService> loader = ServiceLoader.load(StorageService.class);
+        for (StorageService service : loader) {
+            if (service.supportsBackend(config.getBackendType())) {
+                return service;
+            }
+        }
+        throw new StorageException("No suitable storage adapter found for backend: " + config.getBackendType());
+    }
+}
+```
+
 ## BMAD 开发流程
 
 本项目使用BMAD（Brownfield Methodology for Agile Development）开发方法论，包含以下核心组件：
