@@ -127,33 +127,30 @@ public class ConfigConsistencyVerificationMain {
 
     private static Map<String, String> createMockConfig() {
         Map<String, String> config = new HashMap<>();
-        config.put("s3.bucket", "test-bucket");
-        config.put("s3.keyPrefix", "logs/");
-        config.put("s3.region", "us-east-1");
-        config.put("batch.size", "100");
-        config.put("batch.flushInterval", "5000");
-        config.put("queue.capacity", "10000");
-        config.put("s3.accessKeyId", "test-access-key");
-        config.put("s3.secretAccessKey", "test-secret-key");
-        config.put("s3.endpoint", "https://s3.amazonaws.com");
-        config.put("compression.enabled", "true");
-        config.put("compression.type", "GZIP");
+        config.put("logx.oss.bucket", "test-bucket");
+        config.put("logx.oss.keyPrefix", "logs/");
+        config.put("logx.oss.region", "us-east-1");
+        config.put("logx.oss.accessKeyId", "test-access-key");
+        config.put("logx.oss.accessKeySecret", "test-secret-key");
+        config.put("logx.oss.endpoint", "https://s3.amazonaws.com");
+        config.put("logx.oss.pathStyleAccess", "false");
+        config.put("logx.oss.enableSsl", "true");
+        config.put("logx.oss.maxConnections", "50");
+        config.put("logx.oss.connectTimeout", "30000");
+        config.put("logx.oss.readTimeout", "60000");
         return config;
     }
 
     private static Map<String, String> createMockEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("OSS_APPENDER_S3_BUCKET", "test-bucket");
-        envVars.put("OSS_APPENDER_S3_KEY_PREFIX", "logs/");
-        envVars.put("OSS_APPENDER_S3_REGION", "us-east-1");
-        envVars.put("OSS_APPENDER_BATCH_SIZE", "100");
-        envVars.put("OSS_APPENDER_BATCH_FLUSH_INTERVAL", "5000");
-        envVars.put("OSS_APPENDER_QUEUE_CAPACITY", "10000");
-        envVars.put("OSS_APPENDER_S3_ACCESS_KEY_ID", "test-access-key");
-        envVars.put("OSS_APPENDER_S3_SECRET_ACCESS_KEY", "test-secret-key");
-        envVars.put("OSS_APPENDER_S3_ENDPOINT", "https://s3.amazonaws.com");
-        envVars.put("OSS_APPENDER_COMPRESSION_ENABLED", "true");
-        envVars.put("OSS_APPENDER_COMPRESSION_TYPE", "GZIP");
+        envVars.put("LOGX_OSS_ENDPOINT", "https://s3.amazonaws.com");
+        envVars.put("LOGX_OSS_REGION", "us-east-1");
+        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+        envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "test-secret-key");
+        envVars.put("LOGX_OSS_BUCKET", "test-bucket");
+        envVars.put("LOGX_OSS_KEY_PREFIX", "logs/");
+        envVars.put("LOGX_OSS_TYPE", "SF_OSS");
+        envVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "20");
         return envVars;
     }
 }

@@ -9,17 +9,26 @@
 
     <!-- OSS Appender配置 -->
     <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <!-- S3配置 -->
-        <s3Bucket>test-bucket</s3Bucket>
-        <s3KeyPrefix>logs/logback/</s3KeyPrefix>
-        <s3Region>us-east-1</s3Region>
-        
-        <!-- 批处理配置 -->
-        <batchSize>100</batchSize>
-        <flushInterval>5000</flushInterval>
-        
-        <!-- 队列配置 -->
-        <queueCapacity>10000</queueCapacity>
+        <!-- 编码器配置 -->
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+
+        <!-- 存储配置（符合PRD标准） -->
+        <endpoint>https://s3.amazonaws.com</endpoint>
+        <region>us-east-1</region>
+        <accessKeyId>test-access-key</accessKeyId>
+        <accessKeySecret>test-secret-key</accessKeySecret>
+        <bucket>test-bucket</bucket>
+        <keyPrefix>logs/logback/</keyPrefix>
+        <ossType>SF_OSS</ossType>
+
+        <!-- 批处理配置（符合PRD标准） -->
+        <maxBatchCount>100</maxBatchCount>
+        <flushIntervalMs>5000</flushIntervalMs>
+
+        <!-- 队列配置（符合PRD标准） -->
+        <maxQueueSize>10000</maxQueueSize>
     </appender>
 
     <!-- 根日志配置 -->

@@ -11,17 +11,21 @@
 
     <!-- OSS Appender配置 -->
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-        <!-- S3配置 -->
-        <param name="s3Bucket" value="test-bucket"/>
-        <param name="s3KeyPrefix" value="logs/log4j1/"/>
-        <param name="s3Region" value="us-east-1"/>
-        
-        <!-- 批处理配置 -->
-        <param name="batchSize" value="100"/>
-        <param name="flushInterval" value="5000"/>
-        
-        <!-- 队列配置 -->
-        <param name="queueCapacity" value="10000"/>
+        <!-- 存储配置（符合PRD标准） -->
+        <param name="endpoint" value="https://s3.amazonaws.com"/>
+        <param name="region" value="us-east-1"/>
+        <param name="accessKeyId" value="test-access-key"/>
+        <param name="accessKeySecret" value="test-secret-key"/>
+        <param name="bucket" value="test-bucket"/>
+        <param name="keyPrefix" value="logs/log4j1/"/>
+        <param name="ossType" value="SF_OSS"/>
+
+        <!-- 批处理配置（符合PRD标准） -->
+        <param name="maxBatchCount" value="100"/>
+        <param name="flushIntervalMs" value="5000"/>
+
+        <!-- 队列配置（符合PRD标准） -->
+        <param name="maxQueueSize" value="10000"/>
     </appender>
 
     <!-- 根日志配置 -->

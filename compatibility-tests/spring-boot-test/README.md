@@ -39,10 +39,12 @@ java -jar target/spring-boot-compatibility-test-1.0.0-SNAPSHOT.jar
 使用 `application.properties` 文件配置
 
 ### 环境变量配置
-支持通过环境变量覆盖配置：
-- `OSS_APPENDER_S3_BUCKET` - S3存储桶
-- `OSS_APPENDER_S3_KEY_PREFIX` - 对象key前缀
-- `OSS_APPENDER_S3_REGION` - 存储区域
-- `OSS_APPENDER_BATCH_SIZE` - 批处理大小
-- `OSS_APPENDER_BATCH_FLUSH_INTERVAL` - 刷新间隔
-- `OSS_APPENDER_QUEUE_CAPACITY` - 队列容量
+支持通过环境变量覆盖配置（LOGX_OSS前缀）：
+- `LOGX_OSS_ENDPOINT` - 存储端点
+- `LOGX_OSS_REGION` - 存储区域
+- `LOGX_OSS_ACCESS_KEY_ID` - 访问密钥ID
+- `LOGX_OSS_ACCESS_KEY_SECRET` - 秘密访问密钥
+- `LOGX_OSS_BUCKET` - 存储桶名称
+- `LOGX_OSS_KEY_PREFIX` - 对象key前缀
+- `LOGX_OSS_TYPE` - OSS类型
+- `LOGX_OSS_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小

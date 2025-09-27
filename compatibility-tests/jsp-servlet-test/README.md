@@ -30,19 +30,23 @@ mvn clean package
 使用 `web.xml` 文件配置Logback
 
 ### 系统属性配置
-支持通过系统属性覆盖配置：
-- `oss.appender.s3.bucket` - S3存储桶
-- `oss.appender.s3.keyPrefix` - 对象key前缀
-- `oss.appender.s3.region` - 存储区域
-- `oss.appender.batch.size` - 批处理大小
-- `oss.appender.batch.flushInterval` - 刷新间隔
-- `oss.appender.queue.capacity` - 队列容量
+支持通过系统属性覆盖配置（logx.oss前缀）：
+- `logx.oss.endpoint` - 存储端点
+- `logx.oss.region` - 存储区域
+- `logx.oss.accessKeyId` - 访问密钥ID
+- `logx.oss.accessKeySecret` - 秘密访问密钥
+- `logx.oss.bucket` - 存储桶名称
+- `logx.oss.keyPrefix` - 对象key前缀
+- `logx.oss.pathStyleAccess` - 路径风格访问
+- `logx.oss.enableSsl` - SSL启用
 
 ### 环境变量配置
-支持通过环境变量覆盖配置：
-- `OSS_APPENDER_S3_BUCKET` - S3存储桶
-- `OSS_APPENDER_S3_KEY_PREFIX` - 对象key前缀
-- `OSS_APPENDER_S3_REGION` - 存储区域
-- `OSS_APPENDER_BATCH_SIZE` - 批处理大小
-- `OSS_APPENDER_BATCH_FLUSH_INTERVAL` - 刷新间隔
-- `OSS_APPENDER_QUEUE_CAPACITY` - 队列容量
+支持通过环境变量覆盖配置（LOGX_OSS前缀）：
+- `LOGX_OSS_ENDPOINT` - 存储端点
+- `LOGX_OSS_REGION` - 存储区域
+- `LOGX_OSS_ACCESS_KEY_ID` - 访问密钥ID
+- `LOGX_OSS_ACCESS_KEY_SECRET` - 秘密访问密钥
+- `LOGX_OSS_BUCKET` - 存储桶名称
+- `LOGX_OSS_KEY_PREFIX` - 对象key前缀
+- `LOGX_OSS_TYPE` - OSS类型
+- `LOGX_OSS_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小

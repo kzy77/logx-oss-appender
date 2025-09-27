@@ -32,10 +32,12 @@ mvn clean package
 使用 `WebConfig` 和 `WebAppInitializer` 类进行程序化配置
 
 ### 系统属性配置
-支持通过系统属性覆盖配置：
-- `oss.appender.s3.bucket` - S3存储桶
-- `oss.appender.s3.keyPrefix` - 对象key前缀
-- `oss.appender.s3.region` - 存储区域
-- `oss.appender.batch.size` - 批处理大小
-- `oss.appender.batch.flushInterval` - 刷新间隔
-- `oss.appender.queue.capacity` - 队列容量
+支持通过系统属性覆盖配置（logx.oss前缀）：
+- `logx.oss.endpoint` - 存储端点
+- `logx.oss.region` - 存储区域
+- `logx.oss.accessKeyId` - 访问密钥ID
+- `logx.oss.accessKeySecret` - 秘密访问密钥
+- `logx.oss.bucket` - 存储桶名称
+- `logx.oss.keyPrefix` - 对象key前缀
+- `logx.oss.pathStyleAccess` - 路径风格访问
+- `logx.oss.enableSsl` - SSL启用

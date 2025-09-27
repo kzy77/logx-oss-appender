@@ -2,6 +2,9 @@ package org.logx.config;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.logx.config.factory.ConfigFactory;
+import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageConfig;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -88,6 +91,38 @@ class ConfigCompatibilityTest {
     }
 
     @Test
+    void shouldSupportUnifiedLogxOssPrefix() {
+        // 验证统一的logx.oss.前缀配置风格
+        Properties unifiedConfig = new Properties();
+
+        // 设置logx.oss.前缀的配置
+        unifiedConfig.setProperty("logx.oss.endpoint", "https://oss-cn-guangzhou.aliyuncs.com");
+        unifiedConfig.setProperty("logx.oss.region", "ap-guangzhou");
+        unifiedConfig.setProperty("logx.oss.accessKeyId", "unified-access-key");
+        unifiedConfig.setProperty("logx.oss.accessKeySecret", "unified-secret-key");
+        unifiedConfig.setProperty("logx.oss.bucket", "unified-bucket");
+        unifiedConfig.setProperty("logx.oss.keyPrefix", "unified-logs/");
+        unifiedConfig.setProperty("logx.oss.pathStyleAccess", "true");
+        unifiedConfig.setProperty("logx.oss.enableSsl", "false");
+        unifiedConfig.setProperty("logx.oss.maxConnections", "100");
+        unifiedConfig.setProperty("logx.oss.connectTimeout", "45000");
+        unifiedConfig.setProperty("logx.oss.readTimeout", "90000");
+
+        // 验证所有配置项都使用logx.oss.前缀
+        assertThat(unifiedConfig.getProperty("logx.oss.endpoint")).isEqualTo("https://oss-cn-guangzhou.aliyuncs.com");
+        assertThat(unifiedConfig.getProperty("logx.oss.region")).isEqualTo("ap-guangzhou");
+        assertThat(unifiedConfig.getProperty("logx.oss.accessKeyId")).isEqualTo("unified-access-key");
+        assertThat(unifiedConfig.getProperty("logx.oss.accessKeySecret")).isEqualTo("unified-secret-key");
+        assertThat(unifiedConfig.getProperty("logx.oss.bucket")).isEqualTo("unified-bucket");
+        assertThat(unifiedConfig.getProperty("logx.oss.keyPrefix")).isEqualTo("unified-logs/");
+        assertThat(unifiedConfig.getProperty("logx.oss.pathStyleAccess")).isEqualTo("true");
+        assertThat(unifiedConfig.getProperty("logx.oss.enableSsl")).isEqualTo("false");
+        assertThat(unifiedConfig.getProperty("logx.oss.maxConnections")).isEqualTo("100");
+        assertThat(unifiedConfig.getProperty("logx.oss.connectTimeout")).isEqualTo("45000");
+        assertThat(unifiedConfig.getProperty("logx.oss.readTimeout")).isEqualTo("90000");
+    }
+
+    @Test
     void shouldHaveConsistentDefaultValues() {
         // 验证默认值一致性
         ConfigManager configManager = new ConfigManager();
@@ -160,5 +195,63 @@ class ConfigCompatibilityTest {
     // 辅助方法：转换为kebab-case
     private String convertToKebabCase(String camelCase) {
         return camelCase.replaceAll("([a-z])([A-Z])", "$1-$2").toLowerCase();
+    }
+
+    @Test
+    void shouldSupportConfigurationPriorityOrder() {
+        // 验证配置优先级：JVM系统属性 > 环境变量 > 配置文件属性 > 代码默认值
+
+        // 设置系统属性（最高优先级）
+        System.setProperty("logx.oss.region", "system-region");
+        System.setProperty("logx.oss.bucket", "system-bucket");
+
+        try {
+            ConfigManager configManager = new ConfigManager();
+
+            // 设置配置文件属性（低优先级）
+            configManager.setDefault("logx.oss.region", "config-region");
+            configManager.setDefault("logx.oss.bucket", "config-bucket");
+            configManager.setDefault("logx.oss.accessKeyId", "config-key");
+
+            // 验证系统属性优先级最高
+            assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("system-region");
+            assertThat(configManager.getProperty("logx.oss.bucket")).isEqualTo("system-bucket");
+
+            // 验证配置文件属性（无系统属性覆盖时生效）
+            assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("config-key");
+
+            // 验证代码默认值（无其他配置时生效）
+            assertThat(configManager.getProperty("logx.oss.endpoint", "https://default-endpoint.com"))
+                    .isEqualTo("https://default-endpoint.com");
+
+        } finally {
+            // 清理系统属性
+            System.clearProperty("logx.oss.region");
+            System.clearProperty("logx.oss.bucket");
+        }
+    }
+
+    @Test
+    void shouldIntegrateWithConfigFactory() {
+        // 验证ConfigFactory与logx.oss前缀的集成
+        ConfigManager configManager = new ConfigManager();
+        ConfigFactory configFactory = new ConfigFactory(configManager);
+
+        // 设置logx.oss前缀的配置
+        configManager.setDefault("logx.oss.accessKeyId", "integration-key");
+        configManager.setDefault("logx.oss.accessKeySecret", "integration-secret");
+        configManager.setDefault("logx.oss.bucket", "integration-bucket");
+        configManager.setDefault("logx.oss.endpoint", "https://integration.example.com");
+        configManager.setDefault("logx.oss.region", "integration-region");
+
+        // 创建存储配置
+        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+
+        // 验证配置正确读取
+        assertThat(config.getAccessKeyId()).isEqualTo("integration-key");
+        assertThat(config.getAccessKeySecret()).isEqualTo("integration-secret");
+        assertThat(config.getBucket()).isEqualTo("integration-bucket");
+        assertThat(config.getEndpoint()).isEqualTo("https://integration.example.com");
+        assertThat(config.getRegion()).isEqualTo("integration-region");
     }
 }

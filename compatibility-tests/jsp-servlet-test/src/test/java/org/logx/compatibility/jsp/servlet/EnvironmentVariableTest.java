@@ -13,7 +13,7 @@ public class EnvironmentVariableTest {
     public void testSystemPropertyConfiguration() {
         // 测试系统属性配置
         // 验证系统属性能够正确覆盖配置
-        String bucket = System.getProperty("oss.appender.s3.bucket", "default-bucket");
+        String bucket = System.getProperty("logx.oss.bucket", "default-bucket");
         assertNotNull("系统属性应该能够正确获取", bucket);
         assertTrue("系统属性配置应该可用", true);
     }
@@ -22,7 +22,7 @@ public class EnvironmentVariableTest {
     public void testEnvironmentVariableConfiguration() {
         // 测试环境变量配置
         // 验证环境变量能够正确覆盖配置
-        String bucket = System.getenv("OSS_APPENDER_S3_BUCKET");
+        String bucket = System.getenv("LOGX_OSS_BUCKET");
         // 环境变量可能不存在，所以不做强制断言
         assertTrue("环境变量配置测试完成", true);
     }

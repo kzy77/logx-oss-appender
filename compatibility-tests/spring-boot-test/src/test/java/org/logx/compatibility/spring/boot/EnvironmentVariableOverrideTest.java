@@ -12,9 +12,9 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 @SpringBootTest
 @TestPropertySource(properties = {
-    "oss.appender.s3.bucket=test-overridden-bucket",
-    "oss.appender.s3.keyPrefix=test/logs/",
-    "oss.appender.s3.region=us-west-2"
+    "logx.oss.bucket=test-overridden-bucket",
+    "logx.oss.keyPrefix=test/logs/",
+    "logx.oss.region=us-west-2"
 })
 class EnvironmentVariableOverrideTest {
 
@@ -25,7 +25,7 @@ class EnvironmentVariableOverrideTest {
         
         // 注意：实际的环境变量覆盖测试需要在运行时设置环境变量
         // 这里我们使用@TestPropertySource来模拟环境变量覆盖
-        String bucket = System.getProperty("oss.appender.s3.bucket", "test-bucket");
+        String bucket = System.getProperty("logx.oss.bucket", "test-bucket");
         assertThat(bucket).isNotNull();
     }
 
@@ -33,7 +33,7 @@ class EnvironmentVariableOverrideTest {
     @EnabledIfSystemProperty(named = "test.env.override", matches = "true")
     void testActualEnvironmentVariableOverride() {
         // 只有在特定系统属性设置时才运行的实际环境变量测试
-        String bucket = System.getenv("OSS_APPENDER_S3_BUCKET");
+        String bucket = System.getenv("LOGX_OSS_BUCKET");
         if (bucket != null) {
             assertThat(bucket).isEqualTo("test-overridden-bucket");
         }

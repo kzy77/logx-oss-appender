@@ -27,19 +27,19 @@ public class ConfigConsistencyVerifier {
 
         ConfigConsistencyReport report = new ConfigConsistencyReport();
 
-        // 定义期望的统一配置参数名称
+        // 定义期望的统一配置参数名称（使用logx.oss前缀）
         Set<String> expectedParameters = new HashSet<>(Arrays.asList(
-                "s3.bucket",
-                "s3.keyPrefix",
-                "s3.region",
-                "batch.size",
-                "batch.flushInterval",
-                "queue.capacity",
-                "s3.accessKeyId",
-                "s3.secretAccessKey",
-                "s3.endpoint",
-                "compression.enabled",
-                "compression.type"
+                "logx.oss.bucket",
+                "logx.oss.keyPrefix",
+                "logx.oss.region",
+                "logx.oss.accessKeyId",
+                "logx.oss.accessKeySecret",
+                "logx.oss.endpoint",
+                "logx.oss.pathStyleAccess",
+                "logx.oss.enableSsl",
+                "logx.oss.maxConnections",
+                "logx.oss.connectTimeout",
+                "logx.oss.readTimeout"
         ));
 
         // 验证Logback配置参数
@@ -62,19 +62,16 @@ public class ConfigConsistencyVerifier {
 
         ConfigConsistencyReport report = new ConfigConsistencyReport();
 
-        // 定义期望的环境变量名称
+        // 定义期望的环境变量名称（使用LOGX_OSS前缀）
         Map<String, String> expectedEnvVars = new HashMap<>();
-        expectedEnvVars.put("OSS_APPENDER_S3_BUCKET", "s3.bucket");
-        expectedEnvVars.put("OSS_APPENDER_S3_KEY_PREFIX", "s3.keyPrefix");
-        expectedEnvVars.put("OSS_APPENDER_S3_REGION", "s3.region");
-        expectedEnvVars.put("OSS_APPENDER_BATCH_SIZE", "batch.size");
-        expectedEnvVars.put("OSS_APPENDER_BATCH_FLUSH_INTERVAL", "batch.flushInterval");
-        expectedEnvVars.put("OSS_APPENDER_QUEUE_CAPACITY", "queue.capacity");
-        expectedEnvVars.put("OSS_APPENDER_S3_ACCESS_KEY_ID", "s3.accessKeyId");
-        expectedEnvVars.put("OSS_APPENDER_S3_SECRET_ACCESS_KEY", "s3.secretAccessKey");
-        expectedEnvVars.put("OSS_APPENDER_S3_ENDPOINT", "s3.endpoint");
-        expectedEnvVars.put("OSS_APPENDER_COMPRESSION_ENABLED", "compression.enabled");
-        expectedEnvVars.put("OSS_APPENDER_COMPRESSION_TYPE", "compression.type");
+        expectedEnvVars.put("LOGX_OSS_ENDPOINT", "logx.oss.endpoint");
+        expectedEnvVars.put("LOGX_OSS_REGION", "logx.oss.region");
+        expectedEnvVars.put("LOGX_OSS_ACCESS_KEY_ID", "logx.oss.accessKeyId");
+        expectedEnvVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "logx.oss.accessKeySecret");
+        expectedEnvVars.put("LOGX_OSS_BUCKET", "logx.oss.bucket");
+        expectedEnvVars.put("LOGX_OSS_KEY_PREFIX", "logx.oss.keyPrefix");
+        expectedEnvVars.put("LOGX_OSS_TYPE", "logx.oss.ossType");
+        expectedEnvVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "logx.oss.maxUploadSizeMb");
 
         // 验证环境变量
         for (Map.Entry<String, String> entry : expectedEnvVars.entrySet()) {
@@ -228,11 +225,11 @@ public class ConfigConsistencyVerifier {
 
         // 定义需要验证值一致性的参数
         Set<String> valueSensitiveParameters = new HashSet<>(Arrays.asList(
-                "s3.region",
-                "batch.size",
-                "batch.flushInterval",
-                "queue.capacity",
-                "compression.enabled"
+                "logx.oss.region",
+                "logx.oss.batchSize",
+                "logx.oss.flushInterval",
+                "logx.oss.queueCapacity",
+                "logx.oss.compressionEnabled"
         ));
 
         // 验证各框架配置值的一致性

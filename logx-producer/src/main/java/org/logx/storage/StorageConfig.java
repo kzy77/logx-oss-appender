@@ -2,6 +2,7 @@ package org.logx.storage;
 
 import java.time.Duration;
 import java.util.Objects;
+import org.logx.config.CommonConfig;
 
 /**
  * 存储配置类

@@ -78,9 +78,9 @@ public class ConfigConsistencyVerifierTest {
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
                 logbackConfig, log4j2Config, log4j1Config);
         
-        // 验证报告不一致性
+        // 验证报告不一致性 (Log4j1缺少8个参数)
         assertFalse("配置应该是不一致的", report.isConsistent());
-        assertEquals("应该检测到不一致的参数", 6, report.getInconsistentParameters().size());
+        assertEquals("应该检测到不一致的参数", 8, report.getInconsistentParameters().size());
     }
 
     @Test
@@ -93,9 +93,9 @@ public class ConfigConsistencyVerifierTest {
         // 验证环境变量一致性
         ConfigConsistencyReport report = verifier.verifyEnvironmentVariableConsistency(envVars);
         
-        // 验证报告不一致性
+        // 验证报告不一致性 (缺少5个环境变量)
         assertFalse("环境变量应该是不一致的", report.isConsistent());
-        assertEquals("应该检测到不一致的环境变量", 3, report.getInconsistentParameters().size());
+        assertEquals("应该检测到不一致的环境变量", 5, report.getInconsistentParameters().size());
     }
 
     @Test
@@ -111,54 +111,60 @@ public class ConfigConsistencyVerifierTest {
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
                 logbackConfig, log4j2Config, log4j1Config);
         
-        // 验证报告内容
-        assertEquals("应该有18个一致的参数", 18, report.getConsistentParameters().size());
+        // 验证报告内容 (11个参数 × 3个框架 = 33个一致的参数)
+        assertEquals("应该有33个一致的参数", 33, report.getConsistentParameters().size());
         assertEquals("应该没有不一致的参数", 0, report.getInconsistentParameters().size());
     }
 
     private Map<String, String> createMockConfig() {
         Map<String, String> config = new HashMap<>();
-        config.put("s3.bucket", "test-bucket");
-        config.put("s3.keyPrefix", "logs/");
-        config.put("s3.region", "us-east-1");
-        config.put("batch.size", "100");
-        config.put("batch.flushInterval", "5000");
-        config.put("queue.capacity", "10000");
+        config.put("logx.oss.bucket", "test-bucket");
+        config.put("logx.oss.keyPrefix", "logs/");
+        config.put("logx.oss.region", "us-east-1");
+        config.put("logx.oss.accessKeyId", "test-access-key");
+        config.put("logx.oss.accessKeySecret", "test-secret-key");
+        config.put("logx.oss.endpoint", "https://s3.amazonaws.com");
+        config.put("logx.oss.pathStyleAccess", "false");
+        config.put("logx.oss.enableSsl", "true");
+        config.put("logx.oss.maxConnections", "50");
+        config.put("logx.oss.connectTimeout", "30000");
+        config.put("logx.oss.readTimeout", "60000");
         return config;
     }
 
     private Map<String, String> createInconsistentMockConfig() {
         Map<String, String> config = new HashMap<>();
         // 缺少一些关键配置参数
-        config.put("s3.bucket", "test-bucket");
-        config.put("s3.keyPrefix", "logs/");
-        // 缺少 s3.region
-        config.put("batch.size", "100");
-        // 缺少 batch.flushInterval
-        config.put("queue.capacity", "10000");
+        config.put("logx.oss.bucket", "test-bucket");
+        config.put("logx.oss.keyPrefix", "logs/");
+        // 缺少 logx.oss.region
+        config.put("logx.oss.accessKeyId", "test-access-key");
+        // 缺少 logx.oss.accessKeySecret
         // 缺少其他参数
         return config;
     }
 
     private Map<String, String> createMockEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("OSS_APPENDER_S3_BUCKET", "test-bucket");
-        envVars.put("OSS_APPENDER_S3_KEY_PREFIX", "logs/");
-        envVars.put("OSS_APPENDER_S3_REGION", "us-east-1");
-        envVars.put("OSS_APPENDER_BATCH_SIZE", "100");
-        envVars.put("OSS_APPENDER_BATCH_FLUSH_INTERVAL", "5000");
-        envVars.put("OSS_APPENDER_QUEUE_CAPACITY", "10000");
+        envVars.put("LOGX_OSS_ENDPOINT", "https://s3.amazonaws.com");
+        envVars.put("LOGX_OSS_REGION", "us-east-1");
+        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+        envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "test-secret-key");
+        envVars.put("LOGX_OSS_BUCKET", "test-bucket");
+        envVars.put("LOGX_OSS_KEY_PREFIX", "logs/");
+        envVars.put("LOGX_OSS_TYPE", "SF_OSS");
+        envVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "20");
         return envVars;
     }
 
     private Map<String, String> createInconsistentEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("OSS_APPENDER_S3_BUCKET", "test-bucket");
-        envVars.put("OSS_APPENDER_S3_KEY_PREFIX", "logs/");
-        // 缺少 OSS_APPENDER_S3_REGION
-        envVars.put("OSS_APPENDER_BATCH_SIZE", "100");
-        // 缺少 OSS_APPENDER_BATCH_FLUSH_INTERVAL
-        // 缺少 OSS_APPENDER_QUEUE_CAPACITY
+        envVars.put("LOGX_OSS_BUCKET", "test-bucket");
+        envVars.put("LOGX_OSS_KEY_PREFIX", "logs/");
+        // 缺少 LOGX_OSS_REGION
+        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+        // 缺少 LOGX_OSS_ACCESS_KEY_SECRET
+        // 缺少其他参数
         return envVars;
     }
 }

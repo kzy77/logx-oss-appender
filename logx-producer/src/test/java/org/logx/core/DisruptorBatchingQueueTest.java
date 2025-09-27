@@ -87,42 +87,97 @@ class DisruptorBatchingQueueTest {
 
     @Test
     void shouldBatchMessagesByBytes() throws InterruptedException {
-        // Given
-        queue.start();
-        byte[] largeMessage = new byte[600]; // 大消息
+        // Given - 使用更小的字节限制便于测试
+        TestBatchConsumer bytesConsumer = new TestBatchConsumer();
+        DisruptorBatchingQueue bytesQueue = new DisruptorBatchingQueue(1024, // capacity
+                100, // batchMaxMessages (足够大，不会先触发)
+                600, // batchMaxBytes (600字节限制)
+                5000, // flushIntervalMs (足够长，不会先触发)
+                false, // blockOnFull
+                false, // multiProducer
+                bytesConsumer);
 
-        // When
-        queue.offer(largeMessage); // 第一个消息
-        queue.offer(largeMessage); // 第二个消息会超过1024字节限制
+        bytesQueue.start();
+        byte[] message = new byte[400]; // 每个消息400字节
+
+        // When - 发送三个消息测试字节限制
+        bytesQueue.offer(message); // 第一个消息400字节
+        bytesQueue.offer(message); // 第二个消息400字节，总共800字节，超过600字节限制，触发第一个批次
+        Thread.sleep(50); // 给第一个批次处理时间
+        bytesQueue.offer(message); // 第三个消息400字节，开始新批次
 
         // Wait for processing
         Thread.sleep(200);
 
-        // Then
-        // 验证至少处理了一些消息
-        assertThat(consumer.getTotalMessages()).isEqualTo(2);
-        // 批次数可以是1或更多（取决于实际的批处理行为）
-        assertThat(consumer.getBatchCount()).isGreaterThanOrEqualTo(1);
+        // Then - 验证字节限制是否生效
+        assertThat(bytesConsumer.getTotalMessages()).isEqualTo(3); // 总共3条消息
+        // 应该有至少2个批次：第一个批次有消息在字节限制触发前，第二个批次有剩余消息
+        assertThat(bytesConsumer.getBatchCount()).isGreaterThanOrEqualTo(2);
 
-        queue.close();
+        bytesQueue.close();
     }
 
     @Test
     @Timeout(5)
     void shouldFlushByTimeout() throws InterruptedException {
-        // Given
-        queue.start();
+        // Given - 使用短的刷新间隔便于测试
+        TestBatchConsumer timeoutConsumer = new TestBatchConsumer();
+        DisruptorBatchingQueue timeoutQueue = new DisruptorBatchingQueue(1024, // capacity
+                1000, // batchMaxMessages (足够大，不会先触发)
+                1024 * 1024, // batchMaxBytes (足够大，不会先触发)
+                200, // flushIntervalMs (200ms刷新间隔)
+                false, // blockOnFull
+                false, // multiProducer
+                timeoutConsumer);
 
-        // When
-        queue.offer("test".getBytes());
+        timeoutQueue.start();
 
-        // Wait for timeout flush (100ms + buffer)
-        Thread.sleep(150);
+        // When - 发送单个小消息，只能通过超时触发刷新
+        timeoutQueue.offer("small test message".getBytes());
 
-        // Then
-        assertThat(consumer.getBatchCount()).isGreaterThan(0);
+        // Wait for timeout flush (200ms + buffer)
+        Thread.sleep(300);
 
-        queue.close();
+        // Then - 应该因为超时而产生一个批次
+        assertThat(timeoutConsumer.getBatchCount()).isGreaterThan(0);
+        assertThat(timeoutConsumer.getTotalMessages()).isEqualTo(1);
+
+        timeoutQueue.close();
+    }
+
+    @Test
+    void shouldRespectConfiguredParameters() throws InterruptedException {
+        // Given - 测试参数配置是否真正生效
+        TestBatchConsumer paramConsumer = new TestBatchConsumer();
+
+        // 配置：最多3条消息，最多100字节，500ms超时
+        DisruptorBatchingQueue paramQueue = new DisruptorBatchingQueue(1024,
+                3, // batchMaxMessages = 3
+                100, // batchMaxBytes = 100字节
+                500, // flushIntervalMs = 500ms
+                false, false, paramConsumer);
+
+        paramQueue.start();
+
+        // When & Then 1 - 测试消息数量限制（3条触发）
+        paramQueue.offer("msg1".getBytes()); // 4字节
+        paramQueue.offer("msg2".getBytes()); // 4字节
+        paramQueue.offer("msg3".getBytes()); // 4字节 = 总共12字节，未超过100字节
+
+        Thread.sleep(100); // 给处理时间但不超过500ms超时
+        assertThat(paramConsumer.getBatchCount()).isEqualTo(1); // 应该有1个批次
+
+        paramConsumer.reset(); // 重置计数器
+
+        // When & Then 2 - 测试字节限制（约100字节触发）
+        byte[] largeMsg = new byte[60]; // 60字节消息
+        paramQueue.offer(largeMsg); // 第1个60字节
+        paramQueue.offer(largeMsg); // 第2个60字节，总共120字节，超过100字节限制
+
+        Thread.sleep(100);
+        assertThat(paramConsumer.getBatchCount()).isGreaterThanOrEqualTo(1); // 应该触发批处理
+
+        paramQueue.close();
     }
 
     @Test
@@ -238,6 +293,11 @@ class DisruptorBatchingQueueTest {
 
         public int getTotalMessages() {
             return totalMessages.get();
+        }
+
+        public void reset() {
+            batchCount.set(0);
+            totalMessages.set(0);
         }
     }
 

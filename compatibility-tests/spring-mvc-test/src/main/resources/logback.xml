@@ -9,15 +9,20 @@
 
     <!-- OSS Appender配置 -->
     <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <!-- S3配置 -->
-        <s3Bucket>test-bucket</s3Bucket>
-        <s3KeyPrefix>logs/</s3KeyPrefix>
-        <s3Region>us-east-1</s3Region>
-        
+        <!-- 存储配置（使用统一前缀） -->
+        <endpoint>https://s3.amazonaws.com</endpoint>
+        <region>us-east-1</region>
+        <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+        <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+        <bucket>test-bucket</bucket>
+        <keyPrefix>logs/</keyPrefix>
+        <pathStyleAccess>false</pathStyleAccess>
+        <enableSsl>true</enableSsl>
+
         <!-- 批处理配置 -->
         <batchSize>100</batchSize>
         <flushInterval>5000</flushInterval>
-        
+
         <!-- 队列配置 -->
         <queueCapacity>10000</queueCapacity>
     </appender>

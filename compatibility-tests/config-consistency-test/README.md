@@ -32,32 +32,29 @@ mvn test
 ## 验证内容
 
 ### 配置参数一致性
-验证所有框架使用相同的配置参数名称：
-- `s3.bucket` - S3存储桶
-- `s3.keyPrefix` - 对象key前缀
-- `s3.region` - 存储区域
-- `batch.size` - 批处理大小
-- `batch.flushInterval` - 刷新间隔
-- `queue.capacity` - 队列容量
-- `s3.accessKeyId` - 访问密钥ID
-- `s3.secretAccessKey` - 秘密访问密钥
-- `s3.endpoint` - S3端点
-- `compression.enabled` - 压缩启用
-- `compression.type` - 压缩类型
+验证所有框架使用相同的配置参数名称（logx.oss前缀）：
+- `logx.oss.bucket` - 存储桶名称
+- `logx.oss.keyPrefix` - 对象key前缀
+- `logx.oss.region` - 存储区域
+- `logx.oss.accessKeyId` - 访问密钥ID
+- `logx.oss.accessKeySecret` - 秘密访问密钥
+- `logx.oss.endpoint` - 存储端点
+- `logx.oss.pathStyleAccess` - 路径风格访问
+- `logx.oss.enableSsl` - SSL启用
+- `logx.oss.maxConnections` - 最大连接数
+- `logx.oss.connectTimeout` - 连接超时
+- `logx.oss.readTimeout` - 读取超时
 
 ### 环境变量一致性
-验证所有框架支持相同的环境变量：
-- `OSS_APPENDER_S3_BUCKET` - S3存储桶
-- `OSS_APPENDER_S3_KEY_PREFIX` - 对象key前缀
-- `OSS_APPENDER_S3_REGION` - 存储区域
-- `OSS_APPENDER_BATCH_SIZE` - 批处理大小
-- `OSS_APPENDER_BATCH_FLUSH_INTERVAL` - 刷新间隔
-- `OSS_APPENDER_QUEUE_CAPACITY` - 队列容量
-- `OSS_APPENDER_S3_ACCESS_KEY_ID` - 访问密钥ID
-- `OSS_APPENDER_S3_SECRET_ACCESS_KEY` - 秘密访问密钥
-- `OSS_APPENDER_S3_ENDPOINT` - S3端点
-- `OSS_APPENDER_COMPRESSION_ENABLED` - 压缩启用
-- `OSS_APPENDER_COMPRESSION_TYPE` - 压缩类型
+验证所有框架支持相同的环境变量（LOGX_OSS前缀）：
+- `LOGX_OSS_ENDPOINT` - 存储端点
+- `LOGX_OSS_REGION` - 存储区域
+- `LOGX_OSS_ACCESS_KEY_ID` - 访问密钥ID
+- `LOGX_OSS_ACCESS_KEY_SECRET` - 秘密访问密钥
+- `LOGX_OSS_BUCKET` - 存储桶名称
+- `LOGX_OSS_KEY_PREFIX` - 对象key前缀
+- `LOGX_OSS_TYPE` - OSS类型
+- `LOGX_OSS_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小
 
 ### 验证机制一致性
 验证所有框架使用相同的配置验证机制：

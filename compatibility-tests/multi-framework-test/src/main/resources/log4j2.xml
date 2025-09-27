@@ -7,19 +7,15 @@
         </Console>
 
         <!-- OSS Appender配置 -->
-        <Log4j2OSSAppender name="OSS">
-            <!-- S3配置 -->
-            <S3Bucket>test-bucket</S3Bucket>
-            <S3KeyPrefix>logs/log4j2/</S3KeyPrefix>
-            <S3Region>us-east-1</S3Region>
-            
-            <!-- 批处理配置 -->
-            <BatchSize>100</BatchSize>
-            <FlushInterval>5000</FlushInterval>
-            
-            <!-- 队列配置 -->
-            <QueueCapacity>10000</QueueCapacity>
-        </Log4j2OSSAppender>
+        <OSS name="OSS"
+             endpoint="https://s3.amazonaws.com"
+             region="us-east-1"
+             accessKeyId="test-access-key"
+             accessKeySecret="test-secret-key"
+             bucket="test-bucket"
+             ossType="SF_OSS">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </OSS>
     </Appenders>
 
     <Loggers>
