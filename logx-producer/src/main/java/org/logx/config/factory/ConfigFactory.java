@@ -1,7 +1,7 @@
 package org.logx.config.factory;
 
 import org.logx.config.ConfigManager;
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageOssType;
 import org.logx.storage.StorageConfig;
 import java.time.Duration;
 
@@ -34,7 +34,7 @@ public class ConfigFactory {
     /**
      * 根据存储后端类型创建配置
      *
-     * @param backend
+     * @param ossType
      *            存储后端类型
      *
      * @return 对应的配置对象
@@ -42,8 +42,8 @@ public class ConfigFactory {
      * @throws IllegalArgumentException
      *             如果后端类型不支持
      */
-    public StorageConfig createConfig(StorageBackend backend) {
-        switch (backend) {
+    public StorageConfig createConfig(StorageOssType ossType) {
+        switch (ossType) {
             case AWS_S3:
                 return createAwsS3Config();
             case MINIO:
@@ -51,7 +51,7 @@ public class ConfigFactory {
             case GENERIC_S3:
                 return createGenericS3Config();
             default:
-                throw new IllegalArgumentException("Unsupported storage backend: " + backend);
+                throw new IllegalArgumentException("Unsupported storage ossType: " + ossType);
         }
     }
 

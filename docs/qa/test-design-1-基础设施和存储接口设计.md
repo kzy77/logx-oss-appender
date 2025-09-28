@@ -5,7 +5,7 @@
 ### 1.1 测试范围
 本测试设计文档覆盖故事点1"基础设施和存储接口设计"的所有验收标准，包括：
 - 基础设施设置（Git仓库、目录结构、父POM、BMAD集成、文档结构）
-- 存储接口设计（StorageInterface、StorageConfig、StorageException、RetryStrategy、StorageBackend）
+- 存储接口设计（StorageInterface、StorageConfig、StorageException、RetryStrategy、StorageOssType）
 - 配置管理框架实现
 
 ### 1.2 测试目标

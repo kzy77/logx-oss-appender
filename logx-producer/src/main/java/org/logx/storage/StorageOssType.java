@@ -9,7 +9,7 @@ package org.logx.storage;
  *
  * @since 1.0.0
  */
-public enum StorageBackend {
+public enum StorageOssType {
 
     /**
      * 阿里云对象存储OSS 优先支持的云存储服务
@@ -60,7 +60,7 @@ public enum StorageBackend {
      * @param pathStyleDefault
      *            默认是否使用路径风格访问
      */
-    StorageBackend(String displayName, String urlPrefix, boolean pathStyleDefault) {
+    StorageOssType(String displayName, String urlPrefix, boolean pathStyleDefault) {
         this.displayName = displayName;
         this.urlPrefix = urlPrefix;
         this.pathStyleDefault = pathStyleDefault;
@@ -95,7 +95,7 @@ public enum StorageBackend {
      *
      * @return 检测到的存储后端类型，如果无法识别返回GENERIC_S3
      */
-    public static StorageBackend detectFromEndpoint(String endpoint) {
+    public static StorageOssType detectFromEndpoint(String endpoint) {
         if (endpoint == null || endpoint.trim().isEmpty()) {
             return GENERIC_S3;
         }
@@ -146,9 +146,9 @@ public enum StorageBackend {
      *
      * @return 检测到的存储后端类型
      */
-    public static StorageBackend detectFromConfig(String endpoint, String region) {
+    public static StorageOssType detectFromConfig(String endpoint, String region) {
         // 先基于端点检测
-        StorageBackend detected = detectFromEndpoint(endpoint);
+        StorageOssType detected = detectFromEndpoint(endpoint);
 
         // 如果检测为通用S3，进一步基于区域信息判断
         if (detected == GENERIC_S3 && region != null) {

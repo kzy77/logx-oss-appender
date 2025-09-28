@@ -44,7 +44,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(S3StorageAdapter.class);
     private static final long MULTIPART_THRESHOLD = 20L * 1024 * 1024; // 20MB
     private static final int PART_SIZE = 20 * 1024 * 1024; // 20MB per part
-    private static final String BACKEND_TYPE = "S3";
+    private static final String OSS_TYPE = "S3";
 
     private final S3Client s3Client;
     private final String bucketName;
@@ -127,7 +127,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
     @Override
     public String getOssType() {
-        return BACKEND_TYPE;
+        return OSS_TYPE;
     }
 
     @Override

@@ -4,14 +4,14 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 /**
- * SfOssClient测试类
+ * LogxSfOssClient测试类
  */
-public class SfOssClientTest {
+public class LogxSfOssClientTest {
 
     @Test
-    public void testSfOssClientCreation() {
+    public void testLogxSfOssClientCreation() {
         // 测试创建SF OSS客户端
-        SfOssClient client = new SfOssClient(
+        LogxSfOssClient client = new LogxSfOssClient(
             "https://sf-oss-cn-hangzhou.example.com",
             "cn-hangzhou",
             "test-access-key-id",
@@ -25,9 +25,9 @@ public class SfOssClientTest {
     }
 
     @Test
-    public void testSfOssClientPutObject() {
+    public void testLogxSfOssClientPutObject() {
         // 测试SF OSS客户端上传对象
-        SfOssClient client = new SfOssClient(
+        LogxSfOssClient client = new LogxSfOssClient(
             "https://sf-oss-cn-hangzhou.example.com",
             "cn-hangzhou",
             "test-access-key-id",
@@ -42,9 +42,9 @@ public class SfOssClientTest {
     }
 
     @Test
-    public void testSfOssClientWithNullEndpoint() {
+    public void testLogxSfOssClientWithNullEndpoint() {
         // 测试使用null endpoint创建SF OSS客户端
-        SfOssClient client = new SfOssClient(
+        LogxSfOssClient client = new LogxSfOssClient(
             null,
             "cn-hangzhou",
             "test-access-key-id",

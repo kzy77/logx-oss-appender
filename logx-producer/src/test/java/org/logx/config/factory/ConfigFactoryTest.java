@@ -4,7 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.config.ConfigManager;
 import org.logx.storage.StorageConfig;
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageOssType;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -44,7 +44,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
         configManager.setDefault("logx.oss.bucket", "my-test-bucket");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
         assertThat(config).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://s3.amazonaws.com");
@@ -71,7 +71,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.connectTimeout", "60000");
         configManager.setDefault("logx.oss.readTimeout", "120000");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
         assertThat(config.getEndpoint()).isEqualTo("https://s3.eu-west-1.amazonaws.com");
         assertThat(config.getRegion()).isEqualTo("eu-west-1");
@@ -93,7 +93,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
         configManager.setDefault("logx.oss.bucket", "logs");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
+        StorageConfig config = configFactory.createConfig(StorageOssType.MINIO);
 
         assertThat(config).isInstanceOf(ConfigFactory.MinioConfig.class);
         assertThat(config.getEndpoint()).isEqualTo("http://localhost:9000");
@@ -113,7 +113,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "EXAMPLE_SECRET_KEY");
         configManager.setDefault("logx.oss.bucket", "application-logs");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.GENERIC_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.GENERIC_S3);
 
         assertThat(config).isInstanceOf(ConfigFactory.GenericS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://storage.example.com");
@@ -128,7 +128,7 @@ class ConfigFactoryTest {
     @Test
     void shouldThrowExceptionForMissingRequiredProperties() {
         // 不设置任何必需属性
-        assertThatThrownBy(() -> configFactory.createConfig(StorageBackend.AWS_S3))
+        assertThatThrownBy(() -> configFactory.createConfig(StorageOssType.AWS_S3))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Required configuration property")
                 .hasMessageContaining("is missing");
     }
@@ -140,7 +140,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "valid-secret");
         configManager.setDefault("logx.oss.bucket", "valid-bucket");
 
-        assertThatThrownBy(() -> configFactory.createConfig(StorageBackend.AWS_S3))
+        assertThatThrownBy(() -> configFactory.createConfig(StorageOssType.AWS_S3))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("logx.oss.accessKeyId");
     }
 
@@ -181,9 +181,9 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "test");
         configManager.setDefault("logx.oss.bucket", "test");
 
-        assertThat(configFactory.createConfig(StorageBackend.AWS_S3)).isInstanceOf(ConfigFactory.AwsS3Config.class);
-        assertThat(configFactory.createConfig(StorageBackend.MINIO)).isInstanceOf(ConfigFactory.MinioConfig.class);
-        assertThat(configFactory.createConfig(StorageBackend.GENERIC_S3))
+        assertThat(configFactory.createConfig(StorageOssType.AWS_S3)).isInstanceOf(ConfigFactory.AwsS3Config.class);
+        assertThat(configFactory.createConfig(StorageOssType.MINIO)).isInstanceOf(ConfigFactory.MinioConfig.class);
+        assertThat(configFactory.createConfig(StorageOssType.GENERIC_S3))
                 .isInstanceOf(ConfigFactory.GenericS3Config.class);
     }
 
@@ -200,7 +200,7 @@ class ConfigFactoryTest {
         System.setProperty("logx.oss.bucket", "system-bucket");
 
         try {
-            StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+            StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
             // 系统属性应该覆盖默认值
             assertThat(config.getAccessKeyId()).isEqualTo("system-key");
@@ -221,7 +221,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
         configManager.setDefault("logx.oss.bucket", "logs");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.MINIO);
+        StorageConfig config = configFactory.createConfig(StorageOssType.MINIO);
 
         // MinIO特定的默认值
         assertThat(config.isPathStyleAccess()).isTrue(); // MinIO默认使用路径风格
@@ -237,7 +237,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.connectTimeout", "45000");
         configManager.setDefault("logx.oss.readTimeout", "90000");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
         assertThat(config.getMaxConnections()).isEqualTo(200);
         assertThat(config.getConnectTimeout().toMillis()).isEqualTo(45000);
@@ -252,7 +252,7 @@ class ConfigFactoryTest {
         configManager.setDefault("logx.oss.pathStyleAccess", "true");
         configManager.setDefault("logx.oss.enableSsl", "false");
 
-        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
         assertThat(config.isPathStyleAccess()).isTrue();
         assertThat(config.isEnableSsl()).isFalse();

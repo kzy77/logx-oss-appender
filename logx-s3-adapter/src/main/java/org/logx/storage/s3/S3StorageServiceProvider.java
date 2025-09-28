@@ -14,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 public class S3StorageServiceProvider implements StorageService {
-    private static final String BACKEND_TYPE = "S3";
+    private static final String OSS_TYPE = "S3";
 
     /**
      * 构造S3存储服务（用于SPI实例化）
@@ -30,7 +30,7 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public String getOssType() {
-        return BACKEND_TYPE;
+        return OSS_TYPE;
     }
 
     @Override
@@ -45,7 +45,7 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public boolean supportsOssType(String ossType) {
-        return BACKEND_TYPE.equalsIgnoreCase(ossType) ||
+        return OSS_TYPE.equalsIgnoreCase(ossType) ||
                "AWS_S3".equalsIgnoreCase(ossType) ||
                "ALIYUN_OSS".equalsIgnoreCase(ossType) ||
                "TENCENT_COS".equalsIgnoreCase(ossType) ||

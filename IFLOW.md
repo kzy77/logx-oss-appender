@@ -559,7 +559,7 @@ public class StorageServiceFactory {
                 return service;
             }
         }
-        throw new StorageException("No suitable storage adapter found for backend: " + config.getBackendType());
+        throw new StorageException("No suitable storage adapter found for ossType: " + config.getBackendType());
     }
 }
 ```

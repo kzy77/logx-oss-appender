@@ -3,7 +3,7 @@ package org.logx.config;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.config.factory.ConfigFactory;
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageOssType;
 import org.logx.storage.StorageConfig;
 
 import java.util.HashMap;
@@ -245,7 +245,7 @@ class ConfigCompatibilityTest {
         configManager.setDefault("logx.oss.region", "integration-region");
 
         // 创建存储配置
-        StorageConfig config = configFactory.createConfig(StorageBackend.AWS_S3);
+        StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
         // 验证配置正确读取
         assertThat(config.getAccessKeyId()).isEqualTo("integration-key");

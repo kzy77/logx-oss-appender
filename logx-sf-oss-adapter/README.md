@@ -39,7 +39,7 @@ SF OSS 存储适配器，基于 SF OSS 特有 SDK 实现的存储适配器，支
 
 ```properties
 # 存储后端类型
-logx.storage.backend=SF_OSS
+logx.storage.ossType=SF_OSS
 
 # SF OSS 访问配置
 logx.storage.endpoint=https://oss-cn-hangzhou.sfcloud.com

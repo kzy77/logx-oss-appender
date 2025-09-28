@@ -14,7 +14,7 @@ public class TestLogController {
 
     private static final Logger logger = LoggerFactory.getLogger(TestLogController.class);
 
-    @GetMapping("/test-log")
+    @GetMapping(value = "/test-log", produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String testLog() {
         // 生成不同级别的日志消息
@@ -27,7 +27,7 @@ public class TestLogController {
         return "日志消息已生成";
     }
 
-    @GetMapping("/test-exception")
+    @GetMapping(value = "/test-exception", produces = "text/plain;charset=UTF-8")
     @ResponseBody
     public String testException() {
         try {

@@ -27,9 +27,9 @@ import java.util.concurrent.ForkJoinPool;
  */
 public final class SfOssStorageAdapter implements StorageInterface, AutoCloseable {
 
-    private static final String BACKEND_TYPE = "SF_OSS";
+    private static final String OSS_TYPE = "SF_OSS";
 
-    private final SfOssClient sfOssClient;
+    private final LogxSfOssClient logxSfOssClient;
     private final String bucketName;
     private final String keyPrefix;
     private final Executor executor;
@@ -60,7 +60,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
         this.executor = ForkJoinPool.commonPool();
 
         // 构建SF OSS客户端
-        this.sfOssClient = new SfOssClient(config.getEndpoint(), config.getRegion(), config.getAccessKeyId(), config.getAccessKeySecret());
+        this.logxSfOssClient = new LogxSfOssClient(config.getEndpoint(), config.getRegion(), config.getAccessKeyId(), config.getAccessKeySecret());
     }
 
     /**
@@ -96,7 +96,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
 
     @Override
     public String getOssType() {
-        return BACKEND_TYPE;
+        return OSS_TYPE;
     }
 
     @Override
@@ -106,8 +106,8 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
 
     @Override
     public void close() {
-        if (sfOssClient != null) {
-            sfOssClient.close();
+        if (logxSfOssClient != null) {
+            logxSfOssClient.close();
         }
     }
 
@@ -116,7 +116,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
      */
     private Void uploadStandard(String key, byte[] data) {
         return executeWithRetry(() -> {
-            sfOssClient.putObject(bucketName, key, data);
+            logxSfOssClient.putObject(bucketName, key, data);
             return null;
         });
     }

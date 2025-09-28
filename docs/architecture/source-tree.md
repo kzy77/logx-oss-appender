@@ -44,7 +44,7 @@ logx-producer/
 │   ├── reliability/              # 可靠性保障
 │   ├── retry/                    # 重试机制
 │   └── storage/                  # 存储抽象
-│       ├── StorageBackend.java          # 存储后端接口
+│       ├── StorageOssType.java          # 存储后端接口
 │       ├── StorageConfig.java           # 存储配置接口
 │       ├── StorageInterface.java        # 存储接口
 │       └── s3/                  # S3存储实现
@@ -97,7 +97,7 @@ UploadHooks.java
 #### 存储抽象层 (`storage/`)
 ```java
 // 存储后端接口
-StorageBackend.java
+StorageOssType.java
 ├── 功能: 存储后端抽象接口
 ├── 实现: 支持多种存储类型
 └── 扩展: 可自定义存储实现

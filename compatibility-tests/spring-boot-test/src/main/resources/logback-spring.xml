@@ -21,6 +21,7 @@
         <accessKeySecret>test-secret-key</accessKeySecret>
         <bucket>test-bucket</bucket>
         <keyPrefix>logs/</keyPrefix>
+        <ossType>S3</ossType>
     </appender>
 
     <!-- 根日志配置 -->

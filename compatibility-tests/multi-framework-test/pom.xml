@@ -65,7 +65,7 @@
             <version>1.0.0-SNAPSHOT</version>
         </dependency>
 
-        <!-- S3 Storage Adapter for backend support -->
+        <!-- S3 Storage Adapter for ossType support -->
         <dependency>
             <groupId>org.logx</groupId>
             <artifactId>logx-s3-adapter</artifactId>

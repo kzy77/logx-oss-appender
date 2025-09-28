@@ -13,7 +13,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 public class SfOssStorageServiceProvider implements StorageService {
-    private static final String BACKEND_TYPE = "SF_OSS";
+    private static final String OSS_TYPE = "SF_OSS";
 
     /**
      * 构造SF OSS存储服务（用于SPI实例化）
@@ -29,7 +29,7 @@ public class SfOssStorageServiceProvider implements StorageService {
 
     @Override
     public String getOssType() {
-        return BACKEND_TYPE;
+        return OSS_TYPE;
     }
 
     @Override
@@ -44,6 +44,6 @@ public class SfOssStorageServiceProvider implements StorageService {
 
     @Override
     public boolean supportsOssType(String ossType) {
-        return BACKEND_TYPE.equalsIgnoreCase(ossType);
+        return OSS_TYPE.equalsIgnoreCase(ossType);
     }
 }

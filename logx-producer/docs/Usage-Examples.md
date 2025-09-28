@@ -11,7 +11,7 @@
 ```java
 import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.S3StorageFactory;
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageOssType;
 import org.logx.s3.S3StorageInterface;
 
 public class SimpleLogUploadExample {
@@ -239,29 +239,29 @@ public class RobustUploadExample {
 ### 4. 多存储后端适配器管理
 
 ```java
-import org.logx.storage.StorageBackend;
+import org.logx.storage.StorageOssType;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class MultiBackendStorageManager {
 
-    private final Map<StorageBackend, S3StorageInterface> storageMap;
-    private StorageBackend primaryBackend;
-    private StorageBackend fallbackBackend;
+    private final Map<StorageOssType, S3StorageInterface> storageMap;
+    private StorageOssType primaryBackend;
+    private StorageOssType fallbackBackend;
 
     public MultiBackendStorageManager() {
         this.storageMap = new ConcurrentHashMap<>();
-        this.primaryBackend = StorageBackend.ALIYUN_OSS;
-        this.fallbackBackend = StorageBackend.AWS_S3;
+        this.primaryBackend = StorageOssType.ALIYUN_OSS;
+        this.fallbackBackend = StorageOssType.AWS_S3;
     }
 
-    public void registerStorage(StorageBackend backend, StorageConfig config) {
+    public void registerStorage(StorageOssType ossType, StorageConfig config) {
         try {
-            S3StorageInterface storage = S3StorageFactory.createAdapter(backend, config);
-            storageMap.put(backend, storage);
-            System.out.println("注册存储后端: " + backend.getDisplayName());
+            S3StorageInterface storage = S3StorageFactory.createAdapter(ossType, config);
+            storageMap.put(ossType, storage);
+            System.out.println("注册存储后端: " + ossType.getDisplayName());
         } catch (Exception e) {
-            System.err.println("注册存储后端失败: " + backend.getDisplayName() +
+            System.err.println("注册存储后端失败: " + ossType.getDisplayName() +
                 ", 错误: " + e.getMessage());
         }
     }
@@ -304,21 +304,21 @@ public class MultiBackendStorageManager {
         }
     }
 
-    public CompletableFuture<Map<StorageBackend, Boolean>> healthCheckAll() {
-        Map<StorageBackend, CompletableFuture<Boolean>> healthChecks = new HashMap<>();
+    public CompletableFuture<Map<StorageOssType, Boolean>> healthCheckAll() {
+        Map<StorageOssType, CompletableFuture<Boolean>> healthChecks = new HashMap<>();
 
-        for (Map.Entry<StorageBackend, S3StorageInterface> entry : storageMap.entrySet()) {
-            StorageBackend backend = entry.getKey();
+        for (Map.Entry<StorageOssType, S3StorageInterface> entry : storageMap.entrySet()) {
+            StorageOssType ossType = entry.getKey();
             S3StorageInterface storage = entry.getValue();
 
             CompletableFuture<Boolean> healthCheck = storage.healthCheck()
                 .exceptionally(throwable -> {
-                    System.err.println("健康检查失败: " + backend.getDisplayName() +
+                    System.err.println("健康检查失败: " + ossType.getDisplayName() +
                         " - " + throwable.getMessage());
                     return false;
                 });
 
-            healthChecks.put(backend, healthCheck);
+            healthChecks.put(ossType, healthCheck);
         }
 
         // 等待所有健康检查完成
@@ -327,8 +327,8 @@ public class MultiBackendStorageManager {
         );
 
         return allChecks.thenApply(v -> {
-            Map<StorageBackend, Boolean> results = new HashMap<>();
-            for (Map.Entry<StorageBackend, CompletableFuture<Boolean>> entry : healthChecks.entrySet()) {
+            Map<StorageOssType, Boolean> results = new HashMap<>();
+            for (Map.Entry<StorageOssType, CompletableFuture<Boolean>> entry : healthChecks.entrySet()) {
                 try {
                     results.put(entry.getKey(), entry.getValue().get());
                 } catch (Exception e) {
@@ -350,7 +350,7 @@ public class MultiBackendStorageManager {
             .accessKeySecret(System.getenv("OSS_SECRET_ACCESS_KEY"))
             .bucket("primary-logs")
             .build();
-        manager.registerStorage(StorageBackend.ALIYUN_OSS, ossConfig);
+        manager.registerStorage(StorageOssType.ALIYUN_OSS, ossConfig);
 
         // 注册AWS S3作为备用
         TestS3Config s3Config = TestS3Config.builder()
@@ -360,22 +360,22 @@ public class MultiBackendStorageManager {
             .accessKeySecret(System.getenv("AWS_SECRET_ACCESS_KEY"))
             .bucket("fallback-logs")
             .build();
-        manager.registerStorage(StorageBackend.AWS_S3, s3Config);
+        manager.registerStorage(StorageOssType.AWS_S3, s3Config);
 
         // 执行健康检查
         manager.healthCheckAll()
             .thenAccept(results -> {
                 System.out.println("存储后端健康状态:");
-                results.forEach((backend, healthy) -> {
-                    System.out.println("  " + backend.getDisplayName() + ": " +
+                results.forEach((ossType, healthy) -> {
+                    System.out.println("  " + ossType.getDisplayName() + ": " +
                         (healthy ? "健康" : "不健康"));
                 });
             })
             .join();
 
         // 测试带容错的上传
-        String testKey = "test/multi-backend-upload.log";
-        byte[] testData = "Multi-backend upload test".getBytes();
+        String testKey = "test/multi-ossType-upload.log";
+        byte[] testData = "Multi-ossType upload test".getBytes();
 
         manager.uploadWithFallback(testKey, testData)
             .thenRun(() -> System.out.println("多后端上传完成"))

@@ -136,7 +136,7 @@ MyS3Config config = MyS3Config.builder()
 
 ## 存储后端支持
 
-### StorageBackend 枚举
+### StorageOssType 枚举
 
 支持的存储后端类型：
 
@@ -153,11 +153,11 @@ MyS3Config config = MyS3Config.builder()
 
 ```java
 // 基于端点检测
-StorageBackend backend = StorageBackend.detectFromEndpoint("https://oss-cn-hangzhou.aliyuncs.com");
+StorageOssType ossType = StorageOssType.detectFromEndpoint("https://oss-cn-hangzhou.aliyuncs.com");
 // 结果: ALIYUN_OSS
 
 // 基于配置检测
-StorageBackend backend = StorageBackend.detectFromConfig(endpoint, region);
+StorageOssType ossType = StorageOssType.detectFromConfig(endpoint, region);
 ```
 
 ## 工厂模式
@@ -168,16 +168,16 @@ StorageBackend backend = StorageBackend.detectFromConfig(endpoint, region);
 
 ```java
 // 指定后端类型创建
-S3StorageInterface storage = S3StorageFactory.createAdapter(StorageBackend.ALIYUN_OSS, config);
+S3StorageInterface storage = S3StorageFactory.createAdapter(StorageOssType.ALIYUN_OSS, config);
 
 // 自动检测后端类型创建
 S3StorageInterface storage = S3StorageFactory.createAdapter(config);
 
 // 检测后端类型
-StorageBackend backend = S3StorageFactory.detectBackend(config);
+StorageOssType ossType = S3StorageFactory.detectBackend(config);
 
 // 验证兼容性
-boolean compatible = S3StorageFactory.isCompatible(StorageBackend.AWS_S3, config);
+boolean compatible = S3StorageFactory.isCompatible(StorageOssType.AWS_S3, config);
 ```
 
 ## 错误处理

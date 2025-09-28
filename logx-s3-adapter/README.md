@@ -40,7 +40,7 @@ S3 存储适配器，基于 AWS SDK 实现的存储适配器，支持所有 S3 �
 
 ```properties
 # 存储后端类型
-logx.storage.backend=S3
+logx.storage.ossType=S3
 
 # S3 访问配置
 logx.storage.endpoint=https://s3.cn-hangzhou.aliyuncs.com
