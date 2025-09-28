@@ -1,4 +1,4 @@
-package org.logx.batch;
+package org.logx.core;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

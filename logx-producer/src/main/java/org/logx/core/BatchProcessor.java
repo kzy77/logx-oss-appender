@@ -1,7 +1,5 @@
-package org.logx.batch;
+package org.logx.core;
 
-import org.logx.core.DisruptorBatchingQueue;
-import org.logx.core.ResourceProtectedThreadPool;
 import org.logx.storage.StorageService;
 
 import java.io.ByteArrayOutputStream;

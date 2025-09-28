@@ -427,7 +427,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| **region** | String | us-east-1 | 存储区域 |
+| **region** | String | ap-guangzhou | 存储区域 |
 | **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
 | **maxQueueSize** | Integer | 100000 | 内存队列大小 |
@@ -436,10 +436,10 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **flushIntervalMs** | Long | 2000 | 强制刷新间隔(毫秒) |
 | **dropWhenQueueFull** | Boolean | true | 队列满时是否丢弃日志 |
 | **multiProducer** | Boolean | false | 是否支持多生产者 |
-| **maxRetries** | Integer | 5 | 最大重试次数 |
-| **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
-| **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
-| **maxUploadSizeMb** | Integer | 20 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
+| **maxRetries** | Integer | 3 | 最大重试次数 |
+| **baseBackoffMs** | Long | 1000 | 基础退避时间(毫秒) |
+| **maxBackoffMs** | Long | 30000 | 最大退避时间(毫秒) |
+| **maxUploadSizeMb** | Integer | 100 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
 
 #### 配置优先级
 

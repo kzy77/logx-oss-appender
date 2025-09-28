@@ -47,37 +47,34 @@ public interface AsyncEngine {
      * @return AsyncEngine的实例
      */
     static AsyncEngine create(StorageService storage) {
-        // 返回一个模拟实现，以便在核心引擎完成前进行集成
-        return new MockAsyncEngine(storage);
+        return new AsyncEngineImpl(storage);
+    }
+    
+    /**
+     * 创建并返回一个AsyncEngine的实例
+     *
+     * @param storage
+     *            存储服务的实现
+     * @param config
+     *            异步引擎配置
+     *
+     * @return AsyncEngine的实例
+     */
+    static AsyncEngine create(StorageService storage, AsyncEngineConfig config) {
+        return new AsyncEngineImpl(storage, config);
+    }
+    
+    /**
+     * 创建并返回一个AsyncEngine的实例，使用默认配置构建器
+     *
+     * @param storage
+     *            存储服务的实现
+     *
+     * @return AsyncEngine的实例
+     */
+    static AsyncEngine createWithConfig(StorageService storage) {
+        return new AsyncEngineImpl(storage, AsyncEngineConfigBuilder.buildConfig());
     }
 }
 
-/**
- * AsyncEngine的模拟实现 用于在核心引擎开发完成前，为上层适配器提供集成点
- */
-class MockAsyncEngine implements AsyncEngine {
 
-    private final StorageService s3Storage;
-
-    public MockAsyncEngine(StorageService s3Storage) {
-        this.s3Storage = s3Storage;
-    }
-
-    @Override
-    public void start() {
-        // 模拟启动
-        System.out.println("MockAsyncEngine started with ossType: " + s3Storage.getOssType());
-    }
-
-    @Override
-    public void stop(long timeout, TimeUnit timeUnit) {
-        // 模拟停止
-        System.out.println("MockAsyncEngine stopped.");
-    }
-
-    @Override
-    public void put(byte[] data) {
-        // 模拟处理
-        // 在实际实现中，这里会将数据放入Disruptor队列
-    }
-}

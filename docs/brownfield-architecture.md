@@ -27,7 +27,7 @@ logx-oss-appender/ (主仓库)
 ├── logx-producer/              # 🔥 核心抽象层 (已完成95%)
 │   ├── DisruptorBatchingQueue  # LMAX Disruptor高性能队列
 │   ├── S3StorageAdapter       # S3存储适配器
-│   ├── BinaryUploader          # 二进制上传器
+│   ├── BatchProcessor          # 批处理引擎
 │   └── UploadHooks            # 生命周期钩子
 ```
 ├── logback-oss-appender/     # Logback集成模块

@@ -99,11 +99,19 @@ BatchProcessor                  // 批处理器
 #### 配置Key统一规范
 ```java
 // 所有框架使用统一的配置前缀和命名
-public static final String S3_BUCKET = "s3.bucket";
-public static final String S3_KEY_PREFIX = "s3.keyPrefix";
-public static final String S3_REGION = "s3.region";
-public static final String BATCH_SIZE = "batch.size";
-public static final String FLUSH_INTERVAL = "batch.flushInterval";
+public static final String CONFIG_PREFIX = "logx.oss";
+
+// 统一配置项命名
+public static final String ENDPOINT = "logx.oss.endpoint";
+public static final String ACCESS_KEY_ID = "logx.oss.accessKeyId";
+public static final String ACCESS_KEY_SECRET = "logx.oss.accessKeySecret";
+public static final String BUCKET = "logx.oss.bucket";
+public static final String REGION = "logx.oss.region";
+public static final String KEY_PREFIX = "logx.oss.keyPrefix";
+public static final String OSS_TYPE = "logx.oss.ossType";
+public static final String MAX_UPLOAD_SIZE_MB = "logx.oss.maxUploadSizeMb";
+public static final String BATCH_SIZE = "logx.oss.batch.size";
+public static final String FLUSH_INTERVAL = "logx.oss.batch.flushInterval";
 ```
 
 ### 代码组织

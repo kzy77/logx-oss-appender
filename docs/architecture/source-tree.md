@@ -31,12 +31,11 @@ logx-oss-appender/
 logx-producer/
 ├── src/main/java/org/logx/
 │   ├── adapter/                  # 适配器接口
-│   ├── batch/                    # 批处理相关
 │   ├── config/                   # 配置管理
 │   ├── core/                     # 核心引擎
 │   │   ├── AsyncEngine.java               # 异步引擎
+│   │   ├── BatchProcessor.java            # 批处理引擎
 │   │   ├── DisruptorBatchingQueue.java    # 高性能队列管理
-│   │   ├── BinaryUploader.java           # 二进制上传器
 │   │   ├── ResourceProtectedThreadPool.java # 资源保护线程池
 │   │   └── UploadHooks.java              # 上传钩子接口
 │   ├── error/                    # 错误处理
@@ -69,6 +68,12 @@ AsyncEngine.java
 ├── 特性: 资源保护、线程隔离
 └── 优化: 固定线程池、背压控制
 
+// 批处理引擎
+BatchProcessor.java
+├── 功能: 智能批处理机制
+├── 特性: 压缩优化、数据分片
+└── 优化: 动态自适应调整
+
 // 高性能异步队列 (基于LMAX Disruptor)
 DisruptorBatchingQueue.java
 ├── 功能: 无锁环形缓冲区管理
@@ -80,12 +85,6 @@ ResourceProtectedThreadPool.java
 ├── 功能: 固定大小线程池
 ├── 特性: 资源隔离、防止线程耗尽
 └── 优化: 低优先级、守护线程
-
-// 二进制数据上传器
-BinaryUploader.java
-├── 功能: 批量数据上传抽象接口
-├── 实现: 异步上传、重试机制
-└── 优化: 内存池化、零拷贝
 
 // 上传生命周期钩子
 UploadHooks.java
@@ -210,7 +209,6 @@ log4j-oss-appender/
 ```java
 // 核心抽象包
 org.logx.adapter.*                // 适配器接口
-org.logx.batch.*                  // 批处理相关
 org.logx.config.*                 // 配置管理
 org.logx.core.*                   // 高性能引擎
 org.logx.error.*                  // 错误处理
@@ -228,16 +226,17 @@ org.logx.log4j2.*                 // Log4j2专用包
 ### 配置Key统一
 ```java
 // 所有适配器使用相同配置前缀
-public static final String CONFIG_PREFIX = "oss.appender";
+public static final String CONFIG_PREFIX = "logx.oss";
 
 // 统一配置项命名
-s3.bucket          // S3存储桶
-s3.keyPrefix       // 对象key前缀
-s3.region          // 存储区域
-batch.size         // 批处理大小
-batch.flushInterval // 刷新间隔
-queue.capacity     // 队列容量
-thread.poolSize    // 线程池大小
+logx.oss.endpoint      // 对象存储服务的访问端点
+logx.oss.accessKeyId   // 访问密钥ID
+logx.oss.accessKeySecret // 访问密钥Secret
+logx.oss.bucket        // 存储桶名称
+logx.oss.region        // 存储区域，默认值为ap-guangzhou
+logx.oss.keyPrefix     // 对象存储中的文件路径前缀，默认为logs/
+logx.oss.ossType       // 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
+logx.oss.maxUploadSizeMb // 单个上传文件最大大小（MB），默认100MB
 ```
 
 ## 文档组织结构

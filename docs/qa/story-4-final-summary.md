@@ -95,7 +95,7 @@
 ### 3.1 单元测试覆盖率
 ✅ **高覆盖率**
 - ShutdownHookHandlerTest单元测试通过
-- LocalCacheManagerTest单元测试通过
+- 数据可靠性组件单元测试通过
 - RetryManagerTest单元测试通过
 - UploadHooks相关测试通过
 - 测试覆盖率达到了项目要求（>90%）
@@ -125,7 +125,7 @@
 
 ### 4.1 模块化设计
 ✅ **良好的模块化架构**
-- ShutdownHookHandler、LocalCacheManager、RetryManager等组件职责清晰
+- ShutdownHookHandler、RetryManager等组件职责清晰
 - 与存储接口解耦，通过接口进行交互
 - 配置管理独立，支持灵活配置
 
