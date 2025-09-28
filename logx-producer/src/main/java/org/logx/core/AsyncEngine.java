@@ -66,7 +66,7 @@ class MockAsyncEngine implements AsyncEngine {
     @Override
     public void start() {
         // 模拟启动
-        System.out.println("MockAsyncEngine started with backend: " + s3Storage.getBackendType());
+        System.out.println("MockAsyncEngine started with backend: " + s3Storage.getOssType());
     }
 
     @Override

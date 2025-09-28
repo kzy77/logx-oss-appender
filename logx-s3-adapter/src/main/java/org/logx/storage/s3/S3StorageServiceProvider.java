@@ -29,7 +29,7 @@ public class S3StorageServiceProvider implements StorageService {
     }
 
     @Override
-    public String getBackendType() {
+    public String getOssType() {
         return BACKEND_TYPE;
     }
 
@@ -44,13 +44,13 @@ public class S3StorageServiceProvider implements StorageService {
     }
 
     @Override
-    public boolean supportsBackend(String backendType) {
-        return BACKEND_TYPE.equalsIgnoreCase(backendType) || 
-               "AWS_S3".equalsIgnoreCase(backendType) ||
-               "ALIYUN_OSS".equalsIgnoreCase(backendType) ||
-               "TENCENT_COS".equalsIgnoreCase(backendType) ||
-               "MINIO".equalsIgnoreCase(backendType) ||
-               "HUAWEI_OBS".equalsIgnoreCase(backendType) ||
-               "GENERIC_S3".equalsIgnoreCase(backendType);
+    public boolean supportsOssType(String ossType) {
+        return BACKEND_TYPE.equalsIgnoreCase(ossType) ||
+               "AWS_S3".equalsIgnoreCase(ossType) ||
+               "ALIYUN_OSS".equalsIgnoreCase(ossType) ||
+               "TENCENT_COS".equalsIgnoreCase(ossType) ||
+               "MINIO".equalsIgnoreCase(ossType) ||
+               "HUAWEI_OBS".equalsIgnoreCase(ossType) ||
+               "GENERIC_S3".equalsIgnoreCase(ossType);
     }
 }

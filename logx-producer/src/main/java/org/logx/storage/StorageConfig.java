@@ -18,7 +18,7 @@ import org.logx.config.CommonConfig;
 public class StorageConfig {
 
     // 必需配置字段
-    private final String backendType;
+    private final String ossType;
     private final String endpoint;
     private final String region;
     private final String accessKeyId;
@@ -37,7 +37,7 @@ public class StorageConfig {
      * 构造函数，由Builder调用创建不可变配置对象
      */
     protected StorageConfig(Builder<?> builder) {
-        this.backendType = builder.backendType;
+        this.ossType = builder.ossType;
         this.endpoint = builder.endpoint;
         this.region = builder.region;
         this.accessKeyId = builder.accessKeyId;
@@ -99,7 +99,7 @@ public class StorageConfig {
      * @return StorageConfig 配置对象
      */
     public static StorageConfig detectBackendType(StorageConfig config) {
-        if (config.getBackendType() != null && !config.getBackendType().isEmpty()) {
+        if (config.getOssType() != null && !config.getOssType().isEmpty()) {
             return config;
         }
 
@@ -119,7 +119,7 @@ public class StorageConfig {
         ConfigBuilder builder = new ConfigBuilder();
 
         // 复制现有配置
-        builder.backendType(config.getBackendType())
+        builder.ossType(config.getOssType())
                .endpoint(config.getEndpoint())
                .region(config.getRegion())
                .accessKeyId(config.getAccessKeyId())
@@ -136,30 +136,30 @@ public class StorageConfig {
         String endpoint = config.getEndpoint();
         if (endpoint != null) {
             if (endpoint.contains("sf-oss.com")) {
-                builder.backendType("SF_OSS");
+                builder.ossType("SF_OSS");
             } else if (endpoint.contains("aliyuncs.com")) {
-                builder.backendType("S3");
+                builder.ossType("S3");
             } else if (endpoint.contains("amazonaws.com")) {
-                builder.backendType("S3");
+                builder.ossType("S3");
             } else if (endpoint.contains("myqcloud.com")) {
-                builder.backendType("S3");
+                builder.ossType("S3");
             } else if (endpoint.contains("myhuaweicloud.com")) {
-                builder.backendType("S3");
+                builder.ossType("S3");
             } else {
                 // 默认使用CommonConfig中定义的默认值
-                builder.backendType(CommonConfig.Defaults.OSS_TYPE);
+                builder.ossType(CommonConfig.Defaults.OSS_TYPE);
             }
         } else {
             // 默认使用CommonConfig中定义的默认值
-            builder.backendType(CommonConfig.Defaults.OSS_TYPE);
+            builder.ossType(CommonConfig.Defaults.OSS_TYPE);
         }
 
         return builder.build();
     }
 
     // Getter方法
-    public String getBackendType() {
-        return backendType;
+    public String getOssType() {
+        return ossType;
     }
 
     public String getEndpoint() {
@@ -212,7 +212,7 @@ public class StorageConfig {
      * @param <T> 具体Builder类型，支持方法链式调用
      */
     public static abstract class Builder<T extends Builder<T>> {
-        private String backendType;
+        private String ossType;
         private String endpoint;
         private String region;
         private String accessKeyId;
@@ -226,13 +226,13 @@ public class StorageConfig {
         private boolean enableSsl = true;
 
         /**
-         * 设置后端类型
+         * 设置OSS类型
          *
-         * @param backendType 后端类型（如"S3"、"SF_OSS"等）
+         * @param ossType OSS类型（如"S3"、"SF_OSS"等）
          * @return Builder实例，支持链式调用
          */
-        public T backendType(String backendType) {
-            this.backendType = backendType;
+        public T ossType(String ossType) {
+            this.ossType = ossType;
             return self();
         }
 
@@ -374,7 +374,7 @@ public class StorageConfig {
         if (o == null || getClass() != o.getClass()) return false;
         StorageConfig that = (StorageConfig) o;
         return pathStyleAccess == that.pathStyleAccess && maxConnections == that.maxConnections
-                && enableSsl == that.enableSsl && Objects.equals(backendType, that.backendType)
+                && enableSsl == that.enableSsl && Objects.equals(ossType, that.ossType)
                 && Objects.equals(endpoint, that.endpoint) && Objects.equals(region, that.region)
                 && Objects.equals(accessKeyId, that.accessKeyId) && Objects.equals(accessKeySecret, that.accessKeySecret)
                 && Objects.equals(bucket, that.bucket) && Objects.equals(keyPrefix, that.keyPrefix)
@@ -383,13 +383,13 @@ public class StorageConfig {
 
     @Override
     public int hashCode() {
-        return Objects.hash(backendType, endpoint, region, accessKeyId, accessKeySecret, bucket, keyPrefix,
+        return Objects.hash(ossType, endpoint, region, accessKeyId, accessKeySecret, bucket, keyPrefix,
                 pathStyleAccess, connectTimeout, readTimeout, maxConnections, enableSsl);
     }
 
     @Override
     public String toString() {
-        return "StorageConfig{" + "backendType='" + backendType + '\'' + ", endpoint='" + endpoint + '\''
+        return "StorageConfig{" + "ossType='" + ossType + '\'' + ", endpoint='" + endpoint + '\''
                 + ", region='" + region + '\'' + ", accessKeyId='" + maskSensitive(accessKeyId) + '\''
                 + ", bucket='" + bucket + '\'' + ", keyPrefix='" + keyPrefix + '\'' + ", pathStyleAccess="
                 + pathStyleAccess + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout

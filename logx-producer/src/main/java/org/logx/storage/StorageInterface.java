@@ -26,11 +26,11 @@ public interface StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
 
     /**
-     * 获取后端类型
+     * 获取OSS类型
      *
-     * @return 后端类型字符串
+     * @return OSS类型字符串
      */
-    String getBackendType();
+    String getOssType();
 
     /**
      * 获取存储桶名称

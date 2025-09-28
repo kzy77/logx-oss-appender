@@ -95,7 +95,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     
 
     @Override
-    public String getBackendType() {
+    public String getOssType() {
         return BACKEND_TYPE;
     }
 

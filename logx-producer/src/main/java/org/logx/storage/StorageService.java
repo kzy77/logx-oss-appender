@@ -22,11 +22,11 @@ public interface StorageService extends StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
 
     /**
-     * 获取后端类型
+     * 获取OSS类型
      *
-     * @return 后端类型字符串
+     * @return OSS类型字符串
      */
-    String getBackendType();
+    String getOssType();
 
     /**
      * 获取存储桶名称
@@ -41,10 +41,10 @@ public interface StorageService extends StorageInterface {
     void close();
 
     /**
-     * 检查当前存储服务是否支持指定的后端类型
+     * 检查当前存储服务是否支持指定的OSS类型
      *
-     * @param backendType 后端类型
+     * @param ossType OSS类型
      * @return 是否支持
      */
-    boolean supportsBackend(String backendType);
+    boolean supportsOssType(String ossType);
 }

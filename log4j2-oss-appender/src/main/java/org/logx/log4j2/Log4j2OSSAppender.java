@@ -76,7 +76,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 构建存储配置
         StorageConfig adapterConfig = new StorageConfigBuilder()
-            .backendType(ossType != null && !ossType.isEmpty() ? ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
+            .ossType(ossType != null && !ossType.isEmpty() ? ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
             .endpoint(endpoint)
             .region(region)
             .accessKeyId(accessKeyId)

@@ -15,7 +15,7 @@ public class S3StorageAdapterTest {
     @BeforeEach
     public void setUp() {
         config = new StorageConfigBuilder()
-            .backendType("S3")
+            .ossType("S3")
             .endpoint("https://oss-cn-hangzhou.aliyuncs.com")
             .region("cn-hangzhou")
             .accessKeyId("test-access-key-id")
@@ -30,7 +30,7 @@ public class S3StorageAdapterTest {
         assertDoesNotThrow(() -> {
             S3StorageAdapter adapter = new S3StorageAdapter(config);
             assertNotNull(adapter);
-            assertEquals("S3", adapter.getBackendType());
+            assertEquals("S3", adapter.getOssType());
             assertEquals("test-bucket", adapter.getBucketName());
             adapter.close();
         });
@@ -40,7 +40,7 @@ public class S3StorageAdapterTest {
     public void testS3StorageAdapterCreationWithoutEndpoint() {
         // 测试不使用endpoint创建S3StorageAdapter
         StorageConfig configWithoutEndpoint = new StorageConfigBuilder()
-            .backendType("S3")
+            .ossType("S3")
             .region("us-east-1")
             .accessKeyId("test-access-key-id")
             .accessKeySecret("test-access-key-secret")
@@ -50,7 +50,7 @@ public class S3StorageAdapterTest {
         assertDoesNotThrow(() -> {
             S3StorageAdapter adapter = new S3StorageAdapter(configWithoutEndpoint);
             assertNotNull(adapter);
-            assertEquals("S3", adapter.getBackendType());
+            assertEquals("S3", adapter.getOssType());
             assertEquals("test-bucket", adapter.getBucketName());
             adapter.close();
         });
@@ -60,7 +60,7 @@ public class S3StorageAdapterTest {
     public void testS3StorageAdapterCreationWithInvalidEndpoint() {
         // 测试使用无效endpoint创建S3StorageAdapter
         StorageConfig configWithInvalidEndpoint = new StorageConfigBuilder()
-            .backendType("S3")
+            .ossType("S3")
             .endpoint("invalid-url")
             .region("cn-hangzhou")
             .accessKeyId("test-access-key-id")

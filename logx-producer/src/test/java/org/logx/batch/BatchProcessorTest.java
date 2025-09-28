@@ -30,7 +30,7 @@ class BatchProcessorTest {
         }
 
         @Override
-        public String getBackendType() {
+        public String getOssType() {
             return "MOCK";
         }
 
@@ -45,8 +45,8 @@ class BatchProcessorTest {
         }
 
         @Override
-        public boolean supportsBackend(String backendType) {
-            return "MOCK".equals(backendType);
+        public boolean supportsOssType(String ossType) {
+            return "MOCK".equals(ossType);
         }
     }
 

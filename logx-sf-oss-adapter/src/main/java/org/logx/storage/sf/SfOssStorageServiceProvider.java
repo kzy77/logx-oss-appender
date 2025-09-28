@@ -28,7 +28,7 @@ public class SfOssStorageServiceProvider implements StorageService {
     }
 
     @Override
-    public String getBackendType() {
+    public String getOssType() {
         return BACKEND_TYPE;
     }
 
@@ -43,7 +43,7 @@ public class SfOssStorageServiceProvider implements StorageService {
     }
 
     @Override
-    public boolean supportsBackend(String backendType) {
-        return BACKEND_TYPE.equalsIgnoreCase(backendType);
+    public boolean supportsOssType(String ossType) {
+        return BACKEND_TYPE.equalsIgnoreCase(ossType);
     }
 }

@@ -60,7 +60,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
             // 构建存储配置
             StorageConfig config = new StorageConfigBuilder()
-                .backendType(this.ossType != null && !this.ossType.isEmpty() ? this.ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
+                .ossType(this.ossType != null && !this.ossType.isEmpty() ? this.ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
                 .endpoint(this.endpoint)
                 .region(this.region)
                 .accessKeyId(this.accessKeyId)

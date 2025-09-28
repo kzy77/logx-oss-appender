@@ -126,7 +126,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     
 
     @Override
-    public String getBackendType() {
+    public String getOssType() {
         return BACKEND_TYPE;
     }
 
