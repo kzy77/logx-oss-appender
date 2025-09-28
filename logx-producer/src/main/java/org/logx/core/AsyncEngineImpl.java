@@ -18,8 +18,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class AsyncEngineImpl implements AsyncEngine {
     
     private final StorageService storageService;
-    private final DisruptorBatchingQueue queue;
-    private final ResourceProtectedThreadPool threadPool;
     private final ShutdownHookHandler shutdownHandler;
     private final BatchProcessor batchProcessor;
     private final AsyncEngineConfig config;
@@ -57,27 +55,6 @@ public class AsyncEngineImpl implements AsyncEngine {
         
         this.batchProcessor = new BatchProcessor(batchConfig, this::onBatch, storageService);
         
-        // 创建队列
-        this.queue = new DisruptorBatchingQueue(
-            config.getQueueCapacity(),
-            config.getBatchMaxMessages(),
-            config.getBatchMaxBytes(),
-            config.getFlushIntervalMs(),
-            config.isBlockOnFull(),
-            config.isMultiProducer(),
-            this::onQueueBatch
-        );
-        
-        // 创建线程池
-        this.threadPool = new ResourceProtectedThreadPool(
-            new ResourceProtectedThreadPool.Config()
-                .corePoolSize(config.getCorePoolSize())
-                .maximumPoolSize(config.getMaximumPoolSize())
-                .queueCapacity(config.getQueueCapacityThreadPool())
-                .enableCpuYield(config.isEnableCpuYield())
-                .enableMemoryProtection(config.isEnableMemoryProtection())
-        );
-        
         // 创建关闭钩子处理器
         this.shutdownHandler = new ShutdownHookHandler();
         
@@ -107,9 +84,8 @@ public class AsyncEngineImpl implements AsyncEngine {
             return; // 已经启动了
         }
         
-        // 启动组件
+        // 启动批处理器
         batchProcessor.start();
-        queue.start();
         
         // 注册JVM关闭钩子
         shutdownHandler.registerShutdownHook();
@@ -127,14 +103,8 @@ public class AsyncEngineImpl implements AsyncEngine {
         long startTime = System.currentTimeMillis();
         
         try {
-            // 关闭队列
-            queue.close();
-            
             // 关闭批处理器
             batchProcessor.close();
-            
-            // 关闭线程池
-            threadPool.close();
             
             // 等待所有任务完成
             long elapsed = System.currentTimeMillis() - startTime;
@@ -161,17 +131,6 @@ public class AsyncEngineImpl implements AsyncEngine {
         
         // 提交到批处理器
         batchProcessor.submit(data);
-    }
-    
-    /**
-     * 处理Disruptor队列批次
-     */
-    private boolean onQueueBatch(java.util.List<DisruptorBatchingQueue.LogEvent> events, int totalBytes) {
-        // 将事件提交到批处理器
-        for (DisruptorBatchingQueue.LogEvent event : events) {
-            batchProcessor.submit(event.payload);
-        }
-        return true;
     }
     
     /**

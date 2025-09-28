@@ -441,6 +441,19 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **maxBackoffMs** | Long | 30000 | 最大退避时间(毫秒) |
 | **maxUploadSizeMb** | Integer | 100 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
 
+#### 批处理优化参数
+
+| 参数名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| **batchSize** | Integer | 100 | 批处理大小（条数），支持动态调整范围10-10000 |
+| **batchSizeBytes** | Integer | 4194304 (4MB) | 批处理大小（字节） |
+| **enableCompression** | Boolean | true | 是否启用数据压缩 |
+| **compressionThreshold** | Integer | 1024 (1KB) | 启用压缩的数据大小阈值 |
+| **enableAdaptiveSize** | Boolean | true | 是否启用动态批处理大小调整 |
+| **enableSharding** | Boolean | true | 是否启用数据分片处理 |
+| **shardingThreshold** | Integer | 104857600 (100MB) | 数据分片阈值 |
+| **shardSize** | Integer | 10485760 (10MB) | 分片大小 |
+
 #### 配置优先级
 
 系统支持多种配置源，按以下优先级顺序读取配置：
@@ -536,7 +549,7 @@ logback-oss-appender
 
 | 模块名称 | 功能描述 | 依赖关系 |
 |---------|---------|----------|
-| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、存储接口抽象 | 基础模块，无依赖 |
+| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、存储接口抽象，包含AsyncEngine异步引擎和BatchProcessor批处理优化引擎 | 基础模块，无依赖 |
 | **logx-s3-adapter** | S3兼容存储适配器，支持AWS S3、阿里云OSS、腾讯云COS、MinIO等 | 依赖logx-producer |
 | **logx-sf-oss-adapter** | SF OSS存储适配器，专门支持SF OSS存储服务 | 依赖logx-producer |
 | **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖logx-producer |
