@@ -48,11 +48,13 @@ public final class CommonConfig {
      * 默认配置值
      */
     public static final class Defaults {
+        // 编码相关
+        public static final String DEFAULT_CHARSET = "UTF-8"; // 默认字符编码，确保中文等多字节字符正确处理
         public static final String KEY_PREFIX = "logs/";
-        public static final int MAX_QUEUE_SIZE = 200_000;
-        public static final int MAX_BATCH_COUNT = 5_000;
+        public static final int MAX_QUEUE_SIZE = 8192;
+        public static final int MAX_BATCH_COUNT = 500;
         public static final int MAX_BATCH_BYTES = 4 * 1024 * 1024;
-        public static final long FLUSH_INTERVAL_MS = 2000L;
+        public static final long FLUSH_INTERVAL_MS = 3000L;
         public static final boolean DROP_WHEN_QUEUE_FULL = false;
         public static final boolean MULTI_PRODUCER = false;
         public static final int MAX_RETRIES = 5;
@@ -60,7 +62,7 @@ public final class CommonConfig {
         public static final long MAX_BACKOFF_MS = 10000L;
         public static final int MAX_UPLOAD_SIZE_MB = 20; // 默认最大上传文件大小20MB
         public static final String OSS_TYPE = "SF_OSS"; // 默认OSS类型为SF_OSS
-        public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
+        public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n"; // 使用UTF-8编码避免乱码
         public static final String LEVEL = "INFO";
         public static final String FALLBACK_PATH = "fallback"; // 默认兜底文件路径
         public static final int FALLBACK_RETENTION_DAYS = 7; // 默认兜底文件保留天数

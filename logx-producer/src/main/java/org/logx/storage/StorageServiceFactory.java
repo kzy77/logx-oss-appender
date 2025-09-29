@@ -1,5 +1,6 @@
 package org.logx.storage;
 
+import java.lang.reflect.Method;
 import java.util.ServiceLoader;
 import java.util.Iterator;
 
@@ -34,6 +35,15 @@ public class StorageServiceFactory {
             try {
                 StorageService service = iterator.next();
                 if (service.supportsOssType(ossType)) {
+                    // 尝试调用初始化方法
+                    try {
+                        // 使用反射调用initialize方法（如果存在）
+                        Method initializeMethod = service.getClass().getMethod("initialize", StorageConfig.class);
+                        initializeMethod.invoke(service, detectedConfig);
+                    } catch (Exception e) {
+                        // 如果没有initialize方法或调用失败，继续使用服务
+                        // 这对于不需要初始化的服务是正常的
+                    }
                     return service;
                 }
             } catch (Exception e) {

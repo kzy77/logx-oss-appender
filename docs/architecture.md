@@ -295,7 +295,7 @@ sequenceDiagram
     loop 批处理循环
         Queue->>Sharding: 提交批次数据
         Sharding->>Sharding: 检查数据大小
-        alt 数据过大(>100MB)
+        alt 数据过大(>20MB)
             Sharding->>Sharding: 自动分片
             Sharding->>Pool: 提交分片数据
         else 正常数据
@@ -351,9 +351,9 @@ sequenceDiagram
     <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
     <!-- 可选参数 -->
     <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
-    <batchSize>${LOGX_OSS_BATCH_SIZE:-1000}</batchSize>
+    <batchSize>${LOGX_OSS_BATCH_SIZE:-500}</batchSize>
     <flushInterval>${LOGX_OSS_FLUSH_INTERVAL:-5}</flushInterval>
-    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-100}</maxUploadSizeMb>
+    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-20}</maxUploadSizeMb>
 </appender>
 ```
 
@@ -391,6 +391,6 @@ export LOGX_OSS_MAX_UPLOAD_SIZE_MB="20"
 - `secretAccessKey`: 访问密钥Secret
 - `bucketName`: 存储桶名称
 - `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
-- `batchSize`: 批处理大小，默认1000条日志
-- `flushInterval`: 刷新间隔，默认5秒
+- `batchSize`: 批处理大小，默认500条日志
+- `flushInterval`: 刷新间隔，默认3秒
 - `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认20MB

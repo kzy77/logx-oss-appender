@@ -1,20 +1,21 @@
 package org.logx.storage.s3;
 
-import org.logx.storage.StorageService;
 import org.logx.storage.StorageConfig;
-
+import org.logx.storage.StorageService;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * S3存储服务实现（用于SPI实例化）
+ * S3存储服务提供者实现
  * <p>
  * 这个类是专门为Java SPI机制设计的，提供无参构造函数。
+ * 它会创建实际的S3StorageAdapter实例。
  *
  * @author OSS Appender Team
  * @since 1.0.0
  */
 public class S3StorageServiceProvider implements StorageService {
     private static final String OSS_TYPE = "S3";
+    private S3StorageAdapter adapter;
 
     /**
      * 构造S3存储服务（用于SPI实例化）
@@ -25,7 +26,8 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public CompletableFuture<Void> putObject(String key, byte[] data) {
-        throw new IllegalStateException("This SPI provider should not be used directly. Use StorageServiceFactory instead.");
+        ensureInitialized();
+        return adapter.putObject(key, data);
     }
 
     @Override
@@ -35,12 +37,15 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public String getBucketName() {
-        throw new IllegalStateException("This SPI provider should not be used directly. Use StorageServiceFactory instead.");
+        ensureInitialized();
+        return adapter.getBucketName();
     }
 
     @Override
     public void close() {
-        // 无需关闭资源
+        if (adapter != null) {
+            adapter.close();
+        }
     }
 
     @Override
@@ -52,5 +57,24 @@ public class S3StorageServiceProvider implements StorageService {
                "MINIO".equalsIgnoreCase(ossType) ||
                "HUAWEI_OBS".equalsIgnoreCase(ossType) ||
                "GENERIC_S3".equalsIgnoreCase(ossType);
+    }
+
+    /**
+     * 初始化存储服务
+     * @param config 存储配置
+     */
+    public void initialize(StorageConfig config) {
+        if (this.adapter == null) {
+            this.adapter = new S3StorageAdapter(config);
+        }
+    }
+
+    /**
+     * 确保存储服务已初始化
+     */
+    private void ensureInitialized() {
+        if (adapter == null) {
+            throw new IllegalStateException("Storage service not initialized. Use StorageServiceFactory instead.");
+        }
     }
 }

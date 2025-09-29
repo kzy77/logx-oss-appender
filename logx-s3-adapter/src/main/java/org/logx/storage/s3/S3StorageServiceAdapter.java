@@ -1,0 +1,166 @@
+package org.logx.storage.s3;
+
+import org.logx.storage.StorageConfig;
+import org.logx.storage.StorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
+import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+
+import java.util.concurrent.CompletableFuture;
+
+/**
+ * S3存储服务适配器实现
+ * <p>
+ * 基于AWS SDK v2实现的S3存储适配器，支持标准AWS S3服务。
+ * 提供基本的单个上传功能，分片和重试等通用功能由核心层统一处理。
+ * <p>
+ * 注意：根据2025-09-24的架构变更，该适配器不再处理数据分片逻辑和重试机制，
+ * 这些功能已移至核心层的BatchProcessor中统一处理。
+ * <p>
+ * 主要特性：
+ * <ul>
+ * <li>基本上传功能：处理单个对象的上传</li>
+ * <li>AWS特定配置和认证</li>
+ * <li>区域配置和键前缀处理</li>
+ * </ul>
+ *
+ * @author OSS Appender Team
+ * @since 1.0.0
+ */
+public final class S3StorageServiceAdapter implements StorageService, AutoCloseable {
+
+    private static final Logger logger = LoggerFactory.getLogger(S3StorageServiceAdapter.class);
+    private static final String OSS_TYPE = "S3";
+
+    private S3Client s3Client;
+    private String bucketName;
+    private String keyPrefix;
+
+    /**
+     * 无参构造函数（用于SPI实例化）
+     */
+    public S3StorageServiceAdapter() {
+        // 无参构造函数用于SPI实例化
+    }
+
+    /**
+     * 构造S3存储适配器
+     *
+     * @param config 存储配置
+     */
+    public S3StorageServiceAdapter(StorageConfig config) {
+        initialize(config);
+    }
+
+    /**
+     * 初始化存储服务
+     * @param config 存储配置
+     */
+    public void initialize(StorageConfig config) {
+        if (this.s3Client != null) {
+            return; // 已经初始化
+        }
+        
+        String region = config.getRegion();
+        String accessKeyId = config.getAccessKeyId();
+        String secretAccessKey = config.getAccessKeySecret();
+        String bucketName = config.getBucket();
+        this.bucketName = bucketName;
+        this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
+
+        // 构建S3客户端 - 标准AWS S3配置
+        this.s3Client = S3Client.builder()
+                .credentialsProvider(
+                        StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                .region(Region.of(region != null ? region : "us-east-1")).build();
+    }
+
+    @Override
+    public CompletableFuture<Void> putObject(String key, byte[] data) {
+        ensureInitialized();
+        
+        if (key == null || key.trim().isEmpty()) {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Key cannot be null or empty"));
+            return future;
+        }
+        if (data == null) {
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(new IllegalArgumentException("Data cannot be null"));
+            return future;
+        }
+
+        String fullKey = buildFullKey(key);
+
+        // 执行标准上传，不处理分片和重试，这些由核心层处理
+        return CompletableFuture.runAsync(() -> {
+            PutObjectRequest putRequest = PutObjectRequest.builder()
+                    .bucket(bucketName)
+                    .key(fullKey)
+                    .contentLength((long) data.length)
+                    .build();
+
+            RequestBody requestBody = RequestBody.fromBytes(data);
+            
+            try {
+                s3Client.putObject(putRequest, requestBody);
+            } catch (Exception e) {
+                // 直接抛出异常，由核心层处理重试和错误处理
+                throw new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e);
+            }
+        });
+    }
+
+    @Override
+    public String getOssType() {
+        return OSS_TYPE;
+    }
+
+    @Override
+    public String getBucketName() {
+        ensureInitialized();
+        return bucketName;
+    }
+
+    /**
+     * 确保存储服务已初始化
+     */
+    private void ensureInitialized() {
+        if (s3Client == null) {
+            throw new IllegalStateException("Storage service not initialized. Use StorageServiceFactory instead.");
+        }
+    }
+
+    @Override
+    public void close() {
+        if (s3Client != null) {
+            s3Client.close();
+        }
+    }
+
+    @Override
+    public boolean supportsOssType(String ossType) {
+        return OSS_TYPE.equalsIgnoreCase(ossType) ||
+               "AWS_S3".equalsIgnoreCase(ossType) ||
+               "ALIYUN_OSS".equalsIgnoreCase(ossType) ||
+               "TENCENT_COS".equalsIgnoreCase(ossType) ||
+               "MINIO".equalsIgnoreCase(ossType) ||
+               "HUAWEI_OBS".equalsIgnoreCase(ossType) ||
+               "GENERIC_S3".equalsIgnoreCase(ossType);
+    }
+
+    /**
+     * 构建完整的对象键
+     */
+    private String buildFullKey(String key) {
+        if (keyPrefix.isEmpty()) {
+            return key;
+        }
+        return keyPrefix + "/" + key;
+    }
+}

@@ -178,8 +178,8 @@ class AsyncEngineIntegrationTest {
         logger.info("处理时间: {}ms", durationMs);
         logger.info("吞吐量: {} messages/second", String.format("%.0f", throughput));
 
-        // 验证吞吐量目标（测试环境要求至少30/秒以适应实际环境）
-        assertThat(throughput).isGreaterThanOrEqualTo(30.0); // 调整为至少30/秒以适应实际环境
+        // 验证吞吐量目标（要求至少10000/秒）
+        assertThat(throughput).isGreaterThanOrEqualTo(10000.0); // 要求至少10000/秒
         assertThat(processedMessages).isGreaterThan((long) (targetMessages * 0.001)); // 调整为至少0.1%处理成功（适应实际环境）
     }
 
