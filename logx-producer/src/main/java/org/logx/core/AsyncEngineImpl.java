@@ -19,7 +19,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @author OSS Appender Team
  * @since 1.0.0
  */
-public class AsyncEngineImpl implements AsyncEngine {
+public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     
     private final StorageService storageService;
     private final ShutdownHookHandler shutdownHandler;
@@ -139,6 +139,15 @@ public class AsyncEngineImpl implements AsyncEngine {
                 Thread.sleep(Math.min(remaining, config.getMaxShutdownWaitMs())); // 使用配置的最大等待时间
             }
             
+            // 关闭存储服务
+            try {
+                if (storageService != null) {
+                    storageService.close();
+                }
+            } catch (Exception e) {
+                System.err.println("Error closing storage service: " + e.getMessage());
+            }
+            
             System.out.println("AsyncEngine stopped successfully");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
@@ -146,6 +155,11 @@ public class AsyncEngineImpl implements AsyncEngine {
         } catch (Exception e) {
             System.err.println("Error stopping AsyncEngine: " + e.getMessage());
         }
+    }
+    
+    @Override
+    public void close() {
+        stop(5, TimeUnit.SECONDS);
     }
     
     @Override

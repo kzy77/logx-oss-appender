@@ -40,10 +40,8 @@ public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
                 asyncEngine.stop(5, java.util.concurrent.TimeUnit.SECONDS);
             }
             
-            // 关闭存储服务
-            if (s3Storage != null) {
-                s3Storage.close();
-            }
+            // 不要在这里关闭存储服务，因为AsyncEngine会负责管理存储服务的生命周期
+            // 存储服务将在AsyncEngine关闭时被正确关闭
             
             started = false;
         } catch (Exception e) {

@@ -99,6 +99,11 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
+            // 检查客户端是否已关闭
+            if (s3Client == null) {
+                throw new IllegalStateException("S3 client has been closed");
+            }
+            
             PutObjectRequest putRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fullKey)
@@ -109,6 +114,12 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             
             try {
                 s3Client.putObject(putRequest, requestBody);
+            } catch (IllegalStateException e) {
+                // 检查是否是连接池关闭的异常
+                if (e.getMessage() != null && e.getMessage().contains("Connection pool shut down")) {
+                    throw new IllegalStateException("S3 client connection pool has been shut down", e);
+                }
+                throw e;
             } catch (Exception e) {
                 // 直接抛出异常，由核心层处理重试和错误处理
                 throw new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e);
@@ -132,7 +143,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
      */
     private void ensureInitialized() {
         if (s3Client == null) {
-            throw new IllegalStateException("Storage service not initialized. Use StorageServiceFactory instead.");
+            throw new IllegalStateException("Storage service not initialized or has been closed. Use StorageServiceFactory instead.");
         }
     }
 
@@ -140,6 +151,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     public void close() {
         if (s3Client != null) {
             s3Client.close();
+            s3Client = null; // 设置为null，以便后续检查
         }
     }
 
