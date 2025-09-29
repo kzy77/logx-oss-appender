@@ -10,6 +10,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -38,6 +40,8 @@ import static org.assertj.core.api.Assertions.*;
  * @since 1.0.0
  */
 class AsyncEngineIntegrationTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(AsyncEngineIntegrationTest.class);
 
     /**
      * 简单的存储服务模拟实现
@@ -168,11 +172,11 @@ class AsyncEngineIntegrationTest {
         long processedMessages = storageService.getProcessedCount();
         double throughput = (double) processedMessages / (durationMs / 1000.0);
 
-        System.out.println("=== 吞吐量测试结果 ===");
-        System.out.println("目标消息数: " + targetMessages);
-        System.out.println("实际处理数: " + processedMessages);
-        System.out.println("处理时间: " + durationMs + "ms");
-        System.out.println("吞吐量: " + String.format("%.0f", throughput) + " messages/second");
+        logger.info("=== 吞吐量测试结果 ===");
+        logger.info("目标消息数: {}", targetMessages);
+        logger.info("实际处理数: {}", processedMessages);
+        logger.info("处理时间: {}ms", durationMs);
+        logger.info("吞吐量: {} messages/second", String.format("%.0f", throughput));
 
         // 验证吞吐量目标（测试环境要求至少30/秒以适应实际环境）
         assertThat(throughput).isGreaterThanOrEqualTo(30.0); // 调整为至少30/秒以适应实际环境
@@ -206,10 +210,10 @@ class AsyncEngineIntegrationTest {
         long processed = storageService.getProcessedCount();
         double avgLatency = latencyProcessor.getAverageLatency();
 
-        System.out.println("=== 延迟测试结果 ===");
-        System.out.println("测试消息数: " + testMessages);
-        System.out.println("处理消息数: " + processed);
-        System.out.println("平均延迟: " + String.format("%.2f", avgLatency) + "ms");
+        logger.info("=== 延迟测试结果 ===");
+        logger.info("测试消息数: {}", testMessages);
+        logger.info("处理消息数: {}", processed);
+        logger.info("平均延迟: {}ms", String.format("%.2f", avgLatency));
 
         // 验证延迟目标
         assertThat(avgLatency).isLessThan(1000.0); // 测试环境要求平均延迟<1000ms（更宽松的要求）
@@ -242,11 +246,11 @@ class AsyncEngineIntegrationTest {
         long memoryUsed = currentMemory - initialMemory;
 
         // Then
-        System.out.println("=== 资源占用测试结果 ===");
-        System.out.println("内存使用: " + (memoryUsed / 1024 / 1024) + "MB");
-        System.out.println("CPU使用率: " + String.format("%.2f", poolMetrics.getCurrentCpuUsage() * 100) + "%");
-        System.out.println("线程池活跃数: " + poolMetrics.getActiveThreadCount());
-        System.out.println("队列大小: " + poolMetrics.getQueueSize());
+        logger.info("=== 资源占用测试结果 ===");
+        logger.info("内存使用: {}MB", (memoryUsed / 1024 / 1024));
+        logger.info("CPU使用率: {}%", String.format("%.2f", poolMetrics.getCurrentCpuUsage() * 100));
+        logger.info("线程池活跃数: {}", poolMetrics.getActiveThreadCount());
+        logger.info("队列大小: {}", poolMetrics.getQueueSize());
 
         // 验证资源约束（测试环境相对宽松）
         assertThat(memoryUsed / 1024 / 1024).isLessThan(200); // <200MB内存（更宽松的要求）
@@ -279,11 +283,11 @@ class AsyncEngineIntegrationTest {
         long totalProcessed = storageService.getProcessedCount() - initialProcessed;
 
         // Then
-        System.out.println("=== 故障恢复测试结果 ===");
-        System.out.println("正常阶段处理: " + normalProcessed);
-        System.out.println("第二阶段处理: " + phase2Processed);
-        System.out.println("恢复阶段处理: " + (totalProcessed - normalProcessed - phase2Processed));
-        System.out.println("总处理数: " + totalProcessed);
+        logger.info("=== 故障恢复测试结果 ===");
+        logger.info("正常阶段处理: {}", normalProcessed);
+        logger.info("第二阶段处理: {}", phase2Processed);
+        logger.info("恢复阶段处理: {}", (totalProcessed - normalProcessed - phase2Processed));
+        logger.info("总处理数: {}", totalProcessed);
 
         assertThat(normalProcessed).isGreaterThanOrEqualTo(3); // 正常阶段应该处理部分消息（更宽松的要求）
         assertThat(totalProcessed).isGreaterThanOrEqualTo(6); // 恢复后应该继续处理（更宽松的要求）
@@ -308,16 +312,16 @@ class AsyncEngineIntegrationTest {
             try {
                 asyncEngine.put(("integration test " + i).getBytes());
             } catch (Exception e) {
-                System.err.println("消息提交失败: " + e.getMessage());
+                logger.error("消息提交失败: {}", e.getMessage());
             }
         }
 
         Thread.sleep(2000);
 
         // Then - 验证Epic 2集成
-        System.out.println("=== Epic 2集成测试结果 ===");
-        System.out.println("消息处理: " + storageService.getProcessedCount());
-        System.out.println("批处理统计: " + batchProcessor.getMetrics());
+        logger.info("=== Epic 2集成测试结果 ===");
+        logger.info("消息处理: {}", storageService.getProcessedCount());
+        logger.info("批处理统计: {}", batchProcessor.getMetrics());
 
         // 验证集成正确性
         assertThat(storageService.getProcessedCount()).isGreaterThanOrEqualTo(0);
@@ -332,31 +336,31 @@ class AsyncEngineIntegrationTest {
         long startTime = System.currentTimeMillis();
 
         // 基准测试配置
-        System.out.println("=== Epic 2性能基准报告 ===");
-        System.out.println("测试时间: " + new java.util.Date());
-        System.out.println("JVM版本: " + System.getProperty("java.version"));
-        System.out.println("可用处理器: " + Runtime.getRuntime().availableProcessors());
-        System.out.println("最大内存: " + (Runtime.getRuntime().maxMemory() / 1024 / 1024) + "MB");
+        logger.info("=== Epic 2性能基准报告 ===");
+        logger.info("测试时间: {}", new java.util.Date());
+        logger.info("JVM版本: {}", System.getProperty("java.version"));
+        logger.info("可用处理器: {}", Runtime.getRuntime().availableProcessors());
+        logger.info("最大内存: {}MB", (Runtime.getRuntime().maxMemory() / 1024 / 1024));
 
         // 组件配置
-        System.out.println("\n组件配置:");
-        System.out.println("- AsyncEngine: 基于Disruptor的高性能异步处理引擎");
-        System.out.println("- DisruptorBatchingQueue: 容量2K, 批次50, YieldingWaitStrategy");
-        System.out.println("- ResourceProtectedThreadPool: 核心2线程, 最大4线程, 最低优先级");
-        System.out.println("- BatchProcessor: 批次100, 5秒刷新, GZIP压缩");
-        System.out.println("- ShutdownHookHandler: 优雅停机支持");
+        logger.info("\n组件配置:");
+        logger.info("- AsyncEngine: 基于Disruptor的高性能异步处理引擎");
+        logger.info("- DisruptorBatchingQueue: 容量2K, 批次50, YieldingWaitStrategy");
+        logger.info("- ResourceProtectedThreadPool: 核心2线程, 最大4线程, 最低优先级");
+        logger.info("- BatchProcessor: 批次100, 5秒刷新, GZIP压缩");
+        logger.info("- ShutdownHookHandler: 优雅停机支持");
 
         // 性能目标
-        System.out.println("\n性能目标:");
-        System.out.println("- 吞吐量: 1万+/秒");
-        System.out.println("- 延迟: 99%请求<1ms (测试环境平均<10ms)");
-        System.out.println("- 内存: <50MB (测试环境<100MB)");
-        System.out.println("- CPU: <5% (测试环境<50%)");
-        System.out.println("- 可靠性: 99.9%不丢失");
+        logger.info("\n性能目标:");
+        logger.info("- 吞吐量: 1万+/秒");
+        logger.info("- 延迟: 99%请求<1ms (测试环境平均<10ms)");
+        logger.info("- 内存: <50MB (测试环境<100MB)");
+        logger.info("- CPU: <5% (测试环境<50%)");
+        logger.info("- 可靠性: 99.9%不丢失");
 
         // Then
         assertThat(System.currentTimeMillis() - startTime).isLessThan(1000);
-        System.out.println("\nEpic 2异步引擎已准备就绪，可支持Epic 3框架适配器开发！");
+        logger.info("\nEpic 2异步引擎已准备就绪，可支持Epic 3框架适配器开发！");
     }
     
     @Test
@@ -381,7 +385,7 @@ class AsyncEngineIntegrationTest {
         // 测试停止
         engine.stop(5, TimeUnit.SECONDS);
         
-        System.out.println("AsyncEngine接口测试通过");
+        logger.info("AsyncEngine接口测试通过");
     }
 
     /**

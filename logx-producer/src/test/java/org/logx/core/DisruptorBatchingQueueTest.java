@@ -3,6 +3,8 @@ package org.logx.core;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -18,6 +20,8 @@ import static org.assertj.core.api.Assertions.*;
  * @since 1.0.0
  */
 class DisruptorBatchingQueueTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(DisruptorBatchingQueueTest.class);
 
     private DisruptorBatchingQueue queue;
     private TestBatchConsumer consumer;
@@ -208,7 +212,7 @@ class DisruptorBatchingQueueTest {
 
         // 计算吞吐量（消息/秒）
         double throughput = (double) messageCount / (durationMs / 1000.0);
-        System.out.println("Throughput: " + throughput + " messages/second");
+        logger.info("Throughput: {} messages/second", throughput);
 
         // 验证吞吐量目标（PRD要求10万+/秒，这里测试至少500/秒以适应测试环境）
         assertThat(throughput).isGreaterThan(500);
@@ -242,8 +246,8 @@ class DisruptorBatchingQueueTest {
             long avgLatencyNs = latencyConsumer.getTotalLatencyNs() / latencyConsumer.getProcessedCount();
             long avgLatencyMs = avgLatencyNs / 1_000_000;
 
-            System.out.println("Average latency: " + avgLatencyMs + "ms");
-            System.out.println("Processed messages: " + latencyConsumer.getProcessedCount());
+            logger.info("Average latency: {}ms", avgLatencyMs);
+            logger.info("Processed messages: {}", latencyConsumer.getProcessedCount());
 
             // 使用宽松的延迟要求，主要验证功能正确性
             assertThat(avgLatencyMs).isLessThan(5000); // 小于5秒（更宽松的要求）

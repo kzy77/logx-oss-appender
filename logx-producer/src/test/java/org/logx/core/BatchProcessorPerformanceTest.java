@@ -1,9 +1,11 @@
 package org.logx.core;
 
+import org.logx.storage.StorageService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
-import org.logx.storage.StorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +23,8 @@ import static org.assertj.core.api.Assertions.*;
  * @since 1.0.0
  */
 class BatchProcessorPerformanceTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BatchProcessorPerformanceTest.class);
 
     /**
      * 简单的存储服务模拟实现
@@ -90,14 +94,14 @@ class BatchProcessorPerformanceTest {
 
         // Then
         BatchProcessor.BatchMetrics metrics = processor.getMetrics();
-        System.out.println("Expected messages: " + messageCount);
-        System.out.println("Actual processed: " + metrics.getTotalMessagesProcessed());
+        logger.info("Expected messages: {}", messageCount);
+        logger.info("Actual processed: {}", metrics.getTotalMessagesProcessed());
 
         // 计算吞吐量
         double throughput = (double) metrics.getTotalMessagesProcessed() / (durationMs / 1000.0);
-        System.out.println("High Performance Throughput: " + throughput + " messages/second");
-        System.out.println("Processing time: " + durationMs + "ms");
-        System.out.println("Metrics: " + metrics);
+        logger.info("High Performance Throughput: {} messages/second", throughput);
+        logger.info("Processing time: {}ms", durationMs);
+        logger.info("Metrics: {}", metrics);
 
         // 验证至少处理了大部分消息（50%以上）
         assertThat(metrics.getTotalMessagesProcessed()).isGreaterThan((long) (messageCount * 0.5));
@@ -140,10 +144,10 @@ class BatchProcessorPerformanceTest {
 
         // 验证压缩效果
         double compressionRatio = metrics.getCompressionRatio();
-        System.out.println("Compression ratio: " + (compressionRatio * 100) + "%");
-        System.out.println("Original bytes: " + metrics.getTotalBytesProcessed());
-        System.out.println("Compressed bytes: " + metrics.getTotalBytesCompressed());
-        System.out.println("Savings: " + metrics.getTotalCompressionSavings() + " bytes");
+        logger.info("Compression ratio: {}%", (compressionRatio * 100));
+        logger.info("Original bytes: {}", metrics.getTotalBytesProcessed());
+        logger.info("Compressed bytes: {}", metrics.getTotalBytesCompressed());
+        logger.info("Savings: {} bytes", metrics.getTotalCompressionSavings());
 
         // 验证压缩比目标：应该达到50%以上的压缩率
         assertThat(compressionRatio).isGreaterThan(0.5);
@@ -181,10 +185,10 @@ class BatchProcessorPerformanceTest {
         // Then
         BatchProcessor.BatchMetrics finalMetrics = processor.getMetrics();
 
-        System.out.println("Phase 1 batch size: " + phase1BatchSize);
-        System.out.println("Phase 2 batch size: " + phase2BatchSize);
-        System.out.println("Final metrics: " + finalMetrics);
-        System.out.println("Total adjustments: " + finalMetrics.getAdjustmentCount());
+        logger.info("Phase 1 batch size: {}", phase1BatchSize);
+        logger.info("Phase 2 batch size: {}", phase2BatchSize);
+        logger.info("Final metrics: {}", finalMetrics);
+        logger.info("Total adjustments: {}", finalMetrics.getAdjustmentCount());
 
         assertThat(finalMetrics.getTotalMessagesProcessed()).isEqualTo(600);
 
@@ -224,8 +228,8 @@ class BatchProcessorPerformanceTest {
         BatchProcessor.BatchMetrics metrics = processor.getMetrics();
         assertThat(metrics.getTotalMessagesProcessed()).isEqualTo(60);
 
-        System.out.println("Variable size test metrics: " + metrics);
-        System.out.println("Average messages per batch: " + metrics.getAverageMessagesPerBatch());
+        logger.info("Variable size test metrics: {}", metrics);
+        logger.info("Average messages per batch: {}", metrics.getAverageMessagesPerBatch());
 
         // 验证批处理能够处理不同大小的消息
         assertThat(metrics.getTotalBatchesProcessed()).isGreaterThan(1);

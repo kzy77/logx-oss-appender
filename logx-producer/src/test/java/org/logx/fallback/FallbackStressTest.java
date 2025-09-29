@@ -2,6 +2,8 @@ package org.logx.fallback;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -27,6 +29,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 public class FallbackStressTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(FallbackStressTest.class);
 
     @TempDir
     Path tempDir;
@@ -83,10 +87,10 @@ public class FallbackStressTest {
         int totalAttempts = successCount.get() + failureCount.get();
         int expectedAttempts = threadCount * writesPerThread;
         
-        System.out.println("Long running stress test completed in " + duration + "ms");
-        System.out.println("Total attempts: " + totalAttempts + "/" + expectedAttempts);
-        System.out.println("Success count: " + successCount.get());
-        System.out.println("Failure count: " + failureCount.get());
+        logger.info("Long running stress test completed in {}ms", duration);
+        logger.info("Total attempts: {}/{}", totalAttempts, expectedAttempts);
+        logger.info("Success count: {}", successCount.get());
+        logger.info("Failure count: {}", failureCount.get());
         
         // 验证文件创建
         String absolutePath = FallbackPathResolver.resolveAbsolutePath(fallbackPath);
@@ -98,7 +102,7 @@ public class FallbackStressTest {
                     .filter(path -> path.toString().endsWith("_fallback.log"))
                     .count();
             
-            System.out.println("Files created: " + fileCount);
+            logger.info("Files created: {}", fileCount);
             assertTrue(fileCount > 0, "Expected at least some files to be created");
         }
         
@@ -130,8 +134,8 @@ public class FallbackStressTest {
         }
         
         long fileCreationTime = System.currentTimeMillis();
-        System.out.println("Created " + fileCount + " files in " + (fileCreationTime - startTime) + "ms");
-        System.out.println("Marked " + expiredFileCount + " files as expired");
+        logger.info("Created {} files in {}ms", fileCount, (fileCreationTime - startTime));
+        logger.info("Marked {} files as expired", expiredFileCount);
         
         // 执行清理操作（保留5天）
         long cleanupStartTime = System.currentTimeMillis();
@@ -148,9 +152,9 @@ public class FallbackStressTest {
         
         long expectedRemainingFiles = fileCount - expiredFileCount;
         
-        System.out.println("Cleanup stress test completed in " + cleanupDuration + "ms");
-        System.out.println("Files remaining: " + remainingFiles + "/" + fileCount);
-        System.out.println("Expected remaining: " + expectedRemainingFiles);
+        logger.info("Cleanup stress test completed in {}ms", cleanupDuration);
+        logger.info("Files remaining: {}/{}", remainingFiles, fileCount);
+        logger.info("Expected remaining: {}", expectedRemainingFiles);
         
         // 验证清理结果
         assertTrue(remainingFiles >= expectedRemainingFiles, 

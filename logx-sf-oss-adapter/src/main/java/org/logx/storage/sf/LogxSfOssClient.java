@@ -1,11 +1,16 @@
 package org.logx.storage.sf;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * SF OSS客户端
  * <p>
  * 用于与SF OSS服务进行交互的客户端实现。
  */
 public class LogxSfOssClient implements AutoCloseable {
+    
+    private static final Logger logger = LoggerFactory.getLogger(LogxSfOssClient.class);
     private final String endpoint;
     private final String region;
     private final String accessKeyId;
@@ -62,7 +67,8 @@ public class LogxSfOssClient implements AutoCloseable {
         }
 
         // 在实际实现中，这里会调用SF OSS的API来上传对象
-        System.out.println("SF OSS: Uploading object to bucket " + bucketName + " with key " + key + " at endpoint " + endpoint + " in region " + region);
+        logger.info("SF OSS: Uploading object to bucket {} with key {} at endpoint {} in region {}", 
+                   bucketName, key, endpoint, region);
     }
 
     
@@ -79,6 +85,6 @@ public class LogxSfOssClient implements AutoCloseable {
     @Override
     public void close() {
         // 在实际实现中，这里会释放客户端资源
-        System.out.println("SF OSS: Client closed");
+        logger.info("SF OSS: Client closed");
     }
 }

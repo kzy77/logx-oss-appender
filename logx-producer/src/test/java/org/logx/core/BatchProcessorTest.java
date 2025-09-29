@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.logx.storage.StorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -19,6 +21,8 @@ import static org.assertj.core.api.Assertions.*;
  * @since 1.0.0
  */
 class BatchProcessorTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(BatchProcessorTest.class);
 
     /**
      * 简单的存储服务模拟实现
@@ -203,7 +207,7 @@ class BatchProcessorTest {
 
         // 验证吞吐量
         double throughput = (double) messageCount / (durationMs / 1000.0);
-        System.out.println("BatchProcessor Throughput: " + throughput + " messages/second");
+        logger.info("BatchProcessor Throughput: {} messages/second", throughput);
         assertThat(throughput).isGreaterThan(50); // 至少50条/秒
 
         // 验证批处理效率
@@ -237,9 +241,9 @@ class BatchProcessorTest {
         BatchProcessor.BatchMetrics metrics = adaptiveProcessor.getMetrics();
         assertThat(metrics.getTotalMessagesProcessed()).isEqualTo(200);
 
-        System.out.println("Adaptive metrics: " + metrics);
-        System.out.println("Current batch size: " + metrics.getCurrentBatchSize());
-        System.out.println("Total adjustments: " + metrics.getAdjustmentCount());
+        logger.info("Adaptive metrics: {}", metrics);
+        logger.info("Current batch size: {}", metrics.getCurrentBatchSize());
+        logger.info("Total adjustments: {}", metrics.getAdjustmentCount());
 
         adaptiveProcessor.close();
     }

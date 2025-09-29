@@ -31,7 +31,7 @@ public class SpringBootPerformanceBenchmarkTest {
         // 验证日志记录在合理时间内完成
         assertTrue(duration < 5000, "日志记录应在5秒内完成");
         
-        System.out.println("记录" + logCount + "条日志耗时: " + duration + "毫秒");
+        logger.info("记录{}条日志耗时: {}毫秒", logCount, duration);
     }
     
     @Test
@@ -59,6 +59,6 @@ public class SpringBootPerformanceBenchmarkTest {
         
         assertTrue(duration < 3000, "不同级别日志记录应在3秒内完成");
         
-        System.out.println("不同级别日志记录耗时: " + duration + "毫秒");
+        logger.info("不同级别日志记录耗时: {}毫秒", duration);
     }
 }

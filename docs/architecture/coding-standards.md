@@ -36,6 +36,20 @@ if (condition) {
 if (condition) doSomething();
 ```
 
+**RULE 4**: 禁止使用System.out.println进行日志输出
+- 所有日志输出必须使用SLF4J日志框架
+- 在类中定义Logger实例：`private static final Logger logger = LoggerFactory.getLogger(ClassName.class);`
+- 根据日志级别使用相应方法：logger.info(), logger.debug(), logger.warn(), logger.error()
+- 示例：
+```java
+// 正确：使用SLF4J日志框架
+private static final Logger logger = LoggerFactory.getLogger(LogProcessor.class);
+logger.info("开始处理日志事件");
+
+// 错误：使用System.out.println
+System.out.println("开始处理日志事件");
+```
+
 ## Java编码规范
 
 ### 核心编码规则

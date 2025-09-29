@@ -6,6 +6,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
 import org.slf4j.LoggerFactory;
+import org.slf4j.Logger;
 import org.apache.logging.log4j.LogManager;
 
 import java.util.concurrent.CountDownLatch;
@@ -18,6 +19,8 @@ import java.util.concurrent.atomic.AtomicLong;
  * 多框架共存性能测试
  */
 public class MultiFrameworkPerformanceTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(MultiFrameworkPerformanceTest.class);
 
     @Test
     public void testConcurrentPerformance() {
@@ -51,7 +54,7 @@ public class MultiFrameworkPerformanceTest {
             
             // 验证并发性能在合理范围内
             assertTrue("并发性能应在合理范围内", duration < 15000); // 15秒
-            System.out.println("并发性能测试耗时: " + duration + "毫秒");
+            logger.info("并发性能测试耗时: {}毫秒", duration);
         } catch (InterruptedException e) {
             assertTrue("并发性能测试被中断", false);
         }
@@ -72,7 +75,7 @@ public class MultiFrameworkPerformanceTest {
         
         // 验证内存开销在合理范围内
         assertTrue("内存开销应在合理范围内", memoryUsed < 50000000); // 50MB
-        System.out.println("内存开销: " + memoryUsed + "字节");
+        logger.info("内存开销: {}字节", memoryUsed);
     }
 
     @Test
@@ -95,7 +98,7 @@ public class MultiFrameworkPerformanceTest {
         
         // 验证吞吐量在合理范围内
         assertTrue("吞吐量应在合理范围内", throughput > 1000); // 每秒至少1000条消息
-        System.out.println("吞吐量: " + throughput + " 消息/秒");
+        logger.info("吞吐量: {} 消息/秒", throughput);
     }
 
     @Test
@@ -116,7 +119,7 @@ public class MultiFrameworkPerformanceTest {
         
         // 验证平均延迟在合理范围内
         assertTrue("平均延迟应在合理范围内", averageLatency < 5000); // 平均延迟小于5毫秒
-        System.out.println("平均延迟: " + averageLatency + " 微秒");
+        logger.info("平均延迟: {} 微秒", averageLatency);
     }
     
     // 新增的增强测试用例
@@ -160,9 +163,9 @@ public class MultiFrameworkPerformanceTest {
         }
         
         // 验证可扩展性（随着线程数增加，时间增长不应过于剧烈）
-        System.out.println("可扩展性测试结果:");
+        logger.info("可扩展性测试结果:");
         for (int i = 0; i < threadCounts.length; i++) {
-            System.out.println("线程数: " + threadCounts[i] + ", 耗时: " + durations[i] + "ms");
+            logger.info("线程数: {}, 耗时: {}ms", threadCounts[i], durations[i]);
         }
         
         // 简单的可扩展性检查
@@ -188,10 +191,10 @@ public class MultiFrameworkPerformanceTest {
         long memoryConsumed = finalMemory - initialMemory;
         long cpuTimeConsumed = finalCpuTime - initialCpuTime;
         
-        System.out.println("压力测试资源消耗:");
-        System.out.println("总日志消息数: " + totalLogMessages);
-        System.out.println("内存消耗: " + memoryConsumed + " 字节");
-        System.out.println("CPU时间消耗: " + cpuTimeConsumed + " 纳秒");
+        logger.info("压力测试资源消耗:");
+        logger.info("总日志消息数: {}", totalLogMessages);
+        logger.info("内存消耗: {} 字节", memoryConsumed);
+        logger.info("CPU时间消耗: {} 纳秒", cpuTimeConsumed);
         
         // 验证资源消耗在合理范围内
         assertTrue("内存消耗应在合理范围内", memoryConsumed < 100000000); // 100MB
@@ -224,9 +227,9 @@ public class MultiFrameworkPerformanceTest {
         }
         double standardDeviation = Math.sqrt(varianceSum / iterations);
         
-        System.out.println("性能一致性测试:");
-        System.out.println("平均延迟: " + (average / 1000.0) + " 微秒");
-        System.out.println("标准差: " + (standardDeviation / 1000.0) + " 微秒");
+        logger.info("性能一致性测试:");
+        logger.info("平均延迟: {} 微秒", (average / 1000.0));
+        logger.info("标准差: {} 微秒", (standardDeviation / 1000.0));
         
         // 验证性能一致性（标准差不应过大）
         assertTrue("性能应保持一致性", standardDeviation < average * 2);
@@ -268,10 +271,10 @@ public class MultiFrameworkPerformanceTest {
         long log4j1End = System.nanoTime();
         log4j1Time.set(log4j1End - log4j1Start);
         
-        System.out.println("各框架性能对比:");
-        System.out.println("Logback: " + (logbackTime.get() / 1000.0) + " 微秒");
-        System.out.println("Log4j2: " + (log4j2Time.get() / 1000.0) + " 微秒");
-        System.out.println("Log4j1: " + (log4j1Time.get() / 1000.0) + " 微秒");
+        logger.info("各框架性能对比:");
+        logger.info("Logback: {} 微秒", (logbackTime.get() / 1000.0));
+        logger.info("Log4j2: {} 微秒", (log4j2Time.get() / 1000.0));
+        logger.info("Log4j1: {} 微秒", (log4j1Time.get() / 1000.0));
         
         // 验证各框架性能都在合理范围内
         assertTrue("Logback性能应在合理范围内", logbackTime.get() < 1000000000L); // 1秒

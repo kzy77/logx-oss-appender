@@ -2,6 +2,8 @@ package org.logx.fallback;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.io.TempDir;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -23,6 +25,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
  * @since 1.0.0
  */
 public class FallbackPerformanceTest {
+    
+    private static final Logger logger = LoggerFactory.getLogger(FallbackPerformanceTest.class);
 
     @TempDir
     Path tempDir;
@@ -85,8 +89,8 @@ public class FallbackPerformanceTest {
                 assertTrue(fileCount > 0, "Expected at least some files to be created, but found " + fileCount);
             }
             
-            System.out.println("Performance test completed in " + duration + "ms for " + 
-                (threadCount * writesPerThread) + " writes across " + threadCount + " threads");
+            logger.info("Performance test completed in {}ms for {} writes across {} threads", 
+                duration, (threadCount * writesPerThread), threadCount);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
             throw new RuntimeException("Test interrupted", e);
@@ -122,7 +126,7 @@ public class FallbackPerformanceTest {
                 .filter(path -> path.toString().endsWith("_fallback.log"))
                 .count();
         
-        System.out.println("Cleanup performance test completed in " + duration + "ms for " + 
-            fileCount + " files, " + remainingFiles + " files remaining");
+        logger.info("Cleanup performance test completed in {}ms for {} files, {} files remaining", 
+                duration, fileCount, remainingFiles);
     }
 }

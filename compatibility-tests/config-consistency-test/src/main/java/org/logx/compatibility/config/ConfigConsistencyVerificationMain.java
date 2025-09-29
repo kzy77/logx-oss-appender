@@ -3,11 +3,15 @@ package org.logx.compatibility.config;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 配置一致性验证主类
  */
 public class ConfigConsistencyVerificationMain {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ConfigConsistencyVerificationMain.class);
 
     public static void main(String[] args) {
         ConfigConsistencyVerifier verifier = new ConfigConsistencyVerifier();
@@ -41,7 +45,7 @@ public class ConfigConsistencyVerificationMain {
     }
 
     private static void runConfigConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始配置参数一致性验证...");
+        logger.info("开始配置参数一致性验证...");
         
         // 创建模拟配置
         Map<String, String> logbackConfig = createMockConfig();
@@ -53,11 +57,11 @@ public class ConfigConsistencyVerificationMain {
                 logbackConfig, log4j2Config, log4j1Config);
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runEnvironmentVariableConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始环境变量一致性验证...");
+        logger.info("开始环境变量一致性验证...");
         
         // 创建模拟环境变量
         Map<String, String> envVars = createMockEnvironmentVariables();
@@ -66,51 +70,51 @@ public class ConfigConsistencyVerificationMain {
         ConfigConsistencyReport report = verifier.verifyEnvironmentVariableConsistency(envVars);
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runValidationMechanismConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始配置验证机制一致性验证...");
+        logger.info("开始配置验证机制一致性验证...");
         
         // 验证配置验证机制一致性
         ConfigConsistencyReport report = verifier.verifyValidationMechanismConsistency();
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runErrorHandlingConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始错误处理一致性验证...");
+        logger.info("开始错误处理一致性验证...");
         
         // 验证错误处理一致性
         ConfigConsistencyReport report = verifier.verifyErrorHandlingConsistency();
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runConfigLoadingConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始配置加载机制一致性验证...");
+        logger.info("开始配置加载机制一致性验证...");
         
         // 验证配置加载机制一致性
         ConfigConsistencyReport report = verifier.verifyConfigLoadingConsistency();
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runConfigUpdateConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始配置更新机制一致性验证...");
+        logger.info("开始配置更新机制一致性验证...");
         
         // 验证配置更新机制一致性
         ConfigConsistencyReport report = verifier.verifyConfigUpdateConsistency();
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static void runConfigValueConsistencyVerification(ConfigConsistencyVerifier verifier) {
-        System.out.println("开始配置值一致性验证...");
+        logger.info("开始配置值一致性验证...");
         
         // 创建模拟配置
         Map<String, String> logbackConfig = createMockConfig();
@@ -122,7 +126,7 @@ public class ConfigConsistencyVerificationMain {
                 logbackConfig, log4j2Config, log4j1Config);
         
         report.printReport();
-        System.out.println();
+        logger.info("");
     }
 
     private static Map<String, String> createMockConfig() {

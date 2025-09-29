@@ -1,11 +1,15 @@
 package org.logx.compatibility.config;
 
 import java.util.*;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 配置一致性验证报告
  */
 public class ConfigConsistencyReport {
+    
+    private static final Logger logger = LoggerFactory.getLogger(ConfigConsistencyReport.class);
 
     private final List<ConsistentParameter> consistentParameters = new ArrayList<>();
     private final List<InconsistentParameter> inconsistentParameters = new ArrayList<>();
@@ -35,24 +39,23 @@ public class ConfigConsistencyReport {
     }
 
     public void printReport() {
-        System.out.println("=== 配置一致性验证报告 ===");
+        logger.info("=== 配置一致性验证报告 ===");
         
-        System.out.println("\n一致的配置参数:");
+        logger.info("\n一致的配置参数:");
         for (ConsistentParameter param : consistentParameters) {
             if (param.getFramework().isEmpty()) {
-                System.out.println("  - " + param.getParameter() + ": " + param.getDescription());
+                logger.info("  - {}: {}", param.getParameter(), param.getDescription());
             } else {
-                System.out.println("  - " + param.getFramework() + ": " + param.getParameter());
+                logger.info("  - {}: {}", param.getFramework(), param.getParameter());
             }
         }
         
-        System.out.println("\n不一致的配置参数:");
+        logger.info("\n不一致的配置参数:");
         for (InconsistentParameter param : inconsistentParameters) {
-            System.out.println("  - " + param.getFramework() + ": " + param.getParameter() + 
-                             " (" + param.getIssue() + ")");
+            logger.info("  - {}: {} ({})", param.getFramework(), param.getParameter(), param.getIssue());
         }
         
-        System.out.println("\n总体结果: " + (isConsistent() ? "一致" : "不一致"));
+        logger.info("\n总体结果: {}", (isConsistent() ? "一致" : "不一致"));
     }
 
     /**

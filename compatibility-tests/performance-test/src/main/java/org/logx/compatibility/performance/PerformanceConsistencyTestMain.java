@@ -4,11 +4,15 @@ import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 性能一致性测试主类
  */
 public class PerformanceConsistencyTestMain {
+    
+    private static final Logger logger = LoggerFactory.getLogger(PerformanceConsistencyTestMain.class);
 
     public static void main(String[] args) throws RunnerException {
         // 配置JMH运行选项
@@ -47,7 +51,7 @@ public class PerformanceConsistencyTestMain {
             
             reportGenerator.generateReport("performance-report.md");
             
-            System.out.println("性能报告已生成: performance-report.md");
+            logger.info("性能报告已生成: performance-report.md");
         } catch (Exception e) {
             System.err.println("生成性能报告时发生错误: " + e.getMessage());
             e.printStackTrace();
