@@ -11,7 +11,7 @@
     <artifactId>sf-log4j2-oss-appender</artifactId>
     <name>SF Log4j2 OSS Appender</name>
     <description>高性能 Log4j2 Appender，将应用日志实时上传到SF OSS对象存储（All-in-One包）</description>
-    <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+    
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

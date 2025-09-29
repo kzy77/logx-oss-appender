@@ -15,7 +15,7 @@
 
   <name>logx-sf-oss-adapter</name>
   <description>SF OSS适配器模块，提供对SF OSS存储的支持</description>
-  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+  
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>

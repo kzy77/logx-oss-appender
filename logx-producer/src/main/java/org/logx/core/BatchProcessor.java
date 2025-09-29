@@ -1,5 +1,6 @@
 package org.logx.core;
 
+import org.logx.fallback.FallbackManager;
 import org.logx.storage.StorageService;
 
 import java.io.ByteArrayOutputStream;

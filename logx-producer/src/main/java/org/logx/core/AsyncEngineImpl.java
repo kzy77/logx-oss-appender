@@ -1,8 +1,12 @@
 package org.logx.core;
 
+import org.logx.fallback.FallbackManager;
+import org.logx.fallback.FallbackUploaderTask;
 import org.logx.reliability.ShutdownHookHandler;
 import org.logx.storage.StorageService;
 
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -21,6 +25,8 @@ public class AsyncEngineImpl implements AsyncEngine {
     private final ShutdownHookHandler shutdownHandler;
     private final BatchProcessor batchProcessor;
     private final AsyncEngineConfig config;
+    private final FallbackManager fallbackManager;
+    private ScheduledExecutorService fallbackScheduler;
     
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
@@ -43,6 +49,9 @@ public class AsyncEngineImpl implements AsyncEngine {
     public AsyncEngineImpl(StorageService storageService, AsyncEngineConfig config) {
         this.storageService = storageService;
         this.config = config;
+        
+        // 创建兜底管理器
+        this.fallbackManager = new FallbackManager(config.getFallbackPath(), "application");
         
         // 创建批处理器
         BatchProcessor.Config batchConfig = new BatchProcessor.Config()
@@ -87,6 +96,9 @@ public class AsyncEngineImpl implements AsyncEngine {
         // 启动批处理器
         batchProcessor.start();
         
+        // 启动兜底文件重传定时任务
+        startFallbackScheduler();
+        
         // 注册JVM关闭钩子
         shutdownHandler.registerShutdownHook();
         
@@ -103,6 +115,19 @@ public class AsyncEngineImpl implements AsyncEngine {
         long startTime = System.currentTimeMillis();
         
         try {
+            // 关闭兜底任务调度器
+            if (fallbackScheduler != null) {
+                fallbackScheduler.shutdown();
+                try {
+                    if (!fallbackScheduler.awaitTermination(30, TimeUnit.SECONDS)) {
+                        fallbackScheduler.shutdownNow();
+                    }
+                } catch (InterruptedException e) {
+                    fallbackScheduler.shutdownNow();
+                    Thread.currentThread().interrupt();
+                }
+            }
+            
             // 关闭批处理器
             batchProcessor.close();
             
@@ -147,7 +172,31 @@ public class AsyncEngineImpl implements AsyncEngine {
         } catch (Exception e) {
             System.err.println("Failed to process batch: " + e.getMessage());
             e.printStackTrace();
+            
+            // 写入兜底文件
+            if (fallbackManager.writeFallbackFile(batchData)) {
+                System.out.println("Batch data written to fallback file due to upload failure");
+                return true; // 认为处理成功，因为数据已保存到兜底文件
+            }
+            
             return false;
         }
+    }
+    
+    /**
+     * 启动兜底文件重传定时任务
+     */
+    private void startFallbackScheduler() {
+        fallbackScheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "fallback-uploader");
+            t.setDaemon(true);
+            t.setPriority(Thread.MIN_PRIORITY);
+            return t;
+        });
+        
+        fallbackScheduler.scheduleWithFixedDelay(
+            new FallbackUploaderTask(storageService, config.getFallbackPath(), "application", config.getFallbackRetentionDays()),
+            1, config.getFallbackScanIntervalSeconds(), TimeUnit.SECONDS
+        );
     }
 }

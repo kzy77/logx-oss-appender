@@ -15,7 +15,7 @@
 
   <name>logx-s3-adapter</name>
   <description>S3适配器模块，提供对AWS S3、阿里云OSS、腾讯云COS等S3兼容存储的支持</description>
-  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+  
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>

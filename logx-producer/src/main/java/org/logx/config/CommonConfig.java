@@ -37,6 +37,11 @@ public final class CommonConfig {
     public static final String PATTERN = "pattern";
     public static final String LEVEL = "level";
 
+    // 兜底机制配置
+    public static final String FALLBACK_PATH = "fallbackPath";
+    public static final String FALLBACK_RETENTION_DAYS = "fallbackRetentionDays";
+    public static final String FALLBACK_SCAN_INTERVAL_SECONDS = "fallbackScanIntervalSeconds";
+
     
 
     /**
@@ -57,6 +62,9 @@ public final class CommonConfig {
         public static final String OSS_TYPE = "SF_OSS"; // 默认OSS类型为SF_OSS
         public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
         public static final String LEVEL = "INFO";
+        public static final String FALLBACK_PATH = "fallback"; // 默认兜底文件路径
+        public static final int FALLBACK_RETENTION_DAYS = 7; // 默认兜底文件保留天数
+        public static final int FALLBACK_SCAN_INTERVAL_SECONDS = 60; // 默认兜底文件扫描间隔（秒）
     }
 
     /**
@@ -95,6 +103,9 @@ public final class CommonConfig {
         public static final String KEY_PREFIX = "LOGX_OSS_KEY_PREFIX";
         public static final String OSS_TYPE = "LOGX_OSS_TYPE";
         public static final String MAX_UPLOAD_SIZE_MB = "LOGX_OSS_MAX_UPLOAD_SIZE_MB";
+        public static final String FALLBACK_PATH = "LOGX_OSS_FALLBACK_PATH";
+        public static final String FALLBACK_RETENTION_DAYS = "LOGX_OSS_FALLBACK_RETENTION_DAYS";
+        public static final String FALLBACK_SCAN_INTERVAL_SECONDS = "LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS";
     }
 
     // 配置迁移功能已移除，仅保留核心配置参数

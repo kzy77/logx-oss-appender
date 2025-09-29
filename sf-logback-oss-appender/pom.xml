@@ -11,7 +11,7 @@
   <artifactId>sf-logback-oss-appender</artifactId>
   <name>SF Logback OSS Appender</name>
   <description>高性能 Logback Appender，将应用日志实时上传到SF OSS对象存储（All-in-One包）</description>
-  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+  
 
   <licenses>
     <license>

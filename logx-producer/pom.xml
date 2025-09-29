@@ -15,7 +15,7 @@
 
   <name>logx-producer</name>
   <description>通用日志批处理与上传核心库，供 Log4j/Logback Appender 复用</description>
-  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+  
 
   <properties>
     <maven.compiler.source>1.8</maven.compiler.source>

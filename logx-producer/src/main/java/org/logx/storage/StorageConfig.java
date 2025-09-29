@@ -32,6 +32,9 @@ public class StorageConfig {
     private final Duration readTimeout;
     private final int maxConnections;
     private final boolean enableSsl;
+    private final String fallbackPath;
+    private final int fallbackRetentionDays;
+    private final int fallbackScanIntervalSeconds;
 
     /**
      * 构造函数，由Builder调用创建不可变配置对象
@@ -50,6 +53,9 @@ public class StorageConfig {
         this.readTimeout = builder.readTimeout;
         this.maxConnections = builder.maxConnections;
         this.enableSsl = builder.enableSsl;
+        this.fallbackPath = builder.fallbackPath;
+        this.fallbackRetentionDays = builder.fallbackRetentionDays;
+        this.fallbackScanIntervalSeconds = builder.fallbackScanIntervalSeconds;
     }
 
     /**
@@ -206,6 +212,18 @@ public class StorageConfig {
         return enableSsl;
     }
 
+    public String getFallbackPath() {
+        return fallbackPath;
+    }
+
+    public int getFallbackRetentionDays() {
+        return fallbackRetentionDays;
+    }
+
+    public int getFallbackScanIntervalSeconds() {
+        return fallbackScanIntervalSeconds;
+    }
+
     /**
      * Builder基类，支持流式配置和类型安全
      *
@@ -224,6 +242,9 @@ public class StorageConfig {
         private Duration readTimeout = Duration.ofSeconds(60);
         private int maxConnections = 50;
         private boolean enableSsl = true;
+        private String fallbackPath = "fallback";
+        private int fallbackRetentionDays = 7;
+        private int fallbackScanIntervalSeconds = 60;
 
         /**
          * 设置OSS类型
@@ -358,6 +379,39 @@ public class StorageConfig {
         }
 
         /**
+         * 设置兜底文件路径
+         *
+         * @param fallbackPath 兜底文件路径
+         * @return Builder实例，支持链式调用
+         */
+        public T fallbackPath(String fallbackPath) {
+            this.fallbackPath = fallbackPath;
+            return self();
+        }
+
+        /**
+         * 设置兜底文件保留天数
+         *
+         * @param fallbackRetentionDays 兜底文件保留天数
+         * @return Builder实例，支持链式调用
+         */
+        public T fallbackRetentionDays(int fallbackRetentionDays) {
+            this.fallbackRetentionDays = fallbackRetentionDays;
+            return self();
+        }
+
+        /**
+         * 设置兜底文件扫描间隔（秒）
+         *
+         * @param fallbackScanIntervalSeconds 兜底文件扫描间隔（秒）
+         * @return Builder实例，支持链式调用
+         */
+        public T fallbackScanIntervalSeconds(int fallbackScanIntervalSeconds) {
+            this.fallbackScanIntervalSeconds = fallbackScanIntervalSeconds;
+            return self();
+        }
+
+        /**
          * 返回具体Builder类型，支持方法链式调用
          */
         protected abstract T self();
@@ -393,7 +447,9 @@ public class StorageConfig {
                 + ", region='" + region + '\'' + ", accessKeyId='" + maskSensitive(accessKeyId) + '\''
                 + ", bucket='" + bucket + '\'' + ", keyPrefix='" + keyPrefix + '\'' + ", pathStyleAccess="
                 + pathStyleAccess + ", connectTimeout=" + connectTimeout + ", readTimeout=" + readTimeout
-                + ", maxConnections=" + maxConnections + ", enableSsl=" + enableSsl + '}';
+                + ", maxConnections=" + maxConnections + ", enableSsl=" + enableSsl 
+                + ", fallbackPath='" + fallbackPath + '\'' + ", fallbackRetentionDays=" + fallbackRetentionDays
+                + ", fallbackScanIntervalSeconds=" + fallbackScanIntervalSeconds + '}';
     }
 
     /**

@@ -11,7 +11,7 @@
     <artifactId>log4j2-oss-appender</artifactId>
     <name>log4j2-oss-appender</name>
     <description>High-performance Log4j2 Appender to upload logs to Aliyun OSS</description>
-    <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+    
     <licenses>
         <license>
             <name>Apache License, Version 2.0</name>

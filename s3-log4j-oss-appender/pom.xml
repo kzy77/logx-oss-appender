@@ -15,7 +15,7 @@
 
   <name>S3 Log4j OSS Appender</name>
   <description>高性能 Log4j 1.x Appender，将应用日志实时上传到S3兼容对象存储（All-in-One包）</description>
-  <url>https://github.com/logx-oss-appender/logx-oss-appender</url>
+  
 
   <properties>
     <maven.compiler.source>8</maven.compiler.source>

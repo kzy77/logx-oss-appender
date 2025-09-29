@@ -47,6 +47,13 @@ LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志�
 ```
 logx-oss-appender/                     # 主仓库
 ├── .bmad-core/                   # BMAD项目管理配置
+├── compatibility-tests/          # 兼容性测试
+│   ├── config-consistency-test/ # 配置一致性测试
+│   ├── jsp-servlet-test/        # JSP/Servlet兼容性测试
+│   ├── multi-framework-test/    # 多框架集成测试
+│   ├── performance-test/        # 性能测试
+│   ├── spring-boot-test/        # Spring Boot兼容性测试
+│   └── spring-mvc-test/         # Spring MVC兼容性测试
 ├── docs/                         # 项目文档
 │   ├── architecture.md          # 架构文档
 │   ├── prd.md                   # 产品需求文档
@@ -91,7 +98,7 @@ s3-logback-oss-appender
 - **语言**: Java 8+
 - **构建工具**: Maven 3.9.6
 - **核心依赖**: LMAX Disruptor 3.4.4
-- **云存储**: AWS SDK 2.28.16, 阿里云OSS SDK 3.17.4
+- **云存储**: AWS SDK 2.28.16
 - **测试**: JUnit 5.10.1, Mockito 5.8.0, AssertJ 3.24.2
 
 ### Java SPI机制实现细节
@@ -172,6 +179,13 @@ mvn verify -Pintegration-tests
 
 # 运行兼容性测试
 mvn verify -Pcompatibility-tests
+
+# 运行特定兼容性测试
+mvn verify -pl compatibility-tests/spring-boot-test
+mvn verify -pl compatibility-tests/spring-mvc-test
+mvn verify -pl compatibility-tests/jsp-servlet-test
+mvn verify -pl compatibility-tests/multi-framework-test
+mvn verify -pl compatibility-tests/config-consistency-test
 
 # 生成测试报告
 mvn surefire-report:report
@@ -599,18 +613,47 @@ public class StorageServiceFactory {
 所有框架适配器使用统一的配置参数标准，确保配置一致性和易用性：
 
 ### 必需参数
-- `endpoint` - 对象存储服务的访问端点
-- `accessKeyId` - 访问密钥ID
-- `accessKeySecret` - 访问密钥Secret
-- `bucket` - 存储桶名称
+
+| 参数名 | 类型 | 说明 | 示例 |
+|--------|------|------|------|
+| **endpoint** | String | 对象存储服务的访问端点 | `https://oss-cn-hangzhou.aliyuncs.com` |
+| **accessKeyId** | String | 访问密钥ID | `${LOGX_OSS_ACCESS_KEY_ID}` |
+| **accessKeySecret** | String | 访问密钥Secret | `${LOGX_OSS_ACCESS_KEY_SECRET}` |
+| **bucket** | String | 存储桶名称 | `my-log-bucket` |
 
 ### 可选参数
-- `region` - 存储区域，默认值为ap-guangzhou
-- `keyPrefix` - 对象存储中的文件路径前缀，默认为logs/
-- `ossType` - 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
-- `maxUploadSizeMb` - 单个上传文件最大大小（MB），默认100MB
+
+| 参数名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| **region** | String | ap-guangzhou | 存储区域 |
+| **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
+| **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
+| **maxQueueSize** | Integer | 100000 | 内存队列大小 |
+| **maxBatchCount** | Integer | 10000 | 单批最大条数 |
+| **maxBatchBytes** | Integer | 104857600 (100MB) | 单批最大字节(100MB) |
+| **flushIntervalMs** | Long | 2000 | 强制刷新间隔(毫秒) |
+| **dropWhenQueueFull** | Boolean | true | 队列满时是否丢弃日志 |
+| **multiProducer** | Boolean | false | 是否支持多生产者 |
+| **maxRetries** | Integer | 3 | 最大重试次数 |
+| **baseBackoffMs** | Long | 1000 | 基础退避时间(毫秒) |
+| **maxBackoffMs** | Long | 30000 | 最大退避时间(毫秒) |
+| **maxUploadSizeMb** | Integer | 100 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
+
+### 批处理优化参数
+
+| 参数名 | 类型 | 默认值 | 说明 |
+|--------|------|--------|------|
+| **batchSize** | Integer | 100 | 批处理大小（条数），支持动态调整范围10-10000 |
+| **batchSizeBytes** | Integer | 4194304 (4MB) | 批处理大小（字节） |
+| **enableCompression** | Boolean | true | 是否启用数据压缩 |
+| **compressionThreshold** | Integer | 1024 (1KB) | 启用压缩的数据大小阈值 |
+| **enableAdaptiveSize** | Boolean | true | 是否启用动态批处理大小调整 |
+| **enableSharding** | Boolean | true | 是否启用数据分片处理 |
+| **shardingThreshold** | Integer | 104857600 (100MB) | 数据分片阈值 |
+| **shardSize** | Integer | 10485760 (10MB) | 分片大小 |
 
 ### 配置优先级
+
 系统支持多种配置源，按以下优先级顺序读取配置：
 1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
 2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
@@ -703,4 +746,4 @@ OSS Appender 设计了明确的性能目标，确保在生产环境中提供卓�
 <!-- 中文沟通规则：本仓库与代理交互默认使用中文；如需英文请在指令中显式注明。 -->
 ---
 
-*本文档最后更新于 2025-09-26*
+*本文档最后更新于 2025-09-29*

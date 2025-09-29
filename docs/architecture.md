@@ -142,6 +142,24 @@ public interface StorageService {
 - 线程池协调关闭
 ```
 
+#### FallbackManager
+```java
+// 兜底文件管理
+- 本地文件存储: 网络异常时将日志存储到应用相对路径
+- 文件命名一致性: 保持与OSS相同的目录结构和命名规则
+- 存储路径配置: 支持相对路径和绝对路径配置
+- 文件清理机制: 定期清理过期兜底文件
+```
+
+#### FallbackScheduler
+```java
+// 定时重传任务
+- 定时扫描: 定期扫描兜底目录中的文件
+- 文件重传: 将兜底文件重新上传到云存储
+- 成功清理: 上传成功后删除本地兜底文件
+- 重试策略: 支持失败重试和指数退避
+```
+
 ### 2. 框架适配器层
 
 #### log4j-oss-appender
@@ -207,11 +225,17 @@ graph TD
         TP[ThreadPoolManager<br/>资源保护]
         SH[ShutdownHookHandler<br/>数据保障]
         SS[StorageService<br/>存储抽象]
+        FM[FallbackManager<br/>兜底机制]
+        FS[FallbackScheduler<br/>定时重传]
     end
     
     subgraph "存储适配器层"
         S3A[logx-s3-adapter<br/>S3兼容存储]
         SFOA[logx-sf-oss-adapter<br/>SF OSS存储]
+    end
+
+    subgraph "本地存储层"
+        FD[Fallback Directory<br/>应用相对路径]
     end
 
     subgraph "存储层"
@@ -234,6 +258,10 @@ graph TD
     TP --> SS
     SH -.-> DQ
     SH -.-> TP
+    FM -.-> SS
+    FM -.-> FD
+    FS -.-> FD
+    FS -.-> SS
 
     SS -- SPI --> S3A
     SS -- SPI --> SFOA
@@ -242,6 +270,7 @@ graph TD
     S3A --> S3
     S3A --> MIN
     SFOA --> SFO
+    FD -- 重传 --> SS
 ```
 
 ## 核心工作流
