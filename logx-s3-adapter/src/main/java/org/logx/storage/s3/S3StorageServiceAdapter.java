@@ -70,14 +70,22 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         String accessKeyId = config.getAccessKeyId();
         String secretAccessKey = config.getAccessKeySecret();
         String bucketName = config.getBucket();
+        String endpoint = config.getEndpoint(); // 获取自定义endpoint
         this.bucketName = bucketName;
         this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
 
-        // 构建S3客户端 - 标准AWS S3配置
-        this.s3Client = S3Client.builder()
+        // 构建S3客户端配置
+        S3Client.Builder clientBuilder = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "us-east-1")).build();
+                .region(Region.of(region != null ? region : "us-east-1"));
+        
+        // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
+        if (endpoint != null && !endpoint.trim().isEmpty()) {
+            clientBuilder.endpointOverride(java.net.URI.create(endpoint));
+        }
+
+        this.s3Client = clientBuilder.build();
     }
 
     @Override
