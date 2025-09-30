@@ -75,17 +75,23 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
 
         // 构建S3客户端配置
-        S3Client.Builder clientBuilder = S3Client.builder()
+        S3Client client = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "us-east-1"));
+                .region(Region.of(region != null ? region : "us-east-1"))
+                .build();
         
         // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
         if (endpoint != null && !endpoint.trim().isEmpty()) {
-            clientBuilder.endpointOverride(java.net.URI.create(endpoint));
+            client = S3Client.builder()
+                    .credentialsProvider(
+                            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
+                    .region(Region.of(region != null ? region : "us-east-1"))
+                    .endpointOverride(java.net.URI.create(endpoint))
+                    .build();
         }
 
-        this.s3Client = clientBuilder.build();
+        this.s3Client = client;
     }
 
     @Override
