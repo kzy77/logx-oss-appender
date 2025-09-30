@@ -2,8 +2,11 @@ package org.logx.core;
 
 import org.logx.fallback.FallbackManager;
 import org.logx.fallback.FallbackUploaderTask;
+import org.logx.fallback.ObjectNameGenerator;
 import org.logx.reliability.ShutdownHookHandler;
 import org.logx.storage.StorageService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -21,11 +24,14 @@ import java.util.concurrent.atomic.AtomicBoolean;
  */
 public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     
+    private static final Logger logger = LoggerFactory.getLogger(AsyncEngineImpl.class);
+    
     private final StorageService storageService;
     private final ShutdownHookHandler shutdownHandler;
     private final BatchProcessor batchProcessor;
     private final AsyncEngineConfig config;
     private final FallbackManager fallbackManager;
+    private final ObjectNameGenerator nameGenerator;
     private ScheduledExecutorService fallbackScheduler;
     
     private final AtomicBoolean started = new AtomicBoolean(false);
@@ -50,8 +56,11 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         this.storageService = storageService;
         this.config = config;
         
+        // 创建对象名生成器
+        this.nameGenerator = new ObjectNameGenerator(config.getLogFileName());
+        
         // 创建兜底管理器
-        this.fallbackManager = new FallbackManager(config.getFallbackPath(), "application");
+        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), config.getLogFileName());
         
         // 创建批处理器
         BatchProcessor.Config batchConfig = new BatchProcessor.Config()
@@ -177,11 +186,15 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
      */
     private boolean onBatch(byte[] batchData, int originalSize, boolean compressed, int messageCount) {
         try {
-            // 生成唯一的键名
-            String key = config.getLogFilePrefix() + System.currentTimeMillis() + "-" + System.nanoTime() + ".log";
+            // 使用ObjectNameGenerator生成统一的文件名
+            String key = nameGenerator.generateNormalObjectName();
             
             // 异步上传到存储服务
             storageService.putObject(key, batchData).get(30, TimeUnit.SECONDS);
+            
+            // 上传成功后打印日志
+            logger.info("Successfully uploaded log file: {}", key);
+            
             return true;
         } catch (Exception e) {
             System.err.println("Failed to process batch: " + e.getMessage());
@@ -209,7 +222,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         });
         
         fallbackScheduler.scheduleWithFixedDelay(
-            new FallbackUploaderTask(storageService, config.getFallbackPath(), "application", config.getFallbackRetentionDays()),
+            new FallbackUploaderTask(storageService, config.getLogFilePrefix(), config.getLogFileName(), config.getFallbackRetentionDays()),
             1, config.getFallbackScanIntervalSeconds(), TimeUnit.SECONDS
         );
     }

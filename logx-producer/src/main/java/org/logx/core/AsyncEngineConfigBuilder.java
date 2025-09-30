@@ -45,7 +45,7 @@ public class AsyncEngineConfigBuilder {
         config.enableCpuYield(configManager.getBooleanProperty(CONFIG_PREFIX + "cpu.yield.enable", config.isEnableCpuYield()));
         config.enableMemoryProtection(configManager.getBooleanProperty(CONFIG_PREFIX + "memory.protection.enable", config.isEnableMemoryProtection()));
         config.maxShutdownWaitMs(configManager.getLongProperty(CONFIG_PREFIX + "shutdown.wait.ms", config.getMaxShutdownWaitMs()));
-        config.logFilePrefix(configManager.getProperty(CONFIG_PREFIX + "log.file.prefix", config.getLogFilePrefix()));
+        config.logFileName(configManager.getProperty(CONFIG_PREFIX + "log.file.name", config.getLogFileName()));
         
         return config;
     }

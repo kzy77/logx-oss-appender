@@ -128,9 +128,19 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
      * 构建完整的对象键
      */
     private String buildFullKey(String key) {
-        if (keyPrefix.isEmpty()) {
+        // 如果keyPrefix为空或ObjectNameGenerator生成的key已经是完整路径，则直接返回
+        if (keyPrefix.isEmpty() || isFullPathKey(key)) {
             return key;
         }
         return keyPrefix + "/" + key;
+    }
+    
+    /**
+     * 判断是否为完整路径键
+     * ObjectNameGenerator生成的路径包含日期结构，如 application_2025-09/30/05:07:02:972_192.168.130.118.log
+     */
+    private boolean isFullPathKey(String key) {
+        // 检查是否包含日期路径结构
+        return key != null && key.contains("_") && key.contains("/") && key.contains(":");
     }
 }

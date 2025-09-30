@@ -26,10 +26,10 @@ public class AsyncEngineConfig {
     
     // 其他配置
     private long maxShutdownWaitMs = 1000; // 最大关闭等待时间(毫秒)
-    private String logFilePrefix = "logs/batch-"; // 日志文件前缀
-    private String fallbackPath = "fallback"; // 兜底文件路径
+    private String logFilePrefix = "logx/"; // 日志文件前缀
     private int fallbackRetentionDays = 7; // 兜底文件保留天数
     private int fallbackScanIntervalSeconds = 60; // 兜底文件扫描间隔（秒）
+    private String logFileName = "applogx"; // 日志文件名
     
     // 默认配置实例
     public static AsyncEngineConfig defaultConfig() {
@@ -154,12 +154,12 @@ public class AsyncEngineConfig {
         return this;
     }
     
-    public String getFallbackPath() {
-        return fallbackPath;
+    public String getLogFileName() {
+        return logFileName;
     }
     
-    public AsyncEngineConfig fallbackPath(String fallbackPath) {
-        this.fallbackPath = fallbackPath;
+    public AsyncEngineConfig logFileName(String logFileName) {
+        this.logFileName = logFileName;
         return this;
     }
     
