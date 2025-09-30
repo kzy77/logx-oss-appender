@@ -49,7 +49,8 @@ public final class CommonConfig {
      */
     public static final class Defaults {
         // 编码相关
-        public static final String DEFAULT_CHARSET = "UTF-8"; // 默认字符编码，确保中文等多字节字符正确处理
+        // 默认字符编码，确保中文等多字节字符正确处理
+        public static final String DEFAULT_CHARSET = "UTF-8";
         public static final String KEY_PREFIX = "logs/";
         public static final int MAX_QUEUE_SIZE = 8192;
         public static final int MAX_BATCH_COUNT = 500;
@@ -60,13 +61,19 @@ public final class CommonConfig {
         public static final int MAX_RETRIES = 5;
         public static final long BASE_BACKOFF_MS = 200L;
         public static final long MAX_BACKOFF_MS = 10000L;
-        public static final int MAX_UPLOAD_SIZE_MB = 20; // 默认最大上传文件大小20MB
-        public static final String OSS_TYPE = "SF_OSS"; // 默认OSS类型为SF_OSS
-        public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n"; // 使用UTF-8编码避免乱码
+        // 默认最大上传文件大小20MB
+        public static final int MAX_UPLOAD_SIZE_MB = 20;
+        // 默认OSS类型为SF_OSS
+        public static final String OSS_TYPE = "SF_OSS";
+        // 使用UTF-8编码避免乱码
+        public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
         public static final String LEVEL = "INFO";
-        public static final String FALLBACK_PATH = "fallback"; // 默认兜底文件路径
-        public static final int FALLBACK_RETENTION_DAYS = 7; // 默认兜底文件保留天数
-        public static final int FALLBACK_SCAN_INTERVAL_SECONDS = 60; // 默认兜底文件扫描间隔（秒）
+        // 默认兜底文件路径
+        public static final String FALLBACK_PATH = "fallback";
+        // 默认兜底文件保留天数
+        public static final int FALLBACK_RETENTION_DAYS = 7;
+        // 默认兜底文件扫描间隔（秒）
+        public static final int FALLBACK_SCAN_INTERVAL_SECONDS = 60;
     }
 
     /**
@@ -82,15 +89,20 @@ public final class CommonConfig {
         public static final int MIN_BATCH_COUNT = 1;
         public static final int MAX_BATCH_COUNT_LIMIT = 50_000;
         public static final int MIN_BATCH_BYTES = 1024;
-        public static final int MAX_BATCH_BYTES_LIMIT = 100 * 1024 * 1024; // 100MB
+        // 100MB
+        public static final int MAX_BATCH_BYTES_LIMIT = 100 * 1024 * 1024;
         public static final long MIN_FLUSH_INTERVAL = 100L;
-        public static final long MAX_FLUSH_INTERVAL = 300_000L; // 5分钟
+        // 5分钟
+        public static final long MAX_FLUSH_INTERVAL = 300_000L;
         public static final int MIN_RETRIES = 0;
         public static final int MAX_RETRIES_LIMIT = 20;
         public static final long MIN_BACKOFF = 50L;
-        public static final long MAX_BACKOFF_LIMIT = 600_000L; // 10分钟
-        public static final int MIN_UPLOAD_SIZE_MB = 1; // 最小1MB
-        public static final int MAX_UPLOAD_SIZE_MB_LIMIT = 1024; // 最大1024MB (1GB)
+        // 10分钟
+        public static final long MAX_BACKOFF_LIMIT = 600_000L;
+        // 最小1MB
+        public static final int MIN_UPLOAD_SIZE_MB = 1;
+        // 最大1024MB (1GB)
+        public static final int MAX_UPLOAD_SIZE_MB_LIMIT = 1024;
     }
 
     /**

@@ -75,15 +75,17 @@ public class ConfigFactory {
      * 创建MinIO配置
      */
     private StorageConfig createMinioConfig() {
+        // MinIO默认使用路径风格
+        // MinIO开发环境通常不用SSL
         return new MinioConfig.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
                 .region(getProperty("logx.oss.region", "us-east-1")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true)) // MinIO默认使用路径风格
+                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
                 .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
                 .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
                 .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", false)) // MinIO开发环境通常不用SSL
+                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", false))
                 .build();
     }
 

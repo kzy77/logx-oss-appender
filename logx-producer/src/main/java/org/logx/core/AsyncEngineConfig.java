@@ -12,24 +12,31 @@ public class AsyncEngineConfig {
     // Disruptor队列配置
     private int queueCapacity = 2048;
     private int batchMaxMessages = 50;
-    private int batchMaxBytes = 1024 * 1024; // 1MB
-    private long flushIntervalMs = 1; // 1毫秒
+    // 1MB
+    private int batchMaxBytes = 1024 * 1024;
+    // 1毫秒
+    private long flushIntervalMs = 1;
     private boolean blockOnFull = false;
     private boolean multiProducer = false;
-    
+
     // 线程池配置
     private int corePoolSize = 2;
     private int maximumPoolSize = 4;
     private int queueCapacityThreadPool = 500;
     private boolean enableCpuYield = true;
     private boolean enableMemoryProtection = true;
-    
+
     // 其他配置
-    private long maxShutdownWaitMs = 1000; // 最大关闭等待时间(毫秒)
-    private String logFilePrefix = "logx/"; // 日志文件前缀
-    private int fallbackRetentionDays = 7; // 兜底文件保留天数
-    private int fallbackScanIntervalSeconds = 60; // 兜底文件扫描间隔（秒）
-    private String logFileName = "applogx"; // 日志文件名
+    // 最大关闭等待时间(毫秒)
+    private long maxShutdownWaitMs = 1000;
+    // 日志文件前缀
+    private String logFilePrefix = "logx/";
+    // 兜底文件保留天数
+    private int fallbackRetentionDays = 7;
+    // 兜底文件扫描间隔（秒）
+    private int fallbackScanIntervalSeconds = 60;
+    // 日志文件名
+    private String logFileName = "applogx";
     
     // 默认配置实例
     public static AsyncEngineConfig defaultConfig() {

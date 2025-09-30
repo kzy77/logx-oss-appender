@@ -424,8 +424,12 @@ public class StorageConfig {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         StorageConfig that = (StorageConfig) o;
         return pathStyleAccess == that.pathStyleAccess && maxConnections == that.maxConnections
                 && enableSsl == that.enableSsl && Objects.equals(ossType, that.ossType)

@@ -1,5 +1,8 @@
 package org.logx.reliability;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -24,6 +27,8 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * @since 1.0.0
  */
 public class ShutdownHookHandler {
+
+    private static final Logger logger = LoggerFactory.getLogger(ShutdownHookHandler.class);
 
     private static final long DEFAULT_SHUTDOWN_TIMEOUT_SECONDS = 30;
 
@@ -90,7 +95,8 @@ public class ShutdownHookHandler {
      */
     public synchronized void registerShutdownHook() {
         if (registered.get()) {
-            return; // 已经注册过了
+            // 已经注册过了
+            return;
         }
 
         shutdownHook = new Thread(this::executeShutdown, "oss-appender-shutdown-hook");
@@ -98,9 +104,9 @@ public class ShutdownHookHandler {
         try {
             Runtime.getRuntime().addShutdownHook(shutdownHook);
             registered.set(true);
-            System.out.println("OSS Appender shutdown hook registered successfully");
+            logger.info("OSS Appender shutdown hook registered successfully");
         } catch (Exception e) {
-            System.err.println("Failed to register shutdown hook: " + e.getMessage());
+            logger.error("Failed to register shutdown hook: {}", e.getMessage());
         }
     }
 
@@ -109,47 +115,44 @@ public class ShutdownHookHandler {
      */
     public void executeShutdown() {
         if (!shutdownInProgress.compareAndSet(false, true)) {
-            return; // 已经在关闭中
+            return;
         }
 
-        System.out.println("OSS Appender shutdown process started, timeout: " + shutdownTimeoutSeconds + "s");
+        logger.info("OSS Appender shutdown process started, timeout: {}s", shutdownTimeoutSeconds);
         long startTime = System.currentTimeMillis();
 
         try {
-            // 按注册顺序逐个关闭组件
             for (int i = 0; i < callbacks.size(); i++) {
                 ShutdownCallback callback = callbacks.get(i);
                 long elapsed = (System.currentTimeMillis() - startTime) / 1000;
                 long remaining = Math.max(0, shutdownTimeoutSeconds - elapsed);
 
                 if (remaining <= 0) {
-                    System.err.println("Shutdown timeout reached, forcing exit");
+                    logger.error("Shutdown timeout reached, forcing exit");
                     break;
                 }
 
-                System.out.println("Shutting down component: " + callback.getComponentName() + ", remaining timeout: "
-                        + remaining + "s");
+                logger.info("Shutting down component: {}, remaining timeout: {}s", callback.getComponentName(), remaining);
 
                 try {
                     boolean success = callback.shutdown(remaining);
                     if (success) {
-                        System.out.println("Component " + callback.getComponentName() + " shutdown successfully");
+                        logger.info("Component {} shutdown successfully", callback.getComponentName());
                     } else {
-                        System.err.println("Component " + callback.getComponentName() + " shutdown failed");
+                        logger.error("Component {} shutdown failed", callback.getComponentName());
                     }
                 } catch (Exception e) {
-                    System.err.println(
-                            "Error shutting down component " + callback.getComponentName() + ": " + e.getMessage());
+                    logger.error("Error shutting down component {}: {}", callback.getComponentName(), e.getMessage());
                 }
             }
 
             long totalTime = (System.currentTimeMillis() - startTime) / 1000;
-            System.out.println("OSS Appender shutdown process completed in " + totalTime + "s");
+            logger.info("OSS Appender shutdown process completed in {}s", totalTime);
 
         } catch (RuntimeException e) {
-            System.err.println("Runtime error during shutdown process: " + e.getMessage());
+            logger.error("Runtime error during shutdown process: {}", e.getMessage());
         } catch (Error e) {
-            System.err.println("Error during shutdown process: " + e.getMessage());
+            logger.error("Error during shutdown process: {}", e.getMessage());
         }
     }
 
@@ -164,13 +167,11 @@ public class ShutdownHookHandler {
         try {
             Runtime.getRuntime().removeShutdownHook(shutdownHook);
             registered.set(false);
-            System.out.println("OSS Appender shutdown hook unregistered");
+            logger.info("OSS Appender shutdown hook unregistered");
         } catch (IllegalStateException e) {
-            // 可能已经在执行中，这是正常情况
-            System.out.println("Shutdown hook is already running, cannot unregister");
+            logger.info("Shutdown hook is already running, cannot unregister");
         } catch (Exception e) {
-            // 记录其他异常但不抛出，避免影响业务
-            System.err.println("Failed to unregister shutdown hook: " + e.getMessage());
+            logger.error("Failed to unregister shutdown hook: {}", e.getMessage());
         }
     }
 
@@ -207,7 +208,8 @@ public class ShutdownHookHandler {
             }
 
             try {
-                Thread.sleep(100); // 100ms检查间隔
+                // 100ms检查间隔
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return false;

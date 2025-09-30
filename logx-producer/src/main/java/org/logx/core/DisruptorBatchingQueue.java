@@ -89,8 +89,10 @@ public final class DisruptorBatchingQueue {
     public DisruptorBatchingQueue(int capacity, int batchMaxMessages, int batchMaxBytes, long flushIntervalMs,
             boolean blockOnFull, boolean multiProducer, BatchConsumer consumer) {
         this.batchMaxMessages = Math.max(1, batchMaxMessages);
-        this.batchMaxBytes = Math.max(1024, batchMaxBytes); // 最小1KB
-        this.flushIntervalMs = Math.max(100, flushIntervalMs); // 最小100ms
+        // 最小1KB
+        this.batchMaxBytes = Math.max(1024, batchMaxBytes);
+        // 最小100ms
+        this.flushIntervalMs = Math.max(100, flushIntervalMs);
         this.blockOnFull = blockOnFull;
         EventFactory<LogEventHolder> factory = LogEventHolder::new;
         ProducerType type = multiProducer ? ProducerType.MULTI : ProducerType.SINGLE;

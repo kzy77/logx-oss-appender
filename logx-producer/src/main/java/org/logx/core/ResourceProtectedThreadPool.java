@@ -32,8 +32,10 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
     private static final int DEFAULT_MAXIMUM_POOL_SIZE = 4;
     private static final long DEFAULT_KEEP_ALIVE_TIME = 60L;
     private static final int DEFAULT_QUEUE_CAPACITY = 1000;
-    private static final double DEFAULT_CPU_THRESHOLD = 0.8; // 80%
-    private static final double DEFAULT_MEMORY_THRESHOLD = 0.85; // 85%
+    // 80%
+    private static final double DEFAULT_CPU_THRESHOLD = 0.8;
+    // 85%
+    private static final double DEFAULT_MEMORY_THRESHOLD = 0.85;
 
     // 线程池和配置
     private final ThreadPoolExecutor executor;
@@ -209,7 +211,8 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
             System.err.println("Failed to get CPU usage: " + e.getMessage());
         }
 
-        return 0.0; // 无法获取时返回0
+        // 无法获取时返回0
+        return 0.0;
     }
 
     /**

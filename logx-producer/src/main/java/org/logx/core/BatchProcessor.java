@@ -38,10 +38,14 @@ public class BatchProcessor implements AutoCloseable {
     private static final int DEFAULT_BATCH_SIZE = 100;
     private static final int MIN_BATCH_SIZE = 10;
     private static final int MAX_BATCH_SIZE = 10000;
-    private static final long DEFAULT_FLUSH_INTERVAL_MS = 5000L; // 5秒
-    private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024; // 1KB
-    private static final int DEFAULT_SHARDING_THRESHOLD = org.logx.config.CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB * 1024 * 1024; // 20MB
-    private static final int DEFAULT_SHARD_SIZE = 10 * 1024 * 1024; // 10MB
+    // 5秒
+    private static final long DEFAULT_FLUSH_INTERVAL_MS = 5000L;
+    // 1KB
+    private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024;
+    // 20MB
+    private static final int DEFAULT_SHARDING_THRESHOLD = org.logx.config.CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+    // 10MB
+    private static final int DEFAULT_SHARD_SIZE = 10 * 1024 * 1024;
 
     // 批处理配置
     private final Config config;
@@ -122,9 +126,12 @@ public class BatchProcessor implements AutoCloseable {
         this.adaptiveSizer = new AdaptiveBatchSizer(config);
 
         // 创建队列
-        this.queue = new DisruptorBatchingQueue(512, // capacity (优化内存使用，从1024调整为512)
-                config.batchSize, config.batchSizeBytes, config.flushIntervalMs, false, // blockOnFull
-                false, // multiProducer
+        // capacity (优化内存使用，从1024调整为512)
+        // blockOnFull
+        // multiProducer
+        this.queue = new DisruptorBatchingQueue(512,
+                config.batchSize, config.batchSizeBytes, config.flushIntervalMs, false,
+                false,
                 new InternalBatchConsumer());
     }
 
@@ -309,10 +316,11 @@ public class BatchProcessor implements AutoCloseable {
 
                 String shardKey = key + "_part_" + String.format("%04d", i + 1);
                 totalShardsCreated.incrementAndGet();
-                
+
                 // 上传单个分片
                 CompletableFuture<Void> future = storageService.putObject(shardKey, shardData);
-                future.get(30, TimeUnit.SECONDS); // 30秒超时
+                // 30秒超时
+                future.get(30, TimeUnit.SECONDS);
             }
 
             return true;
@@ -389,7 +397,8 @@ public class BatchProcessor implements AutoCloseable {
 
         public void periodicAdjustment() {
             long now = System.currentTimeMillis();
-            if (now - lastAdjustmentTime < 30000) { // 30秒调整一次
+            // 30秒调整一次
+            if (now - lastAdjustmentTime < 30000) {
                 return;
             }
 
@@ -436,7 +445,8 @@ public class BatchProcessor implements AutoCloseable {
      */
     public static class Config {
         private int batchSize = DEFAULT_BATCH_SIZE;
-        private int batchSizeBytes = 4 * 1024 * 1024; // 4MB
+        // 4MB
+        private int batchSizeBytes = 4 * 1024 * 1024;
         private long flushIntervalMs = DEFAULT_FLUSH_INTERVAL_MS;
         private boolean enableCompression = true;
         private int compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;

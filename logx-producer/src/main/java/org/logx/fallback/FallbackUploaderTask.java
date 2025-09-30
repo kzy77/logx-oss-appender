@@ -94,10 +94,11 @@ public class FallbackUploaderTask implements Runnable {
             String retryObjectName = nameGenerator.generateRetryObjectName(relativePath);
             
             byte[] data = Files.readAllBytes(file);
-            
+
             // 上传到存储服务
             CompletableFuture<Void> future = storageService.putObject(retryObjectName, data);
-            future.get(UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS); // 30秒超时
+            // 30秒超时
+            future.get(UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             
             // 上传成功后删除本地文件
             Files.delete(file);

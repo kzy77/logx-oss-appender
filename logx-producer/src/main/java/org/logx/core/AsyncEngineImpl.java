@@ -99,7 +99,8 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     @Override
     public void start() {
         if (!started.compareAndSet(false, true)) {
-            return; // 已经启动了
+            // 已经启动了
+            return;
         }
         
         // 启动批处理器
@@ -110,14 +111,15 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         
         // 注册JVM关闭钩子
         shutdownHandler.registerShutdownHook();
-        
-        System.out.println("AsyncEngine started successfully");
+
+        logger.info("AsyncEngine started successfully");
     }
     
     @Override
     public void stop(long timeout, TimeUnit timeUnit) {
         if (!stopped.compareAndSet(false, true)) {
-            return; // 已经停止了
+            // 已经停止了
+            return;
         }
         
         long timeoutMillis = timeUnit.toMillis(timeout);
@@ -145,7 +147,8 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             long remaining = timeoutMillis - elapsed;
             
             if (remaining > 0) {
-                Thread.sleep(Math.min(remaining, config.getMaxShutdownWaitMs())); // 使用配置的最大等待时间
+                // 使用配置的最大等待时间
+                Thread.sleep(Math.min(remaining, config.getMaxShutdownWaitMs()));
             }
             
             // 关闭存储服务
@@ -154,15 +157,15 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                     storageService.close();
                 }
             } catch (Exception e) {
-                System.err.println("Error closing storage service: " + e.getMessage());
+                logger.error("Error closing storage service: {}", e.getMessage());
             }
-            
-            System.out.println("AsyncEngine stopped successfully");
+
+            logger.info("AsyncEngine stopped successfully");
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            System.err.println("AsyncEngine stop interrupted");
+            logger.error("AsyncEngine stop interrupted");
         } catch (Exception e) {
-            System.err.println("Error stopping AsyncEngine: " + e.getMessage());
+            logger.error("Error stopping AsyncEngine: {}", e.getMessage());
         }
     }
     
@@ -197,15 +200,14 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             
             return true;
         } catch (Exception e) {
-            System.err.println("Failed to process batch: " + e.getMessage());
-            e.printStackTrace();
-            
+            logger.error("Failed to process batch: {}", e.getMessage(), e);
+
             // 写入兜底文件
             if (fallbackManager.writeFallbackFile(batchData)) {
-                System.out.println("Batch data written to fallback file due to upload failure");
-                return true; // 认为处理成功，因为数据已保存到兜底文件
+                logger.info("Batch data written to fallback file due to upload failure");
+                return true;
             }
-            
+
             return false;
         }
     }

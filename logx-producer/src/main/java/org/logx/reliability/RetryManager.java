@@ -1,5 +1,8 @@
 package org.logx.reliability;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.net.SocketException;
 import java.net.SocketTimeoutException;
@@ -24,8 +27,10 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class RetryManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(RetryManager.class);
+
     private static final int DEFAULT_MAX_RETRIES = 3;
-    private static final long DEFAULT_BASE_DELAY_MS = 1000; // 1秒
+    private static final long DEFAULT_BASE_DELAY_MS = 1000;
 
     private final int maxRetries;
     private final long baseDelayMs;
@@ -167,15 +172,13 @@ public class RetryManager {
 
                 // 检查是否应该重试
                 if (!retryPolicy.shouldRetry(e, attempt)) {
-                    System.out.println(
-                            "Not retrying due to policy: " + e.getClass().getSimpleName() + ": " + e.getMessage());
+                    logger.debug("Not retrying due to policy: {}: {}", e.getClass().getSimpleName(), e.getMessage());
                     break;
                 }
 
                 // 计算延迟时间并等待
                 long delay = retryPolicy.calculateDelay(attempt, baseDelayMs);
-                System.out.println(
-                        "Retry attempt " + attempt + " failed, retrying in " + delay + "ms. Error: " + e.getMessage());
+                logger.debug("Retry attempt {} failed, retrying in {}ms. Error: {}", attempt, delay, e.getMessage());
 
                 try {
                     Thread.sleep(delay);
