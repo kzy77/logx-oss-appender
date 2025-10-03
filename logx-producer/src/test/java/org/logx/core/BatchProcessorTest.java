@@ -112,7 +112,8 @@ class BatchProcessorTest {
     void shouldBatchMultipleMessages() throws InterruptedException {
         // Given
         processor.start();
-        int messageCount = 25; // 超过批次大小10
+        // 超过批次大小10
+        int messageCount = 25;
 
         // When
         for (int i = 0; i < messageCount; i++) {
@@ -125,7 +126,8 @@ class BatchProcessorTest {
         // Then
         BatchProcessor.BatchMetrics metrics = processor.getMetrics();
         assertThat(metrics.getTotalMessagesProcessed()).isEqualTo(messageCount);
-        assertThat(metrics.getTotalBatchesProcessed()).isGreaterThanOrEqualTo(2); // 至少2个批次
+        // 至少2个批次
+        assertThat(metrics.getTotalBatchesProcessed()).isGreaterThanOrEqualTo(2);
 
         processor.close();
     }
@@ -159,7 +161,8 @@ class BatchProcessorTest {
     void shouldCompressLargeMessages() throws InterruptedException {
         // Given
         processor.start();
-        byte[] largeMessage = new byte[1024]; // 1KB，超过压缩阈值100字节
+        // 1KB，超过压缩阈值100字节
+        byte[] largeMessage = new byte[1024];
         for (int i = 0; i < largeMessage.length; i++) {
             largeMessage[i] = (byte) ('A' + (i % 26));
         }
@@ -208,7 +211,8 @@ class BatchProcessorTest {
         // 验证吞吐量
         double throughput = (double) messageCount / (durationMs / 1000.0);
         logger.info("BatchProcessor Throughput: {} messages/second", throughput);
-        assertThat(throughput).isGreaterThan(50); // 至少50条/秒
+        // 至少50条/秒
+        assertThat(throughput).isGreaterThan(50);
 
         // 验证批处理效率
         assertThat(metrics.getAverageMessagesPerBatch()).isGreaterThan(1.0);
@@ -230,7 +234,8 @@ class BatchProcessorTest {
         for (int i = 0; i < 200; i++) {
             adaptiveProcessor.submit(("adaptive test " + i).getBytes());
             if (i % 50 == 0) {
-                Thread.sleep(50); // 间歇性暂停模拟不同负载
+                // 间歇性暂停模拟不同负载
+                Thread.sleep(50);
             }
         }
 
@@ -267,7 +272,8 @@ class BatchProcessorTest {
 
         // Then
         BatchProcessor.BatchMetrics metrics = noCompressionProcessor.getMetrics();
-        assertThat(metrics.getTotalBytesCompressed()).isEqualTo(0); // 不应该有压缩
+        // 不应该有压缩
+        assertThat(metrics.getTotalBytesCompressed()).isEqualTo(0);
         assertThat(metrics.getTotalCompressionSavings()).isEqualTo(0);
 
         noCompressionProcessor.close();
@@ -313,13 +319,18 @@ class BatchProcessorTest {
         BatchProcessor.Config config = BatchProcessor.Config.defaultConfig();
 
         // When & Then - 测试边界值
-        config.batchSize(-10); // 负值应该被修正为最小值
-        assertThat(config.getBatchSize()).isEqualTo(10); // MIN_BATCH_SIZE
+        // 负值应该被修正为最小值
+        config.batchSize(-10);
+        // MIN_BATCH_SIZE
+        assertThat(config.getBatchSize()).isEqualTo(10);
 
-        config.batchSize(50000); // 超大值应该被修正为最大值
-        assertThat(config.getBatchSize()).isEqualTo(10000); // MAX_BATCH_SIZE
+        // 超大值应该被修正为最大值
+        config.batchSize(50000);
+        // MAX_BATCH_SIZE
+        assertThat(config.getBatchSize()).isEqualTo(10000);
 
-        config.batchSize(500); // 正常值
+        // 正常值
+        config.batchSize(500);
         assertThat(config.getBatchSize()).isEqualTo(500);
     }
 
@@ -345,7 +356,8 @@ class BatchProcessorTest {
                 return false;
             }
 
-            return true; // 总是成功
+            // 总是成功
+            return true;
         }
 
         

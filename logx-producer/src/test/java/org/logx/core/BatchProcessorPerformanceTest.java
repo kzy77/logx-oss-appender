@@ -72,7 +72,8 @@ class BatchProcessorPerformanceTest {
 
         processor.start();
 
-        int messageCount = 2000; // 减少消息数量，更现实的测试
+        // 减少消息数量，更现实的测试
+        int messageCount = 2000;
         byte[] message = "High performance test message".getBytes();
 
         long startTime = System.nanoTime();
@@ -167,7 +168,8 @@ class BatchProcessorPerformanceTest {
         // Phase 1: 低负载
         for (int i = 0; i < 100; i++) {
             processor.submit(("low load message " + i).getBytes());
-            Thread.sleep(5); // 模拟低频率
+            // 模拟低频率
+            Thread.sleep(5);
         }
 
         Thread.sleep(1000);
@@ -264,7 +266,8 @@ class BatchProcessorPerformanceTest {
         noBatchProcessor.close();
 
         // Test 2: 大批处理
-        consumer = new HighPerformanceBatchConsumer(); // 重置消费者
+        // 重置消费者
+        consumer = new HighPerformanceBatchConsumer();
         BatchProcessor batchProcessor = new BatchProcessor(BatchProcessor.Config.defaultConfig().batchSize(100) // 大批次
                 .enableCompression(false), consumer, new MockStorageService());
 
@@ -284,14 +287,14 @@ class BatchProcessorPerformanceTest {
         batchProcessor.close();
 
         // 结果对比
-        System.out.println("=== Batching vs No-Batching Performance Comparison ===");
-        System.out.println("No-batching duration: " + noBatchDuration + "ms");
-        System.out.println("Batching duration: " + batchDuration + "ms");
-        System.out.println("No-batching batches: " + noBatchMetrics.getTotalBatchesProcessed());
-        System.out.println("Batching batches: " + batchMetrics.getTotalBatchesProcessed());
+        logger.info("=== Batching vs No-Batching Performance Comparison ===");
+        logger.info("No-batching duration: " + noBatchDuration + "ms");
+        logger.info("Batching duration: " + batchDuration + "ms");
+        logger.info("No-batching batches: " + noBatchMetrics.getTotalBatchesProcessed());
+        logger.info("Batching batches: " + batchMetrics.getTotalBatchesProcessed());
 
         double improvement = ((double) noBatchDuration / batchDuration);
-        System.out.println("Performance improvement: " + improvement + "x");
+        logger.info("Performance improvement: " + improvement + "x");
 
         // 验证批处理带来的性能提升
         assertThat(batchMetrics.getTotalBatchesProcessed()).isLessThan(noBatchMetrics.getTotalBatchesProcessed());
@@ -299,8 +302,9 @@ class BatchProcessorPerformanceTest {
         // 批处理应该显著减少批次数量（至少50%减少）
         double batchReduction = (double) batchMetrics.getTotalBatchesProcessed()
                 / noBatchMetrics.getTotalBatchesProcessed();
-        System.out.println("Batch count reduction ratio: " + batchReduction);
-        assertThat(batchReduction).isLessThan(0.5); // 批次数量应该减少50%以上
+        logger.info("Batch count reduction ratio: " + batchReduction);
+        // 批次数量应该减少50%以上
+        assertThat(batchReduction).isLessThan(0.5);
     }
 
     /**

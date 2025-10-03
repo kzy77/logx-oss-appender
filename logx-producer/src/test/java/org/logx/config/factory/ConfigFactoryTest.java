@@ -101,8 +101,10 @@ class ConfigFactoryTest {
         assertThat(config.getAccessKeyId()).isEqualTo("minioadmin");
         assertThat(config.getAccessKeySecret()).isEqualTo("minioadmin");
         assertThat(config.getBucket()).isEqualTo("logs");
-        assertThat(config.isPathStyleAccess()).isTrue(); // MinIO默认使用路径风格
-        assertThat(config.isEnableSsl()).isFalse(); // MinIO开发环境默认不用SSL
+        // MinIO默认使用路径风格
+        assertThat(config.isPathStyleAccess()).isTrue();
+        // MinIO开发环境默认不用SSL
+        assertThat(config.isEnableSsl()).isFalse();
     }
 
     @Test
@@ -224,8 +226,10 @@ class ConfigFactoryTest {
         StorageConfig config = configFactory.createConfig(StorageOssType.MINIO);
 
         // MinIO特定的默认值
-        assertThat(config.isPathStyleAccess()).isTrue(); // MinIO默认使用路径风格
-        assertThat(config.isEnableSsl()).isFalse(); // MinIO开发环境默认不用SSL
+        // MinIO默认使用路径风格
+        assertThat(config.isPathStyleAccess()).isTrue();
+        // MinIO开发环境默认不用SSL
+        assertThat(config.isEnableSsl()).isFalse();
     }
 
     @Test

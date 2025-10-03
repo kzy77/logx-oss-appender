@@ -3,6 +3,8 @@ package org.logx.core;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Future;
@@ -19,6 +21,8 @@ import static org.assertj.core.api.Assertions.*;
  * @since 1.0.0
  */
 class ResourceProtectedThreadPoolTest {
+
+    private static final Logger logger = LoggerFactory.getLogger(ResourceProtectedThreadPoolTest.class);
 
     private ResourceProtectedThreadPool threadPool;
 
@@ -159,7 +163,8 @@ class ResourceProtectedThreadPoolTest {
         blockingLatch.countDown();
 
         // Then
-        Thread.sleep(500); // 等待任务执行
+        // 等待任务执行
+        Thread.sleep(500);
         ResourceProtectedThreadPool.PoolMetrics metrics = smallPool.getMetrics();
 
         // 验证有任务被拒绝
@@ -172,21 +177,58 @@ class ResourceProtectedThreadPoolTest {
     @Test
     void shouldHandleMemoryProtection() {
         // Given - 创建启用内存保护的线程池
+        // 在8GB环境下使用更现实的高阈值来触发内存保护
         ResourceProtectedThreadPool.Config config = ResourceProtectedThreadPool.Config.defaultConfig()
-                .memoryThreshold(0.001) // 设置很低的内存阈值，强制触发保护
+                .memoryThreshold(0.05) // 设置5%的内存阈值，当前使用约7%，应该能触发保护
                 .enableMemoryProtection(true);
 
         ResourceProtectedThreadPool protectedPool = new ResourceProtectedThreadPool(config);
 
-        // When & Then
-        assertThatThrownBy(() -> {
-            protectedPool.submit(() -> {
-                // 这个任务应该不会被执行，因为内存保护会拒绝它
-            });
-        }).isInstanceOf(ResourceProtectedThreadPool.ResourceProtectionException.class)
-                .hasMessageContaining("Memory pressure too high");
+        // 先消耗大量内存以接近阈值
+        java.util.List<byte[]> memoryConsumer = new java.util.ArrayList<>();
+        try {
+            // 使用与getCurrentMemoryUsage()相同的计算方式
+            java.lang.management.MemoryMXBean memoryMXBean = java.lang.management.ManagementFactory.getMemoryMXBean();
+            long maxMemory = memoryMXBean.getHeapMemoryUsage().getMax();
+            // 超过95%阈值
+            long targetMemory = (long) (maxMemory * 0.96);
 
-        protectedPool.close();
+            logger.info("Max memory: " + maxMemory / (1024 * 1024) + "MB");
+
+            // 消耗内存直到接近95%阈值
+            while (memoryMXBean.getHeapMemoryUsage().getUsed() < targetMemory) {
+                // 每次分配1MB
+                memoryConsumer.add(new byte[1024 * 1024]);
+                // 防止无限循环
+                if (memoryConsumer.size() > 2000) break;
+
+                // 每100MB打印一次当前使用情况
+                if (memoryConsumer.size() % 100 == 0) {
+                    long currentUsed = memoryMXBean.getHeapMemoryUsage().getUsed();
+                    double currentUsage = (double) currentUsed / maxMemory;
+                    logger.info("Current memory usage: " + (currentUsage * 100) + "%");
+                }
+            }
+
+            // 验证当前内存使用率
+            long currentUsed = memoryMXBean.getHeapMemoryUsage().getUsed();
+            double currentUsage = (double) currentUsed / maxMemory;
+            logger.info("Final memory usage before test: " + (currentUsage * 100) + "%");
+
+            // When & Then - 现在应该触发内存保护
+            assertThatThrownBy(() -> {
+                protectedPool.submit(() -> {
+                    // 这个任务应该不会被执行，因为内存保护会拒绝它
+                });
+            }).isInstanceOf(ResourceProtectedThreadPool.ResourceProtectionException.class)
+                    .hasMessageContaining("Memory pressure too high");
+
+        } finally {
+            // 清理内存
+            memoryConsumer.clear();
+            System.gc();
+            protectedPool.close();
+        }
     }
 
     @Test
@@ -261,7 +303,8 @@ class ResourceProtectedThreadPoolTest {
         });
 
         // When
-        threadPool.close(); // 应该等待任务完成
+        // 应该等待任务完成
+        threadPool.close();
 
         // Then
         assertThat(taskLatch.await(10, TimeUnit.SECONDS)).isTrue();

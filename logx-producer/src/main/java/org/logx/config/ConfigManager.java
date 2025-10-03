@@ -362,7 +362,8 @@ public class ConfigManager {
         // 批处理配置默认值
         setDefault("batch.size", "100");
         setDefault("batch.flushInterval", "5000");
-        setDefault("batch.maxBytes", "1048576"); // 1MB
+        // 1MB
+        setDefault("batch.maxBytes", "1048576");
 
         // 队列配置默认值
         setDefault("queue.capacity", "8192");
