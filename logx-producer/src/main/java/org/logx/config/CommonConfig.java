@@ -2,78 +2,526 @@ package org.logx.config;
 
 /**
  * 通用配置常量定义类
- * 定义所有框架适配器（Log4j、Log4j2、Logback）共享的配置参数名称，确保配置一致性
- * 使用统一的LOGX_OSS_前缀环境变量配置
+ * <p>
+ * 定义LogX OSS Appender的统一配置管理中心，包括：
+ * <ul>
+ * <li>存储服务配置（OSS、S3等）</li>
+ * <li>批处理触发条件配置</li>
+ * <li>紧急保护配置</li>
+ * <li>兜底机制配置</li>
+ * <li>内部技术参数配置</li>
+ * </ul>
+ * <p>
+ * <b>配置分类：</b>
+ * <ul>
+ * <li>用户可配置参数（14个）：存储凭证、触发条件、兜底配置等</li>
+ * <li>内部技术参数（20个）：线程池、压缩、分片、重试等优化参数</li>
+ * <li>所有框架适配器（Log4j、Log4j2、Logback）共享这些配置</li>
+ * </ul>
+ * <p>
+ * 使用统一的LOGX_OSS_前缀环境变量配置。
  *
  * @author OSS Appender Team
  * @since 1.0.0
  */
 public final class CommonConfig {
 
-    // S3兼容存储基础配置
+    // ==================== 存储服务配置（7个）====================
+
+    /**
+     * 对象存储服务端点地址
+     * <p>
+     * 示例：https://oss-cn-hangzhou.aliyuncs.com
+     * <p>
+     * 必需参数
+     */
     public static final String ENDPOINT = "endpoint";
+
+    /**
+     * 存储区域
+     * <p>
+     * 示例：cn-hangzhou
+     * <p>
+     * 可选参数
+     */
     public static final String REGION = "region";
+
+    /**
+     * 访问密钥ID
+     * <p>
+     * 必需参数
+     */
     public static final String ACCESS_KEY_ID = "accessKeyId";
+
+    /**
+     * 访问密钥Secret
+     * <p>
+     * 必需参数
+     */
     public static final String ACCESS_KEY_SECRET = "accessKeySecret";
+
+    /**
+     * 存储桶名称
+     * <p>
+     * 必需参数
+     */
     public static final String BUCKET = "bucket";
+
+    /**
+     * 对象存储中的文件路径前缀
+     * <p>
+     * 示例：logs/
+     * <p>
+     * 可选参数，默认：logs/
+     */
     public static final String KEY_PREFIX = "keyPrefix";
+
+    /**
+     * 存储后端类型
+     * <p>
+     * 可选值：SF_OSS、S3
+     * <p>
+     * 可选参数，默认：SF_OSS
+     */
     public static final String OSS_TYPE = "ossType";
 
-    // 队列配置
-    public static final String MAX_QUEUE_SIZE = "maxQueueSize";
+    // ==================== 批处理触发配置（3个）====================
+
+    /**
+     * 触发条件1：消息数量阈值
+     * <p>
+     * 当队列中消息数量达到此值时触发上传
+     * <p>
+     * 可选参数，默认：8192条
+     */
     public static final String MAX_BATCH_COUNT = "maxBatchCount";
+
+    /**
+     * 触发条件2：内存占用阈值
+     * <p>
+     * 当队列中消息内存占用达到此字节数时触发上传
+     * <p>
+     * 可选参数，默认：10MB
+     */
     public static final String MAX_BATCH_BYTES = "maxBatchBytes";
-    public static final String FLUSH_INTERVAL_MS = "flushIntervalMs";
+
+    /**
+     * 触发条件3：最早消息年龄阈值
+     * <p>
+     * 当队列中最早的消息超过此毫秒数时触发上传
+     * <p>
+     * 可选参数，默认：10分钟（600000毫秒）
+     */
+    public static final String MAX_MESSAGE_AGE_MS = "maxMessageAgeMs";
+
+    // ==================== 紧急保护配置（1个）====================
+
+    /**
+     * 紧急保护阈值：内存占用上限
+     * <p>
+     * 当队列内存占用超过此MB数时，直接将新消息写入兜底文件
+     * <p>
+     * 可选参数，默认：512MB
+     */
+    public static final String EMERGENCY_MEMORY_THRESHOLD_MB = "emergencyMemoryThresholdMb";
+
+    // ==================== 兜底机制配置（2个）====================
+
+    /**
+     * 兜底文件存储路径
+     * <p>
+     * 当网络异常或存储服务不可用时，日志会临时写入此路径
+     * <p>
+     * 可选参数，默认：fallback（相对路径）
+     */
+    public static final String FALLBACK_PATH = "fallbackPath";
+
+    /**
+     * 兜底文件保留天数
+     * <p>
+     * 超过此天数的兜底文件会被自动清理
+     * <p>
+     * 可选参数，默认：7天
+     */
+    public static final String FALLBACK_RETENTION_DAYS = "fallbackRetentionDays";
+
+    // ==================== 文件配置（1个）====================
+
+    /**
+     * 日志文件名前缀
+     * <p>
+     * 用于生成对象存储中的文件名
+     * <p>
+     * 可选参数，默认：applogx
+     */
+    public static final String LOG_FILE_NAME = "logFileName";
+
+    // ==================== 队列配置（3个）====================
+
+    /** Disruptor环形缓冲大小 */
+    public static final String QUEUE_CAPACITY = "queueCapacity";
+
+    /** 队列满时是否丢弃新消息 */
     public static final String DROP_WHEN_QUEUE_FULL = "dropWhenQueueFull";
+
+    /** 是否支持多生产者模式 */
     public static final String MULTI_PRODUCER = "multiProducer";
 
-    // 上传配置
-    public static final String MAX_RETRIES = "maxRetries";
-    public static final String BASE_BACKOFF_MS = "baseBackoffMs";
-    public static final String MAX_BACKOFF_MS = "maxBackoffMs";
-    public static final String MAX_UPLOAD_SIZE_MB = "maxUploadSizeMb";
+    // ==================== 线程池配置（5个）====================
 
-    // 日志格式配置
-    public static final String PATTERN = "pattern";
+    /** 线程池核心线程数 */
+    public static final String CORE_POOL_SIZE = "corePoolSize";
+
+    /** 线程池最大线程数 */
+    public static final String MAXIMUM_POOL_SIZE = "maximumPoolSize";
+
+    /** 线程池队列容量 */
+    public static final String QUEUE_CAPACITY_THREAD_POOL = "queueCapacityThreadPool";
+
+    /** 是否启用CPU让出机制 */
+    public static final String ENABLE_CPU_YIELD = "enableCpuYield";
+
+    /** 是否启用内存保护机制 */
+    public static final String ENABLE_MEMORY_PROTECTION = "enableMemoryProtection";
+
+    // ==================== 压缩配置（2个）====================
+
+    /** 是否启用数据压缩 */
+    public static final String ENABLE_COMPRESSION = "enableCompression";
+
+    /** 压缩阈值（字节） */
+    public static final String COMPRESSION_THRESHOLD = "compressionThreshold";
+
+    // ==================== 分片配置（3个）====================
+
+    /** 是否启用数据分片 */
+    public static final String ENABLE_SHARDING = "enableSharding";
+
+    /** 分片阈值（字节） */
+    public static final String SHARDING_THRESHOLD = "shardingThreshold";
+
+    /** 单个分片大小（字节） */
+    public static final String SHARD_SIZE = "shardSize";
+
+    // ==================== 重试配置（3个）====================
+
+    /** 最大重试次数 */
+    public static final String MAX_RETRIES = "maxRetries";
+
+    /** 基础退避时间（毫秒） */
+    public static final String BASE_BACKOFF_MS = "baseBackoffMs";
+
+    /** 最大退避时间（毫秒） */
+    public static final String MAX_BACKOFF_MS = "maxBackoffMs";
+
+    // ==================== 其他配置（3个）====================
+
+    /** 是否启用自适应批次大小调整 */
+    public static final String ENABLE_ADAPTIVE_SIZE = "enableAdaptiveSize";
+
+    /** 最大关闭等待时间（毫秒） */
+    public static final String MAX_SHUTDOWN_WAIT_MS = "maxShutdownWaitMs";
+
+    /** 日志级别 */
     public static final String LEVEL = "level";
 
-    // 兜底机制配置
-    public static final String FALLBACK_PATH = "fallbackPath";
-    public static final String FALLBACK_RETENTION_DAYS = "fallbackRetentionDays";
-    public static final String FALLBACK_SCAN_INTERVAL_SECONDS = "fallbackScanIntervalSeconds";
 
-    
 
     /**
      * 默认配置值
+     * <p>
+     * 所有配置参数的默认值集中管理，按功能分组。
+     * 这些默认值经过性能测试和生产环境验证，适用于大多数场景。
      */
     public static final class Defaults {
-        // 编码相关
-        // 默认字符编码，确保中文等多字节字符正确处理
+
+        // ==================== 基础配置 ====================
+
+        /**
+         * 默认字符编码
+         * <p>
+         * 使用UTF-8确保中文等多字节字符正确处理
+         */
         public static final String DEFAULT_CHARSET = "UTF-8";
+
+        /**
+         * 对象存储中的文件路径前缀
+         * <p>
+         * 默认为 "logs/"，所有上传的日志文件都会存储在此目录下
+         */
         public static final String KEY_PREFIX = "logs/";
-        public static final int MAX_QUEUE_SIZE = 8192;
-        public static final int MAX_BATCH_COUNT = 500;
-        public static final int MAX_BATCH_BYTES = 4 * 1024 * 1024;
-        public static final long FLUSH_INTERVAL_MS = 3000L;
-        public static final boolean DROP_WHEN_QUEUE_FULL = false;
-        public static final boolean MULTI_PRODUCER = false;
-        public static final int MAX_RETRIES = 5;
-        public static final long BASE_BACKOFF_MS = 200L;
-        public static final long MAX_BACKOFF_MS = 10000L;
-        // 默认最大上传文件大小20MB
-        public static final int MAX_UPLOAD_SIZE_MB = 20;
-        // 默认OSS类型为SF_OSS
+
+        /**
+         * 日志文件名前缀
+         * <p>
+         * 用于生成对象名，默认为 "applogx"
+         */
+        public static final String LOG_FILE_NAME = "applogx";
+
+        /**
+         * 默认OSS存储类型
+         * <p>
+         * 可选值：SF_OSS、S3
+         */
         public static final String OSS_TYPE = "SF_OSS";
-        // 使用UTF-8编码避免乱码
+
+        // ==================== 队列配置 ====================
+
+        /**
+         * Disruptor环形缓冲大小
+         * <p>
+         * 默认8192，必须是2的幂。此值决定队列的最大容量。
+         * 建议范围：1024-65536
+         */
+        public static final int QUEUE_CAPACITY = 8192;
+
+        /**
+         * 队列满时是否丢弃新消息
+         * <p>
+         * false表示阻塞等待，true表示直接丢弃
+         * 推荐false以保证数据不丢失
+         */
+        public static final boolean DROP_WHEN_QUEUE_FULL = false;
+
+        /**
+         * 是否支持多生产者模式
+         * <p>
+         * false表示单生产者（性能更好），true表示多生产者（支持并发写入）
+         * 大多数场景使用单生产者即可
+         */
+        public static final boolean MULTI_PRODUCER = false;
+
+        // ==================== 批处理触发配置 ====================
+
+        /**
+         * 触发条件1：消息数量阈值
+         * <p>
+         * 当队列中消息数量达到4096条时触发上传（约为队列容量的一半）
+         * 建议范围：100-50000
+         */
+        public static final int MAX_BATCH_COUNT = 4096;
+
+        /**
+         * 触发条件2：内存占用阈值
+         * <p>
+         * 当队列中消息内存占用达到10MB时触发上传
+         * 默认：10MB (10 * 1024 * 1024 字节)
+         * 建议范围：1MB-100MB
+         */
+        public static final int MAX_BATCH_BYTES = 10 * 1024 * 1024;
+
+        /**
+         * 触发条件3：最早消息年龄阈值
+         * <p>
+         * 当队列中最早的消息超过10分钟时触发上传
+         * 默认：600000毫秒 (10分钟)
+         * 建议范围：1秒-30分钟
+         */
+        public static final long MAX_MESSAGE_AGE_MS = 600000L;
+
+        // ==================== 紧急保护配置 ====================
+
+        /**
+         * 紧急保护阈值：内存占用上限
+         * <p>
+         * 当队列内存占用超过512MB时，直接将新消息写入兜底文件
+         * 这是最后一道防线，防止OOM
+         * 默认：512MB
+         * 建议范围：256MB-2048MB
+         */
+        public static final int EMERGENCY_MEMORY_THRESHOLD_MB = 512;
+
+        // ==================== 线程池配置 ====================
+
+        /**
+         * 线程池核心线程数
+         * <p>
+         * 用于异步处理日志上传任务
+         * 默认：2
+         * 建议范围：1-8
+         */
+        public static final int CORE_POOL_SIZE = 2;
+
+        /**
+         * 线程池最大线程数
+         * <p>
+         * 当核心线程忙碌时，可以创建的最大线程数
+         * 默认：4
+         * 建议范围：2-16
+         */
+        public static final int MAXIMUM_POOL_SIZE = 4;
+
+        /**
+         * 线程池队列容量
+         * <p>
+         * 用于存储等待执行的任务
+         * 默认：500
+         */
+        public static final int QUEUE_CAPACITY_THREAD_POOL = 500;
+
+        /**
+         * 是否启用CPU让出机制
+         * <p>
+         * 在密集操作中主动让出CPU，避免长时间占用
+         * 默认：true
+         */
+        public static final boolean ENABLE_CPU_YIELD = true;
+
+        /**
+         * 是否启用内存保护机制
+         * <p>
+         * 启用后会监控内存使用，防止OOM
+         * 默认：true
+         */
+        public static final boolean ENABLE_MEMORY_PROTECTION = true;
+
+        // ==================== 压缩配置 ====================
+
+        /**
+         * 是否启用数据压缩
+         * <p>
+         * 使用GZIP压缩可以节省90%+的存储空间和网络带宽
+         * 默认：true
+         */
+        public static final boolean ENABLE_COMPRESSION = true;
+
+        /**
+         * 压缩阈值
+         * <p>
+         * 数据大小超过此值才启用压缩（避免小数据压缩反而增大）
+         * 默认：1024字节 (1KB)
+         * 建议范围：512字节-10KB
+         */
+        public static final int COMPRESSION_THRESHOLD = 1024;
+
+        // ==================== 分片配置 ====================
+
+        /**
+         * 是否启用数据分片
+         * <p>
+         * 大文件自动分片可以提高上传成功率
+         * 默认：true
+         */
+        public static final boolean ENABLE_SHARDING = true;
+
+        /**
+         * 分片阈值（同时也是单个文件的最大上传大小）
+         * <p>
+         * 数据大小超过此值时自动分片
+         * 默认：20MB (20 * 1024 * 1024 字节)
+         * 建议范围：5MB-100MB
+         * <p>
+         * 注意：此参数同时定义了单个文件的最大上传大小，避免重复配置
+         */
+        public static final int SHARDING_THRESHOLD = 20 * 1024 * 1024;
+
+        /**
+         * 单个分片大小
+         * <p>
+         * 分片后每个分片的大小
+         * 默认：10MB (10 * 1024 * 1024 字节)
+         * 建议范围：5MB-50MB
+         */
+        public static final int SHARD_SIZE = 10 * 1024 * 1024;
+
+        // ==================== 自适应配置 ====================
+
+        /**
+         * 是否启用自适应批次大小调整
+         * <p>
+         * 根据系统负载和上传成功率自动调整批次大小
+         * 默认：true
+         */
+        public static final boolean ENABLE_ADAPTIVE_SIZE = true;
+
+        // ==================== 重试配置 ====================
+
+        /**
+         * 最大重试次数
+         * <p>
+         * 上传失败后最多重试多少次
+         * 默认：5次
+         * 建议范围：0-20
+         */
+        public static final int MAX_RETRIES = 5;
+
+        /**
+         * 基础退避时间
+         * <p>
+         * 第一次重试的等待时间，后续重试时间会指数增长
+         * 默认：200毫秒
+         * 建议范围：50ms-5000ms
+         */
+        public static final long BASE_BACKOFF_MS = 200L;
+
+        /**
+         * 最大退避时间
+         * <p>
+         * 重试等待时间的上限
+         * 默认：10000毫秒 (10秒)
+         * 建议范围：1秒-10分钟
+         */
+        public static final long MAX_BACKOFF_MS = 10000L;
+
+        // ==================== 关闭配置 ====================
+
+        /**
+         * 最大关闭等待时间
+         * <p>
+         * JVM关闭时等待队列处理完成的最长时间
+         * 默认：1000毫秒 (1秒)
+         * 建议范围：500ms-30000ms
+         */
+        public static final long MAX_SHUTDOWN_WAIT_MS = 1000L;
+
+        // ==================== 日志格式配置 ====================
+
+        /**
+         * 日志格式模板
+         * <p>
+         * 使用UTF-8编码避免乱码
+         */
         public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
+
+        /**
+         * 日志级别
+         * <p>
+         * 默认INFO级别
+         */
         public static final String LEVEL = "INFO";
-        // 默认兜底文件路径
+
+        // ==================== 兜底机制配置 ====================
+
+        /**
+         * 兜底文件存储路径
+         * <p>
+         * 当网络异常或存储服务不可用时，日志会临时写入此路径
+         * 默认：fallback（相对路径，相对于应用运行目录）
+         */
         public static final String FALLBACK_PATH = "fallback";
-        // 默认兜底文件保留天数
+
+        /**
+         * 兜底文件保留天数
+         * <p>
+         * 超过此天数的兜底文件会被自动清理
+         * 默认：7天
+         * 建议范围：1-30天
+         */
         public static final int FALLBACK_RETENTION_DAYS = 7;
-        // 默认兜底文件扫描间隔（秒）
+
+        /**
+         * 兜底文件扫描间隔
+         * <p>
+         * 定时扫描兜底文件并尝试重传的间隔
+         * 默认：60秒
+         * 建议范围：10秒-300秒
+         */
         public static final int FALLBACK_SCAN_INTERVAL_SECONDS = 60;
+
+        // 私有构造函数，防止实例化
+        private Defaults() {
+            throw new UnsupportedOperationException("Defaults class cannot be instantiated");
+        }
     }
 
     /**
@@ -99,16 +547,15 @@ public final class CommonConfig {
         public static final long MIN_BACKOFF = 50L;
         // 10分钟
         public static final long MAX_BACKOFF_LIMIT = 600_000L;
-        // 最小1MB
-        public static final int MIN_UPLOAD_SIZE_MB = 1;
-        // 最大1024MB (1GB)
-        public static final int MAX_UPLOAD_SIZE_MB_LIMIT = 1024;
     }
 
     /**
      * 环境变量名映射
+     * <p>
+     * 所有配置参数都支持通过环境变量设置，使用统一的LOGX_OSS_前缀
      */
     public static final class EnvVars {
+        // 存储服务配置
         public static final String ENDPOINT = "LOGX_OSS_ENDPOINT";
         public static final String REGION = "LOGX_OSS_REGION";
         public static final String ACCESS_KEY_ID = "LOGX_OSS_ACCESS_KEY_ID";
@@ -116,10 +563,53 @@ public final class CommonConfig {
         public static final String BUCKET = "LOGX_OSS_BUCKET";
         public static final String KEY_PREFIX = "LOGX_OSS_KEY_PREFIX";
         public static final String OSS_TYPE = "LOGX_OSS_TYPE";
-        public static final String MAX_UPLOAD_SIZE_MB = "LOGX_OSS_MAX_UPLOAD_SIZE_MB";
+
+        // 批处理触发配置
+        public static final String MAX_BATCH_COUNT = "LOGX_OSS_MAX_BATCH_COUNT";
+        public static final String MAX_BATCH_BYTES = "LOGX_OSS_MAX_BATCH_BYTES";
+        public static final String MAX_MESSAGE_AGE_MS = "LOGX_OSS_MAX_MESSAGE_AGE_MS";
+
+        // 紧急保护配置
+        public static final String EMERGENCY_MEMORY_THRESHOLD_MB = "LOGX_OSS_EMERGENCY_MEMORY_THRESHOLD_MB";
+
+        // 兜底机制配置
         public static final String FALLBACK_PATH = "LOGX_OSS_FALLBACK_PATH";
         public static final String FALLBACK_RETENTION_DAYS = "LOGX_OSS_FALLBACK_RETENTION_DAYS";
         public static final String FALLBACK_SCAN_INTERVAL_SECONDS = "LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS";
+
+        // 文件配置
+        public static final String LOG_FILE_NAME = "LOGX_OSS_LOG_FILE_NAME";
+
+        // 队列配置
+        public static final String QUEUE_CAPACITY = "LOGX_OSS_QUEUE_CAPACITY";
+        public static final String DROP_WHEN_QUEUE_FULL = "LOGX_OSS_DROP_WHEN_QUEUE_FULL";
+        public static final String MULTI_PRODUCER = "LOGX_OSS_MULTI_PRODUCER";
+
+        // 线程池配置
+        public static final String CORE_POOL_SIZE = "LOGX_OSS_CORE_POOL_SIZE";
+        public static final String MAXIMUM_POOL_SIZE = "LOGX_OSS_MAXIMUM_POOL_SIZE";
+        public static final String QUEUE_CAPACITY_THREAD_POOL = "LOGX_OSS_QUEUE_CAPACITY_THREAD_POOL";
+        public static final String ENABLE_CPU_YIELD = "LOGX_OSS_ENABLE_CPU_YIELD";
+        public static final String ENABLE_MEMORY_PROTECTION = "LOGX_OSS_ENABLE_MEMORY_PROTECTION";
+
+        // 压缩配置
+        public static final String ENABLE_COMPRESSION = "LOGX_OSS_ENABLE_COMPRESSION";
+        public static final String COMPRESSION_THRESHOLD = "LOGX_OSS_COMPRESSION_THRESHOLD";
+
+        // 分片配置
+        public static final String ENABLE_SHARDING = "LOGX_OSS_ENABLE_SHARDING";
+        public static final String SHARDING_THRESHOLD = "LOGX_OSS_SHARDING_THRESHOLD";
+        public static final String SHARD_SIZE = "LOGX_OSS_SHARD_SIZE";
+
+        // 重试配置
+        public static final String MAX_RETRIES = "LOGX_OSS_MAX_RETRIES";
+        public static final String BASE_BACKOFF_MS = "LOGX_OSS_BASE_BACKOFF_MS";
+        public static final String MAX_BACKOFF_MS = "LOGX_OSS_MAX_BACKOFF_MS";
+
+        // 其他配置
+        public static final String ENABLE_ADAPTIVE_SIZE = "LOGX_OSS_ENABLE_ADAPTIVE_SIZE";
+        public static final String MAX_SHUTDOWN_WAIT_MS = "LOGX_OSS_MAX_SHUTDOWN_WAIT_MS";
+        public static final String LEVEL = "LOGX_OSS_LEVEL";
     }
 
     // 配置迁移功能已移除，仅保留核心配置参数

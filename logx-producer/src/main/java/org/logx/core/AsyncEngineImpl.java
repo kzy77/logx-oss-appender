@@ -12,20 +12,26 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * 异步处理引擎实现
  * <p>
  * 基于Disruptor高性能队列和BatchProcessor实现的异步日志处理引擎。
  * 负责接收日志数据、启动和停止处理流程，并提供优雅停机支持。
+ * <p>
+ * 支持紧急兜底机制：当内存占用超过512MB时，直接将日志写入兜底文件，避免OOM。
  *
  * @author OSS Appender Team
  * @since 1.0.0
  */
 public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(AsyncEngineImpl.class);
-    
+
+    // 紧急保护阈值：512MB
+    private static final long EMERGENCY_MEMORY_THRESHOLD = 512L * 1024 * 1024;
+
     private final StorageService storageService;
     private final ShutdownHookHandler shutdownHandler;
     private final BatchProcessor batchProcessor;
@@ -33,9 +39,12 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private final FallbackManager fallbackManager;
     private final ObjectNameGenerator nameGenerator;
     private ScheduledExecutorService fallbackScheduler;
-    
+
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
+
+    // 内存使用量监控（字节）
+    private final AtomicLong currentMemoryUsage = new AtomicLong(0);
     
     /**
      * 构造异步引擎实现
@@ -179,9 +188,27 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         if (!started.get() || stopped.get()) {
             return;
         }
-        
-        // 提交到批处理器
-        batchProcessor.submit(data);
+
+        if (data == null || data.length == 0) {
+            return;
+        }
+
+        long currentMemory = currentMemoryUsage.get();
+
+        // 紧急保护：内存超过512MB，直接写兜底文件
+        if (currentMemory > EMERGENCY_MEMORY_THRESHOLD) {
+            logger.warn("Emergency fallback triggered: memory usage {} MB > 512 MB, writing directly to fallback file",
+                    currentMemory / 1024 / 1024);
+            fallbackManager.writeFallbackFile(data);
+            return;
+        }
+
+        // 正常流程：提交到批处理器
+        boolean success = batchProcessor.submit(data);
+        if (success) {
+            // 增加内存计数
+            currentMemoryUsage.addAndGet(data.length);
+        }
     }
     
     /**
@@ -191,13 +218,16 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         try {
             // 使用ObjectNameGenerator生成统一的文件名
             String key = nameGenerator.generateNormalObjectName();
-            
+
             // 异步上传到存储服务
             storageService.putObject(key, batchData).get(30, TimeUnit.SECONDS);
-            
+
             // 上传成功后打印日志
             logger.info("Successfully uploaded log file: {}", key);
-            
+
+            // 减少内存计数（使用原始大小）
+            currentMemoryUsage.addAndGet(-originalSize);
+
             return true;
         } catch (Exception e) {
             logger.error("Failed to process batch: {}", e.getMessage(), e);
@@ -205,9 +235,13 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             // 写入兜底文件
             if (fallbackManager.writeFallbackFile(batchData)) {
                 logger.info("Batch data written to fallback file due to upload failure");
+                // 减少内存计数（写入兜底文件也算处理完成）
+                currentMemoryUsage.addAndGet(-originalSize);
                 return true;
             }
 
+            // 失败也要减少内存计数，避免内存泄漏
+            currentMemoryUsage.addAndGet(-originalSize);
             return false;
         }
     }

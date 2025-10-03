@@ -77,8 +77,8 @@ public final class DisruptorBatchingQueue {
      *            批处理最大条数
      * @param batchMaxBytes
      *            批处理最大字节数
-     * @param flushIntervalMs
-     *            定时刷新（消费者内部基于时间窗口）
+     * @param maxMessageAgeMs
+     *            最早消息最大年龄（毫秒），超过此时间触发上传
      * @param blockOnFull
      *            满时是否自旋等待（否则直接丢弃）
      * @param multiProducer
@@ -86,13 +86,13 @@ public final class DisruptorBatchingQueue {
      * @param consumer
      *            批次消费回调
      */
-    public DisruptorBatchingQueue(int capacity, int batchMaxMessages, int batchMaxBytes, long flushIntervalMs,
+    public DisruptorBatchingQueue(int capacity, int batchMaxMessages, int batchMaxBytes, long maxMessageAgeMs,
             boolean blockOnFull, boolean multiProducer, BatchConsumer consumer) {
         this.batchMaxMessages = Math.max(1, batchMaxMessages);
         // 最小1KB
         this.batchMaxBytes = Math.max(1024, batchMaxBytes);
-        // 最小100ms
-        this.flushIntervalMs = Math.max(100, flushIntervalMs);
+        // 最小1秒，改名为maxMessageAgeMs以体现基于最早消息的时间触发
+        this.flushIntervalMs = Math.max(1000, maxMessageAgeMs);
         this.blockOnFull = blockOnFull;
         EventFactory<LogEventHolder> factory = LogEventHolder::new;
         ProducerType type = multiProducer ? ProducerType.MULTI : ProducerType.SINGLE;
@@ -104,11 +104,17 @@ public final class DisruptorBatchingQueue {
         this.disruptor.handleEventsWith(new EventHandler<LogEventHolder>() {
             private List<LogEvent> buffer = new ArrayList<>(DisruptorBatchingQueue.this.batchMaxMessages);
             private int bytes = 0;
-            private long lastFlush = System.currentTimeMillis();
+            // 最早消息的时间戳（用于实现基于消息年龄的时间触发）
+            private long oldestMessageTime = 0L;
 
             @Override
             public void onEvent(LogEventHolder ev, long sequence, boolean endOfBatch) {
                 if (ev.payload != null) {
+                    // 如果是第一条消息，记录最早消息时间戳
+                    if (buffer.isEmpty()) {
+                        oldestMessageTime = ev.timestampMs;
+                    }
+
                     int size = ev.payload.length;
                     boolean willExceedCount = buffer.size() + 1 > batchMaxMessages;
                     boolean willExceedBytes = bytes + size > DisruptorBatchingQueue.this.batchMaxBytes;
@@ -117,21 +123,30 @@ public final class DisruptorBatchingQueue {
                             consumer.onBatch(Collections.unmodifiableList(buffer), bytes);
                             buffer.clear();
                             bytes = 0;
+                            // 重置最早消息时间戳
+                            oldestMessageTime = 0L;
                         }
                     }
                     buffer.add(new LogEvent(ev.payload, ev.timestampMs));
                     bytes += size;
                     ev.clear();
                 }
+
                 long now = System.currentTimeMillis();
-                boolean timeUp = (now - lastFlush) >= DisruptorBatchingQueue.this.flushIntervalMs;
-                if (endOfBatch || timeUp || buffer.size() >= batchMaxMessages || bytes >= DisruptorBatchingQueue.this.batchMaxBytes) {
+                // 改进的时间触发：基于最早消息的年龄
+                boolean messageAgeExceeded = !buffer.isEmpty() &&
+                    (now - oldestMessageTime) >= DisruptorBatchingQueue.this.flushIntervalMs;
+
+                if (endOfBatch || messageAgeExceeded ||
+                    buffer.size() >= batchMaxMessages ||
+                    bytes >= DisruptorBatchingQueue.this.batchMaxBytes) {
                     if (!buffer.isEmpty()) {
                         consumer.onBatch(Collections.unmodifiableList(buffer), bytes);
                         buffer.clear();
                         bytes = 0;
+                        // 重置最早消息时间戳
+                        oldestMessageTime = 0L;
                     }
-                    lastFlush = now;
                 }
             }
         });

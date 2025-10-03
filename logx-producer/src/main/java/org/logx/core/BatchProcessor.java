@@ -1,5 +1,6 @@
 package org.logx.core;
 
+import org.logx.config.CommonConfig;
 import org.logx.fallback.FallbackManager;
 import org.logx.storage.StorageService;
 
@@ -35,15 +36,16 @@ import java.util.zip.GZIPOutputStream;
  */
 public class BatchProcessor implements AutoCloseable {
 
-    private static final int DEFAULT_BATCH_SIZE = 100;
+    // 从CommonConfig读取默认值
+    private static final int DEFAULT_BATCH_SIZE = CommonConfig.Defaults.MAX_BATCH_COUNT;
     private static final int MIN_BATCH_SIZE = 10;
     private static final int MAX_BATCH_SIZE = 10000;
-    // 5秒
-    private static final long DEFAULT_FLUSH_INTERVAL_MS = 5000L;
+    // 从CommonConfig读取默认值：10分钟
+    private static final long DEFAULT_FLUSH_INTERVAL_MS = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
     // 1KB
     private static final int DEFAULT_COMPRESSION_THRESHOLD = 1024;
-    // 20MB
-    private static final int DEFAULT_SHARDING_THRESHOLD = org.logx.config.CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB * 1024 * 1024;
+    // 20MB（从CommonConfig读取）
+    private static final int DEFAULT_SHARDING_THRESHOLD = CommonConfig.Defaults.SHARDING_THRESHOLD;
     // 10MB
     private static final int DEFAULT_SHARD_SIZE = 10 * 1024 * 1024;
 
@@ -126,11 +128,15 @@ public class BatchProcessor implements AutoCloseable {
         this.adaptiveSizer = new AdaptiveBatchSizer(config);
 
         // 创建队列
-        // capacity (优化内存使用，从1024调整为512)
-        // blockOnFull
-        // multiProducer
-        this.queue = new DisruptorBatchingQueue(512,
-                config.batchSize, config.batchSizeBytes, config.flushIntervalMs, false,
+        // capacity (从CommonConfig读取，默认8192)
+        // batchMaxMessages, batchMaxBytes, maxMessageAgeMs
+        // blockOnFull, multiProducer
+        this.queue = new DisruptorBatchingQueue(
+                CommonConfig.Defaults.QUEUE_CAPACITY,
+                config.batchSize,
+                config.batchSizeBytes,
+                config.flushIntervalMs,
+                false,
                 false,
                 new InternalBatchConsumer());
     }
@@ -442,18 +448,53 @@ public class BatchProcessor implements AutoCloseable {
 
     /**
      * 批处理配置类
+     * <p>
+     * <b>重要：所有默认值从 CommonConfig.Defaults 统一读取，确保配置一致性。</b>
+     * <p>
+     * 配置参数分组：
+     * <ul>
+     * <li>批次配置：batchSize, batchSizeBytes, flushIntervalMs</li>
+     * <li>压缩配置：enableCompression, compressionThreshold</li>
+     * <li>分片配置：enableSharding, shardingThreshold, shardSize</li>
+     * <li>自适应配置：enableAdaptiveSize</li>
+     * </ul>
      */
     public static class Config {
-        private int batchSize = DEFAULT_BATCH_SIZE;
-        // 4MB
-        private int batchSizeBytes = 4 * 1024 * 1024;
-        private long flushIntervalMs = DEFAULT_FLUSH_INTERVAL_MS;
-        private boolean enableCompression = true;
-        private int compressionThreshold = DEFAULT_COMPRESSION_THRESHOLD;
-        private boolean enableAdaptiveSize = true;
-        private boolean enableSharding = true;
-        private int shardingThreshold = DEFAULT_SHARDING_THRESHOLD;
-        private int shardSize = DEFAULT_SHARD_SIZE;
+
+        // ==================== 批次配置 ====================
+
+        // 批处理大小（消息数量）（默认：8192）
+        private int batchSize = CommonConfig.Defaults.MAX_BATCH_COUNT;
+
+        // 批处理大小（字节数）（默认：10MB）
+        private int batchSizeBytes = CommonConfig.Defaults.MAX_BATCH_BYTES;
+
+        // 刷新间隔（最早消息年龄）（默认：10分钟）
+        private long flushIntervalMs = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
+
+        // ==================== 压缩配置 ====================
+
+        // 是否启用压缩（默认：true）
+        private boolean enableCompression = CommonConfig.Defaults.ENABLE_COMPRESSION;
+
+        // 压缩阈值（默认：1KB）
+        private int compressionThreshold = CommonConfig.Defaults.COMPRESSION_THRESHOLD;
+
+        // ==================== 分片配置 ====================
+
+        // 是否启用分片（默认：true）
+        private boolean enableSharding = CommonConfig.Defaults.ENABLE_SHARDING;
+
+        // 分片阈值（默认：20MB）
+        private int shardingThreshold = CommonConfig.Defaults.SHARDING_THRESHOLD;
+
+        // 单个分片大小（默认：10MB）
+        private int shardSize = CommonConfig.Defaults.SHARD_SIZE;
+
+        // ==================== 自适应配置 ====================
+
+        // 是否启用自适应批次大小（默认：true）
+        private boolean enableAdaptiveSize = CommonConfig.Defaults.ENABLE_ADAPTIVE_SIZE;
 
         public static Config defaultConfig() {
             return new Config();

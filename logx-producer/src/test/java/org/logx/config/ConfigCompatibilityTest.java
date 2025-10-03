@@ -131,15 +131,15 @@ class ConfigCompatibilityTest {
         assertThat(configManager.getProperty(CommonConfig.KEY_PREFIX, CommonConfig.Defaults.KEY_PREFIX))
                 .isEqualTo(CommonConfig.Defaults.KEY_PREFIX);
 
-        assertThat(configManager.getIntProperty(CommonConfig.MAX_QUEUE_SIZE, CommonConfig.Defaults.MAX_QUEUE_SIZE))
-                .isEqualTo(CommonConfig.Defaults.MAX_QUEUE_SIZE);
+        assertThat(configManager.getIntProperty(CommonConfig.QUEUE_CAPACITY, CommonConfig.Defaults.QUEUE_CAPACITY))
+                .isEqualTo(CommonConfig.Defaults.QUEUE_CAPACITY);
 
         assertThat(configManager.getIntProperty(CommonConfig.MAX_BATCH_COUNT, CommonConfig.Defaults.MAX_BATCH_COUNT))
                 .isEqualTo(CommonConfig.Defaults.MAX_BATCH_COUNT);
 
         assertThat(
-                configManager.getLongProperty(CommonConfig.FLUSH_INTERVAL_MS, CommonConfig.Defaults.FLUSH_INTERVAL_MS))
-                        .isEqualTo(CommonConfig.Defaults.FLUSH_INTERVAL_MS);
+                configManager.getLongProperty(CommonConfig.MAX_MESSAGE_AGE_MS, CommonConfig.Defaults.MAX_MESSAGE_AGE_MS))
+                        .isEqualTo(CommonConfig.Defaults.MAX_MESSAGE_AGE_MS);
     }
 
     @Test
