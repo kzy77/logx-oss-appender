@@ -183,15 +183,53 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 
 ## 环境变量配置
 
-可通过环境变量覆盖默认配置：
+集成测试使用配置文件 `logx-producer/src/test/resources/minio-test.properties` 中的默认值，您可以通过环境变量覆盖这些配置：
+
+### 配置优先级（从高到低）
+
+1. **JVM系统属性**：`mvn test -Dlogx.oss.endpoint=http://localhost:9000`
+2. **环境变量**：`export LOGX_OSS_ENDPOINT=http://localhost:9000`
+3. **配置文件默认值**：`minio-test.properties`
+
+### 环境变量命名规则
+
+将配置键中的点号替换为下划线并转为大写：
+- `logx.oss.endpoint` → `LOGX_OSS_ENDPOINT`
+- `logx.oss.accessKeyId` → `LOGX_OSS_ACCESS_KEY_ID`
+
+### 常用环境变量示例
 
 ```bash
+# MinIO服务端点（默认：http://localhost:9000）
 export LOGX_OSS_ENDPOINT="http://localhost:9000"
+
+# MinIO访问凭证（默认：minioadmin/minioadmin）
 export LOGX_OSS_ACCESS_KEY_ID="minioadmin"
 export LOGX_OSS_ACCESS_KEY_SECRET="minioadmin"
+
+# MinIO存储桶（默认：logx-test-bucket）
 export LOGX_OSS_BUCKET="logx-test-bucket"
+
+# 对象键前缀（默认：integration-test/）
 export LOGX_OSS_KEY_PREFIX="integration-test/"
+
+# OSS类型（默认：S3）
 export LOGX_OSS_OSS_TYPE="S3"
+```
+
+### 使用自定义MinIO实例
+
+如果您的MinIO运行在不同的地址或端口：
+
+```bash
+# 自定义端点和凭证
+export LOGX_OSS_ENDPOINT="http://192.168.1.100:19000"
+export LOGX_OSS_ACCESS_KEY_ID="your-custom-key"
+export LOGX_OSS_ACCESS_KEY_SECRET="your-custom-secret"
+export LOGX_OSS_BUCKET="your-custom-bucket"
+
+# 运行测试
+mvn test -Dtest=AsyncEngineIntegrationTest -pl logx-producer
 ```
 
 ## 停止MinIO服务
