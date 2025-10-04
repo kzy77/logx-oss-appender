@@ -116,19 +116,15 @@ public interface StorageService {
 
 项目中存在两个相关但不同的批处理配置参数：
 
-1. **batchSize** (BatchProcessor配置)
-   - 说明：BatchProcessor的动态批处理大小
-   - 默认值：500条消息
+1. **maxBatchCount** (统一批处理配置)
+   - 说明：批处理最大消息数（已统一BatchProcessor和触发器配置）
+   - 默认值：4096条消息
    - 可调范围：10-10000
-   - 特性：支持根据队列深度自适应调整
-
-2. **maxBatchCount** (触发器配置)
-   - 说明：触发批处理操作的最大消息数量
-   - 默认值：100条消息
    - 配置键：logx.oss.maxBatchCount
+   - 特性：支持根据队列深度自适应调整
    - 用途：当队列中消息数达到此值时，立即触发批处理
 
-3. **maxBatchBytes** (触发器配置)
+2. **maxBatchBytes** (触发器配置)
    - 说明：触发批处理操作的最大字节数
    - 默认值：10MB (10485760 bytes)
    - 配置键：logx.oss.maxBatchBytes

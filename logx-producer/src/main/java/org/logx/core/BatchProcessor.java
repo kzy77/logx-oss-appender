@@ -22,8 +22,8 @@ import java.util.zip.GZIPOutputStream;
  * <p>
  * 主要特性：
  * <ul>
- * <li>可配置批处理大小，默认100条，范围10-10000</li>
- * <li>时间触发机制，超时自动刷新，默认5秒</li>
+ * <li>可配置批处理大小，默认4096条，范围10-10000</li>
+ * <li>时间触发机制，超时自动刷新，默认10分钟</li>
  * <li>动态批处理大小调整，根据队列深度自适应</li>
  * <li>批处理压缩，减少网络传输数据量</li>
  * <li>数据分片处理，控制传递给存储适配器的数据大小</li>
@@ -463,7 +463,7 @@ public class BatchProcessor implements AutoCloseable {
 
         // ==================== 批次配置 ====================
 
-        // 批处理大小（消息数量）（默认：8192）
+        // 批处理大小（消息数量）（默认：4096）
         private int batchSize = CommonConfig.Defaults.MAX_BATCH_COUNT;
 
         // 批处理大小（字节数）（默认：10MB）

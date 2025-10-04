@@ -219,7 +219,7 @@ class ConfigManagerTest {
         assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("ap-guangzhou");
         assertThat(configManager.getProperty("logx.oss.keyPrefix")).isEqualTo("logs/");
         assertThat(configManager.getIntProperty("logx.oss.maxBatchCount", 0)).isEqualTo(4096);
-        assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(81920);
+        assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(65536);
         // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
     }
 }

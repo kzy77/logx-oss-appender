@@ -24,7 +24,7 @@ public class AsyncEngineConfig {
 
     // ==================== Disruptor队列配置 ====================
 
-    // Disruptor环形缓冲大小（默认：81920）
+    // Disruptor环形缓冲大小（默认：65536）
     private int queueCapacity = CommonConfig.Defaults.QUEUE_CAPACITY;
 
     // 批处理最大消息数（默认：4096条）
