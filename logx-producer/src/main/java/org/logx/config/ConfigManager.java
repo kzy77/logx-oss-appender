@@ -353,7 +353,7 @@ public class ConfigManager {
      */
     private void initializeDefaults() {
         // S3存储配置默认值
-        setDefault("s3.region", "us-east-1");
+        setDefault("s3.region", "ap-guangzhou");
         setDefault("s3.keyPrefix", "logs/");
         setDefault("s3.pathStyleAccess", "false");
         setDefault("s3.connectTimeout", "10000");

@@ -203,6 +203,9 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 # MinIO服务端点（默认：http://localhost:9000）
 export LOGX_OSS_ENDPOINT="http://localhost:9000"
 
+# MinIO区域（默认：ap-guangzhou）
+export LOGX_OSS_REGION="ap-guangzhou"
+
 # MinIO访问凭证（默认：minioadmin/minioadmin）
 export LOGX_OSS_ACCESS_KEY_ID="minioadmin"
 export LOGX_OSS_ACCESS_KEY_SECRET="minioadmin"
@@ -323,6 +326,46 @@ minio.exe server C:\minio-data --console-address ":9001"
 2. **并发测试**：多线程同时写入测试并发性能
 3. **故障恢复测试**：停止MinIO服务测试兜底机制
 4. **压缩效果测试**：对比压缩前后的文件大小
+
+## 兼容性测试配置
+
+项目中的兼容性测试（`compatibility-tests/`）默认使用MinIO配置。所有测试配置文件已使用环境变量和默认值：
+
+### 默认配置值
+
+所有兼容性测试使用以下默认值：
+- **endpoint**: `http://localhost:9000` (MinIO本地地址)
+- **region**: `ap-guangzhou` (符合PRD文档规范)
+- **accessKeyId**: `minioadmin`
+- **accessKeySecret**: `minioadmin`
+- **bucket**: `logx-test-bucket`
+- **ossType**: `S3`
+
+### 运行兼容性测试
+
+```bash
+# 1. 启动MinIO
+cd compatibility-tests/minio
+./start-minio-local.sh
+
+# 2. 运行兼容性测试（使用默认MinIO配置）
+cd ../..
+mvn clean install
+
+# 3. 如需自定义配置，可设置环境变量
+export LOGX_OSS_ENDPOINT="http://192.168.1.100:9000"
+export LOGX_OSS_ACCESS_KEY_ID="custom-key"
+export LOGX_OSS_ACCESS_KEY_SECRET="custom-secret"
+mvn clean install
+```
+
+### 兼容性测试项目清单
+
+已配置MinIO支持的测试项目：
+- `spring-boot-test` - Spring Boot集成测试
+- `spring-mvc-test` - Spring MVC集成测试
+- `multi-framework-test` - 多框架兼容性测试（Log4j/Log4j2/Logback）
+- `jsp-servlet-test` - JSP Servlet环境测试
 
 ## 下一步
 

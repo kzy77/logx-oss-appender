@@ -6,14 +6,14 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
 
-        <!-- OSS Appender配置 -->
+        <!-- OSS Appender配置（使用环境变量，默认MinIO） -->
         <OSS name="OSS"
-             endpoint="https://s3.amazonaws.com"
-             region="us-east-1"
-             accessKeyId="test-access-key"
-             accessKeySecret="test-secret-key"
-             bucket="test-bucket"
-             ossType="SF_OSS">
+             endpoint="${env:LOGX_OSS_ENDPOINT:-http://localhost:9000}"
+             region="${env:LOGX_OSS_REGION:-ap-guangzhou}"
+             accessKeyId="${env:LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"
+             accessKeySecret="${env:LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"
+             bucket="${env:LOGX_OSS_BUCKET:-logx-test-bucket}"
+             ossType="${env:LOGX_OSS_OSS_TYPE:-S3}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </OSS>
     </Appenders>
