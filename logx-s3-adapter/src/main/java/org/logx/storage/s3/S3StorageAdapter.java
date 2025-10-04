@@ -63,7 +63,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
         this.s3Client = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "us-east-1")).build();
+                .region(Region.of(region != null ? region : "ap-guangzhou")).build();
     }
 
     /**
