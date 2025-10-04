@@ -133,7 +133,7 @@ PRD文档提到使用"backend"参数，但实际实现使用"ossType"参数。
 
 ---
 
-## 4. batchSize默认值文档不一致 📋 **低优先级**
+## 4. batchSize默认值文档不一致 ✅ **已修复**
 
 ### 问题描述
 架构文档中描述的batchSize默认值与实际代码默认值不一致。
@@ -171,6 +171,19 @@ PRD文档提到使用"backend"参数，但实际实现使用"ossType"参数。
 
 ### 优先级
 **低** - 需要澄清文档，但不影响功能
+
+### 修复内容 (2025-10-04)
+已统一批处理配置，完成以下修复：
+1. ✅ 修复AsyncEngineConfig.java中batchMaxMessages注释（8192→4096）
+2. ✅ 修复ConfigManager.java中maxBatchCount默认值（100→4096）
+3. ✅ 修复ConfigManager.java中maxBatchBytes默认值（1MB→10MB）
+4. ✅ 更新architecture.md，将batchSize改为maxBatchCount，默认值4096
+5. ✅ 修复CommonConfig.Defaults.QUEUE_CAPACITY（8192→81920）
+6. ✅ 更新AsyncEngineConfig.java中queueCapacity注释（8192→81920）
+7. ✅ 统一ConfigManager使用CommonConfig.Defaults常量
+
+### 状态
+✅ **已修复** (2025-10-04)
 
 ---
 

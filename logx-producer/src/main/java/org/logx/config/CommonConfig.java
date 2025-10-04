@@ -270,10 +270,10 @@ public final class CommonConfig {
         /**
          * Disruptor环形缓冲大小
          * <p>
-         * 默认8192，必须是2的幂。此值决定队列的最大容量。
-         * 建议范围：1024-65536
+         * 默认81920，必须是2的幂。此值决定队列的最大容量。
+         * 建议范围：8192-131072
          */
-        public static final int QUEUE_CAPACITY = 8192;
+        public static final int QUEUE_CAPACITY = 81920;
 
         /**
          * 队列满时是否丢弃新消息

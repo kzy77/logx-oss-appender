@@ -360,12 +360,12 @@ public class ConfigManager {
         setDefault("logx.oss.readTimeout", "30000");
 
         // 批处理配置默认值
-        setDefault("logx.oss.maxBatchCount", "100");
+        setDefault("logx.oss.maxBatchCount", String.valueOf(CommonConfig.Defaults.MAX_BATCH_COUNT));
         setDefault("logx.oss.flushIntervalMs", "5000");
-        setDefault("logx.oss.maxBatchBytes", "1048576");
+        setDefault("logx.oss.maxBatchBytes", String.valueOf(CommonConfig.Defaults.MAX_BATCH_BYTES));
 
         // 队列配置默认值
-        setDefault("logx.oss.queueCapacity", "8192");
+        setDefault("logx.oss.queueCapacity", String.valueOf(CommonConfig.Defaults.QUEUE_CAPACITY));
         setDefault("logx.oss.blockWhenFull", "false");
 
         // 线程池配置默认值

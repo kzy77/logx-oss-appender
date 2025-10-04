@@ -130,7 +130,7 @@ public interface StorageService {
 
 3. **maxBatchBytes** (触发器配置)
    - 说明：触发批处理操作的最大字节数
-   - 默认值：4MB (4194304 bytes)
+   - 默认值：10MB (10485760 bytes)
    - 配置键：logx.oss.maxBatchBytes
    - 用途：当队列中消息总大小达到此值时，立即触发批处理
 

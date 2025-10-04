@@ -379,7 +379,7 @@ sequenceDiagram
     <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
     <!-- 可选参数 -->
     <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
-    <batchSize>${LOGX_OSS_BATCH_SIZE:-500}</batchSize>
+    <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
     <flushInterval>${LOGX_OSS_FLUSH_INTERVAL:-5}</flushInterval>
     <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-20}</maxUploadSizeMb>
 </appender>
@@ -419,6 +419,6 @@ export LOGX_OSS_MAX_UPLOAD_SIZE_MB="20"
 - `secretAccessKey`: 访问密钥Secret
 - `bucketName`: 存储桶名称
 - `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
-- `batchSize`: 批处理大小，默认500条日志
+- `maxBatchCount`: 批处理最大消息数，默认4096条日志
 - `flushInterval`: 刷新间隔，默认3秒
 - `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认20MB
