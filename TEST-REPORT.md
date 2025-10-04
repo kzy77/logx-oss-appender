@@ -126,36 +126,55 @@
 
 ### 🔧 环境要求
 
-MinIO集成测试需要以下环境：
+MinIO集成测试支持两种安装方式：
 
-1. **Docker守护进程已启动**
+**方式1：本地安装MinIO（推荐）**
+1. **MinIO已安装**（无需Docker）
 2. **MinIO服务运行在 http://localhost:9000**
+3. **测试Bucket已创建：logx-test-bucket**
+
+**方式2：Docker安装（可选）**
+1. **Docker守护进程已启动**
+2. **MinIO容器运行在 http://localhost:9000**
 3. **测试Bucket已创建：logx-test-bucket**
 
 ### 📋 测试准备
 
 已完成MinIO测试环境配置：
 
-✅ docker-compose.yml - MinIO服务编排
-✅ start-minio.sh - 一键启动脚本
+✅ start-minio-local.sh - MinIO本地安装一键启动脚本（推荐）
+✅ docker/start-minio-docker.sh - MinIO Docker启动脚本（可选）
+✅ docker/docker-compose.yml - MinIO服务编排（可选）
 ✅ minio-test.properties - 测试配置
 ✅ MinIOIntegrationTest.java - 集成测试代码
 ✅ README-MINIO.md - 完整使用指南
 
+所有文件位于：`compatibility-tests/minio/`
+
 ### ⚠️ 当前状态
 
-**Docker守护进程未运行**，MinIO集成测试暂时无法执行。
+**MinIO集成测试可以使用本地安装方式运行**（推荐，无需Docker）
 
-**在支持Docker的环境中运行测试**：
+**运行MinIO集成测试**：
 
 ```bash
-# 1. 启动MinIO
-./start-minio.sh
+# 方式1：本地安装MinIO（推荐）
+cd compatibility-tests/minio
+./start-minio-local.sh
 
-# 2. 运行MinIO集成测试
+# 运行MinIO集成测试（返回项目根目录）
+cd ../..
 mvn test -Dtest=MinIOIntegrationTest -pl logx-s3-adapter
 
-# 3. 访问MinIO控制台
+# 方式2：Docker方式（可选）
+cd compatibility-tests/minio/docker
+./start-minio-docker.sh
+
+# 运行测试（返回项目根目录）
+cd ../../..
+mvn test -Dtest=MinIOIntegrationTest -pl logx-s3-adapter
+
+# 访问MinIO控制台
 # http://localhost:9001 (minioadmin/minioadmin)
 ```
 
@@ -268,15 +287,30 @@ Docker守护进程未运行，MinIO服务无法启动
 
 **推荐真实环境验证**（可选）：
 
-1. **在Docker环境中运行MinIO集成测试**
+1. **使用MinIO本地安装运行集成测试**（推荐）
    ```bash
-   ./start-minio.sh
+   cd compatibility-tests/minio
+   ./start-minio-local.sh
+
+   cd ../..
    mvn test -Dtest=MinIOIntegrationTest -pl logx-s3-adapter
    ```
 
-2. **MinIO环境性能基准测试**
+2. **使用MinIO Docker运行集成测试**（可选）
    ```bash
-   ./start-minio.sh
+   cd compatibility-tests/minio/docker
+   ./start-minio-docker.sh
+
+   cd ../../..
+   mvn test -Dtest=MinIOIntegrationTest -pl logx-s3-adapter
+   ```
+
+3. **MinIO环境性能基准测试**
+   ```bash
+   cd compatibility-tests/minio
+   ./start-minio-local.sh
+
+   cd ../..
    mvn test -Dtest=AsyncEngineIntegrationTest -pl logx-producer
    ```
    验证真实环境性能指标：
@@ -295,7 +329,7 @@ Docker守护进程未运行，MinIO服务无法启动
 
 - **Surefire报告**：`*/target/surefire-reports/`
 - **测试日志**：各模块target目录
-- **MinIO文档**：`README-MINIO.md`
+- **MinIO文档**：`compatibility-tests/minio/README-MINIO.md`
 
 ---
 

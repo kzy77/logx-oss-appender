@@ -29,20 +29,59 @@ AsyncEngineIntegrationTest包含3个性能和可靠性测试，需要连接真�
 
 ## 在本地环境运行性能测试
 
-### 前置条件
+### 方式1：本地安装MinIO（推荐）
 
-✅ Docker已安装并运行
+#### 前置条件
+
+✅ MinIO已安装（无需Docker）
 ✅ 端口9000和9001可用
-✅ 至少4GB可用内存
+✅ 至少2GB可用内存
 
-### 步骤1：启动MinIO服务
+#### 步骤1：安装MinIO
 
 ```bash
-# 进入项目根目录
-cd /path/to/logx-oss-appender
+# Linux
+wget https://dl.min.io/server/minio/release/linux-amd64/minio
+chmod +x minio
+sudo mv minio /usr/local/bin/
+
+# macOS
+brew install minio/stable/minio
+
+# Windows
+choco install minio
+```
+
+详细安装指南请参见 [README-MINIO.md](compatibility-tests/minio/README-MINIO.md)
+
+#### 步骤2：启动MinIO服务
+
+```bash
+# 进入集成测试MinIO目录
+cd compatibility-tests/minio
+
+# 一键启动MinIO（推荐）
+./start-minio-local.sh
+
+# 或手动启动
+MINIO_ROOT_USER=minioadmin \
+MINIO_ROOT_PASSWORD=minioadmin \
+minio server ~/minio-data --console-address ":9001"
+
+# 验证MinIO运行
+curl http://localhost:9000/minio/health/live
+```
+
+### 方式2：使用Docker（可选）
+
+如果您已安装Docker，也可以使用Docker方式：
+
+```bash
+# 进入MinIO Docker目录
+cd compatibility-tests/minio/docker
 
 # 一键启动MinIO
-./start-minio.sh
+./start-minio-docker.sh
 
 # 验证MinIO运行
 docker ps | grep minio
@@ -70,7 +109,18 @@ cat logx-producer/target/surefire-reports/TEST-org.logx.integration.AsyncEngineI
 # 查看MinIO中上传的文件
 # 访问 http://localhost:9001
 # 登录：minioadmin / minioadmin
-# 查看bucket：test-bucket
+# 查看bucket：logx-test-bucket
+```
+
+### 步骤4：停止MinIO（可选）
+
+```bash
+# 本地安装方式
+pkill -f 'minio server'
+
+# Docker方式
+cd compatibility-tests/minio
+docker-compose down
 ```
 
 ## 修改AsyncEngineIntegrationTest连接MinIO
@@ -120,9 +170,11 @@ void setUp() {
 
 ```bash
 # 确保MinIO已启动
-./start-minio.sh
+cd compatibility-tests/minio
+./start-minio-local.sh
 
-# 运行测试
+# 运行测试（返回项目根目录）
+cd ../..
 mvn test -Dtest=AsyncEngineIntegrationTest -pl logx-producer
 ```
 
@@ -292,8 +344,8 @@ A: 约100MB压缩后的测试数据，测试完成后会自动清理。
 
 ## 相关文档
 
-- [MinIO集成测试指南](README-MINIO.md)
-- [Docker环境配置](docker/README.md)
+- [MinIO集成测试指南](compatibility-tests/minio/README-MINIO.md)
+- [MinIO Docker环境配置](compatibility-tests/minio/docker/README.md)
 - [配置参数说明](docs/configuration.md)
 
 ---

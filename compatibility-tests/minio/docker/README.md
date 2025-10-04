@@ -1,24 +1,27 @@
-# MinIO集成测试环境
+# MinIO集成测试环境 - Docker方式（可选）
 
 本目录包含用于集成测试的MinIO Docker环境配置。
+
+**注意**：这是可选的Docker方式，推荐使用MinIO本地安装方式（更简单、无需Docker）。详见[上级目录README](../README-MINIO.md)。
 
 ## 前置条件
 
 - Docker 已安装并运行
 - Docker Compose 已安装
+- 端口9000和9001可用
 
-## 快速启动（推荐）
+## 快速启动
 
-在项目根目录执行启动脚本：
+在本目录执行启动脚本：
 
 ```bash
 # 一键启动MinIO（自动检查环境并启动）
-./start-minio.sh
+./start-minio-docker.sh
 ```
 
 ## 手动启动
 
-在项目根目录执行：
+在本目录执行：
 
 ```bash
 # 启动MinIO服务
