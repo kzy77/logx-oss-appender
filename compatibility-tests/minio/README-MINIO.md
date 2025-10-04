@@ -17,11 +17,17 @@ MinIO是一个高性能的对象存储服务，兼容Amazon S3 API。本指南�
 ```bash
 # 下载MinIO服务端
 wget https://dl.min.io/server/minio/release/linux-amd64/minio
-chmod +x minio
 
 # 下载MinIO客户端（用于创建bucket）
 wget https://dl.min.io/client/mc/release/linux-amd64/mc
-chmod +x mc
+
+# 如果下载慢，可以使用axel多线程下载（更快）
+# 安装axel：sudo apt-get install axel 或 sudo yum install axel
+# axel -n 10 https://dl.min.io/server/minio/release/linux-amd64/minio
+# axel -n 10 https://dl.min.io/client/mc/release/linux-amd64/mc
+
+# 添加执行权限
+chmod +x minio mc
 
 # 移动到系统路径（可选）
 sudo mv minio /usr/local/bin/
