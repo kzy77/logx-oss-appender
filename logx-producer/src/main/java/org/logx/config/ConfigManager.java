@@ -352,31 +352,30 @@ public class ConfigManager {
      * 初始化默认配置值
      */
     private void initializeDefaults() {
-        // S3存储配置默认值
-        setDefault("s3.region", "ap-guangzhou");
-        setDefault("s3.keyPrefix", "logs/");
-        setDefault("s3.pathStyleAccess", "false");
-        setDefault("s3.connectTimeout", "10000");
-        setDefault("s3.readTimeout", "30000");
+        // LogX OSS统一配置默认值
+        setDefault("logx.oss.region", "ap-guangzhou");
+        setDefault("logx.oss.keyPrefix", "logs/");
+        // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
+        setDefault("logx.oss.connectTimeout", "10000");
+        setDefault("logx.oss.readTimeout", "30000");
 
         // 批处理配置默认值
-        setDefault("batch.size", "100");
-        setDefault("batch.flushInterval", "5000");
-        // 1MB
-        setDefault("batch.maxBytes", "1048576");
+        setDefault("logx.oss.maxBatchCount", "100");
+        setDefault("logx.oss.flushIntervalMs", "5000");
+        setDefault("logx.oss.maxBatchBytes", "1048576");
 
         // 队列配置默认值
-        setDefault("queue.capacity", "8192");
-        setDefault("queue.blockWhenFull", "false");
+        setDefault("logx.oss.queueCapacity", "8192");
+        setDefault("logx.oss.blockWhenFull", "false");
 
         // 线程池配置默认值
-        setDefault("thread.poolSize", "2");
-        setDefault("thread.maxPoolSize", "4");
-        setDefault("thread.keepAliveTime", "60000");
+        setDefault("logx.oss.corePoolSize", "2");
+        setDefault("logx.oss.maximumPoolSize", "4");
+        setDefault("logx.oss.keepAliveTime", "60000");
 
         // 重试配置默认值
-        setDefault("retry.maxAttempts", "3");
-        setDefault("retry.baseDelayMs", "1000");
-        setDefault("retry.maxDelayMs", "30000");
+        setDefault("logx.oss.maxRetries", "3");
+        setDefault("logx.oss.baseBackoffMs", "1000");
+        setDefault("logx.oss.maxBackoffMs", "30000");
     }
 }

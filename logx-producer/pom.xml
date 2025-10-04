@@ -67,14 +67,6 @@
       <artifactId>mockito-core</artifactId>
       <scope>test</scope>
     </dependency>
-
-    <!-- S3 Storage Adapter for MinIO integration testing -->
-    <dependency>
-      <groupId>org.logx</groupId>
-      <artifactId>logx-s3-adapter</artifactId>
-      <version>${project.version}</version>
-      <scope>test</scope>
-    </dependency>
   </dependencies>
 
   <build>

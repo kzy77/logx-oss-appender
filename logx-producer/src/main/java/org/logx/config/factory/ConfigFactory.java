@@ -60,7 +60,7 @@ public class ConfigFactory {
      */
     private StorageConfig createAwsS3Config() {
         return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("logx.oss.endpoint", "https://s3.amazonaws.com"))
-                .region(getProperty("logx.oss.region", "us-east-1"))
+                .region(getProperty("logx.oss.region", "ap-guangzhou"))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
@@ -78,7 +78,7 @@ public class ConfigFactory {
         // MinIO默认使用路径风格
         // MinIO开发环境通常不用SSL
         return new MinioConfig.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "us-east-1")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .region(getProperty("logx.oss.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
@@ -94,7 +94,7 @@ public class ConfigFactory {
      */
     private StorageConfig createGenericS3Config() {
         return new GenericS3Config.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "us-east-1")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .region(getProperty("logx.oss.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret")).bucket(getRequiredProperty("logx.oss.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
                 .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))

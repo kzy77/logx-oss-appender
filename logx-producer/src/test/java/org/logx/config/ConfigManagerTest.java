@@ -216,10 +216,10 @@ class ConfigManagerTest {
     @Test
     void shouldHaveCorrectDefaultValues() {
         // 验证一些预设的默认值
-        assertThat(configManager.getProperty("s3.region")).isEqualTo("us-east-1");
-        assertThat(configManager.getProperty("s3.keyPrefix")).isEqualTo("logs/");
-        assertThat(configManager.getIntProperty("batch.size", 0)).isEqualTo(100);
-        assertThat(configManager.getIntProperty("queue.capacity", 0)).isEqualTo(8192);
-        assertThat(configManager.getBooleanProperty("s3.pathStyleAccess", true)).isFalse();
+        assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("ap-guangzhou");
+        assertThat(configManager.getProperty("logx.oss.keyPrefix")).isEqualTo("logs/");
+        assertThat(configManager.getIntProperty("logx.oss.maxBatchCount", 0)).isEqualTo(100);
+        assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(8192);
+        // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
     }
 }

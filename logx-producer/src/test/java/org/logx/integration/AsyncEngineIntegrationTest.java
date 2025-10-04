@@ -1,6 +1,5 @@
 package org.logx.integration;
 
-import org.logx.config.ConfigManager;
 import org.logx.core.AsyncEngine;
 import org.logx.core.BatchProcessor;
 import org.logx.core.DisruptorBatchingQueue;
@@ -14,10 +13,7 @@ import org.junit.jupiter.api.Timeout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.InputStream;
 import java.util.List;
-import java.util.Properties;
-import java.util.ServiceLoader;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -39,12 +35,7 @@ import static org.assertj.core.api.Assertions.*;
  * <li>故障恢复和长期稳定性</li>
  * </ul>
  * <p>
- * <b>支持MinIO集成测试</b>：
- * <ul>
- * <li>默认使用Mock存储（快速，适合CI/CD）</li>
- * <li>检测到minio-test.properties时自动使用MinIO（真实环境验证）</li>
- * <li>启动MinIO：cd compatibility-tests/minio && ./start-minio-local.sh</li>
- * </ul>
+ * 使用Mock存储服务进行测试。真实MinIO集成测试在logx-s3-adapter模块中进行。
  *
  * @author OSS Appender Team
  *
@@ -92,9 +83,8 @@ class AsyncEngineIntegrationTest {
     }
 
     // Epic 2核心组件
-    private StorageService storageService;
+    private TestTrackingStorageService storageService;
     private AsyncEngine asyncEngine;
-    private boolean usingMinIO = false;
 
     // 用于测试的组件引用（仅用于验证内部状态）
     private final TestMessageProcessor messageProcessor = new TestMessageProcessor();
@@ -110,18 +100,9 @@ class AsyncEngineIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        // 尝试加载MinIO配置
-        storageService = tryLoadMinIOStorage();
-
-        // 如果没有MinIO配置，使用Mock存储
-        if (storageService == null) {
-            logger.info("使用Mock存储服务进行测试");
-            storageService = new TestTrackingStorageService();
-            usingMinIO = false;
-        } else {
-            logger.info("使用MinIO真实存储进行测试");
-            usingMinIO = true;
-        }
+        // 使用Mock存储服务进行测试
+        logger.info("使用Mock存储服务进行测试");
+        storageService = new TestTrackingStorageService();
 
         // 创建异步引擎和其他组件
         asyncEngine = AsyncEngine.create(storageService);
@@ -151,55 +132,6 @@ class AsyncEngineIntegrationTest {
         batchProcessor.start();
     }
 
-    /**
-     * 尝试加载MinIO存储服务
-     *
-     * 如果classpath中存在minio-test.properties，则通过Java SPI加载真实的S3StorageService
-     *
-     * @return MinIO存储服务，如果无法加载则返回null
-     */
-    private StorageService tryLoadMinIOStorage() {
-        try {
-            // 尝试加载MinIO配置
-            InputStream is = getClass().getClassLoader().getResourceAsStream("minio-test.properties");
-            if (is == null) {
-                logger.debug("未找到minio-test.properties，将使用Mock存储");
-                return null;
-            }
-
-            // 加载配置
-            Properties properties = new Properties();
-            properties.load(is);
-            is.close();
-
-            logger.info("找到MinIO配置文件，尝试加载真实存储服务");
-
-            // 创建配置管理器
-            ConfigManager configManager = new ConfigManager(properties);
-
-            // 通过Java SPI加载存储服务
-            ServiceLoader<StorageService> loader = ServiceLoader.load(StorageService.class);
-            for (StorageService service : loader) {
-                try {
-                    logger.info("尝试初始化存储服务: {}", service.getClass().getName());
-                    service.initialize(configManager);
-                    logger.info("成功加载MinIO存储服务: {}", service.getClass().getName());
-                    return service;
-                } catch (Exception e) {
-                    logger.warn("初始化存储服务失败: {}", service.getClass().getName(), e);
-                }
-            }
-
-            logger.warn("无法通过SPI加载存储服务，将使用Mock存储。" +
-                    "提示：确保logx-s3-adapter在test scope的classpath中");
-            return null;
-
-        } catch (Exception e) {
-            logger.warn("加载MinIO配置失败，将使用Mock存储: {}", e.getMessage());
-            return null;
-        }
-    }
-    
     @AfterEach
     void tearDown() {
         // 停止异步引擎
