@@ -74,24 +74,27 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         this.bucketName = bucketName;
         this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
 
-        // 构建S3客户端配置
-        S3Client client = S3Client.builder()
+        // 构建S3客户端
+        software.amazon.awssdk.services.s3.S3ClientBuilder clientBuilder = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "us-east-1"))
-                .build();
-        
+                .region(Region.of(region != null ? region : "ap-guangzhou"));
+
         // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
         if (endpoint != null && !endpoint.trim().isEmpty()) {
-            client = S3Client.builder()
-                    .credentialsProvider(
-                            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                    .region(Region.of(region != null ? region : "us-east-1"))
-                    .endpointOverride(java.net.URI.create(endpoint))
-                    .build();
+            clientBuilder.endpointOverride(java.net.URI.create(endpoint));
         }
 
-        this.s3Client = client;
+        // 如果需要path-style访问（MinIO需要）
+        if (config.isPathStyleAccess()) {
+            clientBuilder.serviceConfiguration(
+                    software.amazon.awssdk.services.s3.S3Configuration.builder()
+                            .pathStyleAccessEnabled(true)
+                            .build()
+            );
+        }
+
+        this.s3Client = clientBuilder.build();
     }
 
     @Override
