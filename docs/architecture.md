@@ -105,17 +105,45 @@ OSS Appender 采用**分层抽象架构**，其中logx-producer作为高度抽�
 - 数据流: 接收日志数据并传递给BatchProcessor进行优化处理
 ```
 
-#### StorageService
+#### 存储服务接口设计
+
+项目采用双层接口设计模式：
+
+##### StorageInterface (基础存储接口)
 ```java
-// 统一存储抽象
-public interface StorageService {
+public interface StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
-    String getBackendType();
+    String getOssType();
     String getBucketName();
     void close();
-    boolean supportsBackend(String backendType);
+    boolean supportsOssType(String ossType);
 }
 ```
+
+**设计目的**：
+- 定义最基础的存储操作契约
+- 所有存储适配器必须实现的最小接口
+- 提供核心的上传、查询和资源管理功能
+
+##### StorageService (扩展存储服务接口)
+```java
+// 继承StorageInterface
+public interface StorageService extends StorageInterface {
+    // 继承StorageInterface的所有方法
+    // 可扩展更高级的服务方法
+}
+```
+
+**设计目的**：
+- 继承StorageInterface作为基础
+- 提供Java SPI服务发现支持
+- 框架适配器使用的标准接口
+- 保留扩展空间，未来可添加更高级功能（如批量上传、元数据查询等）
+
+**使用场景**：
+- 存储适配器实现：实现StorageInterface即可
+- 框架适配器：通过StorageServiceFactory获取StorageService
+- Java SPI加载：StorageService作为SPI服务接口
 
 #### DataShardingProcessor (新增)
 ```java
