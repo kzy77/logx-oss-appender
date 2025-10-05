@@ -232,7 +232,7 @@ public class StorageConfig {
     public static abstract class Builder<T extends Builder<T>> {
         private String ossType;
         private String endpoint;
-        private String region;
+        private String region = CommonConfig.Defaults.REGION;
         private String accessKeyId;
         private String accessKeySecret;
         private String bucket;

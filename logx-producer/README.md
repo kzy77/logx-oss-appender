@@ -13,10 +13,9 @@ logx-producer作为核心模块，不直接依赖任何具体的云存储SDK。�
 
 ## 核心组件
 
-### 队列引擎层
-- `DisruptorBatchingQueue` - 高性能异步队列管理
+### 队列引擎层（2025-10-05架构重构）
+- `EnhancedDisruptorBatchingQueue` - 增强的Disruptor批处理队列（合并原DisruptorBatchingQueue和BatchProcessor）
 - `ResourceProtectedThreadPool` - 资源保护线程池
-- `BatchProcessor` - 智能批处理引擎
 
 ### 存储抽象层
 - `StorageService` - 统一存储服务接口
@@ -26,9 +25,6 @@ logx-producer作为核心模块，不直接依赖任何具体的云存储SDK。�
 ### 配置管理层
 - `CommonConfig` - 通用配置参数定义
 - `ConfigManager` - 配置管理器
-
-### 数据分片层
-- `DataShardingProcessor` - 数据分片处理器，自动分片大文件（>20MB）
 
 ### 错误处理层
 - `UnifiedErrorHandler` - 统一错误处理器

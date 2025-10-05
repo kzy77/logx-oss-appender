@@ -1,5 +1,7 @@
 # 架构文档、PRD和故事点文档一致性检查报告
 
+> **历史报告说明（2025-10-05）**：本报告生成后进行了架构重构，`BatchProcessor`和`DisruptorBatchingQueue`已合并为`EnhancedDisruptorBatchingQueue`；独立的`DataShardingProcessor`组件未实现，分片功能已集成到`EnhancedDisruptorBatchingQueue`中。
+
 ## 概述
 
 本报告旨在检查LogX OSS Appender项目的三个核心文档之间的一致性：

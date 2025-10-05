@@ -549,7 +549,7 @@ logback-oss-appender
 
 | 模块名称 | 功能描述 | 依赖关系 |
 |---------|---------|----------|
-| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、存储接口抽象，包含AsyncEngine异步引擎和BatchProcessor批处理优化引擎 | 基础模块，无依赖 |
+| **logx-producer** | 核心处理引擎，提供队列管理、异步处理、存储接口抽象，包含AsyncEngine异步引擎和EnhancedDisruptorBatchingQueue一体化批处理队列 | 基础模块，无依赖 |
 | **logx-s3-adapter** | S3兼容存储适配器，支持AWS S3、阿里云OSS、腾讯云COS、MinIO等 | 依赖logx-producer |
 | **logx-sf-oss-adapter** | SF OSS存储适配器，专门支持SF OSS存储服务 | 依赖logx-producer |
 | **log4j-oss-appender** | Log4j 1.x框架适配器，实现OSSAppender | 依赖logx-producer |

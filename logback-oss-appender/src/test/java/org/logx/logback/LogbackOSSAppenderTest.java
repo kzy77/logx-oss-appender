@@ -45,9 +45,8 @@ class LogbackOSSAppenderTest {
         // Then
         assertThat(appender.getKeyPrefix()).isEqualTo("logs/");
         assertThat(appender.getMaxQueueSize()).isEqualTo(65536);
-        assertThat(appender.getMaxBatchCount()).isEqualTo(1000);
+        assertThat(appender.getMaxBatchCount()).isEqualTo(4096);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(4 * 1024 * 1024);
-        assertThat(appender.getFlushIntervalMs()).isEqualTo(2000L);
         assertThat(appender.isDropWhenQueueFull()).isFalse();
         assertThat(appender.isMultiProducer()).isFalse();
         assertThat(appender.getMaxRetries()).isEqualTo(5);
@@ -63,7 +62,6 @@ class LogbackOSSAppenderTest {
         int maxQueueSize = 50000;
         int maxBatchCount = 1500;
         int maxBatchBytes = 3 * 1024 * 1024;
-        long flushIntervalMs = 3000L;
         boolean dropWhenQueueFull = true;
         boolean multiProducer = true;
         int maxRetries = 4;
@@ -75,7 +73,6 @@ class LogbackOSSAppenderTest {
         appender.setMaxQueueSize(maxQueueSize);
         appender.setMaxBatchCount(maxBatchCount);
         appender.setMaxBatchBytes(maxBatchBytes);
-        appender.setFlushIntervalMs(flushIntervalMs);
         appender.setDropWhenQueueFull(dropWhenQueueFull);
         appender.setMultiProducer(multiProducer);
         appender.setMaxRetries(maxRetries);
@@ -87,7 +84,6 @@ class LogbackOSSAppenderTest {
         assertThat(appender.getMaxQueueSize()).isEqualTo(maxQueueSize);
         assertThat(appender.getMaxBatchCount()).isEqualTo(maxBatchCount);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(maxBatchBytes);
-        assertThat(appender.getFlushIntervalMs()).isEqualTo(flushIntervalMs);
         assertThat(appender.isDropWhenQueueFull()).isTrue();
         assertThat(appender.isMultiProducer()).isTrue();
         assertThat(appender.getMaxRetries()).isEqualTo(maxRetries);

@@ -1,5 +1,7 @@
 # 故事点4: 可靠性保障和测试验证质量评估报告
 
+> **架构更新说明（2025-10-05）**：本文档中提到的`DisruptorBatchingQueue`和`BatchProcessor`已合并为`EnhancedDisruptorBatchingQueue`。详见[架构重构报告](../../refactor-report-merge-batch-processor.md)。
+
 ## 1. 验收标准完成情况检查
 
 ### JVM ShutdownHook机制 (AC1, AC2)

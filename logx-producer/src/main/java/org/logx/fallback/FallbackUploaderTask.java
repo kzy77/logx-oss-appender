@@ -97,6 +97,7 @@ public class FallbackUploaderTask implements Runnable {
 
             // 上传到存储服务
             CompletableFuture<Void> future = storageService.putObject(retryObjectName, data);
+
             // 30秒超时
             future.get(UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
             

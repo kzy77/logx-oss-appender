@@ -1,5 +1,7 @@
 # 故事点3: 队列引擎核心实现质量评估报告
 
+> **架构更新说明（2025-10-05）**：本文档中提到的`DisruptorBatchingQueue`和`BatchProcessor`已合并为`EnhancedDisruptorBatchingQueue`，实现架构简化和性能优化。详见[架构重构报告](../../refactor-report-merge-batch-processor.md)。
+
 ## 1. 验收标准完成度验证
 
 ### AC1: 集成LMAX Disruptor 3.4.4依赖到logx-producer模块
@@ -46,7 +48,6 @@
 ✅ **已完成**
 - 实现了SystemLoadMonitor监控系统CPU使用率
 - CPU让出策略实现完整：高负载时主动Thread.yield()
-- 实现了自适应调度机制
 
 ### AC9: 添加内存保护机制，限制队列大小防止JVM OOM
 ✅ **已完成**

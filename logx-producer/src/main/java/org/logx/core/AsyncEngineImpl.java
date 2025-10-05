@@ -17,7 +17,7 @@ import java.util.concurrent.atomic.AtomicLong;
 /**
  * 异步处理引擎实现
  * <p>
- * 基于Disruptor高性能队列和BatchProcessor实现的异步日志处理引擎。
+ * 基于增强的Disruptor批处理队列实现的异步日志处理引擎。
  * 负责接收日志数据、启动和停止处理流程，并提供优雅停机支持。
  * <p>
  * 支持紧急兜底机制：当内存占用超过512MB时，直接将日志写入兜底文件，避免OOM。
@@ -34,7 +34,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
 
     private final StorageService storageService;
     private final ShutdownHookHandler shutdownHandler;
-    private final BatchProcessor batchProcessor;
+    private final EnhancedDisruptorBatchingQueue batchingQueue;
     private final AsyncEngineConfig config;
     private final FallbackManager fallbackManager;
     private final ObjectNameGenerator nameGenerator;
@@ -70,17 +70,22 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         
         // 创建兜底管理器
         this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), config.getLogFileName());
-        
-        // 创建批处理器
-        BatchProcessor.Config batchConfig = new BatchProcessor.Config()
-            .batchSize(config.getBatchMaxMessages())
-            .batchSizeBytes(config.getBatchMaxBytes())
-            .flushIntervalMs(config.getFlushIntervalMs())
+
+        // 创建增强批处理队列
+        EnhancedDisruptorBatchingQueue.Config queueConfig = EnhancedDisruptorBatchingQueue.Config.defaultConfig()
+            .queueCapacity(config.getQueueCapacity())
+            .batchMaxMessages(config.getBatchMaxMessages())
+            .batchMaxBytes(config.getBatchMaxBytes())
+            .maxMessageAgeMs(config.getMaxMessageAgeMs())
+            .blockOnFull(config.isBlockOnFull())
+            .multiProducer(config.isMultiProducer())
             .enableCompression(true)
-            .enableAdaptiveSize(true)
-            .enableSharding(true);
-        
-        this.batchProcessor = new BatchProcessor(batchConfig, this::onBatch, storageService);
+            .compressionThreshold(1024)
+            .enableSharding(true)
+            .shardingThreshold(20 * 1024 * 1024)
+            .shardSize(10 * 1024 * 1024);
+
+        this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
         
         // 创建关闭钩子处理器
         this.shutdownHandler = new ShutdownHookHandler();
@@ -111,13 +116,13 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             // 已经启动了
             return;
         }
-        
-        // 启动批处理器
-        batchProcessor.start();
-        
+
+        // 启动批处理队列
+        batchingQueue.start();
+
         // 启动兜底文件重传定时任务
         startFallbackScheduler();
-        
+
         // 注册JVM关闭钩子
         shutdownHandler.registerShutdownHook();
 
@@ -147,9 +152,9 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                     Thread.currentThread().interrupt();
                 }
             }
-            
-            // 关闭批处理器
-            batchProcessor.close();
+
+            // 关闭批处理队列
+            batchingQueue.close();
             
             // 等待所有任务完成
             long elapsed = System.currentTimeMillis() - startTime;
@@ -203,8 +208,8 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             return;
         }
 
-        // 正常流程：提交到批处理器
-        boolean success = batchProcessor.submit(data);
+        // 正常流程：提交到批处理队列
+        boolean success = batchingQueue.submit(data);
         if (success) {
             // 增加内存计数
             currentMemoryUsage.addAndGet(data.length);

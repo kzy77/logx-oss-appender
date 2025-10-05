@@ -25,7 +25,7 @@
 
         <!-- 批处理配置（符合PRD标准） -->
         <maxBatchCount>100</maxBatchCount>
-        <flushIntervalMs>5000</flushIntervalMs>
+        <maxMessageAgeMs>300000</maxMessageAgeMs>
 
         <!-- 队列配置（符合PRD标准） -->
         <maxQueueSize>10000</maxQueueSize>

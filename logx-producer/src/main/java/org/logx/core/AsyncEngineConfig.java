@@ -11,7 +11,7 @@ import org.logx.config.CommonConfig;
  * <p>
  * 配置参数分组：
  * <ul>
- * <li>队列配置：queueCapacity, batchMaxMessages, batchMaxBytes, flushIntervalMs, blockOnFull, multiProducer</li>
+ * <li>队列配置：queueCapacity, batchMaxMessages, batchMaxBytes, maxMessageAgeMs, blockOnFull, multiProducer</li>
  * <li>线程池配置：corePoolSize, maximumPoolSize, queueCapacityThreadPool, enableCpuYield, enableMemoryProtection</li>
  * <li>关闭配置：maxShutdownWaitMs</li>
  * <li>文件配置：logFilePrefix, logFileName, fallbackRetentionDays, fallbackScanIntervalSeconds</li>
@@ -34,7 +34,7 @@ public class AsyncEngineConfig {
     private int batchMaxBytes = CommonConfig.Defaults.MAX_BATCH_BYTES;
 
     // 最早消息最大年龄（默认：10分钟）
-    private long flushIntervalMs = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
+    private long maxMessageAgeMs = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
 
     // 队列满时是否阻塞（默认：false，即阻塞等待）
     private boolean blockOnFull = CommonConfig.Defaults.DROP_WHEN_QUEUE_FULL;
@@ -110,16 +110,16 @@ public class AsyncEngineConfig {
         this.batchMaxBytes = batchMaxBytes;
         return this;
     }
-    
-    public long getFlushIntervalMs() {
-        return flushIntervalMs;
+
+    public long getMaxMessageAgeMs() {
+        return maxMessageAgeMs;
     }
-    
-    public AsyncEngineConfig flushIntervalMs(long flushIntervalMs) {
-        this.flushIntervalMs = flushIntervalMs;
+
+    public AsyncEngineConfig maxMessageAgeMs(long maxMessageAgeMs) {
+        this.maxMessageAgeMs = maxMessageAgeMs;
         return this;
     }
-    
+
     public boolean isBlockOnFull() {
         return blockOnFull;
     }

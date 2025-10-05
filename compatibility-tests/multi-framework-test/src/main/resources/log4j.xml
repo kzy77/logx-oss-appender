@@ -22,7 +22,7 @@
 
         <!-- 批处理配置（符合PRD标准） -->
         <param name="maxBatchCount" value="100"/>
-        <param name="flushIntervalMs" value="5000"/>
+        <param name="maxMessageAgeMs" value="300000"/>
 
         <!-- 队列配置（符合PRD标准） -->
         <param name="maxQueueSize" value="10000"/>

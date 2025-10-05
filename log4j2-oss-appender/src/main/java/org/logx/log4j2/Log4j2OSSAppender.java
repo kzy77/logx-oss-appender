@@ -55,9 +55,9 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     @PluginFactory
     public static Log4j2OSSAppender createAppender(@PluginAttribute("name") final String name,
             @PluginElement("Layout") Layout<? extends Serializable> layout,
-            @PluginElement("Filter") final Filter filter, 
+            @PluginElement("Filter") final Filter filter,
             @PluginAttribute("endpoint") final String endpoint,
-            @PluginAttribute("region") final String region, 
+            @PluginAttribute("region") final String region,
             @PluginAttribute("accessKeyId") final String accessKeyId,
             @PluginAttribute("accessKeySecret") final String accessKeySecret,
             @PluginAttribute("bucket") final String bucket,
@@ -74,14 +74,39 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             return null;
         }
 
+        // 使用ConfigManager支持环境变量覆盖（问题#6修复）
+        org.logx.config.ConfigManager configManager = new org.logx.config.ConfigManager();
+
+        // 配置优先级: XML配置 > 环境变量 > 默认值
+        String finalOssType = ossType != null && !ossType.isEmpty() ? ossType
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.OSS_TYPE);
+        if (finalOssType == null || finalOssType.isEmpty()) {
+            finalOssType = org.logx.config.CommonConfig.Defaults.OSS_TYPE;
+        }
+
+        String finalEndpoint = endpoint != null && !endpoint.isEmpty() ? endpoint
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.ENDPOINT);
+
+        String finalRegion = region != null && !region.isEmpty() ? region
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.REGION);
+
+        String finalAccessKeyId = accessKeyId != null && !accessKeyId.isEmpty() ? accessKeyId
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.ACCESS_KEY_ID);
+
+        String finalAccessKeySecret = accessKeySecret != null && !accessKeySecret.isEmpty() ? accessKeySecret
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.ACCESS_KEY_SECRET);
+
+        String finalBucket = bucket != null && !bucket.isEmpty() ? bucket
+            : configManager.getProperty("logx.oss." + org.logx.config.CommonConfig.BUCKET);
+
         // 构建存储配置
         StorageConfig adapterConfig = new StorageConfigBuilder()
-            .ossType(ossType != null && !ossType.isEmpty() ? ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
-            .endpoint(endpoint)
-            .region(region)
-            .accessKeyId(accessKeyId)
-            .accessKeySecret(accessKeySecret)
-            .bucket(bucket)
+            .ossType(finalOssType)
+            .endpoint(finalEndpoint)
+            .region(finalRegion)
+            .accessKeyId(finalAccessKeyId)
+            .accessKeySecret(finalAccessKeySecret)
+            .bucket(finalBucket)
             .build();
 
         try {

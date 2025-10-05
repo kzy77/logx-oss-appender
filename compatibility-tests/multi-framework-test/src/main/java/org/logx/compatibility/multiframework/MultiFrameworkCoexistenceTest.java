@@ -40,7 +40,7 @@ public class MultiFrameworkCoexistenceTest {
         log4j1Logger.warn("这是一条Log4j 1.x WARN级别的日志消息");
         log4j1Logger.error("这是一条Log4j 1.x ERROR级别的日志消息");
 
-        System.out.println("多框架日志消息已生成");
+        logbackLogger.info("多框架日志消息已生成");
     }
 
     public static void generateLogMessages() {

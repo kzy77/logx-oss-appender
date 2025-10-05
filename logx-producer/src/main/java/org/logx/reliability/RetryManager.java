@@ -189,7 +189,12 @@ public class RetryManager {
             }
         }
 
-        totalFailures.incrementAndGet();
+        long failureCount = totalFailures.incrementAndGet();
+
+        // 数据丢失监控日志：AC5要求
+        logger.error("[DATA_LOSS_ALERT] 重试失败达到最大次数，数据已丢失。重试次数：{}，累计失败次数：{}，最后异常：{}",
+            attempt, failureCount, lastException != null ? lastException.getMessage() : "未知");
+
         return new RetryResult<>(null, false, attempt, lastException);
     }
 

@@ -361,8 +361,8 @@ public class ConfigManager {
 
         // 批处理配置默认值
         setDefault("logx.oss.maxBatchCount", String.valueOf(CommonConfig.Defaults.MAX_BATCH_COUNT));
-        setDefault("logx.oss.flushIntervalMs", "5000");
         setDefault("logx.oss.maxBatchBytes", String.valueOf(CommonConfig.Defaults.MAX_BATCH_BYTES));
+        setDefault("logx.oss.maxMessageAgeMs", String.valueOf(CommonConfig.Defaults.MAX_MESSAGE_AGE_MS));
 
         // 队列配置默认值
         setDefault("logx.oss.queueCapacity", String.valueOf(CommonConfig.Defaults.QUEUE_CAPACITY));

@@ -68,7 +68,11 @@ public final class CommonConfig {
     public static final String BUCKET = "bucket";
 
     /**
-     * 对象存储中的文件路径前缀
+     * 文件路径前缀（同时用于OSS对象路径和本地兜底路径）
+     * <p>
+     * 用途：
+     * 1. OSS对象存储：logs/2024-10-05/applogx-xxx.log
+     * 2. 本地兜底文件：logs/applogx-fallback-xxx.log
      * <p>
      * 示例：logs/
      * <p>
@@ -106,9 +110,18 @@ public final class CommonConfig {
     public static final String MAX_BATCH_BYTES = "maxBatchBytes";
 
     /**
-     * 触发条件3：最早消息年龄阈值
+     * 触发条件3：最早消息年龄阈值（maxMessageAgeMs）
      * <p>
      * 当队列中最早的消息超过此毫秒数时触发上传
+     * <p>
+     * <b>重要说明：</b>
+     * <ul>
+     * <li>此参数与flushInterval（刷新间隔）是不同的概念：</li>
+     * <li>maxMessageAgeMs：基于消息年龄的触发条件（消息在队列中等待的时间）</li>
+     * <li>flushInterval：定时检查间隔（检查是否满足触发条件的频率）</li>
+     * <li>只有当触发条件满足时（消息数量、内存占用或消息年龄），才会触发OSS上传</li>
+     * <li>flushInterval仅控制检查频率，不直接触发上传</li>
+     * </ul>
      * <p>
      * 可选参数，默认：10分钟（600000毫秒）
      */
@@ -126,15 +139,7 @@ public final class CommonConfig {
     public static final String EMERGENCY_MEMORY_THRESHOLD_MB = "emergencyMemoryThresholdMb";
 
     // ==================== 兜底机制配置（2个）====================
-
-    /**
-     * 兜底文件存储路径
-     * <p>
-     * 当网络异常或存储服务不可用时，日志会临时写入此路径
-     * <p>
-     * 可选参数，默认：fallback（相对路径）
-     */
-    public static final String FALLBACK_PATH = "fallbackPath";
+    // 注：兜底文件路径使用KEY_PREFIX配置（同时用于OSS和兜底）
 
     /**
      * 兜底文件保留天数
@@ -192,10 +197,19 @@ public final class CommonConfig {
     /** 压缩阈值（字节） */
     public static final String COMPRESSION_THRESHOLD = "compressionThreshold";
 
-    // ==================== 分片配置（3个）====================
+    // ==================== 分片配置（4个）====================
 
     /** 是否启用数据分片 */
     public static final String ENABLE_SHARDING = "enableSharding";
+
+    /**
+     * 单个上传文件最大大小（MB）
+     * <p>
+     * 用户友好的配置参数，以MB为单位
+     * <p>
+     * 可选参数，默认：20MB
+     */
+    public static final String MAX_UPLOAD_SIZE_MB = "maxUploadSizeMb";
 
     /** 分片阈值（字节） */
     public static final String SHARDING_THRESHOLD = "shardingThreshold";
@@ -214,10 +228,7 @@ public final class CommonConfig {
     /** 最大退避时间（毫秒） */
     public static final String MAX_BACKOFF_MS = "maxBackoffMs";
 
-    // ==================== 其他配置（3个）====================
-
-    /** 是否启用自适应批次大小调整 */
-    public static final String ENABLE_ADAPTIVE_SIZE = "enableAdaptiveSize";
+    // ==================== 其他配置（2个）====================
 
     /** 最大关闭等待时间（毫秒） */
     public static final String MAX_SHUTDOWN_WAIT_MS = "maxShutdownWaitMs";
@@ -265,6 +276,13 @@ public final class CommonConfig {
          */
         public static final String OSS_TYPE = "SF_OSS";
 
+        /**
+         * 默认存储区域
+         * <p>
+         * 默认为 "ap-guangzhou"（广州区域）
+         */
+        public static final String REGION = "ap-guangzhou";
+
         // ==================== 队列配置 ====================
 
         /**
@@ -311,9 +329,17 @@ public final class CommonConfig {
         public static final int MAX_BATCH_BYTES = 10 * 1024 * 1024;
 
         /**
-         * 触发条件3：最早消息年龄阈值
+         * 触发条件3：最早消息年龄阈值（maxMessageAgeMs）
          * <p>
          * 当队列中最早的消息超过10分钟时触发上传
+         * <p>
+         * <b>重要说明：</b>此参数与flushInterval（刷新间隔）是不同的概念：
+         * <ul>
+         * <li>maxMessageAgeMs：基于消息年龄的触发条件（消息在队列中等待的时间）</li>
+         * <li>flushInterval：定时检查间隔（检查是否满足触发条件的频率）</li>
+         * <li>只有当触发条件满足时，才会触发OSS上传</li>
+         * </ul>
+         * <p>
          * 默认：600000毫秒 (10分钟)
          * 建议范围：1秒-30分钟
          */
@@ -405,15 +431,23 @@ public final class CommonConfig {
         public static final boolean ENABLE_SHARDING = true;
 
         /**
-         * 分片阈值（同时也是单个文件的最大上传大小）
+         * 单个上传文件最大大小（MB）
+         * <p>
+         * 用户友好的配置参数，以MB为单位
+         * 默认：10MB
+         * 建议范围：5MB-100MB
+         */
+        public static final int MAX_UPLOAD_SIZE_MB = 10;
+
+        /**
+         * 分片阈值（字节）
          * <p>
          * 数据大小超过此值时自动分片
-         * 默认：20MB (20 * 1024 * 1024 字节)
-         * 建议范围：5MB-100MB
+         * 默认：10MB (MAX_UPLOAD_SIZE_MB * 1024 * 1024 字节)
          * <p>
-         * 注意：此参数同时定义了单个文件的最大上传大小，避免重复配置
+         * 注意：此参数由MAX_UPLOAD_SIZE_MB自动计算，保持一致性
          */
-        public static final int SHARDING_THRESHOLD = 20 * 1024 * 1024;
+        public static final int SHARDING_THRESHOLD = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
 
         /**
          * 单个分片大小
@@ -423,16 +457,6 @@ public final class CommonConfig {
          * 建议范围：5MB-50MB
          */
         public static final int SHARD_SIZE = 10 * 1024 * 1024;
-
-        // ==================== 自适应配置 ====================
-
-        /**
-         * 是否启用自适应批次大小调整
-         * <p>
-         * 根据系统负载和上传成功率自动调整批次大小
-         * 默认：true
-         */
-        public static final boolean ENABLE_ADAPTIVE_SIZE = true;
 
         // ==================== 重试配置 ====================
 
@@ -493,14 +517,6 @@ public final class CommonConfig {
         // ==================== 兜底机制配置 ====================
 
         /**
-         * 兜底文件存储路径
-         * <p>
-         * 当网络异常或存储服务不可用时，日志会临时写入此路径
-         * 默认：fallback（相对路径，相对于应用运行目录）
-         */
-        public static final String FALLBACK_PATH = "fallback";
-
-        /**
          * 兜底文件保留天数
          * <p>
          * 超过此天数的兜底文件会被自动清理
@@ -539,9 +555,6 @@ public final class CommonConfig {
         public static final int MIN_BATCH_BYTES = 1024;
         // 100MB
         public static final int MAX_BATCH_BYTES_LIMIT = 100 * 1024 * 1024;
-        public static final long MIN_FLUSH_INTERVAL = 100L;
-        // 5分钟
-        public static final long MAX_FLUSH_INTERVAL = 300_000L;
         public static final int MIN_RETRIES = 0;
         public static final int MAX_RETRIES_LIMIT = 20;
         public static final long MIN_BACKOFF = 50L;
@@ -573,7 +586,6 @@ public final class CommonConfig {
         public static final String EMERGENCY_MEMORY_THRESHOLD_MB = "LOGX_OSS_EMERGENCY_MEMORY_THRESHOLD_MB";
 
         // 兜底机制配置
-        public static final String FALLBACK_PATH = "LOGX_OSS_FALLBACK_PATH";
         public static final String FALLBACK_RETENTION_DAYS = "LOGX_OSS_FALLBACK_RETENTION_DAYS";
         public static final String FALLBACK_SCAN_INTERVAL_SECONDS = "LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS";
 
@@ -598,6 +610,7 @@ public final class CommonConfig {
 
         // 分片配置
         public static final String ENABLE_SHARDING = "LOGX_OSS_ENABLE_SHARDING";
+        public static final String MAX_UPLOAD_SIZE_MB = "LOGX_OSS_MAX_UPLOAD_SIZE_MB";
         public static final String SHARDING_THRESHOLD = "LOGX_OSS_SHARDING_THRESHOLD";
         public static final String SHARD_SIZE = "LOGX_OSS_SHARD_SIZE";
 
@@ -607,7 +620,6 @@ public final class CommonConfig {
         public static final String MAX_BACKOFF_MS = "LOGX_OSS_MAX_BACKOFF_MS";
 
         // 其他配置
-        public static final String ENABLE_ADAPTIVE_SIZE = "LOGX_OSS_ENABLE_ADAPTIVE_SIZE";
         public static final String MAX_SHUTDOWN_WAIT_MS = "LOGX_OSS_MAX_SHUTDOWN_WAIT_MS";
         public static final String LEVEL = "LOGX_OSS_LEVEL";
     }

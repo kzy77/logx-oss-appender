@@ -24,8 +24,10 @@ public class StorageServiceFactoryTest {
             public StorageConfig build() {
                 // 使用反射调用protected构造函数
                 try {
-                    return StorageConfig.class.getDeclaredConstructor(StorageConfig.Builder.class)
-                            .newInstance(this);
+                    java.lang.reflect.Constructor<StorageConfig> constructor =
+                        StorageConfig.class.getDeclaredConstructor(StorageConfig.Builder.class);
+                    constructor.setAccessible(true);
+                    return constructor.newInstance(this);
                 } catch (Exception e) {
                     throw new RuntimeException(e);
                 }

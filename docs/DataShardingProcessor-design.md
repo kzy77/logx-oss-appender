@@ -1,5 +1,7 @@
 # 核心层数据分片处理设计文档
 
+> **历史设计文档（2025-10-05）**：本文档描述的独立 `DataShardingProcessor` 组件未单独实现。数据分片功能已直接集成到 `EnhancedDisruptorBatchingQueue` 中（配置项：`enableSharding`, `shardingThreshold=20MB`, `shardSize=10MB`）。本文档保留作为设计思路参考。
+
 ## 概述
 
 本文档描述了在 LogX OSS Appender 的核心层实现的数据分片处理功能。该功能负责控制传递给存储适配器的数据大小，确保单个对象的大小符合云存储服务的要求。
@@ -42,12 +44,12 @@
 
 ```mermaid
 sequenceDiagram
-    participant BP as BatchProcessor
+    participant EDBQ as EnhancedDisruptorBatchingQueue
     participant DSP as DataShardingProcessor
     participant SS as StorageService
     participant SA as StorageAdapter
 
-    BP->>DSP: 提交批处理数据
+    EDBQ->>DSP: 提交批处理数据
     DSP->>DSP: 检查数据大小
     alt 数据大小 > 阈值
         loop 按分片大小切分

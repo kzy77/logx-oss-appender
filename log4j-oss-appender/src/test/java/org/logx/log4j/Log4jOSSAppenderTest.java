@@ -46,7 +46,7 @@ class Log4jOSSAppenderTest {
         assertThat(appender.getMaxQueueSize()).isEqualTo(262144);
         assertThat(appender.getMaxBatchCount()).isEqualTo(4096);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(4 * 1024 * 1024);
-        assertThat(appender.getFlushIntervalMs()).isEqualTo(2000L);
+        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(600000L);
         assertThat(appender.isDropWhenQueueFull()).isFalse();
         assertThat(appender.isMultiProducer()).isFalse();
         assertThat(appender.getMaxRetries()).isEqualTo(5);
@@ -62,7 +62,7 @@ class Log4jOSSAppenderTest {
         int maxQueueSize = 100000;
         int maxBatchCount = 2000;
         int maxBatchBytes = 2 * 1024 * 1024;
-        long flushIntervalMs = 5000L;
+        long maxMessageAgeMs = 300000L;
         boolean dropWhenQueueFull = true;
         boolean multiProducer = true;
         int maxRetries = 3;
@@ -74,7 +74,7 @@ class Log4jOSSAppenderTest {
         appender.setMaxQueueSize(maxQueueSize);
         appender.setMaxBatchCount(maxBatchCount);
         appender.setMaxBatchBytes(maxBatchBytes);
-        appender.setFlushIntervalMs(flushIntervalMs);
+        appender.setMaxMessageAgeMs(maxMessageAgeMs);
         appender.setDropWhenQueueFull(dropWhenQueueFull);
         appender.setMultiProducer(multiProducer);
         appender.setMaxRetries(maxRetries);
@@ -86,7 +86,7 @@ class Log4jOSSAppenderTest {
         assertThat(appender.getMaxQueueSize()).isEqualTo(maxQueueSize);
         assertThat(appender.getMaxBatchCount()).isEqualTo(maxBatchCount);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(maxBatchBytes);
-        assertThat(appender.getFlushIntervalMs()).isEqualTo(flushIntervalMs);
+        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(maxMessageAgeMs);
         assertThat(appender.isDropWhenQueueFull()).isTrue();
         assertThat(appender.isMultiProducer()).isTrue();
         assertThat(appender.getMaxRetries()).isEqualTo(maxRetries);

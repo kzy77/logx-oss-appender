@@ -36,7 +36,7 @@ public class AsyncEngineConfigBuilder {
         config.queueCapacity(configManager.getIntProperty(CONFIG_PREFIX + "queue.capacity", config.getQueueCapacity()));
         config.batchMaxMessages(configManager.getIntProperty(CONFIG_PREFIX + "batch.max.messages", config.getBatchMaxMessages()));
         config.batchMaxBytes(configManager.getIntProperty(CONFIG_PREFIX + "batch.max.bytes", config.getBatchMaxBytes()));
-        config.flushIntervalMs(configManager.getLongProperty(CONFIG_PREFIX + "flush.interval.ms", config.getFlushIntervalMs()));
+        config.maxMessageAgeMs(configManager.getLongProperty(CONFIG_PREFIX + "max.message.age.ms", config.getMaxMessageAgeMs()));
         config.blockOnFull(configManager.getBooleanProperty(CONFIG_PREFIX + "block.on.full", config.isBlockOnFull()));
         config.multiProducer(configManager.getBooleanProperty(CONFIG_PREFIX + "multi.producer", config.isMultiProducer()));
         config.corePoolSize(configManager.getIntProperty(CONFIG_PREFIX + "threadpool.core.size", config.getCorePoolSize()));

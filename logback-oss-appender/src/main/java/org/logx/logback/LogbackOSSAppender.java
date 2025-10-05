@@ -26,9 +26,9 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
     private String keyPrefix = "logs/";
     private String ossType; // 新增：存储类型配置
     private int maxQueueSize = 65536; // 64K - 必须是2的幂
-    private int maxBatchCount = 1000;
+    private int maxBatchCount = org.logx.config.CommonConfig.Defaults.MAX_BATCH_COUNT; // 4096
     private int maxBatchBytes = 4 * 1024 * 1024;
-    private long flushIntervalMs = 2000L;
+    private long maxMessageAgeMs = 600000L; // 10分钟
     private boolean dropWhenQueueFull = false;
     private boolean multiProducer = false;
     private int maxRetries = 5;
@@ -192,12 +192,12 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         this.maxBatchBytes = maxBatchBytes;
     }
 
-    public long getFlushIntervalMs() {
-        return flushIntervalMs;
+    public long getMaxMessageAgeMs() {
+        return maxMessageAgeMs;
     }
 
-    public void setFlushIntervalMs(long flushIntervalMs) {
-        this.flushIntervalMs = flushIntervalMs;
+    public void setMaxMessageAgeMs(long maxMessageAgeMs) {
+        this.maxMessageAgeMs = maxMessageAgeMs;
     }
 
     public boolean isDropWhenQueueFull() {

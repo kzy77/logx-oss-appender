@@ -25,7 +25,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     private int maxQueueSize = 262144;
     private int maxBatchCount = 4096;
     private int maxBatchBytes = 4 * 1024 * 1024;
-    private long flushIntervalMs = 2000L;
+    private long maxMessageAgeMs = 600000L;
     private boolean dropWhenQueueFull = false;
     private boolean multiProducer = false;
     private int maxRetries = 5;
@@ -200,12 +200,12 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         this.maxBatchBytes = maxBatchBytes;
     }
 
-    public long getFlushIntervalMs() {
-        return flushIntervalMs;
+    public long getMaxMessageAgeMs() {
+        return maxMessageAgeMs;
     }
 
-    public void setFlushIntervalMs(long flushIntervalMs) {
-        this.flushIntervalMs = flushIntervalMs;
+    public void setMaxMessageAgeMs(long maxMessageAgeMs) {
+        this.maxMessageAgeMs = maxMessageAgeMs;
     }
 
     public boolean isDropWhenQueueFull() {

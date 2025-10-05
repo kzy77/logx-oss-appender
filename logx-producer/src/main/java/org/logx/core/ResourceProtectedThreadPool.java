@@ -1,5 +1,8 @@
 package org.logx.core;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.OperatingSystemMXBean;
@@ -27,13 +30,17 @@ import java.util.concurrent.atomic.AtomicLong;
  */
 public class ResourceProtectedThreadPool implements AutoCloseable {
 
+    private static final Logger logger = LoggerFactory.getLogger(ResourceProtectedThreadPool.class);
+
     // 默认配置
     private static final int DEFAULT_CORE_POOL_SIZE = 2;
     private static final int DEFAULT_MAXIMUM_POOL_SIZE = 4;
     private static final long DEFAULT_KEEP_ALIVE_TIME = 60L;
     private static final int DEFAULT_QUEUE_CAPACITY = 1000;
+
     // 80%
     private static final double DEFAULT_CPU_THRESHOLD = 0.8;
+
     // 85%
     private static final double DEFAULT_MEMORY_THRESHOLD = 0.85;
 
@@ -309,10 +316,10 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
     private class ResourceProtectedRejectedHandler implements RejectedExecutionHandler {
         @Override
         public void rejectedExecution(Runnable r, ThreadPoolExecutor executor) {
-            totalTasksRejected.incrementAndGet();
+            long rejectedCount = totalTasksRejected.incrementAndGet();
 
-            // 记录拒绝信息但不抛异常，避免影响业务
-            System.err.println("任务被拒绝执行，队列已满或线程池已关闭");
+            // 数据丢失监控日志：AC5要求
+            logger.error("[DATA_LOSS_ALERT] 任务被拒绝执行，可能导致数据丢失。原因：队列已满或线程池已关闭。累计拒绝次数：{}", rejectedCount);
         }
     }
 
