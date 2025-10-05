@@ -82,7 +82,7 @@ $ grep -r "MAX_UPLOAD_SIZE\|maxUploadSize" logx-producer/src/main/java/org/logx/
 **修复步骤**:
 1. 在CommonConfig.Defaults中添加MAX_UPLOAD_SIZE_MB常量
    ```java
-   public static final int MAX_UPLOAD_SIZE_MB = 100; // 默认100MB
+   public static final int MAX_UPLOAD_SIZE_MB = 10; // 默认10MB（与分片大小一致）
    ```
 
 2. 在CommonConfig.Keys中添加配置键

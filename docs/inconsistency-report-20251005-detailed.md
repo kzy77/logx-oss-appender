@@ -40,7 +40,7 @@ $ grep -r "MAX_UPLOAD_SIZE\|maxUploadSize" logx-producer/src/main/java/org/logx/
 **修复建议**:
 1. 在CommonConfig.Defaults中添加：
    ```java
-   public static final int MAX_UPLOAD_SIZE_MB = 100;
+   public static final int MAX_UPLOAD_SIZE_MB = 10; // 默认10MB
    ```
 2. 在CommonConfig.Keys中添加：
    ```java
