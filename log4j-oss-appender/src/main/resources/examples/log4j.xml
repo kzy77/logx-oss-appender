@@ -15,10 +15,10 @@
     <!-- OSS Appender：上传日志到对象存储 -->
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
         <!-- S3兼容存储配置 - 必需参数 -->
-        <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
-        <param name="region" value="${LOG_OSS_REGION:-cn-hangzhou}"/>
-        <param name="accessKeyId" value="${LOG_OSS_ACCESS_KEY_ID}"/>
-        <param name="accessKeySecret" value="${LOG_OSS_ACCESS_KEY_SECRET}"/>
+        <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
+        <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
+        <param name="accessKeyId" value="${LOGX_OSS_ACCESS_KEY_ID}"/>
+        <param name="accessKeySecret" value="${LOGX_OSS_ACCESS_KEY_SECRET}"/>
         <param name="bucket" value="my-app-logs"/>
 
         <!-- 应用行为配置 - 可选参数 -->

@@ -287,9 +287,9 @@ LogX OSS Appender 通过三层保障机制确保日志数据的最终一致性�
 <configuration>
   <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
     <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-    <accessKeyId>${LOG_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOG_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOG_OSS_BUCKET}</bucket>
+    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET}</bucket>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>

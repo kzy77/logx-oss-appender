@@ -83,7 +83,7 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 ```xml
 <configuration>
   <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
+    <endpoint>${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
     <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
     <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
     <bucket>${LOGX_OSS_BUCKET}</bucket>
@@ -99,7 +99,7 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_BUCKET="your-bucket-name"
 ```
 
 #### 其他框架示例
@@ -120,7 +120,7 @@ export LOG_OSS_BUCKET="your-bucket-name"
 ```xml
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
   <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
+    <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
     <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
     <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
     <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
@@ -139,7 +139,7 @@ export LOG_OSS_BUCKET="your-bucket-name"
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_BUCKET="your-bucket-name"
 ```
 
 ##### Log4j2 + SF-OSS快速开始
@@ -177,7 +177,7 @@ export LOG_OSS_BUCKET="your-bucket-name"
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_BUCKET="your-bucket-name"
 ```
 
 ### 构建项目
@@ -328,7 +328,7 @@ implementation 'org.logx:s3-logback-oss-appender:1.0.0-SNAPSHOT'
         <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
         <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logs/app/}"/>
         <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-4096}"/>
-        <param name="flushIntervalMs" value="${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}"/>
+        <param name="maxMessageAgeMs" value="${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -356,7 +356,7 @@ log4j.appender.OSS.bucket=${LOGX_OSS_BUCKET}
 log4j.appender.OSS.region=${LOGX_OSS_REGION:-cn-hangzhou}
 log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logs/app/}
 log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-4096}
-log4j.appender.OSS.flushIntervalMs=${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}
+log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
 log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
@@ -374,8 +374,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
             <bucket>${sys:LOGX_OSS_BUCKET}</bucket>
             <region>${sys:LOGX_OSS_REGION:-cn-hangzhou}</region>
             <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
-            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-1000}</maxBatchCount>
-            <flushIntervalMs>${sys:LOGX_OSS_FLUSH_INTERVAL_MS:-2000}</flushIntervalMs>
+            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
+            <maxMessageAgeMs>${sys:LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
         </OSS>
     </Appenders>
     <Loggers>
@@ -398,8 +398,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
         <bucket>${LOGX_OSS_BUCKET}</bucket>
         <region>${LOGX_OSS_REGION:-cn-hangzhou}</region>
         <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
-        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-1000}</maxBatchCount>
-        <flushIntervalMs>${LOGX_OSS_FLUSH_INTERVAL_MS:-2000}</flushIntervalMs>
+        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
+        <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -430,15 +430,15 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **region** | String | ap-guangzhou | 存储区域 |
 | **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
-| **maxQueueSize** | Integer | 100000 | 内存队列大小 |
-| **maxBatchCount** | Integer | 10000 | 单批最大条数 |
-| **maxBatchBytes** | Integer | 104857600 (100MB) | 单批最大字节(100MB) |
-| **flushIntervalMs** | Long | 2000 | 强制刷新间隔(毫秒) |
-| **dropWhenQueueFull** | Boolean | true | 队列满时是否丢弃日志 |
+| **maxQueueSize** | Integer | 65536 | 内存队列大小（必须是2的幂） |
+| **maxBatchCount** | Integer | 4096 | 单批最大条数 |
+| **maxBatchBytes** | Integer | 4194304 (4MB) | 单批最大字节 |
+| **maxMessageAgeMs** | Long | 600000 | 最早消息年龄阈值（毫秒），10分钟 |
+| **dropWhenQueueFull** | Boolean | false | 队列满时是否丢弃日志 |
 | **multiProducer** | Boolean | false | 是否支持多生产者 |
-| **maxRetries** | Integer | 3 | 最大重试次数 |
-| **baseBackoffMs** | Long | 1000 | 基础退避时间(毫秒) |
-| **maxBackoffMs** | Long | 30000 | 最大退避时间(毫秒) |
+| **maxRetries** | Integer | 5 | 最大重试次数 |
+| **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
+| **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
 | **maxUploadSizeMb** | Integer | 100 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
 
 #### 批处理优化参数
@@ -449,7 +449,6 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **batchSizeBytes** | Integer | 4194304 (4MB) | 批处理大小（字节） |
 | **enableCompression** | Boolean | true | 是否启用数据压缩 |
 | **compressionThreshold** | Integer | 1024 (1KB) | 启用压缩的数据大小阈值 |
-| **enableAdaptiveSize** | Boolean | true | 是否启用动态批处理大小调整 |
 | **enableSharding** | Boolean | true | 是否启用数据分片处理 |
 | **shardingThreshold** | Integer | 104857600 (100MB) | 数据分片阈值 |
 | **shardSize** | Integer | 10485760 (10MB) | 分片大小 |
@@ -588,8 +587,8 @@ logback-oss-appender
 
             <!-- 性能调优参数 -->
             <maxBatchCount>5000</maxBatchCount>     <!-- 增大批量大小 -->
-            <flushIntervalMs>10000</flushIntervalMs> <!-- 增加刷新间隔 -->
-            <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小 -->
+            <maxMessageAgeMs>10000</maxMessageAgeMs> <!-- 降低消息年龄阈值，更快触发批处理 -->
+            <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小（必须是2的幂） -->
             <keyPrefix>logs/app/</keyPrefix>
 
             <!-- 重试策略 -->
@@ -673,8 +672,8 @@ logging:
 OSS_ACCESS_KEY_ID: ${LOGX_OSS_ACCESS_KEY_ID}
 OSS_ACCESS_KEY_SECRET: ${LOGX_OSS_ACCESS_KEY_SECRET}
 OSS_BUCKET: ${LOGX_OSS_BUCKET:app-logs}
-LOG_OSS_ENDPOINT: ${LOGX_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
-LOG_OSS_REGION: ${LOG_OSS_REGION:cn-hangzhou}
+LOGX_OSS_ENDPOINT: ${LOGX_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+LOGX_OSS_REGION: ${LOGX_OSS_REGION:cn-hangzhou}
 ```
 
 #### Docker部署
@@ -694,10 +693,67 @@ ENV LOGX_OSS_REGION="cn-hangzhou"
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
 
+## 项目路线图与决策
+
+### 当前版本 (v1.0.0 MVP)
+
+当前MVP版本专注于核心功能，确保日志上传的**高性能**和**高可靠性**：
+
+**✅ 已实现功能**：
+- 高性能异步队列（LMAX Disruptor，24,777+ 消息/秒）
+- 智能批处理优化（三触发条件：消息数、字节数、消息年龄）
+- GZIP压缩（90%+压缩率）
+- 数据分片处理（自动分片大文件）
+- 失败重试机制（指数退避，最多5次）
+- 兜底文件机制（网络异常时本地缓存）
+- 优雅关闭保护（30秒超时保护）
+- 多框架支持（Log4j、Log4j2、Logback）
+- 多云支持（AWS S3、阿里云OSS、MinIO等）
+
+**❌ 明确不在当前版本范围的功能**：
+
+根据项目决策记录，以下功能不在MVP版本实现：
+
+1. **监控和告警接口** ([ADR-001](docs/DECISIONS.md#adr-001-mvp版本不实现监控和告警接口))
+   - 原因：核心可靠性机制已满足需求，监控需求差异大
+   - 替代方案：通过日志集成到现有监控系统（Prometheus、ELK等）
+   - 未来计划：v2.0可能添加Metrics API、Callback API、JMX支持
+
+2. **动态自适应批处理算法** ([ADR-002](docs/DECISIONS.md#adr-002-mvp版本不实现动态自适应批处理算法))
+   - 原因：固定配置参数已满足核心需求，自适应算法复杂且难以通用
+   - 替代方案：提供三个灵活的配置参数（maxBatchCount、maxBatchBytes、maxMessageAgeMs）
+   - 未来计划：v2.0可能添加预设配置模式（低延迟模式、高吞吐模式）
+
+### 未来版本规划
+
+**v1.1.0** (性能优化版本)
+- 优化内存占用
+- 增强兜底文件管理
+- 添加更多性能指标
+
+**v2.0.0** (企业增强版本)
+- 监控和告警接口
+- 预设配置模式
+- 更丰富的扩展点
+
+详细的架构决策和理由请参考 **[项目决策记录](docs/DECISIONS.md)**。
+
+### 默认配置说明
+
+项目使用以下重要默认值（符合PRD要求）：
+
+| 配置项 | 默认值 | 说明 | 决策记录 |
+|--------|--------|------|----------|
+| region | ap-guangzhou | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
+| maxBatchCount | 4096 | 批处理大小 | 性能测试验证 |
+| maxBatchBytes | 10MB | 批处理字节数 | 性能测试验证 |
+| maxMessageAgeMs | 600000 (10分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
+
 ## 文档
 
 - [架构设计文档](docs/architecture.md) - 详细的技术架构说明
 - [产品需求文档](docs/prd.md) - 项目需求和Epic定义
+- [项目决策记录](docs/DECISIONS.md) - 架构和功能决策说明（新增）
 - [开发者指南](docs/developer-guide.md) - 开发环境设置和贡献指南
 - [Git管理指南](docs/git-management.md) - 分支策略、版本发布、协作流程
 

@@ -254,4 +254,110 @@ class ConfigCompatibilityTest {
         assertThat(config.getEndpoint()).isEqualTo("https://integration.example.com");
         assertThat(config.getRegion()).isEqualTo("integration-region");
     }
+
+    @Test
+    void shouldSupportAdditionalConfigurationParameters() {
+        // 验证所有PRD要求的配置参数及其默认值
+        ConfigManager configManager = new ConfigManager();
+
+        // 紧急保护阈值（emergencyMemoryThresholdMb）
+        assertThat(configManager.getIntProperty(
+                CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB,
+                CommonConfig.Defaults.EMERGENCY_MEMORY_THRESHOLD_MB))
+                .isEqualTo(CommonConfig.Defaults.EMERGENCY_MEMORY_THRESHOLD_MB)
+                .isEqualTo(512);
+
+        // 兜底文件保留天数（fallbackRetentionDays）
+        assertThat(configManager.getIntProperty(
+                CommonConfig.FALLBACK_RETENTION_DAYS,
+                CommonConfig.Defaults.FALLBACK_RETENTION_DAYS))
+                .isEqualTo(CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
+                .isEqualTo(7);
+
+        // 压缩阈值（compressionThreshold）
+        assertThat(configManager.getIntProperty(
+                CommonConfig.COMPRESSION_THRESHOLD,
+                CommonConfig.Defaults.COMPRESSION_THRESHOLD))
+                .isEqualTo(CommonConfig.Defaults.COMPRESSION_THRESHOLD)
+                .isEqualTo(1024);
+
+        // 分片阈值（shardingThreshold）
+        assertThat(configManager.getIntProperty(
+                CommonConfig.SHARDING_THRESHOLD,
+                CommonConfig.Defaults.SHARDING_THRESHOLD))
+                .isEqualTo(CommonConfig.Defaults.SHARDING_THRESHOLD)
+                .isEqualTo(10 * 1024 * 1024);
+
+        // 最早消息年龄阈值（maxMessageAgeMs）
+        assertThat(configManager.getLongProperty(
+                CommonConfig.MAX_MESSAGE_AGE_MS,
+                CommonConfig.Defaults.MAX_MESSAGE_AGE_MS))
+                .isEqualTo(CommonConfig.Defaults.MAX_MESSAGE_AGE_MS)
+                .isEqualTo(600000L);
+    }
+
+    @Test
+    void shouldSupportFallbackScanIntervalConfiguration() {
+        // 验证兜底文件扫描间隔配置（fallbackScanIntervalSeconds）
+        // 注意：此参数当前只有默认值，不是用户可配置的参数
+        assertThat(CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS)
+                .isEqualTo(60)
+                .isPositive()
+                .isBetween(10, 300);
+    }
+
+    @Test
+    void shouldUseCorrectDefaultRegionValue() {
+        // 验证任务#8：StorageConfig默认region值与PRD一致
+        // 默认值应为 "ap-guangzhou"（来自PRD FR3）
+        ConfigManager configManager = new ConfigManager();
+
+        assertThat(CommonConfig.Defaults.REGION)
+                .isEqualTo("ap-guangzhou")
+                .as("默认region值应与PRD保持一致");
+
+        // 验证ConfigManager可以正确读取默认值
+        assertThat(configManager.getProperty(CommonConfig.REGION, CommonConfig.Defaults.REGION))
+                .isEqualTo("ap-guangzhou");
+    }
+
+    @Test
+    void shouldOverrideAdditionalParametersWithSystemProperties() {
+        // 验证系统属性可以覆盖额外的配置参数
+
+        // 设置系统属性
+        System.setProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB, "1024");
+        System.setProperty(CommonConfig.FALLBACK_RETENTION_DAYS, "14");
+        System.setProperty(CommonConfig.COMPRESSION_THRESHOLD, "2048");
+        System.setProperty(CommonConfig.SHARDING_THRESHOLD, String.valueOf(20 * 1024 * 1024));
+        System.setProperty(CommonConfig.MAX_MESSAGE_AGE_MS, "1200000");
+
+        try {
+            ConfigManager configManager = new ConfigManager();
+
+            // 验证系统属性覆盖生效
+            assertThat(configManager.getIntProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB, 512))
+                    .isEqualTo(1024);
+
+            assertThat(configManager.getIntProperty(CommonConfig.FALLBACK_RETENTION_DAYS, 7))
+                    .isEqualTo(14);
+
+            assertThat(configManager.getIntProperty(CommonConfig.COMPRESSION_THRESHOLD, 1024))
+                    .isEqualTo(2048);
+
+            assertThat(configManager.getIntProperty(CommonConfig.SHARDING_THRESHOLD, 10 * 1024 * 1024))
+                    .isEqualTo(20 * 1024 * 1024);
+
+            assertThat(configManager.getLongProperty(CommonConfig.MAX_MESSAGE_AGE_MS, 600000L))
+                    .isEqualTo(1200000L);
+
+        } finally {
+            // 清理系统属性
+            System.clearProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB);
+            System.clearProperty(CommonConfig.FALLBACK_RETENTION_DAYS);
+            System.clearProperty(CommonConfig.COMPRESSION_THRESHOLD);
+            System.clearProperty(CommonConfig.SHARDING_THRESHOLD);
+            System.clearProperty(CommonConfig.MAX_MESSAGE_AGE_MS);
+        }
+    }
 }

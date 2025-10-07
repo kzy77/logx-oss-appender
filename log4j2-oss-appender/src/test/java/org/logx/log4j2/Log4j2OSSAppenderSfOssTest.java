@@ -37,6 +37,16 @@ class Log4j2OSSAppenderSfOssTest {
                 accessKeySecret,
                 bucket,
                 "SF_OSS", // ossType
+                "logs/", // keyPrefix
+                65536, // maxQueueSize
+                4096, // maxBatchCount
+                4194304, // maxBatchBytes
+                600000L, // maxMessageAgeMs
+                false, // dropWhenQueueFull
+                false, // multiProducer
+                5, // maxRetries
+                200L, // baseBackoffMs
+                10000L, // maxBackoffMs
                 true // ignoreExceptions
         );
 

@@ -255,7 +255,7 @@ logging:
   config: classpath:logback-spring.xml  # 指向包含S3Appender的配置
 
 # 环境变量配置（推荐生产环境）
-LOG_OSS_ENDPOINT: https://oss-cn-hangzhou.aliyuncs.com
+LOGX_OSS_ENDPOINT: https://oss-cn-hangzhou.aliyuncs.com
 OSS_ACCESS_KEY_ID: ${OSS_AK}
 OSS_ACCESS_KEY_SECRET: ${OSS_SK}
 OSS_BUCKET: my-app-logs
@@ -298,7 +298,7 @@ System.setProperty("oss.bucket", "legacy-app-logs");
 #### 4.3.1 环境变量优先级
 ```
 1. JVM系统属性 (-Doss.endpoint=xxx)
-2. 环境变量 (LOG_OSS_ENDPOINT=xxx)
+2. 环境变量 (LOGX_OSS_ENDPOINT=xxx)
 3. 配置文件属性 (logback.xml中的默认值)
 4. 代码默认值
 ```
@@ -308,7 +308,7 @@ System.setProperty("oss.bucket", "legacy-app-logs");
 # 生产环境推荐配置方式
 OSS_ACCESS_KEY_ID: ${SECRET_OSS_AK}      # 从K8s Secret注入
 OSS_ACCESS_KEY_SECRET: ${SECRET_OSS_SK}  # 从K8s Secret注入
-LOG_OSS_ENDPOINT: https://oss-prod.company.com
+LOGX_OSS_ENDPOINT: https://oss-prod.company.com
 OSS_BUCKET: prod-app-logs-${HOSTNAME}    # 按主机名分桶
 ```
 
@@ -432,7 +432,7 @@ COPY logback-spring.xml /app/config/
 COPY application.yml /app/config/
 
 # 环境变量配置
-ENV LOG_OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com \
+ENV LOGX_OSS_ENDPOINT=https://oss-cn-hangzhou.aliyuncs.com \
     OSS_BUCKET=k8s-app-logs \
     LOG_LEVEL=INFO
 
@@ -466,7 +466,7 @@ spec:
               name: oss-credentials
               key: access-key-secret
         # 🔥 从ConfigMap注入非敏感配置
-        - name: LOG_OSS_ENDPOINT
+        - name: LOGX_OSS_ENDPOINT
           valueFrom:
             configMapKeyRef:
               name: oss-config

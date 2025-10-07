@@ -116,11 +116,10 @@ public final class CommonConfig {
      * <p>
      * <b>重要说明：</b>
      * <ul>
-     * <li>此参数与flushInterval（刷新间隔）是不同的概念：</li>
-     * <li>maxMessageAgeMs：基于消息年龄的触发条件（消息在队列中等待的时间）</li>
-     * <li>flushInterval：定时检查间隔（检查是否满足触发条件的频率）</li>
-     * <li>只有当触发条件满足时（消息数量、内存占用或消息年龄），才会触发OSS上传</li>
-     * <li>flushInterval仅控制检查频率，不直接触发上传</li>
+     * <li>maxMessageAgeMs是三个批处理触发条件之一（另外两个是maxBatchCount和maxBatchBytes）</li>
+     * <li>触发方式：事件驱动，每次新消息到达时检查是否满足任一触发条件，无固定检查间隔</li>
+     * <li>只有当触发条件满足时（消息数量、总字节数或消息年龄），才会触发OSS上传</li>
+     * <li>基于LMAX Disruptor的无锁队列，低延迟触发</li>
      * </ul>
      * <p>
      * 可选参数，默认：10分钟（600000毫秒）
@@ -333,11 +332,11 @@ public final class CommonConfig {
          * <p>
          * 当队列中最早的消息超过10分钟时触发上传
          * <p>
-         * <b>重要说明：</b>此参数与flushInterval（刷新间隔）是不同的概念：
+         * <b>触发机制：</b>
          * <ul>
-         * <li>maxMessageAgeMs：基于消息年龄的触发条件（消息在队列中等待的时间）</li>
-         * <li>flushInterval：定时检查间隔（检查是否满足触发条件的频率）</li>
-         * <li>只有当触发条件满足时，才会触发OSS上传</li>
+         * <li>maxMessageAgeMs是三个批处理触发条件之一（另外两个是MAX_BATCH_COUNT和MAX_BATCH_BYTES）</li>
+         * <li>事件驱动：每次新消息到达时检查是否满足任一触发条件，无固定检查间隔</li>
+         * <li>基于LMAX Disruptor的无锁队列，低延迟触发</li>
          * </ul>
          * <p>
          * 默认：600000毫秒 (10分钟)
@@ -542,24 +541,42 @@ public final class CommonConfig {
 
     /**
      * 配置验证规则
+     * <p>
+     * 定义各配置参数的有效范围，与PRD建议范围保持一致
      */
     public static final class Validation {
         // 必需字段
         static final String[] REQUIRED_FIELDS = { ACCESS_KEY_ID, ACCESS_KEY_SECRET, BUCKET };
 
-        // 数值范围
-        public static final int MIN_QUEUE_SIZE = 1024;
-        public static final int MAX_QUEUE_SIZE_LIMIT = 1_000_000;
-        public static final int MIN_BATCH_COUNT = 1;
+        // 队列容量验证（建议范围：8192-131072）
+        public static final int MIN_QUEUE_SIZE = 8192;
+        public static final int MAX_QUEUE_SIZE_LIMIT = 131_072;
+
+        // 批处理大小验证（建议范围：100-50000）
+        public static final int MIN_BATCH_COUNT = 100;
         public static final int MAX_BATCH_COUNT_LIMIT = 50_000;
-        public static final int MIN_BATCH_BYTES = 1024;
-        // 100MB
+
+        // 批处理字节数验证（建议范围：1MB-100MB）
+        public static final int MIN_BATCH_BYTES = 1024 * 1024;
         public static final int MAX_BATCH_BYTES_LIMIT = 100 * 1024 * 1024;
+
+        // 重试次数验证（建议范围：0-20）
         public static final int MIN_RETRIES = 0;
         public static final int MAX_RETRIES_LIMIT = 20;
-        public static final long MIN_BACKOFF = 50L;
-        // 10分钟
-        public static final long MAX_BACKOFF_LIMIT = 600_000L;
+
+        // 基础退避时间验证（建议范围：50ms-5000ms）
+        public static final long MIN_BASE_BACKOFF = 50L;
+        public static final long MAX_BASE_BACKOFF_LIMIT = 5_000L;
+
+        // 最大退避时间验证（建议范围：1秒-10分钟）
+        public static final long MIN_MAX_BACKOFF = 1_000L;
+        public static final long MAX_MAX_BACKOFF_LIMIT = 600_000L;
+
+        // 兼容性：保留旧的MIN_BACKOFF和MAX_BACKOFF_LIMIT
+        @Deprecated
+        public static final long MIN_BACKOFF = MIN_BASE_BACKOFF;
+        @Deprecated
+        public static final long MAX_BACKOFF_LIMIT = MAX_MAX_BACKOFF_LIMIT;
     }
 
     /**

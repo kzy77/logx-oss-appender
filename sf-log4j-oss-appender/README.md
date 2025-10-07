@@ -21,8 +21,8 @@ SF OSS存储服务的Log4j 1.x All-in-One包，包含所有必需依赖，简化
 ```xml
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
   <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
-    <param name="region" value="${LOG_OSS_REGION:-cn-north-1}"/>
+    <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
+    <param name="region" value="${LOGX_OSS_REGION:-cn-north-1}"/>
     <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
     <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
     <param name="bucket" value="your-bucket"/>
@@ -42,8 +42,8 @@ SF OSS存储服务的Log4j 1.x All-in-One包，包含所有必需依赖，简化
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-export LOG_OSS_REGION="cn-north-1"
+export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_REGION="cn-north-1"
 
 有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
 

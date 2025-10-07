@@ -41,7 +41,7 @@ S3兼容存储的Log4j2 All-in-One包，包含所有必需依赖，简化引入�
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_BUCKET="your-bucket-name"
 ```
 
 有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。

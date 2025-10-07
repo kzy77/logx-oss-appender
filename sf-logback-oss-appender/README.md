@@ -21,8 +21,8 @@ SF OSS存储服务的Logback All-in-One包，包含所有必需依赖，简化�
 ```xml
 <configuration>
   <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOG_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
-    <region>${LOG_OSS_REGION:-cn-north-1}</region>
+    <endpoint>${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
+    <region>${LOGX_OSS_REGION:-cn-north-1}</region>
     <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
     <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
     <bucket>${LOGX_OSS_BUCKET}</bucket>
@@ -39,8 +39,8 @@ SF OSS存储服务的Logback All-in-One包，包含所有必需依赖，简化�
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-export LOG_OSS_REGION="cn-north-1"
+export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_REGION="cn-north-1"
 
 有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
 

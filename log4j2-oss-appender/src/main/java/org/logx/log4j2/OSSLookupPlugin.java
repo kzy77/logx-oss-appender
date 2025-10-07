@@ -20,11 +20,11 @@ public class OSSLookupPlugin implements StrLookup {
         switch (key.toLowerCase()) {
             case "endpoint":
                 // 返回推荐的OSS endpoint（可以从环境变量或系统属性获取）
-                return System.getProperty("oss.default.endpoint", System.getenv("LOG_OSS_DEFAULT_ENDPOINT"));
+                return System.getProperty("oss.default.endpoint", System.getenv("LOGX_OSS_DEFAULT_ENDPOINT"));
 
             case "region":
                 // 返回推荐的region
-                return System.getProperty("oss.default.region", System.getenv("LOG_OSS_DEFAULT_REGION"));
+                return System.getProperty("oss.default.region", System.getenv("LOGX_OSS_DEFAULT_REGION"));
 
             case "keyprefix":
             case "key-prefix":
@@ -35,17 +35,17 @@ public class OSSLookupPlugin implements StrLookup {
 
             case "bucket":
                 // 返回默认的bucket名称
-                return System.getProperty("oss.default.bucket", System.getenv("LOG_OSS_DEFAULT_BUCKET"));
+                return System.getProperty("oss.default.bucket", System.getenv("LOGX_OSS_DEFAULT_BUCKET"));
 
             case "access-key-id":
             case "accesskeyid":
                 // 返回Access Key ID（从环境变量获取，更安全）
-                return System.getenv("LOG_OSS_ACCESS_KEY_ID");
+                return System.getenv("LOGX_OSS_ACCESS_KEY_ID");
 
             case "access-key-secret":
             case "accesskeysecret":
                 // 返回Access Key Secret（从环境变量获取，更安全）
-                return System.getenv("LOG_OSS_ACCESS_KEY_SECRET");
+                return System.getenv("LOGX_OSS_ACCESS_KEY_SECRET");
 
             case "max-queue-size":
             case "maxqueuesize":

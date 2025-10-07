@@ -19,18 +19,18 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     private String accessKeySecret;
     private String bucket;
 
-    // 应用行为配置 - 可选参数，提供最优默认值
-    private String keyPrefix = "logs/";
-    private String ossType; // 新增：存储类型配置
-    private int maxQueueSize = 262144;
-    private int maxBatchCount = 4096;
-    private int maxBatchBytes = 4 * 1024 * 1024;
-    private long maxMessageAgeMs = 600000L;
-    private boolean dropWhenQueueFull = false;
-    private boolean multiProducer = false;
-    private int maxRetries = 5;
-    private long baseBackoffMs = 200L;
-    private long maxBackoffMs = 10000L;
+    // 应用行为配置 - 可选参数，提供最优默认值（使用CommonConfig.Defaults统一管理）
+    private String keyPrefix = org.logx.config.CommonConfig.Defaults.KEY_PREFIX;
+    private String ossType = org.logx.config.CommonConfig.Defaults.OSS_TYPE;
+    private int maxQueueSize = org.logx.config.CommonConfig.Defaults.QUEUE_CAPACITY;
+    private int maxBatchCount = org.logx.config.CommonConfig.Defaults.MAX_BATCH_COUNT;
+    private int maxBatchBytes = org.logx.config.CommonConfig.Defaults.MAX_BATCH_BYTES;
+    private long maxMessageAgeMs = org.logx.config.CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
+    private boolean dropWhenQueueFull = org.logx.config.CommonConfig.Defaults.DROP_WHEN_QUEUE_FULL;
+    private boolean multiProducer = org.logx.config.CommonConfig.Defaults.MULTI_PRODUCER;
+    private int maxRetries = org.logx.config.CommonConfig.Defaults.MAX_RETRIES;
+    private long baseBackoffMs = org.logx.config.CommonConfig.Defaults.BASE_BACKOFF_MS;
+    private long maxBackoffMs = org.logx.config.CommonConfig.Defaults.MAX_BACKOFF_MS;
 
     /**
      * 初始化Appender

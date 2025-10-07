@@ -39,29 +39,29 @@ SF OSS 存储适配器，基于 SF OSS 特有 SDK 实现的存储适配器，支
 
 ```properties
 # 存储后端类型
-logx.storage.ossType=SF_OSS
+logx.oss.ossType=SF_OSS
 
 # SF OSS 访问配置
-logx.storage.endpoint=https://oss-cn-hangzhou.sfcloud.com
-logx.storage.region=cn-hangzhou
-logx.storage.accessKeyId=your-access-key-id
-logx.storage.accessKeySecret=your-access-key-secret
-logx.storage.bucket=your-bucket-name
+logx.oss.endpoint=https://oss-cn-hangzhou.sfcloud.com
+logx.oss.region=ap-guangzhou
+logx.oss.accessKeyId=your-access-key-id
+logx.oss.accessKeySecret=your-access-key-secret
+logx.oss.bucket=your-bucket-name
 
 # 性能调优参数
-logx.storage.keyPrefix=logs/
-logx.storage.maxQueueSize=100000
-logx.storage.maxBatchCount=10000
-logx.storage.maxBatchBytes=104857600
-logx.storage.flushIntervalMs=2000
-logx.storage.dropWhenQueueFull=true
-logx.storage.multiProducer=false
-logx.storage.maxRetries=5
-logx.storage.baseBackoffMs=200
-logx.storage.maxBackoffMs=10000
+logx.oss.keyPrefix=logs/
+logx.oss.maxQueueSize=65536
+logx.oss.maxBatchCount=4096
+logx.oss.maxBatchBytes=10485760
+logx.oss.maxMessageAgeMs=600000
+logx.oss.dropWhenQueueFull=false
+logx.oss.multiProducer=false
+logx.oss.maxRetries=5
+logx.oss.baseBackoffMs=200
+logx.oss.maxBackoffMs=10000
 
 # 数据分片配置
-logx.storage.maxUploadSizeMb=20
+logx.oss.maxUploadSizeMb=10
 ```
 
 ## 设计特点

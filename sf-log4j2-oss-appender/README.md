@@ -22,7 +22,7 @@ SF OSS存储服务的Log4j2 All-in-One包，包含所有必需依赖，简化引
 <Configuration>
   <Appenders>
     <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
-                 region="${sys:LOG_OSS_REGION:-cn-north-1}"
+                 region="${sys:LOGX_OSS_REGION:-cn-north-1}"
                  accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
                  bucket="your-bucket">
       <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
@@ -42,8 +42,8 @@ SF OSS存储服务的Log4j2 All-in-One包，包含所有必需依赖，简化引
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOG_OSS_BUCKET="your-bucket-name"
-export LOG_OSS_REGION="cn-north-1"
+export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_REGION="cn-north-1"
 
 有关完整配置选项，请参考 [根目录文档](../README.md#可选参数)。
 

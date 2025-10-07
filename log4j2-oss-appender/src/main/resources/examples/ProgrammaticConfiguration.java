@@ -46,9 +46,9 @@ public class ProgrammaticConfiguration {
         // 添加OSS Appender
         AppenderComponentBuilder ossBuilder = builder.newAppender("OSS", "OSS")
                 .addAttribute("endpoint", "https://oss-cn-hangzhou.aliyuncs.com")
-                .addAttribute("region", "${sys:LOG_OSS_REGION:-cn-hangzhou}")
-                .addAttribute("accessKeyId", "${env:LOG_OSS_ACCESS_KEY_ID}")
-                .addAttribute("accessKeySecret", "${env:LOG_OSS_ACCESS_KEY_SECRET}")
+                .addAttribute("region", "${sys:LOGX_OSS_REGION:-cn-hangzhou}")
+                .addAttribute("accessKeyId", "${env:LOGX_OSS_ACCESS_KEY_ID}")
+                .addAttribute("accessKeySecret", "${env:LOGX_OSS_ACCESS_KEY_SECRET}")
                 .addAttribute("bucket", "my-app-logs")
                 .addAttribute("keyPrefix", "logs/programmatic/");
 
