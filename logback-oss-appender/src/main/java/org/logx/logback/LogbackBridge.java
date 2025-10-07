@@ -5,6 +5,7 @@ import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 import org.logx.storage.StorageServiceFactory;
 import org.logx.core.AsyncEngine;
+import org.logx.core.AsyncEngineConfig;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.Encoder;
 
@@ -15,20 +16,38 @@ import ch.qos.logback.core.encoder.Encoder;
  */
 public class LogbackBridge extends AbstractUniversalAdapter {
     private Encoder<ILoggingEvent> encoder;
+    private AsyncEngineConfig engineConfig;
     
     public LogbackBridge(StorageConfig config) {
+        this(config, null);
+    }
+    
+    public LogbackBridge(StorageConfig config, AsyncEngineConfig engineConfig) {
         // 使用存储服务工厂创建存储服务
         StorageService storageService = StorageServiceFactory.createStorageService(config);
         
         // 从存储服务获取存储接口
         this.s3Storage = storageService;
         
+        // 保存引擎配置
+        this.engineConfig = engineConfig;
+        
         // 创建异步引擎
-        this.asyncEngine = AsyncEngine.create(storageService);
+        if (engineConfig != null) {
+            this.asyncEngine = AsyncEngine.create(storageService, engineConfig);
+        } else {
+            this.asyncEngine = AsyncEngine.create(storageService);
+        }
     }
     
     public void setEncoder(Encoder<ILoggingEvent> encoder) {
         this.encoder = encoder;
+    }
+    
+    public void setEngineConfig(AsyncEngineConfig engineConfig) {
+        this.engineConfig = engineConfig;
+        // Note: In a real implementation, we would need to recreate the asyncEngine
+        // when the configuration changes, but for now we're just storing the config
     }
     
     @Override

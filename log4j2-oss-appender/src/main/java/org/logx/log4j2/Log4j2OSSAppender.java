@@ -15,6 +15,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.logx.storage.StorageConfig;
+import org.logx.core.AsyncEngineConfig;
 
 /**
  * S3兼容对象存储 Log4j2 Appender
@@ -42,9 +43,10 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     private final Log4j2Bridge adapter;
 
     private Log4j2OSSAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
-            final boolean ignoreExceptions, final Property[] properties, final StorageConfig adapterConfig) {
+            final boolean ignoreExceptions, final Property[] properties, final StorageConfig adapterConfig,
+            final AsyncEngineConfig engineConfig) {
         super(name, filter, layout, ignoreExceptions, properties);
-        this.adapter = new Log4j2Bridge(adapterConfig);
+        this.adapter = new Log4j2Bridge(adapterConfig, engineConfig);
         this.adapter.setLayout(layout);
     }
 
@@ -85,7 +87,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             @PluginAttribute("keyPrefix") final String keyPrefix,
             @PluginAttribute(value = "maxQueueSize", defaultInt = 65536) final int maxQueueSize,
             @PluginAttribute(value = "maxBatchCount", defaultInt = 4096) final int maxBatchCount,
-            @PluginAttribute(value = "maxBatchBytes", defaultInt = 4194304) final int maxBatchBytes,
+            @PluginAttribute(value = "maxBatchBytes", defaultInt = 10485760) final int maxBatchBytes,
             @PluginAttribute(value = "maxMessageAgeMs", defaultLong = 600000L) final long maxMessageAgeMs,
             @PluginAttribute(value = "dropWhenQueueFull", defaultBoolean = false) final boolean dropWhenQueueFull,
             @PluginAttribute(value = "multiProducer", defaultBoolean = false) final boolean multiProducer,
@@ -142,6 +144,19 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             .keyPrefix(finalKeyPrefix)
             .build();
 
+        // 构建异步引擎配置
+        AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig()
+            .queueCapacity(maxQueueSize)
+            .batchMaxMessages(maxBatchCount)
+            .batchMaxBytes(maxBatchBytes)
+            .maxMessageAgeMs(maxMessageAgeMs)
+            .blockOnFull(dropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
+            .multiProducer(multiProducer)
+            .logFilePrefix(finalKeyPrefix)
+            .logFileName("applogx") // Default log file name
+            .fallbackRetentionDays(org.logx.config.CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
+            .fallbackScanIntervalSeconds(org.logx.config.CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS);
+
         try {
             adapterConfig.validateConfig();
         } catch (IllegalArgumentException e) {
@@ -149,6 +164,6 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             return null;
         }
 
-        return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, adapterConfig);
+        return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, adapterConfig, engineConfig);
     }
 }

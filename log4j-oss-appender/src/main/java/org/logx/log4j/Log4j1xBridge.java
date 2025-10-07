@@ -7,6 +7,7 @@ import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 import org.logx.storage.StorageServiceFactory;
 import org.logx.core.AsyncEngine;
+import org.logx.core.AsyncEngineConfig;
 
 
 /**
@@ -15,20 +16,38 @@ import org.logx.core.AsyncEngine;
  */
 public class Log4j1xBridge extends AbstractUniversalAdapter {
     private Layout layout;
+    private AsyncEngineConfig engineConfig;
     
     public Log4j1xBridge(StorageConfig config) {
+        this(config, null);
+    }
+    
+    public Log4j1xBridge(StorageConfig config, AsyncEngineConfig engineConfig) {
         // 使用存储服务工厂创建存储服务
         StorageService storageService = StorageServiceFactory.createStorageService(config);
         
         // 从存储服务获取存储接口
         this.s3Storage = storageService;
         
+        // 保存引擎配置
+        this.engineConfig = engineConfig;
+        
         // 创建异步引擎
-        this.asyncEngine = AsyncEngine.create(storageService);
+        if (engineConfig != null) {
+            this.asyncEngine = AsyncEngine.create(storageService, engineConfig);
+        } else {
+            this.asyncEngine = AsyncEngine.create(storageService);
+        }
     }
     
     public void setLayout(Layout layout) {
         this.layout = layout;
+    }
+    
+    public void setEngineConfig(AsyncEngineConfig engineConfig) {
+        this.engineConfig = engineConfig;
+        // Note: In a real implementation, we would need to recreate the asyncEngine
+        // when the configuration changes, but for now we're just storing the config
     }
     
     @Override

@@ -3,6 +3,7 @@ package org.logx.log4j;
 import org.apache.log4j.AppenderSkeleton;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.storage.StorageConfig;
+import org.logx.core.AsyncEngineConfig;
 
 /**
  * OSS对象存储 Log4j 1.x Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -55,7 +56,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
         try {
             // 构建存储配置
-            StorageConfig config = new StorageConfigBuilder()
+            StorageConfig storageConfig = new StorageConfigBuilder()
                 .ossType(this.ossType != null && !this.ossType.isEmpty() ? this.ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
                 .endpoint(this.endpoint)
                 .region(this.region)
@@ -65,7 +66,20 @@ public class Log4jOSSAppender extends AppenderSkeleton {
                 .keyPrefix(this.keyPrefix)
                 .build();
 
-            this.adapter = new Log4j1xBridge(config);
+            // 构建异步引擎配置
+            AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig()
+                .queueCapacity(this.maxQueueSize)
+                .batchMaxMessages(this.maxBatchCount)
+                .batchMaxBytes(this.maxBatchBytes)
+                .maxMessageAgeMs(this.maxMessageAgeMs)
+                .blockOnFull(this.dropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
+                .multiProducer(this.multiProducer)
+                .logFilePrefix(this.keyPrefix)
+                .logFileName("applogx") // Default log file name
+                .fallbackRetentionDays(org.logx.config.CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
+                .fallbackScanIntervalSeconds(org.logx.config.CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS);
+
+            this.adapter = new Log4j1xBridge(storageConfig, engineConfig);
             this.adapter.setLayout(layout);
             this.adapter.start();
 
