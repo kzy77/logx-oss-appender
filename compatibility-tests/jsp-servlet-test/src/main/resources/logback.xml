@@ -23,12 +23,7 @@
         <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/}</keyPrefix>
         <ossType>${LOGX_OSS_OSS_TYPE:-S3}</ossType>
 
-        <!-- 批处理配置（符合PRD标准） -->
-        <maxBatchCount>100</maxBatchCount>
-        <maxMessageAgeMs>300000</maxMessageAgeMs>
-
-        <!-- 队列配置（符合PRD标准） -->
-        <maxQueueSize>10000</maxQueueSize>
+        <!-- 其他参数使用代码默认值 -->
     </appender>
 
     <!-- 根日志配置 -->

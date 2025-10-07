@@ -11,7 +11,7 @@
 
     <!-- OSS Appender配置 -->
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-        <!-- 存储配置（符合PRD标准） -->
+        <!-- 存储配置 -->
         <param name="endpoint" value="https://s3.amazonaws.com"/>
         <param name="region" value="us-east-1"/>
         <param name="accessKeyId" value="test-access-key"/>
@@ -20,12 +20,7 @@
         <param name="keyPrefix" value="logs/log4j1/"/>
         <param name="ossType" value="SF_OSS"/>
 
-        <!-- 批处理配置（符合PRD标准） -->
-        <param name="maxBatchCount" value="100"/>
-        <param name="maxMessageAgeMs" value="300000"/>
-
-        <!-- 队列配置（符合PRD标准） -->
-        <param name="maxQueueSize" value="10000"/>
+        <!-- 其他参数使用代码默认值 -->
     </appender>
 
     <!-- 根日志配置 -->
