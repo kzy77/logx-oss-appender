@@ -385,21 +385,43 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     /**
      * 序列化为Pattern格式
      * 使用友好的日志格式替代NDJSON格式
+     * 正确处理二进制数据，避免UTF-8转换导致的数据损坏
      */
     private byte[] serializeToPatternFormat(List<LogEvent> events) {
-        StringBuilder sb = new StringBuilder();
-        for (LogEvent event : events) {
-            // 使用标准的日志格式: timestamp [level] logger - message
-            String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
-            
-            // 如果日志行不以换行符结尾，添加换行符
-            if (!logLine.endsWith("\n")) {
-                sb.append(logLine).append("\n");
-            } else {
-                sb.append(logLine);
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        try {
+            for (LogEvent event : events) {
+                // 直接处理字节数组，避免不必要的字符编码转换
+                // 如果需要添加换行符，直接在字节数组层面处理
+                byte[] payload = event.payload;
+                
+                // 检查payload是否以换行符结尾
+                if (payload.length > 0 && payload[payload.length - 1] != '\n') {
+                    // 创建新的字节数组，添加换行符
+                    byte[] newPayload = new byte[payload.length + 1];
+                    System.arraycopy(payload, 0, newPayload, 0, payload.length);
+                    newPayload[newPayload.length - 1] = '\n';
+                    baos.write(newPayload);
+                } else {
+                    baos.write(payload);
+                }
             }
+            return baos.toByteArray();
+        } catch (IOException e) {
+            // 如果出现IO异常，回退到原来的实现
+            logger.warn("序列化过程中出现IO异常，使用回退实现: {}", e.getMessage());
+            StringBuilder sb = new StringBuilder();
+            for (LogEvent event : events) {
+                String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
+                
+                if (!logLine.endsWith("\n")) {
+                    sb.append(logLine).append("\n");
+                } else {
+                    sb.append(logLine);
+                }
+            }
+            return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
         }
-        return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
 
     /**

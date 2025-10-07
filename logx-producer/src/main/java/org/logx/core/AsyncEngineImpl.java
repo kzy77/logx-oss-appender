@@ -1,5 +1,6 @@
 package org.logx.core;
 
+import org.logx.core.EnhancedDisruptorBatchingQueue.LogEvent;
 import org.logx.fallback.FallbackManager;
 import org.logx.fallback.FallbackUploaderTask;
 import org.logx.fallback.ObjectNameGenerator;
@@ -8,6 +9,8 @@ import org.logx.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -206,7 +209,10 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         if (currentMemory > EMERGENCY_MEMORY_THRESHOLD) {
             logger.warn("Emergency fallback triggered: memory usage {} MB > 512 MB, writing directly to fallback file",
                     currentMemory / 1024 / 1024);
-            fallbackManager.writeFallbackFile(data);
+            
+            // 格式化数据后再写入兜底文件，确保与正常上传的日志格式一致
+            byte[] formattedData = formatLogDataForEmergencyFallback(data);
+            fallbackManager.writeFallbackFile(formattedData);
             return;
         }
 
@@ -215,6 +221,112 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         if (success) {
             // 增加内存计数
             currentMemoryUsage.addAndGet(data.length);
+        }
+    }
+    
+    /**
+     * 为紧急兜底情况格式化日志数据
+     * 确保兜底文件中的数据格式与正常上传的日志一致
+     * 
+     * @param rawData 原始日志数据
+     * @return 格式化后的日志数据
+     */
+    private byte[] formatLogDataForEmergencyFallback(byte[] rawData) {
+        try {
+            // 将原始数据转换为字符串
+            String rawContent = new String(rawData, java.nio.charset.StandardCharsets.UTF_8);
+            
+            // 创建一个模拟的日志事件
+            List<EnhancedDisruptorBatchingQueue.LogEvent> events = new ArrayList<>();
+            long timestamp = System.currentTimeMillis();
+            
+            // 如果是二进制数据，以友好的方式显示
+            if (isBinaryData(rawContent)) {
+                String formattedLine = String.format("[%s] [INFO] EmergencyFallback - 紧急兜底写入，原始大小: %d 字节%n", 
+                    java.time.LocalDateTime.now().toString(), rawData.length);
+                events.add(new EnhancedDisruptorBatchingQueue.LogEvent(
+                    formattedLine.getBytes(java.nio.charset.StandardCharsets.UTF_8), timestamp));
+            } else {
+                // 对于文本数据，直接包装成日志格式
+                String formattedLine = String.format("[%s] [INFO] EmergencyFallback - %s%n", 
+                    java.time.LocalDateTime.now().toString(), rawContent.trim());
+                events.add(new EnhancedDisruptorBatchingQueue.LogEvent(
+                    formattedLine.getBytes(java.nio.charset.StandardCharsets.UTF_8), timestamp));
+            }
+            
+            // 使用与正常处理相同的序列化方法
+            byte[] formattedData = serializeToPatternFormat(events);
+            
+            return formattedData;
+        } catch (Exception e) {
+            logger.warn("Failed to format emergency fallback data, using raw data", e);
+            return rawData;
+        }
+    }
+    
+    /**
+     * 判断是否为二进制数据
+     * 
+     * @param content 内容
+     * @return 是否为二进制数据
+     */
+    private boolean isBinaryData(String content) {
+        // 简单判断：如果包含大量不可打印字符，可能是二进制数据
+        int printableCount = 0;
+        int totalCount = Math.min(content.length(), 1000); // 只检查前1000个字符
+        
+        for (int i = 0; i < totalCount; i++) {
+            char c = content.charAt(i);
+            if (c >= 32 && c <= 126 || c == '\n' || c == '\r' || c == '\t') {
+                printableCount++;
+            }
+        }
+        
+        // 如果可打印字符比例小于70%，认为是二进制数据
+        return totalCount > 0 && ((double) printableCount / totalCount) < 0.7;
+    }
+    
+    /**
+     * 序列化为Pattern格式（与EnhancedDisruptorBatchingQueue中的方法保持一致）
+     * 正确处理二进制数据，避免UTF-8转换导致的数据损坏
+     * 
+     * @param events 日志事件列表
+     * @return 格式化后的字节数组
+     */
+    private byte[] serializeToPatternFormat(List<EnhancedDisruptorBatchingQueue.LogEvent> events) {
+        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        try {
+            for (EnhancedDisruptorBatchingQueue.LogEvent event : events) {
+                // 直接处理字节数组，避免不必要的字符编码转换
+                byte[] payload = event.payload;
+                
+                // 检查payload是否以换行符结尾
+                if (payload.length > 0 && payload[payload.length - 1] != '\n') {
+                    // 创建新的字节数组，添加换行符
+                    byte[] newPayload = new byte[payload.length + 1];
+                    System.arraycopy(payload, 0, newPayload, 0, payload.length);
+                    newPayload[newPayload.length - 1] = '\n';
+                    baos.write(newPayload);
+                } else {
+                    baos.write(payload);
+                }
+            }
+            return baos.toByteArray();
+        } catch (java.io.IOException e) {
+            // 如果出现IO异常，回退到原来的实现
+            org.slf4j.LoggerFactory.getLogger(AsyncEngineImpl.class)
+                .warn("紧急兜底序列化过程中出现IO异常，使用回退实现: {}", e.getMessage());
+            StringBuilder sb = new StringBuilder();
+            for (EnhancedDisruptorBatchingQueue.LogEvent event : events) {
+                String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
+                
+                if (!logLine.endsWith("\n")) {
+                    sb.append(logLine).append("\n");
+                } else {
+                    sb.append(logLine);
+                }
+            }
+            return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
         }
     }
     
