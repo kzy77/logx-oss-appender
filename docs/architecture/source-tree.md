@@ -169,7 +169,6 @@ logback-oss-appender/               # Logback集成模块
 ├── src/
 │   ├── main/
 │   │   └── java/org/logx/logback/
-│   │       ├── JsonLinesLayout.java          # JSON Lines格式化
 │   │       ├── LogbackBridge.java            # Logback桥接器
 │   │       └── LogbackOSSAppender.java       # 异步Appender实现
 │   └── test/

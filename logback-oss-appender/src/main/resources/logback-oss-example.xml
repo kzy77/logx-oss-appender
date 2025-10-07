@@ -18,11 +18,8 @@
         <backoffMultiplier>2.0</backoffMultiplier>
         <contentType>application/x-ndjson</contentType>
 
-        <layout class="org.logx.osslogback.logback.JsonLinesLayout">
-            <includeLoggerName>true</includeLoggerName>
-            <includeThreadName>true</includeThreadName>
-            <includeMdc>true</includeMdc>
-            <includeException>true</includeException>
+        <layout class="ch.qos.logback.classic.PatternLayout">
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </layout>
     </appender>
 
@@ -30,5 +27,3 @@
         <appender-ref ref="OSS"/>
     </root>
 </configuration>
-
-
