@@ -81,10 +81,13 @@ OSS Appender 采用**分层抽象架构**，其中logx-producer作为高度抽�
 // 增强的Disruptor批处理队列（合并原BatchProcessor和DisruptorBatchingQueue）
 - 技术: LMAX Disruptor 3.4.4
 - 队列管理: RingBuffer容量65536，YieldingWaitStrategy
-- 批处理聚合: 三个触发条件（消息数4096、总字节10MB、消息年龄10分钟）
+- 批处理聚合: 事件驱动触发机制
+  * 三个触发条件: 消息数4096、总字节10MB、消息年龄10分钟
+  * 触发时机: 新消息到达或批次结束时检查，无主动定时器线程
+  * 设计理由: 生产环境持续有日志，ShutdownHook兜底，避免定时器开销
 - NDJSON序列化: 将LogEvent列表序列化为NDJSON格式
 - GZIP压缩: 阈值1KB，自动压缩批次数据
-- 数据分片: 阈值20MB，自动分片大文件
+- 数据分片: 阈值10MB，自动分片大文件
 - 性能统计: BatchMetrics（批次数、消息数、字节数、压缩率、分片数等）
 - 容量控制: 失败重试3次 + 队列满时丢弃 + 限制队列大小
 - 多生产者模式: 支持并发日志写入（thread-safe）

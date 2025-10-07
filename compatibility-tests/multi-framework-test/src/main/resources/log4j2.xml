@@ -13,7 +13,9 @@
              accessKeyId="${env:LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"
              accessKeySecret="${env:LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"
              bucket="${env:LOGX_OSS_BUCKET:-logx-test-bucket}"
-             ossType="${env:LOGX_OSS_OSS_TYPE:-S3}">
+             ossType="${env:LOGX_OSS_OSS_TYPE:-S3}"
+             pathStyleAccess="${env:LOGX_OSS_PATH_STYLE_ACCESS:-true}"
+             enableSsl="${env:LOGX_OSS_ENABLE_SSL:-false}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </OSS>
     </Appenders>

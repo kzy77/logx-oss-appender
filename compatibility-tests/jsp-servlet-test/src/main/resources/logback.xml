@@ -22,6 +22,8 @@
         <bucket>${LOGX_OSS_BUCKET:-logx-test-bucket}</bucket>
         <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/}</keyPrefix>
         <ossType>${LOGX_OSS_OSS_TYPE:-S3}</ossType>
+        <pathStyleAccess>${LOGX_OSS_PATH_STYLE_ACCESS:-true}</pathStyleAccess>
+        <enableSsl>${LOGX_OSS_ENABLE_SSL:-false}</enableSsl>
 
         <!-- 其他参数使用代码默认值 -->
     </appender>

@@ -30,11 +30,33 @@ import java.util.zip.GZIPOutputStream;
  * <li><b>高性能环形队列：</b>基于LMAX Disruptor，单生产者模式，YieldingWaitStrategy</li>
  * <li><b>可配置批处理大小：</b>支持maxBatchCount（消息数量）和maxBatchBytes（总字节数）阈值配置</li>
  * <li><b>可配置刷新间隔：</b>支持maxMessageAgeMs（最老消息年龄）阈值配置</li>
- * <li><b>三触发条件聚合：</b>消息数量达到阈值、总字节数达到阈值、最老消息年龄达到阈值</li>
+ * <li><b>事件驱动批处理触发：</b>三种触发条件（消息数、字节数、消息年龄）在新消息到达或批次结束时检查</li>
  * <li><b>数据压缩：</b>GZIP压缩（压缩阈值1KB），节省90%+存储空间和网络带宽</li>
  * <li><b>NDJSON序列化：</b>行分隔JSON格式，易于解析和调试</li>
  * <li><b>数据分片处理：</b>自动分片大文件（默认阈值10MB），提高上传成功率</li>
  * <li><b>性能监控功能：</b>提供完整的BatchMetrics统计指标（批次数、消息数、字节数、压缩率等）</li>
+ * </ul>
+ * <p>
+ * <b>批处理触发机制（事件驱动）：</b>
+ * <ul>
+ * <li><b>触发条件1：</b>消息数量达到maxBatchCount（默认4096条）</li>
+ * <li><b>触发条件2：</b>消息总字节数达到maxBatchBytes（默认10MB）</li>
+ * <li><b>触发条件3：</b>最老消息年龄超过maxMessageAgeMs（默认10分钟）</li>
+ * </ul>
+ * <p>
+ * <b>触发时机：</b>
+ * <ul>
+ * <li>新消息到达时检查三个触发条件</li>
+ * <li>Disruptor批次结束时（endOfBatch=true）检查条件</li>
+ * <li>JVM关闭时ShutdownHook触发兜底处理</li>
+ * </ul>
+ * <p>
+ * <b>设计说明：</b>采用事件驱动而非主动定时检查的原因：
+ * <ul>
+ * <li>生产环境应用持续产生日志（业务日志、健康检查、心跳、监控等）</li>
+ * <li>避免不必要的定时器线程和周期性检查开销</li>
+ * <li>ShutdownHook确保JVM关闭时处理所有剩余消息</li>
+ * <li>真实场景下长时间无日志的情况极少</li>
  * </ul>
  * <p>
  * <b>性能指标：</b>
@@ -257,6 +279,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 }
 
                 int size = ev.payload.length;
+
+                // 预检查：如果添加这条消息会超过阈值，先触发批处理
                 boolean willExceedCount = buffer.size() + 1 > config.batchMaxMessages;
                 boolean willExceedBytes = bytes + size > config.batchMaxBytes;
 
@@ -271,6 +295,11 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 ev.clear();
             }
 
+            // 事件驱动触发检查：在新消息到达或批次结束时检查三个触发条件
+            // 条件1：消息数量达到maxBatchCount
+            // 条件2：总字节数达到maxBatchBytes
+            // 条件3：最老消息年龄超过maxMessageAgeMs
+            // 注意：此处是被动检查，仅在有新消息到达时触发，无主动定时器线程
             long now = System.currentTimeMillis();
             boolean messageAgeExceeded = !buffer.isEmpty() &&
                     (now - oldestMessageTime) >= config.maxMessageAgeMs;

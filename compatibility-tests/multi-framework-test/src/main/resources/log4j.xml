@@ -9,16 +9,18 @@
         </layout>
     </appender>
 
-    <!-- OSS Appender配置 -->
+    <!-- OSS Appender配置（使用MinIO测试配置） -->
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-        <!-- 存储配置 -->
-        <param name="endpoint" value="https://s3.amazonaws.com"/>
-        <param name="region" value="us-east-1"/>
-        <param name="accessKeyId" value="test-access-key"/>
-        <param name="accessKeySecret" value="test-secret-key"/>
-        <param name="bucket" value="test-bucket"/>
+        <!-- 存储配置（默认MinIO） -->
+        <param name="endpoint" value="http://localhost:9000"/>
+        <param name="region" value="ap-guangzhou"/>
+        <param name="accessKeyId" value="minioadmin"/>
+        <param name="accessKeySecret" value="minioadmin"/>
+        <param name="bucket" value="logx-test-bucket"/>
         <param name="keyPrefix" value="logs/log4j1/"/>
-        <param name="ossType" value="SF_OSS"/>
+        <param name="ossType" value="S3"/>
+        <param name="pathStyleAccess" value="true"/>
+        <param name="enableSsl" value="false"/>
 
         <!-- 其他参数使用代码默认值 -->
     </appender>

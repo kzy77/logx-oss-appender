@@ -19,12 +19,7 @@
         <pathStyleAccess>${LOGX_OSS_PATH_STYLE_ACCESS:-true}</pathStyleAccess>
         <enableSsl>${LOGX_OSS_ENABLE_SSL:-false}</enableSsl>
 
-        <!-- 批处理配置 -->
-        <batchSize>100</batchSize>
-        <maxMessageAgeMs>600000</maxMessageAgeMs>
-
-        <!-- 队列配置 -->
-        <queueCapacity>10000</queueCapacity>
+        <!-- 其他参数使用代码默认值 -->
     </appender>
 
     <!-- 根日志配置 -->

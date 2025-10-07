@@ -42,7 +42,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 
 **FR5**: 框架适配器一致性 - log4j、log4j2、logback三个框架实现保持简洁和一致的代码风格、配置key和接口统一
 
-**FR6**: 批处理优化管理 - 实现智能批处理优化引擎，支持可配置的批处理大小和刷新间隔，具备数据压缩和性能监控功能，全面优化网络传输效率和存储性能
+**FR6**: 批处理优化管理 - 实现智能批处理优化引擎，支持可配置的批处理大小和刷新间隔，具备数据压缩和性能监控功能，全面优化网络传输效率和存储性能。采用事件驱动触发机制（在新消息到达或批次结束时检查触发条件），无需主动定时器线程，确保低资源开销
 
 **FR7**: 错误处理和重试机制 - 实现失败重试策略（最多3次）和超时保护机制，确保系统稳定性
 
@@ -234,15 +234,16 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 2. ✅ 创建EnhancedDisruptorBatchingQueue类，整合批处理聚合、序列化、压缩和分片功能
 3. ✅ 实现LogEvent事件类，封装日志数据和元数据
 4. ✅ 配置WaitStrategy为YieldingWaitStrategy，平衡延迟和CPU使用
-5. ✅ 实现三个批处理触发条件：消息数量、总字节数、最老消息年龄
-6. ✅ 集成NDJSON序列化、GZIP压缩（阈值1KB）和数据分片（阈值20MB）
-7. ✅ 创建ResourceProtectedThreadPool类，实现固定大小线程池（默认2个线程）
-8. ✅ 设置线程优先级为Thread.MIN_PRIORITY，确保业务优先
-9. ✅ 实现CPU让出机制，监控系统负载并主动yield
-10. ✅ 添加内存保护机制，限制队列大小防止JVM OOM
-11. ✅ 提供完整的BatchMetrics统计指标（批次数、消息数、字节数、压缩率等）
-12. ✅ 编写基础的队列性能测试，验证吞吐量目标（24,777+消息/秒）
-13. ✅ 架构优化：删除BatchProcessor和DisruptorBatchingQueue，合并为EnhancedDisruptorBatchingQueue（减少247行代码，-24%）
+5. ✅ 实现三个批处理触发条件：消息数量（maxBatchCount=4096）、总字节数（maxBatchBytes=10MB）、最老消息年龄（maxMessageAgeMs=10分钟）
+6. ✅ 采用事件驱动触发机制：在新消息到达或批次结束时检查触发条件，无主动定时器线程（理由：生产环境持续有日志，ShutdownHook兜底，避免不必要的定时器开销）
+7. ✅ 集成NDJSON序列化、GZIP压缩（阈值1KB）和数据分片（阈值10MB）
+8. ✅ 创建ResourceProtectedThreadPool类，实现固定大小线程池（默认2个线程）
+9. ✅ 设置线程优先级为Thread.MIN_PRIORITY，确保业务优先
+10. ✅ 实现CPU让出机制，监控系统负载并主动yield
+11. ✅ 添加内存保护机制，限制队列大小防止JVM OOM
+12. ✅ 提供完整的BatchMetrics统计指标（批次数、消息数、字节数、压缩率等）
+13. ✅ 编写基础的队列性能测试，验证吞吐量目标（24,777+消息/秒）
+14. ✅ 架构优化：删除BatchProcessor和DisruptorBatchingQueue，合并为EnhancedDisruptorBatchingQueue（减少247行代码，-24%）
 
 ### 故事点4：可靠性保障和测试验证
 **As a** 数据完整性要求高的企业用户，
