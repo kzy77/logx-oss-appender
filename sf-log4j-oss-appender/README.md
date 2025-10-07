@@ -27,7 +27,7 @@ SF OSS存储服务的Log4j 1.x All-in-One包，包含所有必需依赖，简化
     <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
     <param name="bucket" value="your-bucket"/>
     <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{ISO8601} %-5p %c{1.} - %m%ex{full}"/>
+      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.} - %m%ex{full}"/>
     </layout>
   </appender>
   <root>

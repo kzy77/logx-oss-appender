@@ -137,6 +137,7 @@ public class ConfigConsistencyVerificationMain {
         config.put("logx.oss.accessKeyId", "test-access-key");
         config.put("logx.oss.accessKeySecret", "test-secret-key");
         config.put("logx.oss.endpoint", "https://s3.amazonaws.com");
+        config.put("logx.oss.ossType", "S3");
         config.put("logx.oss.pathStyleAccess", "false");
         config.put("logx.oss.enableSsl", "true");
         config.put("logx.oss.maxConnections", "50");

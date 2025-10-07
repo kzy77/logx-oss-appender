@@ -39,6 +39,7 @@ mvn test
 - `logx.oss.accessKeyId` - 访问密钥ID
 - `logx.oss.accessKeySecret` - 秘密访问密钥
 - `logx.oss.endpoint` - 存储端点
+- `logx.oss.ossType` - OSS类型
 - `logx.oss.pathStyleAccess` - 路径风格访问
 - `logx.oss.enableSsl` - SSL启用
 - `logx.oss.maxConnections` - 最大连接数

@@ -24,7 +24,7 @@ S3兼容存储的Log4j2 All-in-One包，包含所有必需依赖，简化引入�
     <OSS name="oss" endpoint="https://oss-cn-hangzhou.aliyuncs.com"
                  accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
                  bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level %logger - %msg%n"/>
     </OSS>
   </Appenders>
 

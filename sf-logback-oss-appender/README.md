@@ -27,7 +27,7 @@ SF OSS存储服务的Logback All-in-One包，包含所有必需依赖，简化�
     <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
     <bucket>${LOGX_OSS_BUCKET}</bucket>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="SF_OSS"/></root>

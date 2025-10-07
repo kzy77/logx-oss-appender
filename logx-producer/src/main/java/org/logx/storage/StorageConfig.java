@@ -100,15 +100,17 @@ public class StorageConfig {
     }
 
     /**
-     * 自动检测后端类型
+     * 自动检测后端类型、pathStyleAccess和enableSsl
+     * <p>
+     * 根据endpoint自动识别并配置：
+     * - ossType: 根据endpoint域名特征识别存储类型
+     * - pathStyleAccess: 本地/MinIO环境自动启用路径风格访问
+     * - enableSsl: HTTP端点自动禁用SSL
      *
-     * @return StorageConfig 配置对象
+     * @param config 原始配置
+     * @return StorageConfig 自动识别后的配置对象
      */
     public static StorageConfig detectBackendType(StorageConfig config) {
-        if (config.getOssType() != null && !config.getOssType().isEmpty()) {
-            return config;
-        }
-
         // 创建一个具体的Builder实现来构建更新后的配置
         class ConfigBuilder extends Builder<ConfigBuilder> {
             @Override
@@ -132,32 +134,52 @@ public class StorageConfig {
                .accessKeySecret(config.getAccessKeySecret())
                .bucket(config.getBucket())
                .keyPrefix(config.getKeyPrefix())
-               .pathStyleAccess(config.isPathStyleAccess())
                .connectTimeout(config.getConnectTimeout())
                .readTimeout(config.getReadTimeout())
                .maxConnections(config.getMaxConnections())
-               .enableSsl(config.isEnableSsl());
+               .fallbackPath(config.getFallbackPath())
+               .fallbackRetentionDays(config.getFallbackRetentionDays())
+               .fallbackScanIntervalSeconds(config.getFallbackScanIntervalSeconds());
 
-        // 根据endpoint自动检测后端类型
+        // 根据endpoint自动检测并配置
         String endpoint = config.getEndpoint();
         if (endpoint != null) {
-            if (endpoint.contains("sf-oss.com")) {
-                builder.ossType("SF_OSS");
-            } else if (endpoint.contains("aliyuncs.com")) {
-                builder.ossType("S3");
-            } else if (endpoint.contains("amazonaws.com")) {
-                builder.ossType("S3");
-            } else if (endpoint.contains("myqcloud.com")) {
-                builder.ossType("S3");
-            } else if (endpoint.contains("myhuaweicloud.com")) {
-                builder.ossType("S3");
-            } else {
-                // 默认使用CommonConfig中定义的默认值
-                builder.ossType(CommonConfig.Defaults.OSS_TYPE);
+            String lowerEndpoint = endpoint.toLowerCase();
+
+            // 1. 自动检测ossType（如果未设置）
+            if (config.getOssType() == null || config.getOssType().isEmpty()) {
+                if (lowerEndpoint.contains("sf-oss.com")) {
+                    builder.ossType("SF_OSS");
+                } else if (lowerEndpoint.contains("aliyuncs.com")) {
+                    builder.ossType("S3");
+                } else if (lowerEndpoint.contains("amazonaws.com")) {
+                    builder.ossType("S3");
+                } else if (lowerEndpoint.contains("myqcloud.com")) {
+                    builder.ossType("S3");
+                } else if (lowerEndpoint.contains("myhuaweicloud.com")) {
+                    builder.ossType("S3");
+                } else {
+                    builder.ossType(CommonConfig.Defaults.OSS_TYPE);
+                }
             }
+
+            // 2. 自动检测pathStyleAccess
+            // MinIO、本地开发环境需要path-style访问
+            boolean autoPathStyle = lowerEndpoint.contains("localhost") ||
+                                   lowerEndpoint.contains("127.0.0.1") ||
+                                   lowerEndpoint.contains(":9000") ||  // MinIO默认端口
+                                   lowerEndpoint.contains("minio");
+            builder.pathStyleAccess(autoPathStyle);
+
+            // 3. 自动检测enableSsl
+            // HTTP端点自动禁用SSL
+            boolean autoEnableSsl = lowerEndpoint.startsWith("https://");
+            builder.enableSsl(autoEnableSsl);
         } else {
-            // 默认使用CommonConfig中定义的默认值
+            // endpoint为null时使用默认值
             builder.ossType(CommonConfig.Defaults.OSS_TYPE);
+            builder.pathStyleAccess(false);
+            builder.enableSsl(true);
         }
 
         return builder.build();

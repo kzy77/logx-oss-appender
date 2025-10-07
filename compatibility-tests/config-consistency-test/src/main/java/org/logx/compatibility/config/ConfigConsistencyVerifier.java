@@ -35,6 +35,7 @@ public class ConfigConsistencyVerifier {
                 "logx.oss.accessKeyId",
                 "logx.oss.accessKeySecret",
                 "logx.oss.endpoint",
+                "logx.oss.ossType",
                 "logx.oss.pathStyleAccess",
                 "logx.oss.enableSsl",
                 "logx.oss.maxConnections",
@@ -226,6 +227,7 @@ public class ConfigConsistencyVerifier {
         // 定义需要验证值一致性的参数
         Set<String> valueSensitiveParameters = new HashSet<>(Arrays.asList(
                 "logx.oss.region",
+                "logx.oss.ossType",
                 "logx.oss.batchSize",
                 "logx.oss.maxMessageAgeMs",
                 "logx.oss.queueCapacity",

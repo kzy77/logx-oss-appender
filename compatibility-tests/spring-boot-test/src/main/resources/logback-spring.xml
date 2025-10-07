@@ -14,14 +14,14 @@
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
 
-        <!-- 基本存储配置 -->
-        <endpoint>https://s3.amazonaws.com</endpoint>
-        <region>us-east-1</region>
-        <accessKeyId>test-access-key</accessKeyId>
-        <accessKeySecret>test-secret-key</accessKeySecret>
-        <bucket>test-bucket</bucket>
-        <keyPrefix>logs/</keyPrefix>
-        <ossType>S3</ossType>
+        <!-- 存储配置（使用环境变量，支持MinIO/S3/OSS） -->
+        <endpoint>${LOGX_OSS_ENDPOINT:-http://localhost:9000}</endpoint>
+        <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
+        <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}</accessKeyId>
+        <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}</accessKeySecret>
+        <bucket>${LOGX_OSS_BUCKET:-logx-test-bucket}</bucket>
+        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/}</keyPrefix>
+        <ossType>${LOGX_OSS_OSS_TYPE:-S3}</ossType>
 
         <!-- 其他参数使用代码默认值 -->
     </appender>

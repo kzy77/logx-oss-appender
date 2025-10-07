@@ -78,9 +78,9 @@ public class ConfigConsistencyVerifierTest {
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
                 logbackConfig, log4j2Config, log4j1Config);
         
-        // 验证报告不一致性 (Log4j1缺少8个参数)
+        // 验证报告不一致性 (Log4j1缺少9个参数)
         assertFalse("配置应该是不一致的", report.isConsistent());
-        assertEquals("应该检测到不一致的参数", 8, report.getInconsistentParameters().size());
+        assertEquals("应该检测到不一致的参数", 9, report.getInconsistentParameters().size());
     }
 
     @Test
@@ -111,8 +111,8 @@ public class ConfigConsistencyVerifierTest {
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
                 logbackConfig, log4j2Config, log4j1Config);
         
-        // 验证报告内容 (11个参数 × 3个框架 = 33个一致的参数)
-        assertEquals("应该有33个一致的参数", 33, report.getConsistentParameters().size());
+        // 验证报告内容 (12个参数 × 3个框架 = 36个一致的参数)
+        assertEquals("应该有36个一致的参数", 36, report.getConsistentParameters().size());
         assertEquals("应该没有不一致的参数", 0, report.getInconsistentParameters().size());
     }
 
@@ -124,6 +124,7 @@ public class ConfigConsistencyVerifierTest {
         config.put("logx.oss.accessKeyId", "test-access-key");
         config.put("logx.oss.accessKeySecret", "test-secret-key");
         config.put("logx.oss.endpoint", "https://s3.amazonaws.com");
+        config.put("logx.oss.ossType", "S3");
         config.put("logx.oss.pathStyleAccess", "false");
         config.put("logx.oss.enableSsl", "true");
         config.put("logx.oss.maxConnections", "50");

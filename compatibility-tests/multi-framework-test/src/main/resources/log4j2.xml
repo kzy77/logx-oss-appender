@@ -7,15 +7,14 @@
         </Console>
 
         <!-- OSS Appender配置（使用环境变量，默认MinIO） -->
+        <!-- pathStyleAccess和enableSsl根据endpoint自动识别 -->
         <OSS name="OSS"
              endpoint="${env:LOGX_OSS_ENDPOINT:-http://localhost:9000}"
              region="${env:LOGX_OSS_REGION:-ap-guangzhou}"
              accessKeyId="${env:LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"
              accessKeySecret="${env:LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"
              bucket="${env:LOGX_OSS_BUCKET:-logx-test-bucket}"
-             ossType="${env:LOGX_OSS_OSS_TYPE:-S3}"
-             pathStyleAccess="${env:LOGX_OSS_PATH_STYLE_ACCESS:-true}"
-             enableSsl="${env:LOGX_OSS_ENABLE_SSL:-false}">
+             ossType="${env:LOGX_OSS_OSS_TYPE:-S3}">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </OSS>
     </Appenders>

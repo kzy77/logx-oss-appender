@@ -26,7 +26,7 @@ S3兼容存储的Logback All-in-One包，包含所有必需依赖，简化引入
     <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
     <bucket>${LOGX_OSS_BUCKET}</bucket>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
+      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
   <root level="INFO"><appender-ref ref="OSS"/></root>

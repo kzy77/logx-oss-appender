@@ -25,7 +25,7 @@ SF OSS存储服务的Log4j2 All-in-One包，包含所有必需依赖，简化引
                  region="${sys:LOGX_OSS_REGION:-cn-north-1}"
                  accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
                  bucket="your-bucket">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %level %logger - %msg%n"/>
     </OSS>
   </Appenders>
 

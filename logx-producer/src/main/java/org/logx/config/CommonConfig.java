@@ -490,9 +490,9 @@ public final class CommonConfig {
         /**
          * 日志格式模板
          * <p>
-         * 使用UTF-8编码避免乱码
+         * 使用UTF-8编码避免乱码，避免使用ISO8601格式
          */
-        public static final String PATTERN = "%d{ISO8601} [%t] %-5level %logger{36} - %msg%n";
+        public static final String PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n";
 
         /**
          * 日志级别
