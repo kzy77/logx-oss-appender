@@ -83,6 +83,9 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             .compressionThreshold(1024)
             .enableSharding(true)
             .maxUploadSizeMb(10);
+            
+        logger.debug("创建EnhancedDisruptorBatchingQueue，传递的配置参数: queueCapacity={}, batchMaxMessages={}, batchMaxBytes={}, maxMessageAgeMs={}", 
+                    config.getQueueCapacity(), config.getBatchMaxMessages(), config.getBatchMaxBytes(), config.getMaxMessageAgeMs());
 
         this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
         

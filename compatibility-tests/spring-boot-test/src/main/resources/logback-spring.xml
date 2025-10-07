@@ -26,8 +26,11 @@
         <!-- 其他参数使用代码默认值 -->
     </appender>
 
+    <!-- 设置LogX相关包的日志级别为DEBUG -->
+    <logger name="org.logx" level="DEBUG"/>
+
     <!-- 根日志配置 -->
-    <root level="INFO">
+    <root level="DEBUG">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="OSS"/>
     </root>

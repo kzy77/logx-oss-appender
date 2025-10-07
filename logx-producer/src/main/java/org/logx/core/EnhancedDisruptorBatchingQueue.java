@@ -162,6 +162,10 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         this.consumer = consumer;
         this.storageService = storageService;
 
+        // 添加配置参数的debug日志
+        logger.debug("初始化EnhancedDisruptorBatchingQueue，配置参数: queueCapacity={}, batchMaxMessages={}, batchMaxBytes={}, maxMessageAgeMs={}", 
+                    config.queueCapacity, config.batchMaxMessages, config.batchMaxBytes, config.maxMessageAgeMs);
+
         EventFactory<LogEventHolder> factory = LogEventHolder::new;
         ProducerType type = config.multiProducer ? ProducerType.MULTI : ProducerType.SINGLE;
 
@@ -286,13 +290,24 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
 
                 if (willExceedCount || willExceedBytes) {
                     if (!buffer.isEmpty()) {
+                        logger.debug("触发预检查批处理: willExceedCount={}, willExceedBytes={}, buffer.size={}, bytes={}", 
+                            willExceedCount, willExceedBytes, buffer.size(), bytes);
                         processBatch();
+                        
+                        // 重置状态
+                        if (buffer.isEmpty()) {
+                            oldestMessageTime = ev.timestampMs;
+                        }
                     }
                 }
 
                 buffer.add(new LogEvent(ev.payload, ev.timestampMs));
                 bytes += size;
                 ev.clear();
+                
+                // 添加消息添加后的状态日志
+                logger.debug("添加消息后状态: buffer.size={}, bytes={}, oldestMessageTime={}", 
+                           buffer.size(), bytes, oldestMessageTime);
             }
 
             // 事件驱动触发检查：在新消息到达或批次结束时检查三个触发条件
@@ -303,19 +318,35 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             long now = System.currentTimeMillis();
             boolean messageAgeExceeded = !buffer.isEmpty() &&
                     (now - oldestMessageTime) >= config.maxMessageAgeMs;
+            
+            // 添加详细的调试日志
+            if (logger.isDebugEnabled() && !buffer.isEmpty()) {
+                logger.debug("触发条件检查: endOfBatch={}, messageAgeExceeded={} (now={}, oldestTime={}, age={}, threshold={}), " +
+                           "messageCount={} (threshold={}), bytes={} (threshold={})", 
+                           endOfBatch, messageAgeExceeded, now, oldestMessageTime, (now - oldestMessageTime), config.maxMessageAgeMs,
+                           buffer.size(), config.batchMaxMessages, bytes, config.batchMaxBytes);
+            }
 
-            if (endOfBatch || messageAgeExceeded ||
-                    buffer.size() >= config.batchMaxMessages ||
-                    bytes >= config.batchMaxBytes) {
+            // 检查是否满足任何触发条件
+            boolean countThresholdMet = buffer.size() >= config.batchMaxMessages;
+            boolean bytesThresholdMet = bytes >= config.batchMaxBytes;
+            
+            if (endOfBatch || messageAgeExceeded || countThresholdMet || bytesThresholdMet) {
                 if (!buffer.isEmpty()) {
+                    logger.debug("触发批处理: endOfBatch={}, messageAgeExceeded={}, countThresholdMet={}, bytesThresholdMet={}, messageCount={}, bytes={}", 
+                        endOfBatch, messageAgeExceeded, countThresholdMet, bytesThresholdMet, buffer.size(), bytes);
                     processBatch();
                 }
+            } else if (!buffer.isEmpty()) {
+                // 添加未触发批处理的原因日志
+                logger.debug("未触发批处理，当前状态: messageAge={}ms (threshold={}ms), messageCount={} (threshold={}), bytes={} (threshold={})", 
+                           (now - oldestMessageTime), config.maxMessageAgeMs, buffer.size(), config.batchMaxMessages, bytes, config.batchMaxBytes);
             }
         }
 
         private void processBatch() {
             try {
-                byte[] serializedData = serializeToNDJSON(buffer);
+                byte[] serializedData = serializeToPatternFormat(buffer);
                 int originalSize = serializedData.length;
 
                 boolean shouldCompress = config.enableCompression &&
@@ -352,15 +383,21 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     }
 
     /**
-     * 序列化为NDJSON格式
+     * 序列化为Pattern格式
+     * 使用友好的日志格式替代NDJSON格式
      */
-    private byte[] serializeToNDJSON(List<LogEvent> events) {
+    private byte[] serializeToPatternFormat(List<LogEvent> events) {
         StringBuilder sb = new StringBuilder();
         for (LogEvent event : events) {
-            sb.append("{\"timestamp\":").append(event.timestampMs)
-                    .append(",\"data\":\"")
-                    .append(new String(event.payload, java.nio.charset.StandardCharsets.UTF_8))
-                    .append("\"}\n");
+            // 使用标准的日志格式: timestamp [level] logger - message
+            String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
+            
+            // 如果日志行不以换行符结尾，添加换行符
+            if (!logLine.endsWith("\n")) {
+                sb.append(logLine).append("\n");
+            } else {
+                sb.append(logLine);
+            }
         }
         return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
     }
@@ -435,21 +472,25 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         }
 
         public Config queueCapacity(int queueCapacity) {
+            logger.debug("设置queueCapacity: {}", queueCapacity);
             this.queueCapacity = queueCapacity;
             return this;
         }
 
         public Config batchMaxMessages(int batchMaxMessages) {
+            logger.debug("设置batchMaxMessages: {}", batchMaxMessages);
             this.batchMaxMessages = Math.max(10, Math.min(10000, batchMaxMessages));
             return this;
         }
 
         public Config batchMaxBytes(int batchMaxBytes) {
+            logger.debug("设置batchMaxBytes: {}", batchMaxBytes);
             this.batchMaxBytes = batchMaxBytes;
             return this;
         }
 
         public Config maxMessageAgeMs(long maxMessageAgeMs) {
+            logger.debug("设置maxMessageAgeMs: {}", maxMessageAgeMs);
             this.maxMessageAgeMs = maxMessageAgeMs;
             return this;
         }
