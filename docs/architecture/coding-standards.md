@@ -125,7 +125,7 @@ public static final String KEY_PREFIX = "logx.oss.keyPrefix";
 public static final String OSS_TYPE = "logx.oss.ossType";
 public static final String MAX_UPLOAD_SIZE_MB = "logx.oss.maxUploadSizeMb";
 public static final String BATCH_SIZE = "logx.oss.batch.size";
-public static final String FLUSH_INTERVAL = "logx.oss.batch.flushInterval";
+public static final String MAX_MESSAGE_AGE_MS = "logx.oss.maxMessageAgeMs";
 ```
 
 ### 代码组织

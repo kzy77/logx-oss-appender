@@ -204,7 +204,7 @@ Java版本: Java 8+
 - **代码格式**: Google Java Style Guide
 - **静态分析**: SpotBugs + 自定义规则
 - **安全扫描**: OWASP Dependency Check
-- **测试覆盖率**: JaCoCo (目标 > 80%)
+- **测试覆盖率**: JaCoCo (目标 > 90%)
 
 ## 性能监控技术
 

@@ -439,19 +439,15 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **maxRetries** | Integer | 5 | 最大重试次数 |
 | **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
 | **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
-| **maxUploadSizeMb** | Integer | 100 | 单个上传文件最大大小（MB），超过此大小的文件将自动分片处理 |
+| **maxUploadSizeMb** | Integer | 10 | 单个上传文件最大大小（MB），同时控制分片阈值和分片大小 |
 
 #### 批处理优化参数
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| **batchSize** | Integer | 100 | 批处理大小（条数），支持动态调整范围10-10000 |
-| **batchSizeBytes** | Integer | 4194304 (4MB) | 批处理大小（字节） |
 | **enableCompression** | Boolean | true | 是否启用数据压缩 |
 | **compressionThreshold** | Integer | 1024 (1KB) | 启用压缩的数据大小阈值 |
 | **enableSharding** | Boolean | true | 是否启用数据分片处理 |
-| **shardingThreshold** | Integer | 104857600 (100MB) | 数据分片阈值 |
-| **shardSize** | Integer | 10485760 (10MB) | 分片大小 |
 
 #### 配置优先级
 
@@ -615,7 +611,7 @@ logback-oss-appender
 - ✅ 定期轮换访问密钥
 
 #### 2. 性能优化
-- ✅ 根据日志量调整`batchSize`和`flushInterval`
+- ✅ 根据日志量调整`batchSize`和`maxMessageAgeMs`
 - ✅ 使用异步Logger减少应用延迟
 - ✅ 启用压缩节省存储和带宽成本
 - ✅ 合理设置文件大小避免小文件问题
@@ -649,7 +645,7 @@ ossutil ls oss://your-bucket-name --config-file ~/.ossutilconfig
 ```xml
 <!-- 调整批量参数 -->
 <batchSize>1000</batchSize>
-<flushInterval>30000</flushInterval>
+<maxMessageAgeMs>30000</maxMessageAgeMs>
 ```
 
 **问题3: 内存占用过高**

@@ -181,7 +181,7 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
 - **模拟**: Mockito 5.8.0
 - **断言**: AssertJ 3.24.2
 - **测试文件**: `*Test.java`位于`src/test/java`
-- **覆盖率**: 核心逻辑最低85%
+- **覆盖率**: 核心逻辑最低90%
 
 ## 贡献流程
 

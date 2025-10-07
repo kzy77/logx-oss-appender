@@ -372,8 +372,8 @@ sequenceDiagram
     <!-- 可选参数 -->
     <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
     <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
-    <flushInterval>${LOGX_OSS_FLUSH_INTERVAL:-5}</flushInterval>
-    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-20}</maxUploadSizeMb>
+    <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
+    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
 </appender>
 ```
 
@@ -392,7 +392,9 @@ logx.oss.accessKeyId=your-access-key
 logx.oss.accessKeySecret=your-secret-key
 logx.oss.bucket=your-bucket-name
 logx.oss.ossType=SF_OSS
-logx.oss.maxUploadSizeMb=20
+logx.oss.maxBatchCount=4096
+logx.oss.maxMessageAgeMs=600000
+logx.oss.maxUploadSizeMb=10
 ```
 
 **环境变量支持**:
@@ -402,7 +404,9 @@ export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
 export LOGX_OSS_REGION="ap-guangzhou"
 export LOGX_OSS_BUCKET="your-bucket-name"
 export LOGX_OSS_TYPE="SF_OSS"
-export LOGX_OSS_MAX_UPLOAD_SIZE_MB="20"
+export LOGX_OSS_MAX_BATCH_COUNT="4096"
+export LOGX_OSS_MAX_MESSAGE_AGE_MS="600000"
+export LOGX_OSS_MAX_UPLOAD_SIZE_MB="10"
 ```
 
 **配置参数说明**:
@@ -412,5 +416,5 @@ export LOGX_OSS_MAX_UPLOAD_SIZE_MB="20"
 - `bucketName`: 存储桶名称
 - `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
 - `maxBatchCount`: 批处理最大消息数，默认4096条日志
-- `flushInterval`: 刷新间隔，默认3秒
-- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认10MB
+- `maxMessageAgeMs`: 最早消息年龄阈值（毫秒），默认600000（10分钟）
+- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认10MB，同时控制分片阈值和分片大小

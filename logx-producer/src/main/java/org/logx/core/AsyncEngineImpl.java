@@ -82,8 +82,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             .enableCompression(true)
             .compressionThreshold(1024)
             .enableSharding(true)
-            .shardingThreshold(20 * 1024 * 1024)
-            .shardSize(10 * 1024 * 1024);
+            .maxUploadSizeMb(10);
 
         this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
         

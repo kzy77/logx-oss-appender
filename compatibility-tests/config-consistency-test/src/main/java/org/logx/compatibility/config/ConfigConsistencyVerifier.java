@@ -227,7 +227,7 @@ public class ConfigConsistencyVerifier {
         Set<String> valueSensitiveParameters = new HashSet<>(Arrays.asList(
                 "logx.oss.region",
                 "logx.oss.batchSize",
-                "logx.oss.flushInterval",
+                "logx.oss.maxMessageAgeMs",
                 "logx.oss.queueCapacity",
                 "logx.oss.compressionEnabled"
         ));

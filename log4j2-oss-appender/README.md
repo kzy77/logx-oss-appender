@@ -55,13 +55,13 @@ Log4j2框架的OSS Appender，用于将日志异步上传到S3兼容对象存储
 ### 生产环境推荐配置
 ```xml
 <!-- 高吞吐量场景 -->
-<OSS name="oss" ... 
-     maxQueueSize="131072" maxBatchCount="2000" flushIntervalMs="5000" dropWhenQueueFull="false">
+<OSS name="oss" ...
+     maxQueueSize="131072" maxBatchCount="2000" maxMessageAgeMs="600000" dropWhenQueueFull="false">
 ```
 
 <!-- 低延迟场景 -->
-<OSS name="oss" ... 
-     maxQueueSize="16384" maxBatchCount="500" flushIntervalMs="500">
+<OSS name="oss" ...
+     maxQueueSize="16384" maxBatchCount="500" maxMessageAgeMs="600000">
 ```
 
 ## 📄 许可证

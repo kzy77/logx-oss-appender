@@ -618,7 +618,7 @@ public class AsyncLogBatchProcessor {
         AsyncLogBatchProcessor processor = new AsyncLogBatchProcessor(
             storage,
             10,  // 批大小
-            Duration.ofSeconds(5)  // 刷新间隔
+            Duration.ofSeconds(5)  // 最早消息年龄阈值
         );
 
         // 启动处理器

@@ -21,7 +21,7 @@
 
         <!-- 批处理配置 -->
         <batchSize>100</batchSize>
-        <flushInterval>5000</flushInterval>
+        <maxMessageAgeMs>600000</maxMessageAgeMs>
 
         <!-- 队列配置 -->
         <queueCapacity>10000</queueCapacity>

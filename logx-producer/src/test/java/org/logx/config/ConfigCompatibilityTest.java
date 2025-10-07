@@ -281,12 +281,12 @@ class ConfigCompatibilityTest {
                 .isEqualTo(CommonConfig.Defaults.COMPRESSION_THRESHOLD)
                 .isEqualTo(1024);
 
-        // 分片阈值（shardingThreshold）
+        // 单个上传文件最大大小（maxUploadSizeMb）
         assertThat(configManager.getIntProperty(
-                CommonConfig.SHARDING_THRESHOLD,
-                CommonConfig.Defaults.SHARDING_THRESHOLD))
-                .isEqualTo(CommonConfig.Defaults.SHARDING_THRESHOLD)
-                .isEqualTo(10 * 1024 * 1024);
+                CommonConfig.MAX_UPLOAD_SIZE_MB,
+                CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB))
+                .isEqualTo(CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB)
+                .isEqualTo(10);
 
         // 最早消息年龄阈值（maxMessageAgeMs）
         assertThat(configManager.getLongProperty(
@@ -329,7 +329,7 @@ class ConfigCompatibilityTest {
         System.setProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB, "1024");
         System.setProperty(CommonConfig.FALLBACK_RETENTION_DAYS, "14");
         System.setProperty(CommonConfig.COMPRESSION_THRESHOLD, "2048");
-        System.setProperty(CommonConfig.SHARDING_THRESHOLD, String.valueOf(20 * 1024 * 1024));
+        System.setProperty(CommonConfig.MAX_UPLOAD_SIZE_MB, "20");
         System.setProperty(CommonConfig.MAX_MESSAGE_AGE_MS, "1200000");
 
         try {
@@ -345,8 +345,8 @@ class ConfigCompatibilityTest {
             assertThat(configManager.getIntProperty(CommonConfig.COMPRESSION_THRESHOLD, 1024))
                     .isEqualTo(2048);
 
-            assertThat(configManager.getIntProperty(CommonConfig.SHARDING_THRESHOLD, 10 * 1024 * 1024))
-                    .isEqualTo(20 * 1024 * 1024);
+            assertThat(configManager.getIntProperty(CommonConfig.MAX_UPLOAD_SIZE_MB, 10))
+                    .isEqualTo(20);
 
             assertThat(configManager.getLongProperty(CommonConfig.MAX_MESSAGE_AGE_MS, 600000L))
                     .isEqualTo(1200000L);
@@ -356,7 +356,7 @@ class ConfigCompatibilityTest {
             System.clearProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB);
             System.clearProperty(CommonConfig.FALLBACK_RETENTION_DAYS);
             System.clearProperty(CommonConfig.COMPRESSION_THRESHOLD);
-            System.clearProperty(CommonConfig.SHARDING_THRESHOLD);
+            System.clearProperty(CommonConfig.MAX_UPLOAD_SIZE_MB);
             System.clearProperty(CommonConfig.MAX_MESSAGE_AGE_MS);
         }
     }

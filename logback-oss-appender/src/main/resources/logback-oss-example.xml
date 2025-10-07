@@ -11,9 +11,9 @@
         <maxQueueSize>200000</maxQueueSize>
         <maxBatchCount>5000</maxBatchCount>
         <maxBatchBytes>4194304</maxBatchBytes>
-        <flushIntervalMillis>2000</flushIntervalMillis>
+        <maxMessageAgeMs>600000</maxMessageAgeMs>
         <offerTimeoutMillis>500</offerTimeoutMillis>
-        <maxRetries>5</maxRetries>
+        <maxRetries>3</maxRetries>
         <initialBackoffMillis>200</initialBackoffMillis>
         <backoffMultiplier>2.0</backoffMultiplier>
         <contentType>application/x-ndjson</contentType>

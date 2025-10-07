@@ -196,7 +196,7 @@ public final class CommonConfig {
     /** 压缩阈值（字节） */
     public static final String COMPRESSION_THRESHOLD = "compressionThreshold";
 
-    // ==================== 分片配置（4个）====================
+    // ==================== 分片配置（2个）====================
 
     /** 是否启用数据分片 */
     public static final String ENABLE_SHARDING = "enableSharding";
@@ -204,17 +204,17 @@ public final class CommonConfig {
     /**
      * 单个上传文件最大大小（MB）
      * <p>
-     * 用户友好的配置参数，以MB为单位
+     * 用户友好的配置参数，以MB为单位。
      * <p>
-     * 可选参数，默认：20MB
+     * 此参数同时控制：
+     * <ul>
+     * <li>分片阈值：数据超过此大小时自动分片</li>
+     * <li>分片大小：每个分片的大小</li>
+     * </ul>
+     * <p>
+     * 可选参数，默认：10MB
      */
     public static final String MAX_UPLOAD_SIZE_MB = "maxUploadSizeMb";
-
-    /** 分片阈值（字节） */
-    public static final String SHARDING_THRESHOLD = "shardingThreshold";
-
-    /** 单个分片大小（字节） */
-    public static final String SHARD_SIZE = "shardSize";
 
     // ==================== 重试配置（3个）====================
 
@@ -432,30 +432,18 @@ public final class CommonConfig {
         /**
          * 单个上传文件最大大小（MB）
          * <p>
-         * 用户友好的配置参数，以MB为单位
+         * 用户友好的配置参数，以MB为单位。
+         * <p>
+         * 此参数同时控制：
+         * <ul>
+         * <li>分片阈值：数据超过 maxUploadSizeMb * 1024 * 1024 字节时自动分片</li>
+         * <li>分片大小：每个分片大小为 maxUploadSizeMb * 1024 * 1024 字节</li>
+         * </ul>
+         * <p>
          * 默认：10MB
          * 建议范围：5MB-100MB
          */
         public static final int MAX_UPLOAD_SIZE_MB = 10;
-
-        /**
-         * 分片阈值（字节）
-         * <p>
-         * 数据大小超过此值时自动分片
-         * 默认：10MB (MAX_UPLOAD_SIZE_MB * 1024 * 1024 字节)
-         * <p>
-         * 注意：此参数由MAX_UPLOAD_SIZE_MB自动计算，保持一致性
-         */
-        public static final int SHARDING_THRESHOLD = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
-
-        /**
-         * 单个分片大小
-         * <p>
-         * 分片后每个分片的大小
-         * 默认：10MB (10 * 1024 * 1024 字节)
-         * 建议范围：5MB-50MB
-         */
-        public static final int SHARD_SIZE = 10 * 1024 * 1024;
 
         // ==================== 重试配置 ====================
 
@@ -463,10 +451,10 @@ public final class CommonConfig {
          * 最大重试次数
          * <p>
          * 上传失败后最多重试多少次
-         * 默认：5次
+         * 默认：3次
          * 建议范围：0-20
          */
-        public static final int MAX_RETRIES = 5;
+        public static final int MAX_RETRIES = 3;
 
         /**
          * 基础退避时间
@@ -628,8 +616,6 @@ public final class CommonConfig {
         // 分片配置
         public static final String ENABLE_SHARDING = "LOGX_OSS_ENABLE_SHARDING";
         public static final String MAX_UPLOAD_SIZE_MB = "LOGX_OSS_MAX_UPLOAD_SIZE_MB";
-        public static final String SHARDING_THRESHOLD = "LOGX_OSS_SHARDING_THRESHOLD";
-        public static final String SHARD_SIZE = "LOGX_OSS_SHARD_SIZE";
 
         // 重试配置
         public static final String MAX_RETRIES = "LOGX_OSS_MAX_RETRIES";

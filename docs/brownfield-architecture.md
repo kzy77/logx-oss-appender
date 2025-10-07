@@ -108,7 +108,7 @@ public final class DisruptorBatchingQueue {
     // ✅ 批处理策略：按条数、字节数、时间窗口触发
     private final int batchMaxMessages = 5000;     // 最大批次条数
     private final int batchMaxBytes = 4MB;         // 最大批次字节
-    private final long flushIntervalMs = 2000L;   // 强制刷新间隔
+    private final long maxMessageAgeMs = 600000L;   // 最早消息年龄阈值（毫秒）
 
     // ✅ 背压处理：可配置自旋等待或直接丢弃
     private final boolean blockOnFull;

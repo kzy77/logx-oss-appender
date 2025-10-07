@@ -57,13 +57,13 @@ Logback框架的OSS Appender，用于将日志异步上传到S3兼容对象存�
 <!-- 高吞吐量场景 -->
 <maxQueueSize>500000</maxQueueSize>
 <maxBatchCount>10000</maxBatchCount>
-<flushIntervalMillis>5000</flushIntervalMillis>
+<maxMessageAgeMs>600000</maxMessageAgeMs>
 <dropWhenQueueFull>false</dropWhenQueueFull>
 
 <!-- 低延迟场景 -->
 <maxQueueSize>50000</maxQueueSize>
 <maxBatchCount>1000</maxBatchCount>
-<flushIntervalMillis>500</flushIntervalMillis>
+<maxMessageAgeMs>600000</maxMessageAgeMs>
 ```
 
 ## 📄 许可证

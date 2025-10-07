@@ -300,7 +300,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 }
 
                 boolean success;
-                if (config.enableSharding && originalSize > config.shardingThreshold) {
+                if (config.enableSharding && originalSize > config.getShardingThreshold()) {
                     success = processSharding(serializedData);
                 } else {
                     success = consumer.processBatch(finalData, originalSize, shouldCompress, buffer.size());
@@ -352,15 +352,15 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
      */
     private boolean processSharding(byte[] data) {
         try {
-            int shardCount = (int) Math.ceil((double) data.length / config.shardSize);
+            int shardCount = (int) Math.ceil((double) data.length / config.getShardSize());
 
             if (shardCount <= 1) {
                 return consumer.processBatch(data, data.length, false, 1);
             }
 
             for (int i = 0; i < shardCount; i++) {
-                int start = i * config.shardSize;
-                int end = Math.min(start + config.shardSize, data.length);
+                int start = i * config.getShardSize();
+                int end = Math.min(start + config.getShardSize(), data.length);
                 int length = end - start;
 
                 byte[] shardData = new byte[length];
@@ -399,8 +399,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         private boolean enableCompression = CommonConfig.Defaults.ENABLE_COMPRESSION;
         private int compressionThreshold = CommonConfig.Defaults.COMPRESSION_THRESHOLD;
         private boolean enableSharding = CommonConfig.Defaults.ENABLE_SHARDING;
-        private int shardingThreshold = CommonConfig.Defaults.SHARDING_THRESHOLD;
-        private int shardSize = CommonConfig.Defaults.SHARD_SIZE;
+        private int maxUploadSizeMb = CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB;
 
         public static Config defaultConfig() {
             return new Config();
@@ -451,13 +450,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return this;
         }
 
-        public Config shardingThreshold(int shardingThreshold) {
-            this.shardingThreshold = shardingThreshold;
-            return this;
-        }
-
-        public Config shardSize(int shardSize) {
-            this.shardSize = shardSize;
+        public Config maxUploadSizeMb(int maxUploadSizeMb) {
+            this.maxUploadSizeMb = maxUploadSizeMb;
             return this;
         }
 
@@ -497,12 +491,30 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return enableSharding;
         }
 
-        public int getShardingThreshold() {
-            return shardingThreshold;
+        public int getMaxUploadSizeMb() {
+            return maxUploadSizeMb;
         }
 
+        /**
+         * 获取分片阈值（字节）
+         * <p>
+         * 基于maxUploadSizeMb动态计算：maxUploadSizeMb * 1024 * 1024
+         *
+         * @return 分片阈值（字节）
+         */
+        public int getShardingThreshold() {
+            return maxUploadSizeMb * 1024 * 1024;
+        }
+
+        /**
+         * 获取分片大小（字节）
+         * <p>
+         * 基于maxUploadSizeMb动态计算：maxUploadSizeMb * 1024 * 1024
+         *
+         * @return 分片大小（字节）
+         */
         public int getShardSize() {
-            return shardSize;
+            return maxUploadSizeMb * 1024 * 1024;
         }
     }
 

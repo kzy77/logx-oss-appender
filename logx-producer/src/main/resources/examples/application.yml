@@ -43,7 +43,7 @@ s3:
 # Batch Processing Configuration
 batch:
   size: 100
-  flushInterval: 5000
+  maxMessageAgeMs: 600000
   maxBytes: 1048576
 
 # Queue Configuration

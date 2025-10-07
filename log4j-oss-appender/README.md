@@ -57,13 +57,13 @@ Log4j 1.x框架的OSS Appender，用于将日志异步上传到S3兼容对象存
 <!-- 高吞吐量场景 -->
 <param name="maxQueueSize" value="524288"/>
 <param name="maxBatchCount" value="8192"/>
-<param name="flushIntervalMs" value="5000"/>
+<param name="maxMessageAgeMs" value="600000"/>
 <param name="dropWhenQueueFull" value="false"/>
 
 <!-- 低延迟场景 -->
 <param name="maxQueueSize" value="65536"/>
 <param name="maxBatchCount" value="1024"/>
-<param name="flushIntervalMs" value="500"/>
+<param name="maxMessageAgeMs" value="600000"/>
 ```
 
 ## 📄 许可证
