@@ -47,7 +47,20 @@ public class LogxSfOssClient implements AutoCloseable {
      * @param data 对象数据
      */
     public void putObject(String bucketName, String key, byte[] data) {
+        putObject(bucketName, key, data, "text/plain; charset=utf-8");
+    }
+
+    /**
+     * 上传对象
+     *
+     * @param bucketName 存储桶名称
+     * @param key 对象键
+     * @param data 对象数据
+     * @param contentType 内容类型
+     */
+    public void putObject(String bucketName, String key, byte[] data, String contentType) {
         // 这里应该包含SF OSS特定的API调用
+
         // 由于这是一个示例实现，我们只是简单地验证参数
         if (bucketName == null || bucketName.isEmpty()) {
             throw new IllegalArgumentException("Bucket name cannot be null or empty");
@@ -67,8 +80,8 @@ public class LogxSfOssClient implements AutoCloseable {
         }
 
         // 在实际实现中，这里会调用SF OSS的API来上传对象
-        logger.info("SF OSS: Uploading object to bucket {} with key {} at endpoint {} in region {}", 
-                   bucketName, key, endpoint, region);
+        logger.info("SF OSS: Uploading object to bucket {} with key {} at endpoint {} in region {}, content type: {}", 
+                   bucketName, key, endpoint, region, contentType);
     }
 
     

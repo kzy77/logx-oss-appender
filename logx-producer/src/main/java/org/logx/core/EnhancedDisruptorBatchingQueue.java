@@ -13,10 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
 
@@ -46,8 +45,8 @@ import java.util.zip.GZIPOutputStream;
  * <p>
  * <b>触发时机：</b>
  * <ul>
- * <li>新消息到达时检查三个触发条件</li>
- * <li>Disruptor批次结束时（endOfBatch=true）检查条件</li>
+ * <li>每次新消息到达时检查三个触发条件</li>
+ * <li>应用层批处理状态独立于Disruptor框架批处理</li>
  * <li>JVM关闭时ShutdownHook触发兜底处理</li>
  * </ul>
  * <p>
@@ -134,6 +133,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     private final StorageService storageService;
     private final Disruptor<LogEventHolder> disruptor;
     private final RingBuffer<LogEventHolder> ringBuffer;
+    private final BatchEventHandler batchEventHandler;
+    private final AtomicBoolean flushRequested = new AtomicBoolean(false);
 
     private volatile boolean started = false;
 
@@ -181,7 +182,30 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 type,
                 new YieldingWaitStrategy());
 
-        this.disruptor.handleEventsWith(new BatchEventHandler());
+        // 创建简化的事件处理器，使用标准 EventHandler
+        this.batchEventHandler = new BatchEventHandler();
+
+        // 直接使用 Disruptor 的 handleEventsWith，避免复杂的 BatchEventProcessor
+        disruptor.handleEventsWith(batchEventHandler);
+
+        // 设置异常处理器
+        disruptor.setDefaultExceptionHandler(new com.lmax.disruptor.ExceptionHandler<LogEventHolder>() {
+            @Override
+            public void handleEventException(Throwable ex, long sequence, LogEventHolder event) {
+                logger.error("事件处理器异常: sequence={}, event={}", sequence, event, ex);
+            }
+
+            @Override
+            public void handleOnStartException(Throwable ex) {
+                logger.error("事件处理器启动异常", ex);
+            }
+
+            @Override
+            public void handleOnShutdownException(Throwable ex) {
+                logger.error("事件处理器关闭异常", ex);
+            }
+        });
+
         this.ringBuffer = disruptor.getRingBuffer();
     }
 
@@ -223,8 +247,17 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             }
 
             if (!config.blockOnFull) {
-                logger.error("[DATA_LOSS_ALERT] 队列已满，数据被丢弃。队列容量：{}，当前剩余容量：0",
-                        ringBuffer.getBufferSize());
+                // 获取更多队列信息用于诊断
+                long remainingCapacity = ringBuffer.remainingCapacity();
+                long bufferSize = ringBuffer.getBufferSize();
+                
+                // 使用新的队列状态信息方法
+                String queueStatusInfo = getQueueStatusInfo();
+                
+                logger.error("[DATA_LOSS_ALERT] 队列已满，数据被丢弃。消息大小：{}字节。队列状态信息：{}。" +
+                           "问题分析：生产者序列与消费者序列差值过大，表明消费者处理速度跟不上生产者速度，" +
+                           "当前队列已完全占用，实际未处理事件数：{}",
+                        payload != null ? payload.length : 0, queueStatusInfo, (bufferSize - remainingCapacity));
                 return false;
             }
 
@@ -252,6 +285,29 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     }
 
     /**
+     * 获取队列状态信息，用于诊断队列满的问题
+     *
+     * @return 队列状态信息字符串
+     */
+    public String getQueueStatusInfo() {
+        if (!started) {
+            return "队列未启动";
+        }
+        
+        long remainingCapacity = ringBuffer.remainingCapacity();
+        long cursor = ringBuffer.getCursor();
+        long bufferSize = ringBuffer.getBufferSize();
+        long occupiedSlots = bufferSize - remainingCapacity;
+        
+        // 计算消费者可能的序列位置（近似值）
+        // 由于RingBuffer的循环特性，消费者序列可能在[cursor - bufferSize, cursor]范围内
+        long approximateConsumerSequence = cursor - occupiedSlots;
+        
+        return String.format("队列容量：%d，已占用：%d，剩余容量：%d，游标位置：%d，消费者近似序列：%d", 
+                           bufferSize, occupiedSlots, remainingCapacity, cursor, approximateConsumerSequence);
+    }
+
+    /**
      * 关闭队列
      */
     @Override
@@ -259,100 +315,252 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         if (!started) {
             return;
         }
-        disruptor.shutdown();
-        started = false;
+
+        logger.info("开始关闭队列，强制处理所有剩余事件");
+
+        try {
+            // 首先强制处理BatchEventHandler缓冲区中的事件
+            logger.info("步骤1: 强制处理BatchEventHandler缓冲区");
+            batchEventHandler.forceFlushBuffer();
+
+            // 关闭Disruptor停止事件处理，避免并发冲突
+            logger.info("步骤2: 关闭Disruptor停止新事件处理");
+            disruptor.shutdown();
+
+            // 等待Disruptor完全关闭
+            Thread.sleep(100);
+
+            // 然后直接处理环形缓冲区中所有剩余的事件
+            logger.info("步骤3: 处理环形缓冲区中的剩余事件");
+            forceProcessAllRemainingEvents();
+
+        } catch (Exception e) {
+            logger.error("关闭队列时发生错误: {}", e.getMessage(), e);
+        } finally {
+            flushRequested.set(false);
+            started = false;
+            logger.info("队列关闭完成");
+        }
+    }
+
+    /**
+     * 强制处理所有剩余事件
+     * 在shutdown时直接从环形缓冲区读取所有未处理的事件并立即上传
+     */
+    private void forceProcessAllRemainingEvents() {
+        try {
+            // 获取当前可读取的序列范围
+            long cursor = ringBuffer.getCursor();
+            long nextSequence = ringBuffer.getMinimumGatingSequence() + 1;
+
+            logger.info("强制处理剩余事件 - cursor: {}, nextSequence: {}", cursor, nextSequence);
+
+            if (nextSequence <= cursor) {
+                java.util.List<LogEvent> remainingEvents = new java.util.ArrayList<>();
+
+                // 收集所有剩余事件
+                for (long seq = nextSequence; seq <= cursor; seq++) {
+                    try {
+                        LogEventHolder holder = ringBuffer.get(seq);
+                        if (holder != null && holder.payload != null) {
+                            remainingEvents.add(new LogEvent(holder.payload, holder.timestampMs));
+                            logger.debug("收集到剩余事件，序列: {}, 数据长度: {}", seq, holder.payload.length);
+                        }
+                    } catch (Exception e) {
+                        logger.warn("处理剩余事件时出错，序列: {}, 错误: {}", seq, e.getMessage());
+                    }
+                }
+
+                // 如果有剩余事件，立即处理（无论数量多少）
+                if (!remainingEvents.isEmpty()) {
+                    logger.info("🔄 发现 {} 个环形缓冲区剩余事件，强制上传 (shutdown模式，忽略触发条件)", remainingEvents.size());
+                    processRemainingEvents(remainingEvents);
+                } else {
+                    logger.info("环形缓冲区中没有发现剩余事件");
+                }
+            } else {
+                logger.info("环形缓冲区为空，无需处理剩余事件");
+            }
+        } catch (Exception e) {
+            logger.error("强制处理剩余事件时发生错误: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 处理剩余事件列表
+     */
+    private void processRemainingEvents(java.util.List<LogEvent> events) {
+        try {
+            // 构建批处理数据
+            StringBuilder batch = new StringBuilder();
+            int totalBytes = 0;
+
+            for (LogEvent event : events) {
+                if (event.payload != null) {
+                    batch.append(new String(event.payload, "UTF-8")).append("\n");
+                    totalBytes += event.payload.length;
+                }
+            }
+
+            if (batch.length() > 0) {
+                byte[] batchData = batch.toString().getBytes("UTF-8");
+
+                // 压缩数据（如果需要）
+                byte[] finalData = batchData;
+                boolean compressed = false;
+                if (config.enableCompression && batchData.length > 1024) {
+                    finalData = compressData(batchData);
+                    compressed = true;
+                }
+
+                logger.info("强制上传剩余日志批次 - 消息数: {}, 原始大小: {} bytes, 压缩: {}, 最终大小: {} bytes",
+                           events.size(), totalBytes, compressed, finalData.length);
+
+                // 直接调用批处理消费者处理
+                logger.info("开始上传强制刷新的日志批次...");
+                boolean success = consumer.processBatch(finalData, totalBytes, compressed, events.size());
+
+                if (success) {
+                    logger.info("✅ 剩余日志批次上传成功 - 消息数: {}, 字节数: {}", events.size(), totalBytes);
+                    // 更新统计信息
+                    totalBatchesProcessed.incrementAndGet();
+                    totalMessagesProcessed.addAndGet(events.size());
+                    totalBytesProcessed.addAndGet(totalBytes);
+                } else {
+                    logger.error("❌ 剩余日志批次上传失败 - 消息数: {}, 字节数: {}", events.size(), totalBytes);
+                }
+            }
+        } catch (Exception e) {
+            logger.error("处理剩余事件时发生错误: {}", e.getMessage(), e);
+        }
+    }
+
+    /**
+     * 请求强制刷新缓冲区，确保关闭前处理所有剩余事件。
+     */
+    private void requestForceFlush() {
+        flushRequested.set(true);
+        publishFlushSignal();
+    }
+
+    /**
+     * 发布一个空事件用于唤醒消费者线程以执行强制刷新。
+     */
+    private void publishFlushSignal() {
+        long seq = ringBuffer.next();
+        try {
+            LogEventHolder slot = ringBuffer.get(seq);
+            slot.set(null, System.currentTimeMillis());
+        } finally {
+            ringBuffer.publish(seq);
+        }
     }
 
     /**
      * 批处理事件处理器
+     * 重新设计：将 Disruptor 批处理与应用层批处理逻辑分离
      */
     private class BatchEventHandler implements EventHandler<LogEventHolder> {
-        private final List<LogEvent> buffer;
-        private int bytes = 0;
-        private long oldestMessageTime = 0L;
+        // 使用循环缓冲区来存储批处理事件
+        private LogEvent[] eventBuffer;
+        private int bufferHead = 0;
+        private int bufferTail = 0;
+        private int bufferCount = 0;
+        private int totalBytes = 0;
+        private long oldestTimestamp = 0L;
 
         BatchEventHandler() {
-            this.buffer = new ArrayList<>(config.batchMaxMessages);
+            // 初始化事件缓冲区
+            eventBuffer = new LogEvent[config.batchMaxMessages];
         }
+
+        // 移除 BatchStartAware 接口，不再重置应用层状态
+        // onBatchStart 方法已删除，避免与应用层批处理逻辑冲突
 
         @Override
         public void onEvent(LogEventHolder ev, long sequence, boolean endOfBatch) {
-            if (ev.payload != null) {
-                if (buffer.isEmpty()) {
-                    oldestMessageTime = ev.timestampMs;
-                }
-
-                int size = ev.payload.length;
-
-                // 预检查：如果添加这条消息会超过阈值，先触发批处理
-                boolean willExceedCount = buffer.size() + 1 > config.batchMaxMessages;
-                boolean willExceedBytes = bytes + size > config.batchMaxBytes;
-
-                if (willExceedCount || willExceedBytes) {
-                    if (!buffer.isEmpty()) {
-                        logger.debug("触发预检查批处理: willExceedCount={}, willExceedBytes={}, buffer.size={}, bytes={}", 
-                            willExceedCount, willExceedBytes, buffer.size(), bytes);
-                        processBatch();
-                        
-                        // 重置状态
-                        if (buffer.isEmpty()) {
-                            oldestMessageTime = ev.timestampMs;
-                        }
-                    }
-                }
-
-                buffer.add(new LogEvent(ev.payload, ev.timestampMs));
-                bytes += size;
-                ev.clear();
-                
-                // 添加消息添加后的状态日志
-                logger.debug("添加消息后状态: buffer.size={}, bytes={}, oldestMessageTime={}", 
-                           buffer.size(), bytes, oldestMessageTime);
+            // 检查事件是否为null
+            if (ev == null) {
+                return;
             }
 
-            // 事件驱动触发检查：在新消息到达或批次结束时检查三个触发条件
-            // 条件1：消息数量达到maxBatchCount
-            // 条件2：总字节数达到maxBatchBytes
-            // 条件3：最老消息年龄超过maxMessageAgeMs
-            // 注意：此处是被动检查，仅在有新消息到达时触发，无主动定时器线程
-            long now = System.currentTimeMillis();
-            boolean messageAgeExceeded = !buffer.isEmpty() &&
-                    (now - oldestMessageTime) >= config.maxMessageAgeMs;
-            
-            // 添加详细的调试日志
-            if (logger.isDebugEnabled() && !buffer.isEmpty()) {
-                logger.debug("触发条件检查: endOfBatch={}, messageAgeExceeded={} (now={}, oldestTime={}, age={}, threshold={}), " +
-                           "messageCount={} (threshold={}), bytes={} (threshold={})", 
-                           endOfBatch, messageAgeExceeded, now, oldestMessageTime, (now - oldestMessageTime), config.maxMessageAgeMs,
-                           buffer.size(), config.batchMaxMessages, bytes, config.batchMaxBytes);
-            }
-
-            // 检查是否满足任何触发条件
-            boolean countThresholdMet = buffer.size() >= config.batchMaxMessages;
-            boolean bytesThresholdMet = bytes >= config.batchMaxBytes;
-            
-            if (endOfBatch || messageAgeExceeded || countThresholdMet || bytesThresholdMet) {
-                if (!buffer.isEmpty()) {
-                    logger.debug("触发批处理: endOfBatch={}, messageAgeExceeded={}, countThresholdMet={}, bytesThresholdMet={}, messageCount={}, bytes={}", 
-                        endOfBatch, messageAgeExceeded, countThresholdMet, bytesThresholdMet, buffer.size(), bytes);
+            // 处理强制刷新信号（payload为null表示刷新信号）
+            if (ev.payload == null) {
+                if (flushRequested.get() && bufferCount > 0) {
+                    logger.debug("收到强制刷新信号，剩余消息数: {}", bufferCount);
                     processBatch();
+                    clearBuffer();
+                    flushRequested.set(false);
                 }
-            } else if (!buffer.isEmpty()) {
-                // 添加未触发批处理的原因日志
-                logger.debug("未触发批处理，当前状态: messageAge={}ms (threshold={}ms), messageCount={} (threshold={}), bytes={} (threshold={})", 
-                           (now - oldestMessageTime), config.maxMessageAgeMs, buffer.size(), config.batchMaxMessages, bytes, config.batchMaxBytes);
+                if (flushRequested.get() && bufferCount == 0) {
+                    flushRequested.set(false);
+                }
+                ev.clear();
+                return;
+            }
+
+            // 添加事件到应用层批处理缓冲区
+            LogEvent event = new LogEvent(ev.payload, ev.timestampMs);
+            eventBuffer[bufferTail] = event;
+            bufferTail = (bufferTail + 1) % eventBuffer.length;
+            bufferCount++;
+
+            // 设置最老消息时间戳（仅在第一条消息时）
+            if (bufferCount == 1) {
+                oldestTimestamp = event.timestampMs;
+            }
+            totalBytes += event.payload.length;
+
+            logger.debug("添加事件到应用层缓冲区 - bufferCount: {}, totalBytes: {}, 最老消息: {}ms前",
+                       bufferCount, totalBytes,
+                       bufferCount > 0 ? (System.currentTimeMillis() - oldestTimestamp) : 0);
+
+            ev.clear();
+
+            // 检查应用层批处理触发条件
+            boolean shouldTrigger = false;
+            String triggerReason = "";
+
+            // 条件1：消息数量阈值
+            if (bufferCount >= config.batchMaxMessages) {
+                shouldTrigger = true;
+                triggerReason = "消息数量达到阈值: " + bufferCount + " >= " + config.batchMaxMessages;
+            }
+
+            // 条件2：字节数阈值
+            if (!shouldTrigger && totalBytes >= config.batchMaxBytes) {
+                shouldTrigger = true;
+                triggerReason = "字节数达到阈值: " + totalBytes + " >= " + config.batchMaxBytes;
+            }
+
+            // 条件3：消息年龄阈值
+            if (!shouldTrigger && bufferCount > 0) {
+                long currentTime = System.currentTimeMillis();
+                long age = currentTime - oldestTimestamp;
+                if (age >= config.maxMessageAgeMs) {
+                    shouldTrigger = true;
+                    triggerReason = "消息年龄超时: " + age + "ms >= " + config.maxMessageAgeMs + "ms";
+                }
+            }
+
+            // 触发应用层批处理
+            if (shouldTrigger && bufferCount > 0) {
+                logger.info("🚀 触发应用层批处理上传 - {}", triggerReason);
+                processBatch();
+                clearBuffer();
             }
         }
 
         private void processBatch() {
             try {
-                byte[] serializedData = serializeToPatternFormat(buffer);
+                // 序列化批处理数据
+                byte[] serializedData = serializeToPatternFormat(eventBuffer, bufferHead, bufferCount);
                 int originalSize = serializedData.length;
 
-                boolean shouldCompress = config.enableCompression &&
-                        serializedData.length >= config.compressionThreshold;
-
+                // 如果启用了压缩，则对所有数据都进行压缩，不再检查压缩阈值
+                boolean shouldCompress = config.enableCompression;
                 byte[] finalData = serializedData;
+                
                 if (shouldCompress) {
                     finalData = compressData(serializedData);
                     totalBytesCompressed.addAndGet(finalData.length);
@@ -363,21 +571,58 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 if (config.enableSharding && originalSize > config.getShardingThreshold()) {
                     success = processSharding(serializedData);
                 } else {
-                    success = consumer.processBatch(finalData, originalSize, shouldCompress, buffer.size());
+                    success = consumer.processBatch(finalData, originalSize, shouldCompress, bufferCount);
                 }
 
                 if (success) {
                     totalBatchesProcessed.incrementAndGet();
-                    totalMessagesProcessed.addAndGet(buffer.size());
+                    totalMessagesProcessed.addAndGet(bufferCount);
                     totalBytesProcessed.addAndGet(originalSize);
                 }
 
             } catch (Exception e) {
                 logger.error("批处理失败: {}", e.getMessage(), e);
-            } finally {
-                buffer.clear();
-                bytes = 0;
-                oldestMessageTime = 0L;
+            }
+        }
+
+        private void clearBuffer() {
+            // 清空缓冲区中的事件引用
+            for (int i = 0; i < bufferCount; i++) {
+                int index = (bufferHead + i) % eventBuffer.length;
+                eventBuffer[index] = null;
+            }
+
+            // 重置缓冲区状态
+            bufferHead = 0;
+            bufferTail = 0;
+            bufferCount = 0;
+            totalBytes = 0;
+            oldestTimestamp = 0L;
+        }
+
+        /**
+         * 强制处理缓冲区中的所有剩余事件（用于shutdown）
+         * 无论数量多少，都会强制上传，不受触发条件限制
+         */
+        public void forceFlushBuffer() {
+            logger.info("开始强制刷新BatchEventHandler缓冲区 - 当前缓存事件数: {}, 总字节数: {}, 最老消息时间: {}",
+                       bufferCount, totalBytes, oldestTimestamp > 0 ? (System.currentTimeMillis() - oldestTimestamp) + "ms前" : "无");
+
+            if (bufferCount > 0) {
+                logger.info("🔄 强制处理BatchEventHandler缓冲区中的 {} 个事件 (shutdown模式，忽略触发条件)", bufferCount);
+
+                try {
+                    // 直接调用processBatch，不检查触发条件
+                    processBatch();
+                    logger.info("✅ BatchEventHandler缓冲区强制刷新完成");
+                } catch (Exception e) {
+                    logger.error("❌ BatchEventHandler缓冲区强制刷新失败: {}", e.getMessage(), e);
+                }
+
+                // 清空缓冲区
+                clearBuffer();
+            } else {
+                logger.info("BatchEventHandler缓冲区为空，无需处理");
             }
         }
     }
@@ -387,10 +632,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
      * 使用友好的日志格式替代NDJSON格式
      * 正确处理二进制数据，避免UTF-8转换导致的数据损坏
      */
-    private byte[] serializeToPatternFormat(List<LogEvent> events) {
+    private byte[] serializeToPatternFormat(LogEvent[] events, int head, int count) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
-            for (LogEvent event : events) {
+            for (int i = 0; i < count; i++) {
+                int index = (head + i) % events.length;
+                LogEvent event = events[index];
                 // 直接处理字节数组，避免不必要的字符编码转换
                 // 如果需要添加换行符，直接在字节数组层面处理
                 byte[] payload = event.payload;
@@ -411,7 +658,9 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             // 如果出现IO异常，回退到原来的实现
             logger.warn("序列化过程中出现IO异常，使用回退实现: {}", e.getMessage());
             StringBuilder sb = new StringBuilder();
-            for (LogEvent event : events) {
+            for (int i = 0; i < count; i++) {
+                int index = (head + i) % events.length;
+                LogEvent event = events[index];
                 String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
                 
                 if (!logLine.endsWith("\n")) {
@@ -482,12 +731,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         private int batchMaxMessages = CommonConfig.Defaults.MAX_BATCH_COUNT;
         private int batchMaxBytes = CommonConfig.Defaults.MAX_BATCH_BYTES;
         private long maxMessageAgeMs = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
-        private boolean blockOnFull = false;
+        private boolean blockOnFull = !CommonConfig.Defaults.DROP_WHEN_QUEUE_FULL;
         private boolean multiProducer = true;
         private boolean enableCompression = CommonConfig.Defaults.ENABLE_COMPRESSION;
-        private int compressionThreshold = CommonConfig.Defaults.COMPRESSION_THRESHOLD;
         private boolean enableSharding = CommonConfig.Defaults.ENABLE_SHARDING;
         private int maxUploadSizeMb = CommonConfig.Defaults.MAX_UPLOAD_SIZE_MB;
+        private int consumerThreadCount = CommonConfig.Defaults.CONSUMER_THREAD_COUNT;
 
         public static Config defaultConfig() {
             return new Config();
@@ -532,11 +781,6 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return this;
         }
 
-        public Config compressionThreshold(int compressionThreshold) {
-            this.compressionThreshold = compressionThreshold;
-            return this;
-        }
-
         public Config enableSharding(boolean enableSharding) {
             this.enableSharding = enableSharding;
             return this;
@@ -544,6 +788,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
 
         public Config maxUploadSizeMb(int maxUploadSizeMb) {
             this.maxUploadSizeMb = maxUploadSizeMb;
+            return this;
+        }
+
+        public Config consumerThreadCount(int consumerThreadCount) {
+            logger.debug("设置consumerThreadCount: {}", consumerThreadCount);
+            this.consumerThreadCount = Math.max(1, Math.min(16, consumerThreadCount));
             return this;
         }
 
@@ -575,16 +825,16 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return enableCompression;
         }
 
-        public int getCompressionThreshold() {
-            return compressionThreshold;
-        }
-
         public boolean isEnableSharding() {
             return enableSharding;
         }
 
         public int getMaxUploadSizeMb() {
             return maxUploadSizeMb;
+        }
+
+        public int getConsumerThreadCount() {
+            return consumerThreadCount;
         }
 
         /**
@@ -678,8 +928,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         @Override
         public String toString() {
             return String.format(
-                    "BatchMetrics{batches=%d, messages=%d, bytes=%d, compressed=%d, "
-                            + "savings=%d (%.1f%%), currentBatchSize=%d, shards=%d}",
+                    "BatchMetrics{batches=%d, messages=%d, bytes=%d, compressed=%d, " +
+                            "savings=%d (%.1f%%), currentBatchSize=%d, shards=%d}",
                     totalBatchesProcessed, totalMessagesProcessed, totalBytesProcessed,
                     totalBytesCompressed, totalCompressionSavings,
                     getCompressionRatio() * 100, currentBatchSize, totalShardsCreated);

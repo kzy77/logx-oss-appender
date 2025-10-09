@@ -9,6 +9,16 @@
         </layout>
     </appender>
 
+    <!-- 文件输出 -->
+    <appender name="file" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="logs/application.log"/>
+        <param name="MaxFileSize" value="100MB"/>
+        <param name="MaxBackupIndex" value="30"/>
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+
     <!-- OSS Appender配置（使用环境变量，支持MinIO/S3/OSS） -->
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
         <!-- 存储配置（使用环境变量，支持MinIO/S3/OSS） -->
@@ -25,8 +35,9 @@
 
     <!-- 根日志配置 -->
     <root>
-        <priority value="info"/>
+        <priority value="debug"/>
         <appender-ref ref="console"/>
+        <appender-ref ref="file"/>
         <appender-ref ref="oss"/>
     </root>
 

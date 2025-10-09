@@ -121,10 +121,18 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
                 throw new IllegalStateException("S3 client has been closed");
             }
             
+            // 设置正确的Content-Type
+            String contentType = "text/plain; charset=utf-8";
+            // 如果数据是gzip压缩的，设置相应的Content-Type
+            if (data.length > 2 && data[0] == (byte) 0x1f && data[1] == (byte) 0x8b) {
+                contentType = "application/gzip";
+            }
+            
             PutObjectRequest putRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fullKey)
                     .contentLength((long) data.length)
+                    .contentType(contentType)
                     .build();
 
             RequestBody requestBody = RequestBody.fromBytes(data);

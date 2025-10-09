@@ -72,7 +72,15 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
             try {
-                logxSfOssClient.putObject(bucketName, fullKey, data);
+                // 设置Content-Type参数
+                String contentType = "text/plain; charset=utf-8";
+                // 如果数据是gzip压缩的，设置相应的Content-Type
+                if (data.length > 2 && data[0] == (byte) 0x1f && data[1] == (byte) 0x8b) {
+                    contentType = "application/gzip";
+                }
+                
+                // 注意：这里需要修改LogxSfOssClient的putObject方法以支持contentType参数
+                logxSfOssClient.putObject(bucketName, fullKey, data, contentType);
             } catch (Exception e) {
                 // 直接抛出异常，由核心层处理重试和错误处理
                 throw new RuntimeException("Failed to upload object to SF OSS: " + e.getMessage(), e);

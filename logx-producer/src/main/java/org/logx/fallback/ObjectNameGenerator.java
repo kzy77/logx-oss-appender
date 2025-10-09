@@ -22,9 +22,9 @@ public class ObjectNameGenerator {
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
     private static final String UNKNOWN_HOST = "unknown-host";
-    private static final String DEFAULT_SUFFIX = ".log";
-    private static final String FALLBACK_SUFFIX = "_fallback.log";
-    private static final String RETRIED_SUFFIX = "_retried.log";
+    private static final String DEFAULT_SUFFIX = ".log.gz";
+    private static final String FALLBACK_SUFFIX = "_fallback.log.gz";
+    private static final String RETRIED_SUFFIX = "_retried.log.gz";
     
     private final String fileName;
     private final String localIP;

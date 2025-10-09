@@ -33,7 +33,7 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
     private static final Logger logger = LoggerFactory.getLogger(ResourceProtectedThreadPool.class);
 
     // 默认配置
-    private static final int DEFAULT_CORE_POOL_SIZE = 2;
+    private static final int DEFAULT_CORE_POOL_SIZE = 4;
     private static final int DEFAULT_MAXIMUM_POOL_SIZE = 4;
     private static final long DEFAULT_KEEP_ALIVE_TIME = 60L;
     private static final int DEFAULT_QUEUE_CAPACITY = 1000;

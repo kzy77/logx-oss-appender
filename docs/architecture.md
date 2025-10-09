@@ -152,7 +152,7 @@ public interface StorageService extends StorageInterface {
 #### ThreadPoolManager
 ```java
 // 资源保护的线程管理
-- 固定线程池: 默认2个线程，可配置
+- 固定线程池: 默认1个线程，可配置
 - 低优先级: Thread.MIN_PRIORITY
 - CPU让出: CPU繁忙时主动yield
 - 优雅关闭: 配合shutdown hook

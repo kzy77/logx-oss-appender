@@ -27,13 +27,13 @@ public class AsyncEngineConfig {
     // Disruptor环形缓冲大小（默认：65536）
     private int queueCapacity = CommonConfig.Defaults.QUEUE_CAPACITY;
 
-    // 批处理最大消息数（默认：4096条）
+    // 批处理最大消息数（默认：8192条）
     private int batchMaxMessages = CommonConfig.Defaults.MAX_BATCH_COUNT;
 
     // 批处理最大字节数（默认：10MB）
     private int batchMaxBytes = CommonConfig.Defaults.MAX_BATCH_BYTES;
 
-    // 最早消息最大年龄（默认：10分钟）
+    // 最早消息最大年龄（默认：1分钟）
     private long maxMessageAgeMs = CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
 
     // 队列满时是否阻塞（默认：false，即阻塞等待）
@@ -78,6 +78,26 @@ public class AsyncEngineConfig {
     // 兜底文件扫描间隔（默认：60秒）
     private int fallbackScanIntervalSeconds = CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS;
     
+    // 紧急保护阈值：内存占用上限（默认：512MB）
+    private int emergencyMemoryThresholdMb = CommonConfig.Defaults.EMERGENCY_MEMORY_THRESHOLD_MB;
+
+    // ==================== 性能优化配置 ====================
+
+    // 并行上传线程数（默认：2）
+    private int parallelUploadThreads = 2;
+
+    // 是否启用动态批处理大小调整（默认：true）
+    private boolean enableDynamicBatching = true;
+
+    // 队列压力监控间隔（毫秒）（默认：1000ms）
+    private long queuePressureMonitorIntervalMs = 1000;
+
+    // 高压力阈值（队列使用率百分比）（默认：80%）
+    private double highPressureThreshold = 0.8;
+
+    // 低压力阈值（队列使用率百分比）（默认：30%）
+    private double lowPressureThreshold = 0.3;
+
     // 默认配置实例
     public static AsyncEngineConfig defaultConfig() {
         return new AsyncEngineConfig();
@@ -225,6 +245,62 @@ public class AsyncEngineConfig {
     
     public AsyncEngineConfig fallbackScanIntervalSeconds(int fallbackScanIntervalSeconds) {
         this.fallbackScanIntervalSeconds = fallbackScanIntervalSeconds;
+        return this;
+    }
+    
+    public int getEmergencyMemoryThresholdMb() {
+        return emergencyMemoryThresholdMb;
+    }
+    
+    public AsyncEngineConfig emergencyMemoryThresholdMb(int emergencyMemoryThresholdMb) {
+        this.emergencyMemoryThresholdMb = emergencyMemoryThresholdMb;
+        return this;
+    }
+
+    // ==================== 性能优化配置的getter/setter ====================
+
+    public int getParallelUploadThreads() {
+        return parallelUploadThreads;
+    }
+
+    public AsyncEngineConfig parallelUploadThreads(int parallelUploadThreads) {
+        this.parallelUploadThreads = Math.max(1, parallelUploadThreads);
+        return this;
+    }
+
+    public boolean isEnableDynamicBatching() {
+        return enableDynamicBatching;
+    }
+
+    public AsyncEngineConfig enableDynamicBatching(boolean enableDynamicBatching) {
+        this.enableDynamicBatching = enableDynamicBatching;
+        return this;
+    }
+
+    public long getQueuePressureMonitorIntervalMs() {
+        return queuePressureMonitorIntervalMs;
+    }
+
+    public AsyncEngineConfig queuePressureMonitorIntervalMs(long queuePressureMonitorIntervalMs) {
+        this.queuePressureMonitorIntervalMs = Math.max(100, queuePressureMonitorIntervalMs);
+        return this;
+    }
+
+    public double getHighPressureThreshold() {
+        return highPressureThreshold;
+    }
+
+    public AsyncEngineConfig highPressureThreshold(double highPressureThreshold) {
+        this.highPressureThreshold = Math.max(0.1, Math.min(0.99, highPressureThreshold));
+        return this;
+    }
+
+    public double getLowPressureThreshold() {
+        return lowPressureThreshold;
+    }
+
+    public AsyncEngineConfig lowPressureThreshold(double lowPressureThreshold) {
+        this.lowPressureThreshold = Math.max(0.01, Math.min(0.9, lowPressureThreshold));
         return this;
     }
 }

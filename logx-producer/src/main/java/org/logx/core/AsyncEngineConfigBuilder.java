@@ -46,6 +46,7 @@ public class AsyncEngineConfigBuilder {
         config.enableMemoryProtection(configManager.getBooleanProperty(CONFIG_PREFIX + "memory.protection.enable", config.isEnableMemoryProtection()));
         config.maxShutdownWaitMs(configManager.getLongProperty(CONFIG_PREFIX + "shutdown.wait.ms", config.getMaxShutdownWaitMs()));
         config.logFileName(configManager.getProperty(CONFIG_PREFIX + "log.file.name", config.getLogFileName()));
+        config.emergencyMemoryThresholdMb(configManager.getIntProperty(CONFIG_PREFIX + "emergency.memory.threshold.mb", config.getEmergencyMemoryThresholdMb()));
         
         return config;
     }

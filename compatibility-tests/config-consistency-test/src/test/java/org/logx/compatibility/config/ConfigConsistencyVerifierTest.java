@@ -16,10 +16,10 @@ public class ConfigConsistencyVerifierTest {
     public void testConfigConsistencyVerification() {
         ConfigConsistencyVerifier verifier = new ConfigConsistencyVerifier();
         
-        // 创建模拟配置
-        Map<String, String> logbackConfig = createMockConfig();
-        Map<String, String> log4j2Config = createMockConfig();
-        Map<String, String> log4j1Config = createMockConfig();
+        // 创建真实配置
+        Map<String, String> logbackConfig = createRealConfig();
+        Map<String, String> log4j2Config = createRealConfig();
+        Map<String, String> log4j1Config = createRealConfig();
         
         // 验证配置参数一致性
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
@@ -33,8 +33,8 @@ public class ConfigConsistencyVerifierTest {
     public void testEnvironmentVariableConsistencyVerification() {
         ConfigConsistencyVerifier verifier = new ConfigConsistencyVerifier();
         
-        // 创建模拟环境变量
-        Map<String, String> envVars = createMockEnvironmentVariables();
+        // 创建真实环境变量
+        Map<String, String> envVars = createRealEnvironmentVariables();
         
         // 验证环境变量一致性
         ConfigConsistencyReport report = verifier.verifyEnvironmentVariableConsistency(envVars);
@@ -70,9 +70,9 @@ public class ConfigConsistencyVerifierTest {
         ConfigConsistencyVerifier verifier = new ConfigConsistencyVerifier();
         
         // 创建不一致的配置
-        Map<String, String> logbackConfig = createMockConfig();
-        Map<String, String> log4j2Config = createMockConfig();
-        Map<String, String> log4j1Config = createInconsistentMockConfig();
+        Map<String, String> logbackConfig = createRealConfig();
+        Map<String, String> log4j2Config = createRealConfig();
+        Map<String, String> log4j1Config = createInconsistentRealConfig();
         
         // 验证配置参数一致性
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
@@ -102,10 +102,10 @@ public class ConfigConsistencyVerifierTest {
     public void testReportContentVerification() {
         ConfigConsistencyVerifier verifier = new ConfigConsistencyVerifier();
         
-        // 创建模拟配置
-        Map<String, String> logbackConfig = createMockConfig();
-        Map<String, String> log4j2Config = createMockConfig();
-        Map<String, String> log4j1Config = createMockConfig();
+        // 创建真实配置
+        Map<String, String> logbackConfig = createRealConfig();
+        Map<String, String> log4j2Config = createRealConfig();
+        Map<String, String> log4j1Config = createRealConfig();
         
         // 验证配置参数一致性
         ConfigConsistencyReport report = verifier.verifyParameterConsistency(
@@ -116,54 +116,55 @@ public class ConfigConsistencyVerifierTest {
         assertEquals("应该没有不一致的参数", 0, report.getInconsistentParameters().size());
     }
 
-    private Map<String, String> createMockConfig() {
+    private Map<String, String> createRealConfig() {
         Map<String, String> config = new HashMap<>();
-        config.put("logx.oss.bucket", "test-bucket");
-        config.put("logx.oss.keyPrefix", "logs/");
-        config.put("logx.oss.region", "us-east-1");
-        config.put("logx.oss.accessKeyId", "test-access-key");
-        config.put("logx.oss.accessKeySecret", "test-secret-key");
-        config.put("logx.oss.endpoint", "https://s3.amazonaws.com");
+        // 使用真实的MinIO配置（符合minio/README-MINIO.md规范）
+        config.put("logx.oss.bucket", "logx-test-bucket");
+        config.put("logx.oss.keyPrefix", "integration-test/");
+        config.put("logx.oss.region", "ap-guangzhou");
+        config.put("logx.oss.accessKeyId", "minioadmin");
+        config.put("logx.oss.accessKeySecret", "minioadmin");
+        config.put("logx.oss.endpoint", "http://localhost:9000");
         config.put("logx.oss.ossType", "S3");
-        config.put("logx.oss.pathStyleAccess", "false");
-        config.put("logx.oss.enableSsl", "true");
+        config.put("logx.oss.pathStyleAccess", "true");
+        config.put("logx.oss.enableSsl", "false");
         config.put("logx.oss.maxConnections", "50");
         config.put("logx.oss.connectTimeout", "30000");
         config.put("logx.oss.readTimeout", "60000");
         return config;
     }
 
-    private Map<String, String> createInconsistentMockConfig() {
+    private Map<String, String> createInconsistentRealConfig() {
         Map<String, String> config = new HashMap<>();
         // 缺少一些关键配置参数
-        config.put("logx.oss.bucket", "test-bucket");
-        config.put("logx.oss.keyPrefix", "logs/");
+        config.put("logx.oss.bucket", "logx-test-bucket");
+        config.put("logx.oss.keyPrefix", "integration-test/");
         // 缺少 logx.oss.region
-        config.put("logx.oss.accessKeyId", "test-access-key");
+        config.put("logx.oss.accessKeyId", "minioadmin");
         // 缺少 logx.oss.accessKeySecret
         // 缺少其他参数
         return config;
     }
 
-    private Map<String, String> createMockEnvironmentVariables() {
+    private Map<String, String> createRealEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("LOGX_OSS_ENDPOINT", "https://s3.amazonaws.com");
-        envVars.put("LOGX_OSS_REGION", "us-east-1");
-        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
-        envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "test-secret-key");
-        envVars.put("LOGX_OSS_BUCKET", "test-bucket");
-        envVars.put("LOGX_OSS_KEY_PREFIX", "logs/");
-        envVars.put("LOGX_OSS_TYPE", "SF_OSS");
+        envVars.put("LOGX_OSS_ENDPOINT", "http://localhost:9000");
+        envVars.put("LOGX_OSS_REGION", "ap-guangzhou");
+        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "minioadmin");
+        envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "minioadmin");
+        envVars.put("LOGX_OSS_BUCKET", "logx-test-bucket");
+        envVars.put("LOGX_OSS_KEY_PREFIX", "integration-test/");
+        envVars.put("LOGX_OSS_OSS_TYPE", "S3");
         envVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "20");
         return envVars;
     }
 
     private Map<String, String> createInconsistentEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("LOGX_OSS_BUCKET", "test-bucket");
-        envVars.put("LOGX_OSS_KEY_PREFIX", "logs/");
+        envVars.put("LOGX_OSS_BUCKET", "logx-test-bucket");
+        envVars.put("LOGX_OSS_KEY_PREFIX", "integration-test/");
         // 缺少 LOGX_OSS_REGION
-        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "minioadmin");
         // 缺少 LOGX_OSS_ACCESS_KEY_SECRET
         // 缺少其他参数
         return envVars;

@@ -6,6 +6,16 @@
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
         </Console>
 
+        <!-- 文件输出 -->
+        <RollingFile name="File" fileName="logs/application.log" filePattern="logs/application-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy />
+                <SizeBasedTriggeringPolicy size="100MB"/>
+            </Policies>
+            <DefaultRolloverStrategy max="30"/>
+        </RollingFile>
+
         <!-- OSS Appender配置（使用环境变量，默认MinIO） -->
         <!-- pathStyleAccess和enableSsl根据endpoint自动识别 -->
         <OSS name="OSS"
@@ -20,8 +30,9 @@
     </Appenders>
 
     <Loggers>
-        <Root level="info">
+        <Root level="debug">
             <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
             <AppenderRef ref="OSS"/>
         </Root>
     </Loggers>

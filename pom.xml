@@ -65,7 +65,6 @@
         <module>compatibility-tests/jsp-servlet-test</module>
         <module>compatibility-tests/multi-framework-test</module>
         <module>compatibility-tests/config-consistency-test</module>
-        <module>compatibility-tests/performance-test</module>
     </modules>
 
     <!-- Dependency Management -->

@@ -27,6 +27,7 @@
 | `fallbackPath` | String | "fallback" | 兜底文件存储路径，支持相对路径和绝对路径 |
 | `fallbackRetentionDays` | Integer | 7 | 兜底文件保留天数，超过此天数的文件将被自动清理 |
 | `fallbackScanIntervalSeconds` | Integer | 60 | 兜底文件扫描间隔（秒），定时任务检查和重传兜底文件的间隔 |
+| `emergencyMemoryThresholdMb` | Integer | 512 | 紧急保护阈值（MB），当队列内存占用超过此值时，直接将新消息写入兜底文件 |
 
 ### 配置参数详细说明
 
@@ -54,6 +55,14 @@
   - 值过小可能影响系统性能，值过大可能导致数据重传延迟
   - 建议根据网络状况和业务需求合理设置
 
+#### emergencyMemoryThresholdMb
+- **描述**: 指定紧急保护阈值（MB）
+- **默认值**: 512
+- **说明**: 
+  - 当队列内存占用超过此值时，直接将新消息写入兜底文件
+  - 此机制防止JVM OOM，是最后一道防线
+  - 建议根据应用可用内存和日志量合理设置
+
 ## 配置方式
 
 ### 1. 属性文件配置
@@ -65,6 +74,7 @@
 logx.oss.fallbackPath=fallback
 logx.oss.fallbackRetentionDays=7
 logx.oss.fallbackScanIntervalSeconds=60
+logx.oss.emergencyMemoryThresholdMb=512
 ```
 
 ### 2. 环境变量配置
@@ -73,6 +83,7 @@ logx.oss.fallbackScanIntervalSeconds=60
 export LOGX_OSS_FALLBACK_PATH="fallback"
 export LOGX_OSS_FALLBACK_RETENTION_DAYS="7"
 export LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS="60"
+export LOGX_OSS_EMERGENCY_MEMORY_THRESHOLD_MB="512"
 ```
 
 ### 3. JVM系统属性配置
@@ -81,6 +92,7 @@ export LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS="60"
 java -Dlogx.oss.fallbackPath=fallback \
      -Dlogx.oss.fallbackRetentionDays=7 \
      -Dlogx.oss.fallbackScanIntervalSeconds=60 \
+     -Dlogx.oss.emergencyMemoryThresholdMb=512 \
      -jar your-application.jar
 ```
 
@@ -101,7 +113,8 @@ public class LogbackConfigExample {
         AsyncEngineConfig config = AsyncEngineConfig.defaultConfig()
             .fallbackPath("my-fallback")  // 设置兜底路径
             .fallbackRetentionDays(14)    // 设置保留天数为14天
-            .fallbackScanIntervalSeconds(30); // 设置扫描间隔为30秒
+            .fallbackScanIntervalSeconds(30) // 设置扫描间隔为30秒
+            .emergencyMemoryThresholdMb(1024); // 设置紧急内存阈值为1024MB
         
         // 应用配置到logger
         // 注意：具体的配置应用方式取决于框架适配器的实现
@@ -122,6 +135,7 @@ logx.oss.bucket=your-bucket-name
 logx.oss.fallbackPath=fallback
 logx.oss.fallbackRetentionDays=7
 logx.oss.fallbackScanIntervalSeconds=60
+logx.oss.emergencyMemoryThresholdMb=512
 ```
 
 ### 示例2: 自定义路径和保留策略
@@ -135,6 +149,7 @@ logx.oss.bucket=your-bucket-name
 logx.oss.fallbackPath=/var/log/myapp/fallback
 logx.oss.fallbackRetentionDays=30
 logx.oss.fallbackScanIntervalSeconds=120
+logx.oss.emergencyMemoryThresholdMb=1024
 ```
 
 ### 示例3: 开发环境配置
@@ -148,6 +163,7 @@ logx.oss.bucket=your-bucket-name
 logx.oss.fallbackPath=temp/fallback
 logx.oss.fallbackRetentionDays=1
 logx.oss.fallbackScanIntervalSeconds=10
+logx.oss.emergencyMemoryThresholdMb=256
 ```
 
 ## 最佳实践
@@ -164,24 +180,32 @@ logx.oss.fallbackScanIntervalSeconds=10
 - **重要业务**: 建议设置为30天或更长
 - **存储受限**: 可适当减少天数，但不应少于3天
 
-### 3. 扫描间隔优化
+### 4. 扫描间隔优化
 
 - **网络稳定**: 可设置较长间隔（60-300秒）
 - **网络不稳定**: 建议设置较短间隔（30-60秒）
 - **性能敏感**: 避免设置过短间隔，以免影响系统性能
 
-### 4. 监控和告警
+### 5. 紧急内存保护阈值设置
+
+- **内存充足**: 可设置较大值（1024MB或更高）
+- **内存受限**: 建议设置较小值（256MB或更低）
+- **一般应用**: 建议使用默认值（512MB）
+
+### 6. 监控和告警
 
 建议监控以下指标：
 - 兜底文件数量和增长趋势
 - 重传成功率
 - 磁盘使用情况
 - 清理任务执行情况
+- 紧急内存保护触发次数
 
-### 5. 故障排查
+### 7. 故障排查
 
 当遇到兜底机制相关问题时，可检查：
 - 配置参数是否正确
 - 指定路径是否存在且具有读写权限
 - 磁盘空间是否充足
 - 网络连接是否正常
+- 紧急内存保护是否频繁触发

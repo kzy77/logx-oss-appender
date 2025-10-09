@@ -122,7 +122,7 @@ public final class CommonConfig {
      * <li>基于LMAX Disruptor的无锁队列，低延迟触发</li>
      * </ul>
      * <p>
-     * 可选参数，默认：10分钟（600000毫秒）
+     * 可选参数，默认：1分钟（60000毫秒）
      */
     public static final String MAX_MESSAGE_AGE_MS = "maxMessageAgeMs";
 
@@ -193,8 +193,7 @@ public final class CommonConfig {
     /** 是否启用数据压缩 */
     public static final String ENABLE_COMPRESSION = "enableCompression";
 
-    /** 压缩阈值（字节） */
-    public static final String COMPRESSION_THRESHOLD = "compressionThreshold";
+    
 
     // ==================== 分片配置（2个）====================
 
@@ -287,10 +286,10 @@ public final class CommonConfig {
         /**
          * Disruptor环形缓冲大小
          * <p>
-         * 默认65536，必须是2的幂。此值决定队列的最大容量。
-         * 建议范围：8192-131072
+         * 默认524288，必须是2的幂。此值决定队列的最大容量。
+         * 建议范围：8192-1048576
          */
-        public static final int QUEUE_CAPACITY = 65536;
+        public static final int QUEUE_CAPACITY = 524288;
 
         /**
          * 队列满时是否丢弃新消息
@@ -313,10 +312,10 @@ public final class CommonConfig {
         /**
          * 触发条件1：消息数量阈值
          * <p>
-         * 当队列中消息数量达到4096条时触发上传（约为队列容量的一半）
+         * 当队列中消息数量达到8192条时触发上传
          * 建议范围：100-50000
          */
-        public static final int MAX_BATCH_COUNT = 4096;
+        public static final int MAX_BATCH_COUNT = 8192;
 
         /**
          * 触发条件2：内存占用阈值
@@ -339,10 +338,10 @@ public final class CommonConfig {
          * <li>基于LMAX Disruptor的无锁队列，低延迟触发</li>
          * </ul>
          * <p>
-         * 默认：600000毫秒 (10分钟)
+         * 默认：60000毫秒 (1分钟)
          * 建议范围：1秒-30分钟
          */
-        public static final long MAX_MESSAGE_AGE_MS = 600000L;
+        public static final long MAX_MESSAGE_AGE_MS = 60000L;
 
         // ==================== 紧急保护配置 ====================
 
@@ -362,19 +361,19 @@ public final class CommonConfig {
          * 线程池核心线程数
          * <p>
          * 用于异步处理日志上传任务
-         * 默认：2
+         * 默认：1
          * 建议范围：1-8
          */
-        public static final int CORE_POOL_SIZE = 2;
+        public static final int CORE_POOL_SIZE = 1;
 
         /**
          * 线程池最大线程数
          * <p>
          * 当核心线程忙碌时，可以创建的最大线程数
-         * 默认：4
+         * 默认：1
          * 建议范围：2-16
          */
-        public static final int MAXIMUM_POOL_SIZE = 4;
+        public static final int MAXIMUM_POOL_SIZE = 1;
 
         /**
          * 线程池队列容量
@@ -400,6 +399,24 @@ public final class CommonConfig {
          */
         public static final boolean ENABLE_MEMORY_PROTECTION = true;
 
+        /**
+         * 消费者线程数
+         * <p>
+         * 用于并行处理日志批次的线程数
+         * 默认：1
+         * 建议范围：1-16
+         */
+        public static final int CONSUMER_THREAD_COUNT = 1;
+
+        /**
+         * 批处理队列容量
+         * <p>
+         * 用于存储批处理事件的队列容量
+         * 默认：1024
+         * 建议范围：128-65536
+         */
+        public static final int BATCH_QUEUE_CAPACITY = 1024;
+
         // ==================== 压缩配置 ====================
 
         /**
@@ -410,14 +427,7 @@ public final class CommonConfig {
          */
         public static final boolean ENABLE_COMPRESSION = true;
 
-        /**
-         * 压缩阈值
-         * <p>
-         * 数据大小超过此值才启用压缩（避免小数据压缩反而增大）
-         * 默认：1024字节 (1KB)
-         * 建议范围：512字节-10KB
-         */
-        public static final int COMPRESSION_THRESHOLD = 1024;
+        
 
         // ==================== 分片配置 ====================
 
@@ -480,17 +490,17 @@ public final class CommonConfig {
          * 最大关闭等待时间
          * <p>
          * JVM关闭时等待队列处理完成的最长时间
-         * 默认：1000毫秒 (1秒)
+         * 默认：30000毫秒 (30秒)
          * 建议范围：500ms-30000ms
          */
-        public static final long MAX_SHUTDOWN_WAIT_MS = 1000L;
+        public static final long MAX_SHUTDOWN_WAIT_MS = 30000L;
 
         // ==================== 日志格式配置 ====================
 
         /**
          * 日志格式模板
          * <p>
-         * 使用UTF-8编码避免乱码，避免使用ISO8601格式
+         * 使用UTF-8编码避免乱码
          */
         public static final String PATTERN = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n";
 
@@ -536,9 +546,9 @@ public final class CommonConfig {
         // 必需字段
         static final String[] REQUIRED_FIELDS = { ACCESS_KEY_ID, ACCESS_KEY_SECRET, BUCKET };
 
-        // 队列容量验证（建议范围：8192-131072）
+        // 队列容量验证（建议范围：8192-1048576）
         public static final int MIN_QUEUE_SIZE = 8192;
-        public static final int MAX_QUEUE_SIZE_LIMIT = 131_072;
+        public static final int MAX_QUEUE_SIZE_LIMIT = 1_048_576;
 
         // 批处理大小验证（建议范围：100-50000）
         public static final int MIN_BATCH_COUNT = 100;
@@ -611,7 +621,7 @@ public final class CommonConfig {
 
         // 压缩配置
         public static final String ENABLE_COMPRESSION = "LOGX_OSS_ENABLE_COMPRESSION";
-        public static final String COMPRESSION_THRESHOLD = "LOGX_OSS_COMPRESSION_THRESHOLD";
+        
 
         // 分片配置
         public static final String ENABLE_SHARDING = "LOGX_OSS_ENABLE_SHARDING";

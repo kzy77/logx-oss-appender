@@ -274,12 +274,7 @@ class ConfigCompatibilityTest {
                 .isEqualTo(CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
                 .isEqualTo(7);
 
-        // 压缩阈值（compressionThreshold）
-        assertThat(configManager.getIntProperty(
-                CommonConfig.COMPRESSION_THRESHOLD,
-                CommonConfig.Defaults.COMPRESSION_THRESHOLD))
-                .isEqualTo(CommonConfig.Defaults.COMPRESSION_THRESHOLD)
-                .isEqualTo(1024);
+        
 
         // 单个上传文件最大大小（maxUploadSizeMb）
         assertThat(configManager.getIntProperty(
@@ -328,7 +323,7 @@ class ConfigCompatibilityTest {
         // 设置系统属性
         System.setProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB, "1024");
         System.setProperty(CommonConfig.FALLBACK_RETENTION_DAYS, "14");
-        System.setProperty(CommonConfig.COMPRESSION_THRESHOLD, "2048");
+        
         System.setProperty(CommonConfig.MAX_UPLOAD_SIZE_MB, "20");
         System.setProperty(CommonConfig.MAX_MESSAGE_AGE_MS, "1200000");
 
@@ -342,8 +337,7 @@ class ConfigCompatibilityTest {
             assertThat(configManager.getIntProperty(CommonConfig.FALLBACK_RETENTION_DAYS, 7))
                     .isEqualTo(14);
 
-            assertThat(configManager.getIntProperty(CommonConfig.COMPRESSION_THRESHOLD, 1024))
-                    .isEqualTo(2048);
+            
 
             assertThat(configManager.getIntProperty(CommonConfig.MAX_UPLOAD_SIZE_MB, 10))
                     .isEqualTo(20);
@@ -355,7 +349,7 @@ class ConfigCompatibilityTest {
             // 清理系统属性
             System.clearProperty(CommonConfig.EMERGENCY_MEMORY_THRESHOLD_MB);
             System.clearProperty(CommonConfig.FALLBACK_RETENTION_DAYS);
-            System.clearProperty(CommonConfig.COMPRESSION_THRESHOLD);
+            
             System.clearProperty(CommonConfig.MAX_UPLOAD_SIZE_MB);
             System.clearProperty(CommonConfig.MAX_MESSAGE_AGE_MS);
         }
