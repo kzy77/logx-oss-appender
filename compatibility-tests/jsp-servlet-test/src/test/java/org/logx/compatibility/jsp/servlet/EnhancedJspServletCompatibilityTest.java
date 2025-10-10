@@ -101,12 +101,16 @@ public class EnhancedJspServletCompatibilityTest {
     }
 
     // 简单的Mock实现 - 仅用于测试参数传递，不依赖外部Mock框架
-    private static class MockHttpServletRequest {
+    private static class MockHttpServletRequest extends javax.servlet.http.HttpServletRequestWrapper {
         private final java.util.Map<String, String> parameters = new java.util.HashMap<>();
         private final java.util.Map<String, String> headers = new java.util.HashMap<>();
         private String requestURI;
         private String method;
         private String remoteAddr;
+
+        public MockHttpServletRequest() {
+            super(null); // 简单实现，传入null
+        }
 
         public void setParameter(String name, String value) {
             parameters.put(name, value);
@@ -157,11 +161,15 @@ public class EnhancedJspServletCompatibilityTest {
         }
     }
 
-    private static class MockHttpServletResponse {
+    private static class MockHttpServletResponse extends javax.servlet.http.HttpServletResponseWrapper {
         private int status = 200;
         private final java.io.StringWriter stringWriter = new java.io.StringWriter();
         private final java.io.PrintWriter writer = new java.io.PrintWriter(stringWriter);
         private String contentType;
+
+        public MockHttpServletResponse() {
+            super(null); // 简单实现，传入null
+        }
 
         public int getStatus() {
             return status;

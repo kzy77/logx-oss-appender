@@ -52,12 +52,12 @@ public class EnhancedSpringMVCCompatibilityTest {
         mockMvc.perform(get("/test-log").param("level", "debug").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpected(content().string("日志消息已生成"));
+                .andExpect(content().string("日志消息已生成"));
 
         mockMvc.perform(get("/test-log").param("level", "error").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpected(content().string("日志消息已生成"));
+                .andExpect(content().string("日志消息已生成"));
 
         // 等待所有日志上传到MinIO
         Thread.sleep(3000);
