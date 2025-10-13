@@ -48,14 +48,14 @@ public class FallbackIntegrationTest {
         // 检查是否有兜底文件被创建
         long fallbackFileCount = Files.walk(fallbackDir)
                 .filter(Files::isRegularFile)
-                .filter(path -> path.toString().endsWith("_fallback.log"))
+                .filter(path -> path.toString().endsWith("_fallback.log.gz"))
                 .count();
         assertEquals(1, fallbackFileCount, "One fallback file should be created");
         
         // 2. 测试文件重传命名
         Path fallbackFile = Files.walk(fallbackDir)
                 .filter(Files::isRegularFile)
-                .filter(path -> path.toString().endsWith("_fallback.log"))
+                .filter(path -> path.toString().endsWith("_fallback.log.gz"))
                 .findFirst()
                 .orElseThrow(() -> new AssertionError("Fallback file not found"));
                 
@@ -64,7 +64,7 @@ public class FallbackIntegrationTest {
         String retryObjectName = generator.generateRetryObjectName(relativePath);
         
         assertNotNull(retryObjectName, "Retry object name should be generated");
-        assertTrue(retryObjectName.endsWith("_retried.log"), "Retry object name should end with _retried.log");
+        assertTrue(retryObjectName.endsWith("_retried.log.gz"), "Retry object name should end with _retried.log.gz");
         
         // 3. 测试文件清理机制
         // 创建一个过期文件（7天前创建）

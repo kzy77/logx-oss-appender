@@ -6,8 +6,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.concurrent.CompletableFuture;
-
 /**
  * Spring Boot业务日志生成测试 - 使用真实MinIO环境
  *
@@ -283,22 +281,9 @@ public class BusinessLogGenerationTest {
         logger.info("LOGX_OSS_BUCKET: {}", bucket != null ? bucket : "未设置（将使用默认值 logx-test-bucket）");
         logger.info("LOGX_OSS_OSS_TYPE: {}", ossType != null ? ossType : "未设置（将使用默认值 S3）");
 
-        // 2. 检查Logback配置
-        logger.info("=== Logback配置检查 ===");
-        ch.qos.logback.classic.LoggerContext loggerContext =
-            (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+        
 
-        ch.qos.logback.classic.Logger rootLogger =
-            (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
-
-        rootLogger.iteratorForAppenders().forEachRemaining(appender -> {
-            logger.info("发现Appender: {} (类型: {})", appender.getName(), appender.getClass().getSimpleName());
-            if (appender instanceof org.logx.logback.LogbackOSSAppender) {
-                logger.info("✓ 找到LogbackOSSAppender: {}", appender.getName());
-            }
-        });
-
-        // 3. 生成测试日志
+        // 2. 生成测试日志
         logger.info("=== 生成测试日志 ===");
         for (int i = 1; i <= 20; i++) {
             logger.info("OSS上传测试日志 #{} - 测试时间: {}, 内容: 这是一条用于验证OSS上传功能的测试日志",

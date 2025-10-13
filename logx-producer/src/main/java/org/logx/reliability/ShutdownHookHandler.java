@@ -115,19 +115,10 @@ public class ShutdownHookHandler {
      */
     public void executeShutdown() {
         if (!shutdownInProgress.compareAndSet(false, true)) {
-            // 使用System.out确保日志可见性
-            System.out.println("[SHUTDOWN] Shutdown process already in progress, skipping duplicate execution");
-            // 尝试记录到日志系统，如果不可用则静默失败
-            try {
-                logger.info("Shutdown process already in progress, skipping duplicate execution");
-            } catch (Throwable t) {
-                // 忽略日志记录失败
-            }
+            logShutdownMessage("Shutdown process already in progress, skipping duplicate execution");
             return;
         }
 
-        // 使用System.out确保日志可见性
-        System.out.println("[SHUTDOWN] OSS Appender shutdown process started, timeout: " + shutdownTimeoutSeconds + "s");
         // 记录shutdown开始
         logShutdownMessage("OSS Appender shutdown process started, timeout: {}s", shutdownTimeoutSeconds);
         long startTime = System.currentTimeMillis();
@@ -139,41 +130,32 @@ public class ShutdownHookHandler {
                 long remaining = Math.max(0, shutdownTimeoutSeconds - elapsed);
 
                 if (remaining <= 0) {
-                    System.out.println("[SHUTDOWN] Shutdown timeout reached, forcing exit");
                     logShutdownMessage("Shutdown timeout reached, forcing exit");
                     break;
                 }
 
-                System.out.println("[SHUTDOWN] Shutting down component: " + callback.getComponentName() + ", remaining timeout: " + remaining + "s");
                 logShutdownMessage("Shutting down component: {}, remaining timeout: {}s", callback.getComponentName(), remaining);
 
                 try {
                     boolean success = callback.shutdown(remaining);
                     if (success) {
-                        System.out.println("[SHUTDOWN] Component " + callback.getComponentName() + " shutdown successfully");
                         logShutdownMessage("Component {} shutdown successfully", callback.getComponentName());
                     } else {
-                        System.out.println("[SHUTDOWN] Component " + callback.getComponentName() + " shutdown failed");
                         logShutdownMessage("Component {} shutdown failed", callback.getComponentName());
                     }
                 } catch (Exception e) {
-                    System.out.println("[SHUTDOWN] Error shutting down component " + callback.getComponentName() + ": " + e.getMessage());
                     logShutdownMessage("Error shutting down component {}: {}", callback.getComponentName(), e.getMessage());
                 }
             }
 
             long totalTime = (System.currentTimeMillis() - startTime) / 1000;
-            System.out.println("[SHUTDOWN] OSS Appender shutdown process completed in " + totalTime + "s");
             logShutdownMessage("OSS Appender shutdown process completed in {}s", totalTime);
 
         } catch (RuntimeException e) {
-            System.out.println("[SHUTDOWN] Runtime error during shutdown process: " + e.getMessage());
             logShutdownMessage("Runtime error during shutdown process: {}", e.getMessage());
         } catch (Error e) {
-            System.out.println("[SHUTDOWN] Error during shutdown process: " + e.getMessage());
             logShutdownMessage("Error during shutdown process: {}", e.getMessage());
         } finally {
-            System.out.println("[SHUTDOWN] Shutdown hook execution finished");
             logShutdownMessage("Shutdown hook execution finished");
         }
     }
@@ -201,10 +183,10 @@ public class ShutdownHookHandler {
                 if (params.length > 0) {
                     formattedMessage = String.format(message.replace("{}", "%s"), params);
                 }
-                System.err.println("[SHUTDOWN] " + formattedMessage);
+                logger.error("[SHUTDOWN] {}", formattedMessage);
             } catch (Throwable t2) {
                 // 如果格式化也失败了，至少输出原始消息
-                System.err.println("[SHUTDOWN] " + message);
+                logger.error("[SHUTDOWN] {}", message);
             }
         }
     }
@@ -315,7 +297,7 @@ public class ShutdownHookHandler {
                     closeable.close();
                     return true;
                 } catch (Exception e) {
-                    System.err.println("Failed to close " + componentName + ": " + e.getMessage());
+                    logger.error("Failed to close {}: {}", componentName, e.getMessage());
                     return false;
                 }
             }

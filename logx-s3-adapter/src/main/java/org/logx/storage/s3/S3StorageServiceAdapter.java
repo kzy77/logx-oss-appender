@@ -11,6 +11,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.net.URI;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -82,7 +83,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
         // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
         if (endpoint != null && !endpoint.trim().isEmpty()) {
-            clientBuilder.endpointOverride(java.net.URI.create(endpoint));
+            clientBuilder.endpointOverride(URI.create(endpoint));
         }
 
         // 如果需要path-style访问（MinIO需要）

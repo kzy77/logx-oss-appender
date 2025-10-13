@@ -288,7 +288,7 @@ class ConfigCompatibilityTest {
                 CommonConfig.MAX_MESSAGE_AGE_MS,
                 CommonConfig.Defaults.MAX_MESSAGE_AGE_MS))
                 .isEqualTo(CommonConfig.Defaults.MAX_MESSAGE_AGE_MS)
-                .isEqualTo(600000L);
+                .isEqualTo(60000L);
     }
 
     @Test

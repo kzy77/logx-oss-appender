@@ -16,6 +16,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngineConfig;
+import org.logx.config.ConfigManager;
 
 /**
  * S3兼容对象存储 Log4j2 Appender
@@ -108,7 +109,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 使用ConfigManager实现完整配置优先级：
         // JVM系统属性 > 环境变量 > 配置文件 > XML配置 > 默认值
-        org.logx.config.ConfigManager configManager = new org.logx.config.ConfigManager();
+        ConfigManager configManager = new ConfigManager();
 
         // 解析所有配置，应用完整的优先级链
         String finalEndpoint = resolveStringConfig(configManager, "logx.oss.endpoint", endpoint);

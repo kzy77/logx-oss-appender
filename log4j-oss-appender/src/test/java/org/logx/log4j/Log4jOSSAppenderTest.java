@@ -43,10 +43,10 @@ class Log4jOSSAppenderTest {
 
         // Then
         assertThat(appender.getKeyPrefix()).isEqualTo("logs/");
-        assertThat(appender.getMaxQueueSize()).isEqualTo(65536);
-        assertThat(appender.getMaxBatchCount()).isEqualTo(4096);
+        assertThat(appender.getMaxQueueSize()).isEqualTo(524288);
+        assertThat(appender.getMaxBatchCount()).isEqualTo(8192);
         assertThat(appender.getMaxBatchBytes()).isEqualTo(10 * 1024 * 1024);
-        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(600000L);
+        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(60000L);
         assertThat(appender.isDropWhenQueueFull()).isFalse();
         assertThat(appender.isMultiProducer()).isFalse();
         assertThat(appender.getMaxRetries()).isEqualTo(3);

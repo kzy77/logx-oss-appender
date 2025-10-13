@@ -9,6 +9,10 @@ import org.logx.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executors;
@@ -246,13 +250,13 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
 
             // 统计兜底文件情况
             try {
-                java.io.File fallbackDir = new java.io.File(config.getLogFilePrefix());
+                File fallbackDir = new File(config.getLogFilePrefix());
                 if (fallbackDir.exists() && fallbackDir.isDirectory()) {
-                    java.io.File[] fallbackFiles = fallbackDir.listFiles((dir, name) ->
+                    File[] fallbackFiles = fallbackDir.listFiles((dir, name) ->
                         name.startsWith("fallback_") && name.endsWith(".log"));
                     if (fallbackFiles != null && fallbackFiles.length > 0) {
                         logger.warn("发现 {} 个兜底文件等待上传:", fallbackFiles.length);
-                        for (java.io.File file : fallbackFiles) {
+                        for (File file : fallbackFiles) {
                             logger.warn("兜底文件: {} (大小: {} bytes)", file.getName(), file.length());
                         }
                         logger.warn("兜底文件将由后台任务自动上传，或手动触发上传");
@@ -319,7 +323,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private byte[] formatLogDataForEmergencyFallback(byte[] rawData) {
         try {
             // 将原始数据转换为字符串
-            String rawContent = new String(rawData, java.nio.charset.StandardCharsets.UTF_8);
+            String rawContent = new String(rawData, StandardCharsets.UTF_8);
             
             // 创建一个模拟的日志事件
             List<EnhancedDisruptorBatchingQueue.LogEvent> events = new ArrayList<>();
@@ -330,13 +334,13 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 String formattedLine = String.format("[%s] [INFO] EmergencyFallback - 紧急兜底写入，原始大小: %d 字节%n", 
                     java.time.LocalDateTime.now().toString(), rawData.length);
                 events.add(new EnhancedDisruptorBatchingQueue.LogEvent(
-                    formattedLine.getBytes(java.nio.charset.StandardCharsets.UTF_8), timestamp));
+                    formattedLine.getBytes(StandardCharsets.UTF_8), timestamp));
             } else {
                 // 对于文本数据，直接包装成日志格式
                 String formattedLine = String.format("[%s] [INFO] EmergencyFallback - %s%n", 
                     java.time.LocalDateTime.now().toString(), rawContent.trim());
                 events.add(new EnhancedDisruptorBatchingQueue.LogEvent(
-                    formattedLine.getBytes(java.nio.charset.StandardCharsets.UTF_8), timestamp));
+                    formattedLine.getBytes(StandardCharsets.UTF_8), timestamp));
             }
             
             // 使用与正常处理相同的序列化方法
@@ -379,7 +383,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
      * @return 格式化后的字节数组
      */
     private byte[] serializeToPatternFormat(List<EnhancedDisruptorBatchingQueue.LogEvent> events) {
-        java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
             for (EnhancedDisruptorBatchingQueue.LogEvent event : events) {
                 // 直接处理字节数组，避免不必要的字符编码转换
@@ -397,13 +401,13 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 }
             }
             return baos.toByteArray();
-        } catch (java.io.IOException e) {
+        } catch (IOException e) {
             // 如果出现IO异常，回退到原来的实现
             org.slf4j.LoggerFactory.getLogger(AsyncEngineImpl.class)
                 .warn("紧急兜底序列化过程中出现IO异常，使用回退实现: {}", e.getMessage());
             StringBuilder sb = new StringBuilder();
             for (EnhancedDisruptorBatchingQueue.LogEvent event : events) {
-                String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
+                String logLine = new String(event.payload, StandardCharsets.UTF_8);
                 
                 if (!logLine.endsWith("\n")) {
                     sb.append(logLine).append("\n");
@@ -411,7 +415,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                     sb.append(logLine);
                 }
             }
-            return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            return sb.toString().getBytes(StandardCharsets.UTF_8);
         }
     }
     

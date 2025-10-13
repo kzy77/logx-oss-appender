@@ -172,7 +172,7 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
             if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
                 executor.shutdownNow();
                 if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    System.err.println("线程池未能正确关闭");
+                    logger.error("线程池未能正确关闭");
                 }
             }
         } catch (InterruptedException e) {
@@ -212,10 +212,10 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
             }
         } catch (UnsupportedOperationException e) {
             // 如果系统不支持获取负载平均值，返回0
-            System.err.println("System does not support getSystemLoadAverage: " + e.getMessage());
+            logger.warn("System does not support getSystemLoadAverage: {}", e.getMessage());
         } catch (Exception e) {
             // 如果获取失败，记录错误并返回0
-            System.err.println("Failed to get CPU usage: " + e.getMessage());
+            logger.error("Failed to get CPU usage: {}", e.getMessage());
         }
 
         // 无法获取时返回0
@@ -255,7 +255,7 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
 
             } catch (Exception e) {
                 // 记录异常但不抛出，避免影响线程池
-                System.err.println("任务执行异常: " + e.getMessage());
+                logger.error("任务执行异常: {}", e.getMessage());
             }
         }
     }
@@ -283,7 +283,7 @@ public class ResourceProtectedThreadPool implements AutoCloseable {
                 return result;
 
             } catch (Exception e) {
-                System.err.println("任务执行异常: " + e.getMessage());
+                logger.error("任务执行异常: {}", e.getMessage());
                 throw e;
             }
         }

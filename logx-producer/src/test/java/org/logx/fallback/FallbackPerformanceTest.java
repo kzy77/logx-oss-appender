@@ -81,7 +81,7 @@ public class FallbackPerformanceTest {
             if (Files.exists(fallbackDir)) {
                 long fileCount = Files.walk(fallbackDir)
                         .filter(Files::isRegularFile)
-                        .filter(path -> path.toString().endsWith("_fallback.log"))
+                        .filter(path -> path.toString().endsWith("_fallback.log.gz"))
                         .count();
                 
                 // 检查是否创建了预期数量的文件

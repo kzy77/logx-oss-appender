@@ -30,7 +30,9 @@ public class TestLogServlet extends HttpServlet {
         String countParam = request.getParameter("count");
         String category = request.getParameter("category");
 
-        if (level == null) level = "all";
+        if (level == null) {
+            level = "all";
+        }
         int count = 10;
         if (countParam != null) {
             try {
@@ -39,7 +41,9 @@ public class TestLogServlet extends HttpServlet {
                 count = 10;
             }
         }
-        if (category == null) category = "general";
+        if (category == null) {
+            category = "general";
+        }
 
         String sessionId = UUID.randomUUID().toString().substring(0, 8);
         String userAgent = request.getHeader("User-Agent");

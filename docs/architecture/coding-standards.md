@@ -50,6 +50,25 @@ logger.info("开始处理日志事件");
 System.out.println("开始处理日志事件");
 ```
 
+**RULE 5**: 优先使用import语句而非完全限定类名
+- 在代码中应优先使用import语句导入类，而不是使用完全限定类名
+- 特别是在同一包或频繁使用的类中应使用import语句
+- 示例：
+```java
+// 正确：使用import语句
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.LoggerContext;
+
+LoggerContext loggerContext = (LoggerContext) LoggerFactory.getILoggerFactory();
+Logger rootLogger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
+
+// 错误：使用完全限定类名
+ch.qos.logback.classic.LoggerContext loggerContext = 
+    (ch.qos.logback.classic.LoggerContext) LoggerFactory.getILoggerFactory();
+ch.qos.logback.classic.Logger rootLogger = 
+    (ch.qos.logback.classic.Logger) LoggerFactory.getLogger(ch.qos.logback.classic.Logger.ROOT_LOGGER_NAME);
+```
+
 ## Java编码规范
 
 ### 核心编码规则

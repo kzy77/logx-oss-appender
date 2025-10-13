@@ -46,18 +46,18 @@ public class FallbackMechanismTest {
         String normalName = generator.generateNormalObjectName();
         assertNotNull(normalName);
         assertTrue(normalName.contains("testapp_"));
-        assertTrue(normalName.endsWith(".log"));
+        assertTrue(normalName.endsWith(".log.gz"));
 
         // 测试兜底对象名生成
         String fallbackName = generator.generateFallbackObjectName();
         assertNotNull(fallbackName);
         assertTrue(fallbackName.contains("testapp_"));
-        assertTrue(fallbackName.endsWith("_fallback.log"));
+        assertTrue(fallbackName.endsWith("_fallback.log.gz"));
 
         // 测试重传对象名生成
         String retryName = generator.generateRetryObjectName(fallbackName);
         assertNotNull(retryName);
-        assertTrue(retryName.endsWith("_retried.log"));
+        assertTrue(retryName.endsWith("_retried.log.gz"));
     }
 
     @Test
@@ -78,7 +78,7 @@ public class FallbackMechanismTest {
         // 检查是否有文件被创建
         try (java.util.stream.Stream<Path> files = Files.walk(fallbackDir)) {
             long fileCount = files.filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith("_fallback.log"))
+                    .filter(path -> path.toString().endsWith("_fallback.log.gz"))
                     .count();
             assertEquals(1, fileCount);
         }

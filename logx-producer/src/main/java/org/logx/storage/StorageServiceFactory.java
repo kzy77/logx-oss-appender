@@ -4,6 +4,9 @@ import java.lang.reflect.Method;
 import java.util.ServiceLoader;
 import java.util.Iterator;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * 存储服务工厂类
  * <p>
@@ -13,6 +16,8 @@ import java.util.Iterator;
  * @since 1.0.0
  */
 public class StorageServiceFactory {
+
+    private static final Logger logger = LoggerFactory.getLogger(StorageServiceFactory.class);
 
     /**
      * 根据配置创建存储服务实例
@@ -48,7 +53,7 @@ public class StorageServiceFactory {
                 }
             } catch (Exception e) {
                 // 忽略单个服务加载失败，继续尝试其他服务
-                System.err.println("Failed to load storage service: " + e.getMessage());
+                logger.error("Failed to load storage service: {}", e.getMessage());
             }
         }
 

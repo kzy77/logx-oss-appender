@@ -200,7 +200,9 @@ class ResourceProtectedThreadPoolTest {
                 // 每次分配1MB
                 memoryConsumer.add(new byte[1024 * 1024]);
                 // 防止无限循环
-                if (memoryConsumer.size() > 2000) break;
+                if (memoryConsumer.size() > 2000) {
+                    break;
+                }
 
                 // 每100MB打印一次当前使用情况
                 if (memoryConsumer.size() % 100 == 0) {

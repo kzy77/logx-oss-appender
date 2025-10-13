@@ -3,6 +3,8 @@ package org.logx.adapter;
 import org.logx.storage.StorageService;
 import org.logx.core.AsyncEngine;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * 抽象基类，提供通用适配器的基本实现
  * 处理核心组件的初始化
@@ -37,7 +39,7 @@ public abstract class AbstractUniversalAdapter implements UniversalOSSAdapter {
         
         try {
             if (asyncEngine != null) {
-                asyncEngine.stop(5, java.util.concurrent.TimeUnit.SECONDS);
+                asyncEngine.stop(5, TimeUnit.SECONDS);
             }
             
             // 不要在这里关闭存储服务，因为AsyncEngine会负责管理存储服务的生命周期

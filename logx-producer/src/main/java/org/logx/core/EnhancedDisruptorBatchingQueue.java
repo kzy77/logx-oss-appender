@@ -13,6 +13,11 @@ import org.slf4j.LoggerFactory;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -135,6 +140,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     private final RingBuffer<LogEventHolder> ringBuffer;
     private final BatchEventHandler batchEventHandler;
     private final AtomicBoolean flushRequested = new AtomicBoolean(false);
+    private final ScheduledExecutorService scheduler;
 
     private volatile boolean started = false;
 
@@ -207,6 +213,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         });
 
         this.ringBuffer = disruptor.getRingBuffer();
+
+        this.scheduler = Executors.newSingleThreadScheduledExecutor(r -> {
+            Thread t = new Thread(r, "disruptor-batch-scheduler");
+            t.setDaemon(true);
+            return t;
+        });
     }
 
     /**
@@ -217,6 +229,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return;
         }
         disruptor.start();
+        long checkInterval = Math.max(100, config.maxMessageAgeMs / 10);
+        scheduler.scheduleAtFixedRate(batchEventHandler::checkAndProcessBatch, checkInterval, checkInterval, TimeUnit.MILLISECONDS);
         started = true;
     }
 
@@ -327,6 +341,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             logger.info("步骤2: 关闭Disruptor停止新事件处理");
             disruptor.shutdown();
 
+            // 关闭调度器
+            scheduler.shutdown();
+            if (!scheduler.awaitTermination(5, TimeUnit.SECONDS)) {
+                scheduler.shutdownNow();
+            }
+
             // 等待Disruptor完全关闭
             Thread.sleep(100);
 
@@ -356,7 +376,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             logger.info("强制处理剩余事件 - cursor: {}, nextSequence: {}", cursor, nextSequence);
 
             if (nextSequence <= cursor) {
-                java.util.List<LogEvent> remainingEvents = new java.util.ArrayList<>();
+                List<LogEvent> remainingEvents = new ArrayList<>();
 
                 // 收集所有剩余事件
                 for (long seq = nextSequence; seq <= cursor; seq++) {
@@ -389,7 +409,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     /**
      * 处理剩余事件列表
      */
-    private void processRemainingEvents(java.util.List<LogEvent> events) {
+    private void processRemainingEvents(List<LogEvent> events) {
         try {
             // 构建批处理数据
             StringBuilder batch = new StringBuilder();
@@ -403,7 +423,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             }
 
             if (batch.length() > 0) {
-                byte[] batchData = batch.toString().getBytes("UTF-8");
+                byte[] batchData = batch.toString().getBytes(StandardCharsets.UTF_8);
 
                 // 压缩数据（如果需要）
                 byte[] finalData = batchData;
@@ -518,37 +538,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             ev.clear();
 
             // 检查应用层批处理触发条件
-            boolean shouldTrigger = false;
-            String triggerReason = "";
-
-            // 条件1：消息数量阈值
-            if (bufferCount >= config.batchMaxMessages) {
-                shouldTrigger = true;
-                triggerReason = "消息数量达到阈值: " + bufferCount + " >= " + config.batchMaxMessages;
-            }
-
-            // 条件2：字节数阈值
-            if (!shouldTrigger && totalBytes >= config.batchMaxBytes) {
-                shouldTrigger = true;
-                triggerReason = "字节数达到阈值: " + totalBytes + " >= " + config.batchMaxBytes;
-            }
-
-            // 条件3：消息年龄阈值
-            if (!shouldTrigger && bufferCount > 0) {
-                long currentTime = System.currentTimeMillis();
-                long age = currentTime - oldestTimestamp;
-                if (age >= config.maxMessageAgeMs) {
-                    shouldTrigger = true;
-                    triggerReason = "消息年龄超时: " + age + "ms >= " + config.maxMessageAgeMs + "ms";
-                }
-            }
-
-            // 触发应用层批处理
-            if (shouldTrigger && bufferCount > 0) {
-                logger.info("🚀 触发应用层批处理上传 - {}", triggerReason);
-                processBatch();
-                clearBuffer();
-            }
+            checkAndProcessBatchByCountAndSize();
         }
 
         private void processBatch() {
@@ -598,6 +588,37 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             bufferCount = 0;
             totalBytes = 0;
             oldestTimestamp = 0L;
+        }
+
+        private synchronized void checkAndProcessBatchByCountAndSize() {
+            boolean shouldTrigger = false;
+            String triggerReason = "";
+
+            if (bufferCount >= config.batchMaxMessages) {
+                shouldTrigger = true;
+                triggerReason = "消息数量达到阈值: " + bufferCount + " >= " + config.batchMaxMessages;
+            } else if (totalBytes >= config.batchMaxBytes) {
+                shouldTrigger = true;
+                triggerReason = "字节数达到阈值: " + totalBytes + " >= " + config.batchMaxBytes;
+            }
+
+            if (shouldTrigger) {
+                logger.info("🚀 触发应用层批处理上传 - {}", triggerReason);
+                processBatch();
+                clearBuffer();
+            }
+        }
+
+        public synchronized void checkAndProcessBatch() {
+            if (bufferCount > 0) {
+                long currentTime = System.currentTimeMillis();
+                long age = currentTime - oldestTimestamp;
+                if (age >= config.maxMessageAgeMs) {
+                    logger.info("🚀 触发应用层批处理上传 - 消息年龄超时: {}ms >= {}ms", age, config.maxMessageAgeMs);
+                    processBatch();
+                    clearBuffer();
+                }
+            }
         }
 
         /**
@@ -661,7 +682,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             for (int i = 0; i < count; i++) {
                 int index = (head + i) % events.length;
                 LogEvent event = events[index];
-                String logLine = new String(event.payload, java.nio.charset.StandardCharsets.UTF_8);
+                String logLine = new String(event.payload, StandardCharsets.UTF_8);
                 
                 if (!logLine.endsWith("\n")) {
                     sb.append(logLine).append("\n");
@@ -669,7 +690,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                     sb.append(logLine);
                 }
             }
-            return sb.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8);
+            return sb.toString().getBytes(StandardCharsets.UTF_8);
         }
     }
 
