@@ -292,7 +292,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
      * <p>
      * 优先级顺序：JVM系统属性 > 环境变量 > 配置文件 > XML明确配置的值 > ConfigManager默认值
      * <p>
-     * 支持XML中的默认值语法 ${ENV:-xmlDefault}，确保XML默认值优先于ConfigManager默认值
+     * 支持所有配置源中的${ENV:-default}占位符语法，确保占位符在任何层级都能被正确解析
      *
      * @param configManager ConfigManager实例
      * @param configKey 配置键（logx.oss.xxx格式）
@@ -300,13 +300,17 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
      * @return 最终配置值
      */
     private String resolveStringConfig(ConfigManager configManager, String configKey, String xmlValue) {
-        // 使用不包含ConfigManager默认值的查询，确保XML明确配置的值优先
+        // 优先级1: 从高优先级配置源获取值（JVM系统属性、环境变量、配置文件）
         String value = configManager.getPropertyWithoutDefaults(configKey);
         if (value != null && !value.trim().isEmpty()) {
-            return value;
+            // 高优先级配置也可能包含占位符，需要解析
+            String resolvedValue = configManager.resolvePlaceholders(value);
+            if (resolvedValue != null && !resolvedValue.trim().isEmpty()) {
+                return resolvedValue;
+            }
         }
 
-        // 如果高优先级配置不存在，解析XML配置的值（支持${ENV:-default}语法）
+        // 优先级2: 解析XML配置的值（支持${ENV:-default}语法）
         if (xmlValue != null && !xmlValue.trim().isEmpty()) {
             String resolvedXmlValue = configManager.resolvePlaceholders(xmlValue);
             if (resolvedXmlValue != null && !resolvedXmlValue.trim().isEmpty()) {
@@ -314,7 +318,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             }
         }
 
-        // 最后回退到ConfigManager默认值
+        // 优先级3: 回退到ConfigManager默认值
         return configManager.getProperty(configKey);
     }
 

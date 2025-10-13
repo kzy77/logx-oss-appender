@@ -26,6 +26,8 @@ class XmlDefaultValueTest {
     void tearDown() {
         System.clearProperty("logx.oss.region");
         System.clearProperty("LOGX_OSS_REGION");
+        System.clearProperty("logx.oss.endpoint");
+        System.clearProperty("BASE_URL");
     }
 
     @Test
@@ -107,19 +109,55 @@ class XmlDefaultValueTest {
             .isEqualTo("eu-west-1");
     }
 
+    @Test
+    void testResolvePlaceholderInHighPriorityConfig() {
+        // 场景：高优先级配置（JVM系统属性）本身包含占位符
+        // 模拟: -Dlogx.oss.endpoint='${BASE_URL:-http://localhost:9000}'
+        System.setProperty("logx.oss.endpoint", "${BASE_URL:-http://localhost:9000}");
+
+        String xmlValue = "http://default-endpoint.com";
+        String finalValue = resolveStringConfig(configManager, "logx.oss.endpoint", xmlValue);
+
+        // 期望：高优先级配置中的占位符应该被解析，使用默认值http://localhost:9000
+        assertThat(finalValue)
+            .as("高优先级配置中的占位符应该被正确解析")
+            .isEqualTo("http://localhost:9000");
+    }
+
+    @Test
+    void testResolvePlaceholderInHighPriorityConfigWithNestedVariable() {
+        // 场景：高优先级配置包含占位符，且占位符引用的变量也存在
+        System.setProperty("BASE_URL", "https://production.example.com");
+        System.setProperty("logx.oss.endpoint", "${BASE_URL:-http://localhost:9000}");
+
+        String xmlValue = "http://default-endpoint.com";
+        String finalValue = resolveStringConfig(configManager, "logx.oss.endpoint", xmlValue);
+
+        // 期望：应该使用BASE_URL环境变量的值
+        assertThat(finalValue)
+            .as("高优先级配置中的占位符应该引用其他环境变量")
+            .isEqualTo("https://production.example.com");
+    }
+
     /**
      * 模拟LogbackOSSAppender中的resolveStringConfig方法
      * <p>
      * 优先级顺序：JVM系统属性 > 环境变量 > 配置文件 > XML明确配置的值 > ConfigManager默认值
+     * <p>
+     * 支持所有配置源中的${ENV:-default}占位符语法
      */
     private String resolveStringConfig(ConfigManager configManager, String configKey, String xmlValue) {
-        // 使用不包含ConfigManager默认值的查询，确保XML明确配置的值优先
+        // 优先级1: 从高优先级配置源获取值（JVM系统属性、环境变量、配置文件）
         String value = configManager.getPropertyWithoutDefaults(configKey);
         if (value != null && !value.trim().isEmpty()) {
-            return value;
+            // 高优先级配置也可能包含占位符，需要解析
+            String resolvedValue = configManager.resolvePlaceholders(value);
+            if (resolvedValue != null && !resolvedValue.trim().isEmpty()) {
+                return resolvedValue;
+            }
         }
 
-        // 如果高优先级配置不存在，解析XML配置的值（支持${ENV:-default}语法）
+        // 优先级2: 解析XML配置的值（支持${ENV:-default}语法）
         if (xmlValue != null && !xmlValue.trim().isEmpty()) {
             String resolvedXmlValue = configManager.resolvePlaceholders(xmlValue);
             if (resolvedXmlValue != null && !resolvedXmlValue.trim().isEmpty()) {
@@ -127,7 +165,7 @@ class XmlDefaultValueTest {
             }
         }
 
-        // 最后回退到ConfigManager默认值
+        // 优先级3: 回退到ConfigManager默认值
         return configManager.getProperty(configKey);
     }
 }
