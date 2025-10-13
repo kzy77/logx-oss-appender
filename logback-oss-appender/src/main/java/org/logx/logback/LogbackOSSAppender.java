@@ -289,18 +289,30 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     /**
      * 解析字符串配置，应用完整的优先级链
+     * <p>
+     * 优先级顺序：JVM系统属性 > 环境变量 > 配置文件 > XML明确配置的值 > ConfigManager默认值
+     * <p>
+     * 支持XML中的默认值语法 ${ENV:-xmlDefault}，确保XML默认值优先于ConfigManager默认值
      *
      * @param configManager ConfigManager实例
      * @param configKey 配置键（logx.oss.xxx格式）
-     * @param xmlValue XML配置中设置的字段值
+     * @param xmlValue XML配置中设置的字段值（可能是环境变量默认值语法解析后的值）
      * @return 最终配置值
      */
     private String resolveStringConfig(ConfigManager configManager, String configKey, String xmlValue) {
-        String value = configManager.getProperty(configKey);
+        // 使用不包含ConfigManager默认值的查询，确保XML明确配置的值优先
+        String value = configManager.getPropertyWithoutDefaults(configKey);
         if (value != null && !value.trim().isEmpty()) {
             return value;
         }
-        return xmlValue;
+
+        // 如果高优先级配置不存在，使用XML配置的值
+        if (xmlValue != null && !xmlValue.trim().isEmpty()) {
+            return xmlValue;
+        }
+
+        // 最后回退到ConfigManager默认值
+        return configManager.getProperty(configKey);
     }
 
     /**

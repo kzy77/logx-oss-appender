@@ -144,6 +144,44 @@ public class ConfigManager {
     }
 
     /**
+     * 获取高优先级配置值（不包括ConfigManager默认值）
+     * <p>
+     * 只查找JVM系统属性、环境变量和配置文件，不使用ConfigManager的默认值
+     * <p>
+     * 用于支持XML中的默认值语法 ${ENV:-xmlDefault}，确保XML默认值优先于ConfigManager默认值
+     *
+     * @param key
+     *            配置键（使用点号格式，如 logx.oss.endpoint）
+     *
+     * @return 高优先级配置值，如果不存在返回null
+     */
+    public String getPropertyWithoutDefaults(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            return null;
+        }
+
+        // 优先级1: JVM系统属性
+        String value = getSystemProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级2: 环境变量
+        value = getEnvironmentVariable(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级3: 配置文件属性
+        value = getFileProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        return null;
+    }
+
+    /**
      * 获取整数配置值
      *
      * @param key
