@@ -234,7 +234,7 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 2. ✅ 创建EnhancedDisruptorBatchingQueue类，整合批处理聚合、序列化、压缩和分片功能
 3. ✅ 实现LogEvent事件类，封装日志数据和元数据
 4. ✅ 配置WaitStrategy为YieldingWaitStrategy，平衡延迟和CPU使用
-5. ✅ 实现三个批处理触发条件：消息数量（maxBatchCount=4096）、总字节数（maxBatchBytes=10MB）、最老消息年龄（maxMessageAgeMs=10分钟）
+5. ✅ 实现三个批处理触发条件：消息数量（maxBatchCount=8192）、总字节数（maxBatchBytes=10MB）、最老消息年龄（maxMessageAgeMs=1分钟）
 6. ✅ 采用事件驱动触发机制：在新消息到达或批次结束时检查触发条件，无主动定时器线程（理由：生产环境持续有日志，ShutdownHook兜底，避免不必要的定时器开销）
 7. ✅ 集成NDJSON序列化、GZIP压缩（阈值1KB）和数据分片（阈值10MB）
 8. ✅ 创建ResourceProtectedThreadPool类，实现固定大小线程池（默认2个线程）

@@ -79,9 +79,9 @@ PRD Epic 2故事点4中提到"数据丢失监控和告警接口"，但在代码�
 3. **配置参数已提供足够灵活性**：
    ```java
    // 用户可以根据实际情况调整参数
-   maxBatchCount = 4096;      // 建议范围：100-50000
+   maxBatchCount = 8192;      // 建议范围：100-50000
    maxBatchBytes = 10485760;  // 建议范围：1MB-100MB
-   maxMessageAgeMs = 600000;  // 建议范围：1秒-30分钟
+   maxMessageAgeMs = 60000;   // 建议范围：1秒-30分钟
    ```
 
 4. **KISS原则**：

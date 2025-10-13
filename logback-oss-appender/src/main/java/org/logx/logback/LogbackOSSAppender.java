@@ -5,6 +5,7 @@ import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.encoder.Encoder;
 import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngineConfig;
+import org.logx.config.ConfigManager;
 
 /**
  * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
@@ -45,40 +46,63 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         try {
+            // 使用ConfigManager实现完整配置优先级：
+            // JVM系统属性 > 环境变量 > 配置文件 > XML字段值 > 默认值
+            ConfigManager configManager = new ConfigManager();
+
+            // 解析所有配置，应用完整的优先级链
+            String finalEndpoint = resolveStringConfig(configManager, "logx.oss.endpoint", this.endpoint);
+            String finalRegion = resolveStringConfig(configManager, "logx.oss.region", this.region);
+            String finalAccessKeyId = resolveStringConfig(configManager, "logx.oss.accessKeyId", this.accessKeyId);
+            String finalAccessKeySecret = resolveStringConfig(configManager, "logx.oss.accessKeySecret", this.accessKeySecret);
+            String finalBucket = resolveStringConfig(configManager, "logx.oss.bucket", this.bucket);
+            String finalKeyPrefix = resolveStringConfig(configManager, "logx.oss.keyPrefix", this.keyPrefix);
+            String finalOssType = resolveStringConfig(configManager, "logx.oss.ossType", this.ossType);
+
+            int finalMaxQueueSize = resolveIntConfig(configManager, "logx.oss.queueCapacity", this.maxQueueSize);
+            int finalMaxBatchCount = resolveIntConfig(configManager, "logx.oss.maxBatchCount", this.maxBatchCount);
+            int finalMaxBatchBytes = resolveIntConfig(configManager, "logx.oss.maxBatchBytes", this.maxBatchBytes);
+            long finalMaxMessageAgeMs = resolveLongConfig(configManager, "logx.oss.maxMessageAgeMs", this.maxMessageAgeMs);
+            boolean finalDropWhenQueueFull = resolveBooleanConfig(configManager, "logx.oss.dropWhenQueueFull", this.dropWhenQueueFull);
+            boolean finalMultiProducer = resolveBooleanConfig(configManager, "logx.oss.multiProducer", this.multiProducer);
+            int finalMaxRetries = resolveIntConfig(configManager, "logx.oss.maxRetries", this.maxRetries);
+            long finalBaseBackoffMs = resolveLongConfig(configManager, "logx.oss.baseBackoffMs", this.baseBackoffMs);
+            long finalMaxBackoffMs = resolveLongConfig(configManager, "logx.oss.maxBackoffMs", this.maxBackoffMs);
+
             // 验证必需参数
-            if (accessKeyId == null || accessKeyId.trim().isEmpty()) {
+            if (finalAccessKeyId == null || finalAccessKeyId.trim().isEmpty()) {
                 addError("accessKeyId must be set");
                 return;
             }
-            if (accessKeySecret == null || accessKeySecret.trim().isEmpty()) {
+            if (finalAccessKeySecret == null || finalAccessKeySecret.trim().isEmpty()) {
                 addError("accessKeySecret must be set");
                 return;
             }
-            if (bucket == null || bucket.trim().isEmpty()) {
+            if (finalBucket == null || finalBucket.trim().isEmpty()) {
                 addError("bucket must be set");
                 return;
             }
 
             // 构建存储配置
             StorageConfig storageConfig = new StorageConfigBuilder()
-                .ossType(this.ossType != null && !this.ossType.isEmpty() ? this.ossType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
-                .endpoint(this.endpoint)
-                .region(this.region)
-                .accessKeyId(this.accessKeyId)
-                .accessKeySecret(this.accessKeySecret)
-                .bucket(this.bucket)
-                .keyPrefix(this.keyPrefix)
+                .ossType(finalOssType != null && !finalOssType.isEmpty() ? finalOssType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
+                .endpoint(finalEndpoint)
+                .region(finalRegion)
+                .accessKeyId(finalAccessKeyId)
+                .accessKeySecret(finalAccessKeySecret)
+                .bucket(finalBucket)
+                .keyPrefix(finalKeyPrefix)
                 .build();
 
             // 构建异步引擎配置
             AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig()
-                .queueCapacity(this.maxQueueSize)
-                .batchMaxMessages(this.maxBatchCount)
-                .batchMaxBytes(this.maxBatchBytes)
-                .maxMessageAgeMs(this.maxMessageAgeMs)
-                .blockOnFull(this.dropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
-                .multiProducer(this.multiProducer)
-                .logFilePrefix(this.keyPrefix)
+                .queueCapacity(finalMaxQueueSize)
+                .batchMaxMessages(finalMaxBatchCount)
+                .batchMaxBytes(finalMaxBatchBytes)
+                .maxMessageAgeMs(finalMaxMessageAgeMs)
+                .blockOnFull(finalDropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
+                .multiProducer(finalMultiProducer)
+                .logFilePrefix(finalKeyPrefix)
                 .logFileName("applogx") // Default log file name
                 .fallbackRetentionDays(org.logx.config.CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
                 .fallbackScanIntervalSeconds(org.logx.config.CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS);
@@ -86,7 +110,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             this.adapter = new LogbackBridge(storageConfig, engineConfig);
             this.adapter.setEncoder(encoder);
             this.adapter.start();
-            
+
             super.start();
         } catch (Exception e) {
             addError("Failed to start LogbackOSSAppender", e);
@@ -261,5 +285,84 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
     private void handleAppendError(String message, Throwable throwable) {
         // 使用Logback默认错误处理
         addError(message, throwable);
+    }
+
+    /**
+     * 解析字符串配置，应用完整的优先级链
+     * <p>
+     * 优先级顺序：JVM系统属性 > 环境变量 > 配置文件 > XML明确配置的值 > ConfigManager默认值
+     * <p>
+     * 支持所有配置源中的${ENV:-default}占位符语法，确保占位符在任何层级都能被正确解析
+     *
+     * @param configManager ConfigManager实例
+     * @param configKey 配置键（logx.oss.xxx格式）
+     * @param xmlValue XML配置中设置的字段值（可能包含${ENV:-default}占位符）
+     * @return 最终配置值
+     */
+    private String resolveStringConfig(ConfigManager configManager, String configKey, String xmlValue) {
+        // 优先级1: 从高优先级配置源获取值（JVM系统属性、环境变量、配置文件）
+        String value = configManager.getPropertyWithoutDefaults(configKey);
+        if (value != null && !value.trim().isEmpty()) {
+            // 高优先级配置也可能包含占位符，需要解析
+            String resolvedValue = configManager.resolvePlaceholders(value);
+            if (resolvedValue != null && !resolvedValue.trim().isEmpty()) {
+                return resolvedValue;
+            }
+        }
+
+        // 优先级2: 解析XML配置的值（支持${ENV:-default}语法）
+        if (xmlValue != null && !xmlValue.trim().isEmpty()) {
+            String resolvedXmlValue = configManager.resolvePlaceholders(xmlValue);
+            if (resolvedXmlValue != null && !resolvedXmlValue.trim().isEmpty()) {
+                return resolvedXmlValue;
+            }
+        }
+
+        // 优先级3: 回退到ConfigManager默认值
+        return configManager.getProperty(configKey);
+    }
+
+    /**
+     * 解析整数配置，应用完整的优先级链
+     */
+    private int resolveIntConfig(ConfigManager configManager, String configKey, int xmlValue) {
+        String value = configManager.getProperty(configKey);
+        if (value != null && !value.trim().isEmpty()) {
+            try {
+                return Integer.parseInt(value.trim());
+            } catch (NumberFormatException e) {
+                addWarn("Invalid integer value for " + configKey + ": " + value + ", using XML value: " + xmlValue);
+                return xmlValue;
+            }
+        }
+        return xmlValue;
+    }
+
+    /**
+     * 解析长整数配置，应用完整的优先级链
+     */
+    private long resolveLongConfig(ConfigManager configManager, String configKey, long xmlValue) {
+        String value = configManager.getProperty(configKey);
+        if (value != null && !value.trim().isEmpty()) {
+            try {
+                return Long.parseLong(value.trim());
+            } catch (NumberFormatException e) {
+                addWarn("Invalid long value for " + configKey + ": " + value + ", using XML value: " + xmlValue);
+                return xmlValue;
+            }
+        }
+        return xmlValue;
+    }
+
+    /**
+     * 解析布尔配置，应用完整的优先级链
+     */
+    private boolean resolveBooleanConfig(ConfigManager configManager, String configKey, boolean xmlValue) {
+        String value = configManager.getProperty(configKey);
+        if (value != null && !value.trim().isEmpty()) {
+            String trimmedValue = value.trim().toLowerCase(java.util.Locale.ENGLISH);
+            return "true".equals(trimmedValue) || "yes".equals(trimmedValue) || "1".equals(trimmedValue);
+        }
+        return xmlValue;
     }
 }

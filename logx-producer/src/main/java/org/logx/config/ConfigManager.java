@@ -75,9 +75,16 @@ public class ConfigManager {
 
     /**
      * 获取配置值，按优先级顺序查找
+     * <p>
+     * 支持多种命名格式：
+     * <ul>
+     * <li>JVM系统属性：支持点号格式（logx.oss.endpoint）和大写下划线格式（LOGX_OSS_ENDPOINT），点号格式优先</li>
+     * <li>环境变量：只支持大写下划线格式（LOGX_OSS_ENDPOINT）</li>
+     * <li>配置文件：标准点号格式（logx.oss.endpoint）</li>
+     * </ul>
      *
      * @param key
-     *            配置键
+     *            配置键（使用点号格式，如 logx.oss.endpoint）
      *
      * @return 配置值，如果不存在返回null
      */
@@ -92,7 +99,7 @@ public class ConfigManager {
         }
 
         // 优先级1: JVM系统属性
-        String value = System.getProperty(key);
+        String value = getSystemProperty(key);
         if (value != null) {
             configCache.put(key, value);
             return value;
@@ -106,12 +113,10 @@ public class ConfigManager {
         }
 
         // 优先级3: 配置文件属性
-        if (fileProperties != null) {
-            value = fileProperties.getProperty(key);
-            if (value != null) {
-                configCache.put(key, value);
-                return value;
-            }
+        value = getFileProperty(key);
+        if (value != null) {
+            configCache.put(key, value);
+            return value;
         }
 
         // 优先级4: 默认值
@@ -136,6 +141,44 @@ public class ConfigManager {
     public String getProperty(String key, String defaultValue) {
         String value = getProperty(key);
         return value != null ? value : defaultValue;
+    }
+
+    /**
+     * 获取高优先级配置值（不包括ConfigManager默认值）
+     * <p>
+     * 只查找JVM系统属性、环境变量和配置文件，不使用ConfigManager的默认值
+     * <p>
+     * 用于支持XML中的默认值语法 ${ENV:-xmlDefault}，确保XML默认值优先于ConfigManager默认值
+     *
+     * @param key
+     *            配置键（使用点号格式，如 logx.oss.endpoint）
+     *
+     * @return 高优先级配置值，如果不存在返回null
+     */
+    public String getPropertyWithoutDefaults(String key) {
+        if (key == null || key.trim().isEmpty()) {
+            return null;
+        }
+
+        // 优先级1: JVM系统属性
+        String value = getSystemProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级2: 环境变量
+        value = getEnvironmentVariable(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级3: 配置文件属性
+        value = getFileProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        return null;
     }
 
     /**
@@ -283,7 +326,65 @@ public class ConfigManager {
     }
 
     /**
-     * 从环境变量获取值，支持不同命名格式转换
+     * 从JVM系统属性获取值，支持两种命名风格
+     * <p>
+     * 支持的格式（按优先级）：
+     * <ul>
+     * <li>logx.oss.accessKeyId （标准点号格式，优先）</li>
+     * <li>LOGX_OSS_ACCESS_KEY_ID （大写下划线格式，支持驼峰转换）</li>
+     * </ul>
+     *
+     * @param key
+     *            配置键
+     *
+     * @return JVM系统属性值，如果不存在返回null
+     */
+    private String getSystemProperty(String key) {
+        // 1. 先查找原始键（标准点号格式：logx.oss.accessKeyId）
+        String value = System.getProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 2. 转换为大写下划线格式，支持驼峰命名（LOGX_OSS_ACCESS_KEY_ID）
+        String upperKey = toEnvironmentVariableFormat(key);
+        value = System.getProperty(upperKey);
+        if (value != null) {
+            return value;
+        }
+
+        return null;
+    }
+
+    /**
+     * 从配置文件获取值
+     *
+     * @param key
+     *            配置键
+     *
+     * @return 配置文件属性值，如果不存在返回null
+     */
+    private String getFileProperty(String key) {
+        if (fileProperties == null) {
+            return null;
+        }
+
+        return fileProperties.getProperty(key);
+    }
+
+    /**
+     * 从环境变量获取值
+     * <p>
+     * 只支持大写下划线格式，因为大多数shell（如bash）不支持点号作为环境变量名
+     * <p>
+     * 转换规则：处理驼峰命名 + 大写 + 点号转下划线
+     * <p>
+     * 示例：
+     * <ul>
+     * <li>logx.oss.endpoint → LOGX_OSS_ENDPOINT</li>
+     * <li>logx.oss.accessKeyId → LOGX_OSS_ACCESS_KEY_ID</li>
+     * <li>logx.oss.maxBatchCount → LOGX_OSS_MAX_BATCH_COUNT</li>
+     * </ul>
      *
      * @param key
      *            配置键
@@ -291,26 +392,34 @@ public class ConfigManager {
      * @return 环境变量值，如果不存在返回null
      */
     private String getEnvironmentVariable(String key) {
-        // 直接查找
-        String value = System.getenv(key);
-        if (value != null) {
-            return value;
-        }
+        // 转换为大写下划线格式，支持驼峰命名
+        String envKey = toEnvironmentVariableFormat(key);
+        return System.getenv(envKey);
+    }
 
-        // 转换为大写，用下划线替换点号
-        String envKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
-        value = System.getenv(envKey);
-        if (value != null) {
-            return value;
-        }
-
-        // 转换为全大写
-        value = System.getenv(key.toUpperCase(java.util.Locale.ENGLISH));
-        if (value != null) {
-            return value;
-        }
-
-        return null;
+    /**
+     * 将配置键转换为环境变量格式
+     * <p>
+     * 转换规则：
+     * <ol>
+     * <li>处理驼峰命名：在小写字母后紧跟大写字母的位置插入下划线</li>
+     * <li>全部转大写</li>
+     * <li>点号替换为下划线</li>
+     * </ol>
+     *
+     * @param key
+     *            配置键（如 logx.oss.accessKeyId）
+     *
+     * @return 环境变量格式（如 LOGX_OSS_ACCESS_KEY_ID）
+     */
+    private String toEnvironmentVariableFormat(String key) {
+        // 1. 处理驼峰：在小写字母后紧跟大写字母的位置插入下划线
+        String result = key.replaceAll("([a-z])([A-Z])", "$1_$2");
+        // 2. 转大写
+        result = result.toUpperCase(java.util.Locale.ENGLISH);
+        // 3. 点号替换为下划线
+        result = result.replace('.', '_');
+        return result;
     }
 
     /**
@@ -355,7 +464,6 @@ public class ConfigManager {
         // LogX OSS统一配置默认值
         setDefault("logx.oss.region", "ap-guangzhou");
         setDefault("logx.oss.keyPrefix", "logs/");
-        // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
         setDefault("logx.oss.connectTimeout", "10000");
         setDefault("logx.oss.readTimeout", "30000");
 
@@ -377,5 +485,106 @@ public class ConfigManager {
         setDefault("logx.oss.maxRetries", "3");
         setDefault("logx.oss.baseBackoffMs", "1000");
         setDefault("logx.oss.maxBackoffMs", "30000");
+    }
+
+    /**
+     * 解析包含变量占位符的字符串
+     * <p>
+     * 支持的格式：
+     * <ul>
+     * <li>${ENV_VAR:-default} - bash风格，使用:-作为分隔符</li>
+     * <li>${ENV_VAR:default} - 简化风格，使用:作为分隔符</li>
+     * <li>${ENV_VAR} - 只有变量名，无默认值</li>
+     * </ul>
+     * <p>
+     * 解析优先级：JVM系统属性 > 环境变量 > 默认值
+     *
+     * @param value
+     *            可能包含占位符的字符串
+     *
+     * @return 解析后的字符串，如果无法解析返回原始值
+     */
+    public String resolvePlaceholders(String value) {
+        if (value == null || !value.contains("${")) {
+            return value;
+        }
+
+        String result = value;
+        int startIndex = 0;
+
+        while (true) {
+            int placeholderStart = result.indexOf("${", startIndex);
+            if (placeholderStart == -1) {
+                break;
+            }
+
+            int placeholderEnd = result.indexOf("}", placeholderStart);
+            if (placeholderEnd == -1) {
+                break;
+            }
+
+            String placeholder = result.substring(placeholderStart + 2, placeholderEnd);
+            String resolvedValue = resolveSinglePlaceholder(placeholder);
+
+            // 如果解析失败，使用空字符串替换占位符
+            if (resolvedValue == null) {
+                resolvedValue = "";
+            }
+
+            result = result.substring(0, placeholderStart) + resolvedValue + result.substring(placeholderEnd + 1);
+            startIndex = placeholderStart + resolvedValue.length();
+        }
+
+        return result;
+    }
+
+    /**
+     * 解析单个占位符
+     *
+     * @param placeholder
+     *            占位符内容（不包括${}）
+     *
+     * @return 解析后的值，如果无法解析返回null
+     */
+    private String resolveSinglePlaceholder(String placeholder) {
+        String varName;
+        String defaultValue = null;
+
+        // 支持:-语法（bash风格）
+        int separatorIndex = placeholder.indexOf(":-");
+        if (separatorIndex > 0) {
+            varName = placeholder.substring(0, separatorIndex);
+            defaultValue = placeholder.substring(separatorIndex + 2);
+        } else {
+            // 支持:语法（简化风格）
+            separatorIndex = placeholder.indexOf(':');
+            if (separatorIndex > 0) {
+                varName = placeholder.substring(0, separatorIndex);
+                defaultValue = placeholder.substring(separatorIndex + 1);
+            } else {
+                varName = placeholder;
+            }
+        }
+
+        // 优先级1: JVM系统属性（支持点号格式和大写下划线格式）
+        String value = System.getProperty(varName);
+        if (value != null) {
+            return value;
+        }
+
+        String upperVarName = varName.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
+        value = System.getProperty(upperVarName);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级2: 环境变量（只支持大写下划线格式）
+        value = System.getenv(upperVarName);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级3: 返回默认值
+        return defaultValue;
     }
 }
