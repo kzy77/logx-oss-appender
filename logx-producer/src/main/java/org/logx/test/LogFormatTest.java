@@ -25,9 +25,9 @@ public class LogFormatTest {
         
         // 创建测试事件
         List<LogEvent> events = new ArrayList<>();
-        events.add(new LogEvent("2025-10-07 21:00:00.000 [main] INFO  TestLogger - 测试消息1\n".getBytes(), System.currentTimeMillis()));
-        events.add(new LogEvent("2025-10-07 21:00:01.000 [main] WARN  TestLogger - 测试消息2\n".getBytes(), System.currentTimeMillis()));
-        events.add(new LogEvent("2025-10-07 21:00:02.000 [main] ERROR TestLogger - 测试消息3".getBytes(), System.currentTimeMillis())); // 没有换行符
+        events.add(new LogEvent("2025-10-07 21:00:00.000 [main] INFO  TestLogger - 测试消息1\n".getBytes(java.nio.charset.StandardCharsets.UTF_8), System.currentTimeMillis()));
+        events.add(new LogEvent("2025-10-07 21:00:01.000 [main] WARN  TestLogger - 测试消息2\n".getBytes(java.nio.charset.StandardCharsets.UTF_8), System.currentTimeMillis()));
+        events.add(new LogEvent("2025-10-07 21:00:02.000 [main] ERROR TestLogger - 测试消息3".getBytes(java.nio.charset.StandardCharsets.UTF_8), System.currentTimeMillis())); // 没有换行符
         
         // 创建队列实例以访问私有方法
         Config config = Config.defaultConfig();

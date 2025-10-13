@@ -46,7 +46,7 @@
         <maven.surefire.plugin.version>3.2.5</maven.surefire.plugin.version>
     </properties>
 
-    <!-- Modules (Submodules for Git Submodules migration) -->
+    <!-- Modules -->
     <modules>
         <module>logx-producer</module>
         <module>logx-s3-adapter</module>
@@ -54,17 +54,6 @@
         <module>log4j-oss-appender</module>
         <module>log4j2-oss-appender</module>
         <module>logback-oss-appender</module>
-        <module>sf-log4j-oss-appender</module>
-        <module>sf-log4j2-oss-appender</module>
-        <module>sf-logback-oss-appender</module>
-        <module>s3-log4j-oss-appender</module>
-        <module>s3-log4j2-oss-appender</module>
-        <module>s3-logback-oss-appender</module>
-        <module>compatibility-tests/spring-boot-test</module>
-        <module>compatibility-tests/spring-mvc-test</module>
-        <module>compatibility-tests/jsp-servlet-test</module>
-        <module>compatibility-tests/multi-framework-test</module>
-        <module>compatibility-tests/config-consistency-test</module>
     </modules>
 
     <!-- Dependency Management -->
@@ -345,6 +334,7 @@
                 </plugins>
             </build>
         </profile>
+
     </profiles>
 
     <!-- License -->

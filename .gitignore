@@ -101,4 +101,5 @@ AGENTS.md
 CLAUDE.md
 dist/
 *.log.gz
+.sdkmanrc
 

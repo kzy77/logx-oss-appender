@@ -6,25 +6,29 @@ Logback框架的OSS Appender，用于将日志异步上传到S3兼容对象存�
 
 ## 🚀 快速开始
 
-为简化依赖管理，推荐使用All-in-One包：
+使用两个核心依赖集成：
 
 ### Maven依赖
 
 ```xml
-<!-- S3兼容存储服务 -->
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>s3-logback-oss-appender</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-</dependency>
+<dependencies>
+    <!-- Logback适配器 -->
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>logback-oss-appender</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
 
-<!-- 或SF OSS存储服务 -->
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>sf-logback-oss-appender</artifactId>
-    <version>1.0.0-SNAPSHOT</version>
-</dependency>
+    <!-- 存储适配器（选择其一） -->
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>logx-s3-adapter</artifactId>  <!-- S3兼容存储 -->
+        <version>1.0.0-SNAPSHOT</version>
+        <!-- 或 <artifactId>logx-sf-oss-adapter</artifactId><version>1.0.0-SNAPSHOT</version> SF OSS存储 -->
+    </dependency>
+</dependencies>
 ```
+
 
 ## 📋 配置说明
 

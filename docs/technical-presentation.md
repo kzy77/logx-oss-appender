@@ -273,12 +273,19 @@ LogX OSS Appender 通过三层保障机制确保日志数据的最终一致性�
 ### 6.1 Maven依赖配置
 
 ```xml
-<!-- 简单集成 - 使用All-in-One包 -->
-<dependency>
-    <groupId>org.logx</groupId>
-    <artifactId>s3-logback-oss-appender</artifactId>
-    <version>1.0.0</version>
-</dependency>
+<!-- 简单集成 - 使用两个核心依赖 -->
+<dependencies>
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>logback-oss-appender</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>logx-s3-adapter</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+</dependencies>
 ```
 
 ### 6.2 配置示例
@@ -305,7 +312,7 @@ LogX OSS Appender 通过三层保障机制确保日志数据的最终一致性�
 ```mermaid
 graph TD
     A[logx-producer核心模块] --> B[框架适配器]
-    B --> C[All-in-One集成包]
+    B --> C[应用集成]
     A --> D[存储适配器]
     C --> D
 
