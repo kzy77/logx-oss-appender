@@ -327,8 +327,8 @@ implementation 'org.logx:s3-logback-oss-appender:1.0.0-SNAPSHOT'
         <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
         <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
         <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logs/app/}"/>
-        <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-4096}"/>
-        <param name="maxMessageAgeMs" value="${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}"/>
+        <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-8192}"/>
+        <param name="maxMessageAgeMs" value="${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -355,8 +355,8 @@ log4j.appender.OSS.accessKeySecret=${LOGX_OSS_ACCESS_KEY_SECRET}
 log4j.appender.OSS.bucket=${LOGX_OSS_BUCKET}
 log4j.appender.OSS.region=${LOGX_OSS_REGION:-cn-hangzhou}
 log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logs/app/}
-log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-4096}
-log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}
+log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-8192}
+log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
 log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
@@ -374,8 +374,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
             <bucket>${sys:LOGX_OSS_BUCKET}</bucket>
             <region>${sys:LOGX_OSS_REGION:-cn-hangzhou}</region>
             <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
-            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
-            <maxMessageAgeMs>${sys:LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
+            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
+            <maxMessageAgeMs>${sys:LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
         </OSS>
     </Appenders>
     <Loggers>
@@ -398,8 +398,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
         <bucket>${LOGX_OSS_BUCKET}</bucket>
         <region>${LOGX_OSS_REGION:-cn-hangzhou}</region>
         <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
-        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
-        <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
+        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
+        <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -430,13 +430,13 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | **region** | String | ap-guangzhou | 存储区域 |
 | **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
-| **maxQueueSize** | Integer | 65536 | 内存队列大小（必须是2的幂） |
-| **maxBatchCount** | Integer | 4096 | 单批最大条数 |
-| **maxBatchBytes** | Integer | 4194304 (4MB) | 单批最大字节 |
-| **maxMessageAgeMs** | Long | 600000 | 最早消息年龄阈值（毫秒），10分钟 |
+| **maxQueueSize** | Integer | 524288 | 内存队列大小（必须是2的幂） |
+| **maxBatchCount** | Integer | 8192 | 单批最大条数 |
+| **maxBatchBytes** | Integer | 10485760 (10MB) | 单批最大字节 |
+| **maxMessageAgeMs** | Long | 60000 | 最早消息年龄阈值（毫秒），1分钟 |
 | **dropWhenQueueFull** | Boolean | false | 队列满时是否丢弃日志 |
 | **multiProducer** | Boolean | false | 是否支持多生产者 |
-| **maxRetries** | Integer | 5 | 最大重试次数 |
+| **maxRetries** | Integer | 3 | 最大重试次数 |
 | **baseBackoffMs** | Long | 200 | 基础退避时间(毫秒) |
 | **maxBackoffMs** | Long | 10000 | 最大退避时间(毫秒) |
 | **maxUploadSizeMb** | Integer | 10 | 单个上传文件最大大小（MB），同时控制分片阈值和分片大小 |
@@ -760,9 +760,9 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 | 配置项 | 默认值 | 说明 | 决策记录 |
 |--------|--------|------|----------|
 | region | ap-guangzhou | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
-| maxBatchCount | 4096 | 批处理大小 | 性能测试验证 |
+| maxBatchCount | 8192 | 批处理大小 | 性能测试验证 |
 | maxBatchBytes | 10MB | 批处理字节数 | 性能测试验证 |
-| maxMessageAgeMs | 600000 (10分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
+| maxMessageAgeMs | 60000 (1分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
 
 ## 文档
 
