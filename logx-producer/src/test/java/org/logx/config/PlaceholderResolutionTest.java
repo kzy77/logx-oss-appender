@@ -30,12 +30,12 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithBashStyleDefault() {
         // 测试bash风格的默认值语法 ${VAR:-default}
-        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
+        String input = "${LOGX_OSS_REGION:-us}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
             .as("应该使用默认值ap-guangzhou")
-            .isEqualTo("ap-guangzhou");
+            .isEqualTo("us");
     }
 
     @Test
@@ -54,7 +54,7 @@ class PlaceholderResolutionTest {
         // 设置JVM系统属性
         System.setProperty("LOGX_OSS_REGION", "us-west-1");
 
-        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
+        String input = "${LOGX_OSS_REGION:-us}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -89,12 +89,12 @@ class PlaceholderResolutionTest {
     @Test
     void testResolveNonPlaceholderString() {
         // 测试不包含占位符的字符串
-        String input = "ap-guangzhou";
+        String input = "us";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
             .as("不包含占位符的字符串应该原样返回")
-            .isEqualTo("ap-guangzhou");
+            .isEqualTo("us");
     }
 
     @Test

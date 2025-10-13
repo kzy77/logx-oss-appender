@@ -216,7 +216,7 @@ class ConfigManagerTest {
     @Test
     void shouldHaveCorrectDefaultValues() {
         // 验证一些预设的默认值
-        assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("ap-guangzhou");
+        assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("us");
         assertThat(configManager.getProperty("logx.oss.keyPrefix")).isEqualTo("logs/");
         assertThat(configManager.getIntProperty("logx.oss.maxBatchCount", 0)).isEqualTo(8192);
         assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(524288);

@@ -78,7 +78,7 @@ class XmlDefaultValueTest {
         String finalValue = resolveStringConfig(configManager, "logx.oss.region", xmlDefaultValue);
 
         // 期望：应该使用ConfigManager默认值
-        assertThat(finalValue).isEqualTo("ap-guangzhou");
+        assertThat(finalValue).isEqualTo("us");
     }
 
     @Test

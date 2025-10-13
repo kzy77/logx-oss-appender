@@ -178,8 +178,8 @@ List<MinioConfig> clusterConfigs = List.of(
 ```java
 // 基础 COS 配置
 TencentCosConfig config = TencentCosConfig.builder()
-    .endpoint("https://cos.ap-guangzhou.myqcloud.com")
-    .region("ap-guangzhou")
+    .endpoint("https://cos.us.myqcloud.com")
+    .region("us")
     .accessKeyId("YOUR_SECRET_ID")
     .accessKeySecret("YOUR_SECRET_KEY")
     .bucket("your-bucket-name")
@@ -191,8 +191,8 @@ TencentCosConfig config = TencentCosConfig.builder()
 ```java
 // 完整 COS 配置
 TencentCosConfig config = TencentCosConfig.builder()
-    .endpoint("https://cos.ap-guangzhou.myqcloud.com")
-    .region("ap-guangzhou")
+    .endpoint("https://cos.us.myqcloud.com")
+    .region("us")
     .accessKeyId(System.getenv("TENCENT_SECRET_ID"))
     .accessKeySecret(System.getenv("TENCENT_SECRET_KEY"))
     .bucket("application-logs-1234567890")  // COS bucket 包含 APPID

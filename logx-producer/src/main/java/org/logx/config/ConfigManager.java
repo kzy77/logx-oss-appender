@@ -462,7 +462,7 @@ public class ConfigManager {
      */
     private void initializeDefaults() {
         // LogX OSS统一配置默认值
-        setDefault("logx.oss.region", "ap-guangzhou");
+        setDefault("logx.oss.region", "us");
         setDefault("logx.oss.keyPrefix", "logs/");
         setDefault("logx.oss.connectTimeout", "10000");
         setDefault("logx.oss.readTimeout", "30000");

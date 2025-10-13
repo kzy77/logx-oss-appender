@@ -43,7 +43,7 @@ logx.oss.ossType=SF_OSS
 
 # SF OSS 访问配置
 logx.oss.endpoint=https://oss-cn-hangzhou.sfcloud.com
-logx.oss.region=ap-guangzhou
+logx.oss.region=us
 logx.oss.accessKeyId=your-access-key-id
 logx.oss.accessKeySecret=your-access-key-secret
 logx.oss.bucket=your-bucket-name

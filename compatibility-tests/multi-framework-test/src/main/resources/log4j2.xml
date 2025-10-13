@@ -20,7 +20,7 @@
         <!-- pathStyleAccess和enableSsl根据endpoint自动识别 -->
         <OSS name="OSS"
              endpoint="${env:LOGX_OSS_ENDPOINT:-http://localhost:9000}"
-             region="${env:LOGX_OSS_REGION:-ap-guangzhou}"
+             region="${env:LOGX_OSS_REGION:-us}"
              accessKeyId="${env:LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"
              accessKeySecret="${env:LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"
              bucket="${env:LOGX_OSS_BUCKET:-logx-test-bucket}"

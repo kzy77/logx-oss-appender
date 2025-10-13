@@ -34,7 +34,7 @@
 
         <!-- 存储配置（使用环境变量，默认MinIO） -->
         <endpoint>${LOGX_OSS_ENDPOINT:-http://localhost:9000}</endpoint>
-        <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
+        <region>${LOGX_OSS_REGION:-us}</region>
         <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}</accessKeyId>
         <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}</accessKeySecret>
         <bucket>${LOGX_OSS_BUCKET:-logx-test-bucket}</bucket>

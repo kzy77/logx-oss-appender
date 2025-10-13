@@ -368,7 +368,7 @@ sequenceDiagram
 <!-- 三个框架的统一配置key -->
 <appender name="OSS" class="org.logx.{framework}.OSSAppender">
     <!-- 必需参数 -->
-    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
+    <region>${LOGX_OSS_REGION:-us}</region>
     <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
     <secretAccessKey>${LOGX_OSS_ACCESS_KEY_SECRET}</secretAccessKey>
     <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
@@ -382,15 +382,15 @@ sequenceDiagram
 
 **配置优先级**:
 系统支持多种配置源，按以下优先级顺序读取配置：
-1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
-2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
-3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
+1. JVM系统属性 (-Dlogx.oss.region=us)
+2. 环境变量 (LOGX_OSS_REGION=us)
+3. 配置文件属性 (application.properties中的logx.oss.region=us)
 4. 代码默认值
 
 **属性文件配置支持**:
 支持使用`logx.oss`前缀的属性文件配置方式：
 ```properties
-logx.oss.region=ap-guangzhou
+logx.oss.region=us
 logx.oss.accessKeyId=your-access-key
 logx.oss.accessKeySecret=your-secret-key
 logx.oss.bucket=your-bucket-name
@@ -404,7 +404,7 @@ logx.oss.maxUploadSizeMb=10
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
-export LOGX_OSS_REGION="ap-guangzhou"
+export LOGX_OSS_REGION="us"
 export LOGX_OSS_BUCKET="your-bucket-name"
 export LOGX_OSS_TYPE="SF_OSS"
 export LOGX_OSS_MAX_BATCH_COUNT="4096"

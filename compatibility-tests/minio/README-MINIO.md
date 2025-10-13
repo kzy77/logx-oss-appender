@@ -203,8 +203,8 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 # MinIO服务端点（默认：http://localhost:9000）
 export LOGX_OSS_ENDPOINT="http://localhost:9000"
 
-# MinIO区域（默认：ap-guangzhou）
-export LOGX_OSS_REGION="ap-guangzhou"
+# MinIO区域（默认：us）
+export LOGX_OSS_REGION="us"
 
 # MinIO访问凭证（默认：minioadmin/minioadmin）
 export LOGX_OSS_ACCESS_KEY_ID="minioadmin"
@@ -335,7 +335,7 @@ minio.exe server C:\minio-data --console-address ":9001"
 
 所有兼容性测试使用以下默认值：
 - **endpoint**: `http://localhost:9000` (MinIO本地地址)
-- **region**: `ap-guangzhou` (符合PRD文档规范)
+- **region**: `us` (符合PRD文档规范)
 - **accessKeyId**: `minioadmin`
 - **accessKeySecret**: `minioadmin`
 - **bucket**: `logx-test-bucket`

@@ -121,7 +121,7 @@ public class ConfigConsistencyVerifierTest {
         // 使用真实的MinIO配置（符合minio/README-MINIO.md规范）
         config.put("logx.oss.bucket", "logx-test-bucket");
         config.put("logx.oss.keyPrefix", "integration-test/");
-        config.put("logx.oss.region", "ap-guangzhou");
+        config.put("logx.oss.region", "us");
         config.put("logx.oss.accessKeyId", "minioadmin");
         config.put("logx.oss.accessKeySecret", "minioadmin");
         config.put("logx.oss.endpoint", "http://localhost:9000");
@@ -149,7 +149,7 @@ public class ConfigConsistencyVerifierTest {
     private Map<String, String> createRealEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
         envVars.put("LOGX_OSS_ENDPOINT", "http://localhost:9000");
-        envVars.put("LOGX_OSS_REGION", "ap-guangzhou");
+        envVars.put("LOGX_OSS_REGION", "us");
         envVars.put("LOGX_OSS_ACCESS_KEY_ID", "minioadmin");
         envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "minioadmin");
         envVars.put("LOGX_OSS_BUCKET", "logx-test-bucket");

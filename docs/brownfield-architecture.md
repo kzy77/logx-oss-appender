@@ -143,7 +143,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 |--------|----------|----------|----------|----------|
 | AWS S3 | `https://s3.amazonaws.com` | AK/SK | Virtual-hosted | ✅ 已验证 |
 | 阿里云OSS | `https://oss-cn-hangzhou.aliyuncs.com` | AK/SK | Virtual-hosted | ✅ 已验证 |
-| 腾讯云COS | `https://cos.ap-guangzhou.myqcloud.com` | AK/SK | Virtual-hosted | ✅ 已验证 |
+| 腾讯云COS | `https://cos.us.myqcloud.com` | AK/SK | Virtual-hosted | ✅ 已验证 |
 | MinIO | `http://localhost:9000` | AK/SK | Path-style | ✅ 已验证 |
 | Cloudflare R2 | `https://account.r2.cloudflarestorage.com` | AK/SK | Virtual-hosted | 🔄 兼容中 |
 

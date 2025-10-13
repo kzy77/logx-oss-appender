@@ -78,7 +78,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         software.amazon.awssdk.services.s3.S3ClientBuilder clientBuilder = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "ap-guangzhou"));
+                .region(Region.of(region != null ? region : "us"));
 
         // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
         if (endpoint != null && !endpoint.trim().isEmpty()) {

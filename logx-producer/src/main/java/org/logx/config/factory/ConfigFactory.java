@@ -9,7 +9,7 @@ import java.time.Duration;
  * 配置工厂类
  * <p>
  * 根据存储后端类型创建相应的配置对象，支持从ConfigManager读取统一配置。
- * 支持logx.oss前缀风格配置，如logx.oss.region=ap-guangzhou。
+ * 支持logx.oss前缀风格配置，如logx.oss.region=us。
  * 提供默认值管理和配置模板功能。
  *
  * @author OSS Appender Team
@@ -60,7 +60,7 @@ public class ConfigFactory {
      */
     private StorageConfig createAwsS3Config() {
         return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("logx.oss.endpoint", "https://s3.amazonaws.com"))
-                .region(getProperty("logx.oss.region", "ap-guangzhou"))
+                .region(getProperty("logx.oss.region", "us"))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
@@ -78,7 +78,7 @@ public class ConfigFactory {
         // MinIO默认使用路径风格
         // MinIO开发环境通常不用SSL
         return new MinioConfig.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .region(getProperty("logx.oss.region", "us")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
@@ -94,7 +94,7 @@ public class ConfigFactory {
      */
     private StorageConfig createGenericS3Config() {
         return new GenericS3Config.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "ap-guangzhou")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+                .region(getProperty("logx.oss.region", "us")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret")).bucket(getRequiredProperty("logx.oss.bucket"))
                 .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
                 .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))

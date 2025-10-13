@@ -23,7 +23,7 @@
     <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
         <!-- 存储配置（使用环境变量，支持MinIO/S3/OSS） -->
         <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-http://localhost:9000}"/>
-        <param name="region" value="${LOGX_OSS_REGION:-ap-guangzhou}"/>
+        <param name="region" value="${LOGX_OSS_REGION:-us}"/>
         <param name="accessKeyId" value="${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"/>
         <param name="accessKeySecret" value="${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"/>
         <param name="bucket" value="${LOGX_OSS_BUCKET:-logx-test-bucket}"/>

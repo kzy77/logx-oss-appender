@@ -97,7 +97,7 @@ class ConfigCompatibilityTest {
 
         // 设置logx.oss.前缀的配置
         unifiedConfig.setProperty("logx.oss.endpoint", "https://oss-cn-guangzhou.aliyuncs.com");
-        unifiedConfig.setProperty("logx.oss.region", "ap-guangzhou");
+        unifiedConfig.setProperty("logx.oss.region", "us");
         unifiedConfig.setProperty("logx.oss.accessKeyId", "unified-access-key");
         unifiedConfig.setProperty("logx.oss.accessKeySecret", "unified-secret-key");
         unifiedConfig.setProperty("logx.oss.bucket", "unified-bucket");
@@ -110,7 +110,7 @@ class ConfigCompatibilityTest {
 
         // 验证所有配置项都使用logx.oss.前缀
         assertThat(unifiedConfig.getProperty("logx.oss.endpoint")).isEqualTo("https://oss-cn-guangzhou.aliyuncs.com");
-        assertThat(unifiedConfig.getProperty("logx.oss.region")).isEqualTo("ap-guangzhou");
+        assertThat(unifiedConfig.getProperty("logx.oss.region")).isEqualTo("us");
         assertThat(unifiedConfig.getProperty("logx.oss.accessKeyId")).isEqualTo("unified-access-key");
         assertThat(unifiedConfig.getProperty("logx.oss.accessKeySecret")).isEqualTo("unified-secret-key");
         assertThat(unifiedConfig.getProperty("logx.oss.bucket")).isEqualTo("unified-bucket");
@@ -304,16 +304,16 @@ class ConfigCompatibilityTest {
     @Test
     void shouldUseCorrectDefaultRegionValue() {
         // 验证任务#8：StorageConfig默认region值与PRD一致
-        // 默认值应为 "ap-guangzhou"（来自PRD FR3）
+        // 默认值应为 "us"（来自PRD FR3）
         ConfigManager configManager = new ConfigManager();
 
         assertThat(CommonConfig.Defaults.REGION)
-                .isEqualTo("ap-guangzhou")
+                .isEqualTo("us")
                 .as("默认region值应与PRD保持一致");
 
         // 验证ConfigManager可以正确读取默认值
         assertThat(configManager.getProperty(CommonConfig.REGION, CommonConfig.Defaults.REGION))
-                .isEqualTo("ap-guangzhou");
+                .isEqualTo("us");
     }
 
     @Test

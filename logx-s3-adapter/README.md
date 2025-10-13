@@ -44,7 +44,7 @@ logx.oss.ossType=S3
 
 # S3 访问配置
 logx.oss.endpoint=https://s3.cn-hangzhou.aliyuncs.com
-logx.oss.region=ap-guangzhou
+logx.oss.region=us
 logx.oss.accessKeyId=your-access-key-id
 logx.oss.accessKeySecret=your-access-key-secret
 logx.oss.bucket=your-bucket-name

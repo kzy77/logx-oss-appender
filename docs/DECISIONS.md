@@ -112,7 +112,7 @@ PRD Epic 2故事点4中提到"数据丢失监控和告警接口"，但在代码�
 
 ---
 
-## ADR-003: 默认region值使用"ap-guangzhou"
+## ADR-003: 默认region值使用"us"
 
 **日期**: 2025-10-05
 **状态**: ✅ 已验证
@@ -120,17 +120,17 @@ PRD Epic 2故事点4中提到"数据丢失监控和告警接口"，但在代码�
 
 ### 背景
 
-PRD要求默认region为"ap-guangzhou"（广州区域），需要确保代码实现与PRD一致。
+PRD要求默认region为"us"（广州区域），需要确保代码实现与PRD一致。
 
 ### 决策
 
-**使用"ap-guangzhou"作为默认region值**，符合PRD FR3要求。
+**使用"us"作为默认region值**，符合PRD FR3要求。
 
 ### 实现
 
 ```java
 // CommonConfig.Defaults.java
-public static final String REGION = "ap-guangzhou";
+public static final String REGION = "us";
 
 // StorageConfig.Builder.java
 private String region = CommonConfig.Defaults.REGION;
@@ -140,7 +140,7 @@ private String region = CommonConfig.Defaults.REGION;
 
 已在`ConfigCompatibilityTest.shouldUseCorrectDefaultRegionValue()`中添加测试验证：
 ```java
-assertThat(CommonConfig.Defaults.REGION).isEqualTo("ap-guangzhou");
+assertThat(CommonConfig.Defaults.REGION).isEqualTo("us");
 ```
 
 ### 后果

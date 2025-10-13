@@ -523,7 +523,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| **region** | String | ap-guangzhou | 存储区域 |
+| **region** | String | us | 存储区域 |
 | **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
 | **maxQueueSize** | Integer | 524288 | 内存队列大小（必须是2的幂） |
@@ -549,11 +549,11 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 
 系统支持多种配置源，按以下优先级顺序读取配置：
 1. JVM系统属性（支持两种命名风格）
-   - `-Dlogx.oss.region=ap-guangzhou` （点号格式，优先）
-   - `-DLOGX_OSS_REGION=ap-guangzhou` （大写下划线格式）
+   - `-Dlogx.oss.region=us` （点号格式，优先）
+   - `-DLOGX_OSS_REGION=us` （大写下划线格式）
 2. 环境变量（只支持大写下划线格式）
-   - `LOGX_OSS_REGION=ap-guangzhou`
-3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
+   - `LOGX_OSS_REGION=us`
+3. 配置文件属性 (application.properties中的logx.oss.region=us)
 4. XML/配置文件中设置的字段值
 5. 代码默认值
 
@@ -875,7 +875,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 | 配置项 | 默认值 | 说明 | 决策记录 |
 |--------|--------|------|----------|
-| region | ap-guangzhou | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
+| region | us | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
 | maxBatchCount | 8192 | 批处理大小 | 性能测试验证 |
 | maxBatchBytes | 10MB | 批处理字节数 | 性能测试验证 |
 | maxMessageAgeMs | 60000 (1分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
