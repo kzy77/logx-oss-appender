@@ -222,4 +222,84 @@ class ConfigManagerTest {
         assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(524288);
         // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
     }
+
+    @Test
+    void shouldSupportUppercaseUnderscoreStyleForSystemProperties() {
+        // 设置大写下划线风格的系统属性
+        System.setProperty("LOGX_OSS_ENDPOINT", "http://uppercase-endpoint.example.com");
+
+        // 使用标准点号格式查询应该能获取到大写下划线格式的值
+        assertThat(configManager.getProperty("logx.oss.endpoint")).isEqualTo("http://uppercase-endpoint.example.com");
+
+        // 清理
+        System.clearProperty("LOGX_OSS_ENDPOINT");
+    }
+
+    @Test
+    void shouldPreferDotStyleOverUppercaseStyleForSystemProperties() {
+        // 同时设置点号格式和大写下划线格式
+        System.setProperty("logx.oss.endpoint", "http://dot-style.example.com");
+        System.setProperty("LOGX_OSS_ENDPOINT", "http://uppercase-style.example.com");
+
+        // 应该优先使用点号格式的值
+        assertThat(configManager.getProperty("logx.oss.endpoint")).isEqualTo("http://dot-style.example.com");
+
+        // 清理
+        System.clearProperty("logx.oss.endpoint");
+        System.clearProperty("LOGX_OSS_ENDPOINT");
+    }
+
+
+    @Test
+    void shouldSupportBothStylesInMixedScenarios() throws IOException {
+        // 创建临时配置文件
+        Path configFile = tempDir.resolve("mixed-style.properties");
+        Files.write(configFile, "logx.oss.endpoint=http://file-endpoint.example.com".getBytes());
+
+        ConfigManager fileConfigManager = new ConfigManager(configFile.toString());
+
+        // 默认情况：从文件读取
+        assertThat(fileConfigManager.getProperty("logx.oss.endpoint")).isEqualTo("http://file-endpoint.example.com");
+
+        // 设置系统属性（大写下划线格式），应该覆盖文件值
+        System.setProperty("LOGX_OSS_ENDPOINT", "http://system-uppercase.example.com");
+        fileConfigManager.clearCache();
+        assertThat(fileConfigManager.getProperty("logx.oss.endpoint"))
+                .isEqualTo("http://system-uppercase.example.com");
+
+        // 设置系统属性（点号格式），应该覆盖大写下划线格式
+        System.setProperty("logx.oss.endpoint", "http://system-dot.example.com");
+        fileConfigManager.clearCache();
+        assertThat(fileConfigManager.getProperty("logx.oss.endpoint")).isEqualTo("http://system-dot.example.com");
+
+        // 清理
+        System.clearProperty("LOGX_OSS_ENDPOINT");
+        System.clearProperty("logx.oss.endpoint");
+    }
+
+    @Test
+    void shouldRespectPriorityChainWithBothStyles() throws IOException {
+        // 创建临时配置文件
+        Path configFile = tempDir.resolve("priority-styles.properties");
+        Files.write(configFile, "logx.oss.region=file-region".getBytes());
+
+        ConfigManager fileConfigManager = new ConfigManager(configFile.toString());
+
+        // 1. 默认情况：从文件读取
+        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("file-region");
+
+        // 2. 设置系统属性（大写下划线格式），应该覆盖文件值
+        System.setProperty("LOGX_OSS_REGION", "system-uppercase-region");
+        fileConfigManager.clearCache();
+        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("system-uppercase-region");
+
+        // 3. 设置系统属性（点号格式），应该优先于大写下划线格式
+        System.setProperty("logx.oss.region", "system-dot-region");
+        fileConfigManager.clearCache();
+        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("system-dot-region");
+
+        // 清理
+        System.clearProperty("LOGX_OSS_REGION");
+        System.clearProperty("logx.oss.region");
+    }
 }

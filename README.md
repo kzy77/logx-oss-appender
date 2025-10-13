@@ -452,10 +452,18 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 #### 配置优先级
 
 系统支持多种配置源，按以下优先级顺序读取配置：
-1. JVM系统属性 (-Dlogx.oss.region=ap-guangzhou)
-2. 环境变量 (LOGX_OSS_REGION=ap-guangzhou)
+1. JVM系统属性（支持两种命名风格）
+   - `-Dlogx.oss.region=ap-guangzhou` （点号格式，优先）
+   - `-DLOGX_OSS_REGION=ap-guangzhou` （大写下划线格式）
+2. 环境变量（只支持大写下划线格式）
+   - `LOGX_OSS_REGION=ap-guangzhou`
 3. 配置文件属性 (application.properties中的logx.oss.region=ap-guangzhou)
-4. 代码默认值
+4. XML/配置文件中设置的字段值
+5. 代码默认值
+
+**命名风格兼容性**：
+- **JVM系统属性**：同时支持点号格式和大写下划线格式，点号格式优先
+- **环境变量**：只支持大写下划线格式（因为大多数shell不支持点号作为环境变量名）
 
 #### 云服务商端点示例
 

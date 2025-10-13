@@ -75,6 +75,12 @@ public class ConfigManager {
 
     /**
      * 获取配置值，按优先级顺序查找
+     * <p>
+     * 支持两种前缀风格：
+     * <ul>
+     * <li>logx.oss.* （完整前缀，优先）</li>
+     * <li>oss.* （简写前缀，作为后备）</li>
+     * </ul>
      *
      * @param key
      *            配置键
@@ -92,7 +98,7 @@ public class ConfigManager {
         }
 
         // 优先级1: JVM系统属性
-        String value = System.getProperty(key);
+        String value = getSystemProperty(key);
         if (value != null) {
             configCache.put(key, value);
             return value;
@@ -106,12 +112,10 @@ public class ConfigManager {
         }
 
         // 优先级3: 配置文件属性
-        if (fileProperties != null) {
-            value = fileProperties.getProperty(key);
-            if (value != null) {
-                configCache.put(key, value);
-                return value;
-            }
+        value = getFileProperty(key);
+        if (value != null) {
+            configCache.put(key, value);
+            return value;
         }
 
         // 优先级4: 默认值
@@ -283,7 +287,58 @@ public class ConfigManager {
     }
 
     /**
-     * 从环境变量获取值，支持不同命名格式转换
+     * 从JVM系统属性获取值，支持两种命名风格
+     * <p>
+     * 支持的格式：
+     * <ul>
+     * <li>logx.oss.endpoint （标准点号格式，优先）</li>
+     * <li>LOGX_OSS_ENDPOINT （大写下划线格式）</li>
+     * </ul>
+     *
+     * @param key
+     *            配置键
+     *
+     * @return JVM系统属性值，如果不存在返回null
+     */
+    private String getSystemProperty(String key) {
+        // 1. 先查找原始键（标准点号格式：logx.oss.endpoint）
+        String value = System.getProperty(key);
+        if (value != null) {
+            return value;
+        }
+
+        // 2. 转换为大写下划线格式（LOGX_OSS_ENDPOINT）
+        String upperKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
+        value = System.getProperty(upperKey);
+        if (value != null) {
+            return value;
+        }
+
+        return null;
+    }
+
+    /**
+     * 从配置文件获取值
+     *
+     * @param key
+     *            配置键
+     *
+     * @return 配置文件属性值，如果不存在返回null
+     */
+    private String getFileProperty(String key) {
+        if (fileProperties == null) {
+            return null;
+        }
+
+        return fileProperties.getProperty(key);
+    }
+
+    /**
+     * 从环境变量获取值
+     * <p>
+     * 只支持大写下划线格式，因为大多数shell（如bash）不支持点号作为环境变量名
+     * <p>
+     * 示例：logx.oss.endpoint → LOGX_OSS_ENDPOINT
      *
      * @param key
      *            配置键
@@ -291,26 +346,9 @@ public class ConfigManager {
      * @return 环境变量值，如果不存在返回null
      */
     private String getEnvironmentVariable(String key) {
-        // 直接查找
-        String value = System.getenv(key);
-        if (value != null) {
-            return value;
-        }
-
-        // 转换为大写，用下划线替换点号
+        // 转换为大写下划线格式（LOGX_OSS_ENDPOINT）
         String envKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
-        value = System.getenv(envKey);
-        if (value != null) {
-            return value;
-        }
-
-        // 转换为全大写
-        value = System.getenv(key.toUpperCase(java.util.Locale.ENGLISH));
-        if (value != null) {
-            return value;
-        }
-
-        return null;
+        return System.getenv(envKey);
     }
 
     /**
@@ -355,7 +393,6 @@ public class ConfigManager {
         // LogX OSS统一配置默认值
         setDefault("logx.oss.region", "ap-guangzhou");
         setDefault("logx.oss.keyPrefix", "logs/");
-        // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
         setDefault("logx.oss.connectTimeout", "10000");
         setDefault("logx.oss.readTimeout", "30000");
 
