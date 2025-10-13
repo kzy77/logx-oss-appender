@@ -76,14 +76,15 @@ public class ConfigManager {
     /**
      * 获取配置值，按优先级顺序查找
      * <p>
-     * 支持两种前缀风格：
+     * 支持多种命名格式：
      * <ul>
-     * <li>logx.oss.* （完整前缀，优先）</li>
-     * <li>oss.* （简写前缀，作为后备）</li>
+     * <li>JVM系统属性：支持点号格式（logx.oss.endpoint）和大写下划线格式（LOGX_OSS_ENDPOINT），点号格式优先</li>
+     * <li>环境变量：只支持大写下划线格式（LOGX_OSS_ENDPOINT）</li>
+     * <li>配置文件：标准点号格式（logx.oss.endpoint）</li>
      * </ul>
      *
      * @param key
-     *            配置键
+     *            配置键（使用点号格式，如 logx.oss.endpoint）
      *
      * @return 配置值，如果不存在返回null
      */
