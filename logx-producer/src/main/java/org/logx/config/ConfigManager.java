@@ -486,4 +486,105 @@ public class ConfigManager {
         setDefault("logx.oss.baseBackoffMs", "1000");
         setDefault("logx.oss.maxBackoffMs", "30000");
     }
+
+    /**
+     * 解析包含变量占位符的字符串
+     * <p>
+     * 支持的格式：
+     * <ul>
+     * <li>${ENV_VAR:-default} - bash风格，使用:-作为分隔符</li>
+     * <li>${ENV_VAR:default} - 简化风格，使用:作为分隔符</li>
+     * <li>${ENV_VAR} - 只有变量名，无默认值</li>
+     * </ul>
+     * <p>
+     * 解析优先级：JVM系统属性 > 环境变量 > 默认值
+     *
+     * @param value
+     *            可能包含占位符的字符串
+     *
+     * @return 解析后的字符串，如果无法解析返回原始值
+     */
+    public String resolvePlaceholders(String value) {
+        if (value == null || !value.contains("${")) {
+            return value;
+        }
+
+        String result = value;
+        int startIndex = 0;
+
+        while (true) {
+            int placeholderStart = result.indexOf("${", startIndex);
+            if (placeholderStart == -1) {
+                break;
+            }
+
+            int placeholderEnd = result.indexOf("}", placeholderStart);
+            if (placeholderEnd == -1) {
+                break;
+            }
+
+            String placeholder = result.substring(placeholderStart + 2, placeholderEnd);
+            String resolvedValue = resolveSinglePlaceholder(placeholder);
+
+            // 如果解析失败，使用空字符串替换占位符
+            if (resolvedValue == null) {
+                resolvedValue = "";
+            }
+
+            result = result.substring(0, placeholderStart) + resolvedValue + result.substring(placeholderEnd + 1);
+            startIndex = placeholderStart + resolvedValue.length();
+        }
+
+        return result;
+    }
+
+    /**
+     * 解析单个占位符
+     *
+     * @param placeholder
+     *            占位符内容（不包括${}）
+     *
+     * @return 解析后的值，如果无法解析返回null
+     */
+    private String resolveSinglePlaceholder(String placeholder) {
+        String varName;
+        String defaultValue = null;
+
+        // 支持:-语法（bash风格）
+        int separatorIndex = placeholder.indexOf(":-");
+        if (separatorIndex > 0) {
+            varName = placeholder.substring(0, separatorIndex);
+            defaultValue = placeholder.substring(separatorIndex + 2);
+        } else {
+            // 支持:语法（简化风格）
+            separatorIndex = placeholder.indexOf(':');
+            if (separatorIndex > 0) {
+                varName = placeholder.substring(0, separatorIndex);
+                defaultValue = placeholder.substring(separatorIndex + 1);
+            } else {
+                varName = placeholder;
+            }
+        }
+
+        // 优先级1: JVM系统属性（支持点号格式和大写下划线格式）
+        String value = System.getProperty(varName);
+        if (value != null) {
+            return value;
+        }
+
+        String upperVarName = varName.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
+        value = System.getProperty(upperVarName);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级2: 环境变量（只支持大写下划线格式）
+        value = System.getenv(upperVarName);
+        if (value != null) {
+            return value;
+        }
+
+        // 优先级3: 返回默认值
+        return defaultValue;
+    }
 }

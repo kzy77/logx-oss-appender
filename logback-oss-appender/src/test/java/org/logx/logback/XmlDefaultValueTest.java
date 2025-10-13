@@ -79,6 +79,34 @@ class XmlDefaultValueTest {
         assertThat(finalValue).isEqualTo("ap-guangzhou");
     }
 
+    @Test
+    void testResolvePlaceholderInXmlValue() {
+        // 场景：XML中使用占位符语法 ${LOGX_OSS_REGION:-cn-beijing}
+        // 模拟Logback未替换占位符，由代码手动解析
+        String xmlValueWithPlaceholder = "${LOGX_OSS_REGION:-cn-beijing}";
+
+        String finalValue = resolveStringConfig(configManager, "logx.oss.region", xmlValueWithPlaceholder);
+
+        // 期望：应该解析占位符并使用默认值cn-beijing
+        assertThat(finalValue)
+            .as("应该自动解析XML中的占位符")
+            .isEqualTo("cn-beijing");
+    }
+
+    @Test
+    void testResolvePlaceholderWithEnvironmentVariable() {
+        // 场景：XML中使用占位符，且环境变量存在（用JVM系统属性模拟）
+        System.setProperty("LOGX_OSS_REGION", "eu-west-1");
+
+        String xmlValueWithPlaceholder = "${LOGX_OSS_REGION:-cn-beijing}";
+        String finalValue = resolveStringConfig(configManager, "logx.oss.region", xmlValueWithPlaceholder);
+
+        // 期望：应该使用环境变量的值而不是默认值
+        assertThat(finalValue)
+            .as("环境变量应该优先于占位符中的默认值")
+            .isEqualTo("eu-west-1");
+    }
+
     /**
      * 模拟LogbackOSSAppender中的resolveStringConfig方法
      * <p>
@@ -91,9 +119,12 @@ class XmlDefaultValueTest {
             return value;
         }
 
-        // 如果高优先级配置不存在，使用XML配置的值
+        // 如果高优先级配置不存在，解析XML配置的值（支持${ENV:-default}语法）
         if (xmlValue != null && !xmlValue.trim().isEmpty()) {
-            return xmlValue;
+            String resolvedXmlValue = configManager.resolvePlaceholders(xmlValue);
+            if (resolvedXmlValue != null && !resolvedXmlValue.trim().isEmpty()) {
+                return resolvedXmlValue;
+            }
         }
 
         // 最后回退到ConfigManager默认值

@@ -296,7 +296,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
      *
      * @param configManager ConfigManager实例
      * @param configKey 配置键（logx.oss.xxx格式）
-     * @param xmlValue XML配置中设置的字段值（可能是环境变量默认值语法解析后的值）
+     * @param xmlValue XML配置中设置的字段值（可能包含${ENV:-default}占位符）
      * @return 最终配置值
      */
     private String resolveStringConfig(ConfigManager configManager, String configKey, String xmlValue) {
@@ -306,9 +306,12 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             return value;
         }
 
-        // 如果高优先级配置不存在，使用XML配置的值
+        // 如果高优先级配置不存在，解析XML配置的值（支持${ENV:-default}语法）
         if (xmlValue != null && !xmlValue.trim().isEmpty()) {
-            return xmlValue;
+            String resolvedXmlValue = configManager.resolvePlaceholders(xmlValue);
+            if (resolvedXmlValue != null && !resolvedXmlValue.trim().isEmpty()) {
+                return resolvedXmlValue;
+            }
         }
 
         // 最后回退到ConfigManager默认值
