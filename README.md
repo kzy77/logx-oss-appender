@@ -487,7 +487,19 @@ http://localhost:9000                    # 本地MinIO
 
 ### 环境变量配置
 
-建议通过环境变量配置敏感信息：
+建议通过环境变量配置敏感信息。
+
+**环境变量命名规则**：
+将配置键转换为环境变量格式，转换规则如下：
+1. 处理驼峰命名：在小写字母后紧跟大写字母的位置插入下划线
+2. 全部转大写
+3. 点号替换为下划线
+
+示例：
+- `logx.oss.endpoint` → `LOGX_OSS_ENDPOINT`
+- `logx.oss.accessKeyId` → `LOGX_OSS_ACCESS_KEY_ID`（驼峰转换）
+- `logx.oss.maxBatchCount` → `LOGX_OSS_MAX_BATCH_COUNT`
+- `logx.oss.region` → `LOGX_OSS_REGION`
 
 ```bash
 # 设置环境变量

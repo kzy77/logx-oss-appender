@@ -302,4 +302,48 @@ class ConfigManagerTest {
         System.clearProperty("LOGX_OSS_REGION");
         System.clearProperty("logx.oss.region");
     }
+
+    @Test
+    void shouldHandleCamelCaseInSystemProperties() {
+        // 设置驼峰命名的配置键，使用大写下划线格式的系统属性
+        System.setProperty("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+
+        // 使用驼峰格式查询应该能获取到值
+        assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("test-access-key");
+
+        // 清理
+        System.clearProperty("LOGX_OSS_ACCESS_KEY_ID");
+    }
+
+    @Test
+    void shouldHandleCamelCaseWithDotStylePriority() {
+        // 同时设置驼峰格式和大写下划线格式
+        System.setProperty("logx.oss.accessKeyId", "camel-case-value");
+        System.setProperty("LOGX_OSS_ACCESS_KEY_ID", "uppercase-value");
+
+        // 应该优先使用驼峰格式的值
+        assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("camel-case-value");
+
+        // 清理
+        System.clearProperty("logx.oss.accessKeyId");
+        System.clearProperty("LOGX_OSS_ACCESS_KEY_ID");
+    }
+
+    @Test
+    void shouldConvertCamelCaseCorrectly() {
+        // 测试多个驼峰命名的转换
+        System.setProperty("LOGX_OSS_MAX_BATCH_COUNT", "5000");
+        System.setProperty("LOGX_OSS_ACCESS_KEY_SECRET", "secret-value");
+        System.setProperty("LOGX_OSS_ENABLE_SSL", "false");
+
+        // 验证所有驼峰命名都能正确转换和查询
+        assertThat(configManager.getProperty("logx.oss.maxBatchCount")).isEqualTo("5000");
+        assertThat(configManager.getProperty("logx.oss.accessKeySecret")).isEqualTo("secret-value");
+        assertThat(configManager.getProperty("logx.oss.enableSsl")).isEqualTo("false");
+
+        // 清理
+        System.clearProperty("LOGX_OSS_MAX_BATCH_COUNT");
+        System.clearProperty("LOGX_OSS_ACCESS_KEY_SECRET");
+        System.clearProperty("LOGX_OSS_ENABLE_SSL");
+    }
 }

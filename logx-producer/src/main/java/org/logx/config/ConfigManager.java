@@ -290,10 +290,10 @@ public class ConfigManager {
     /**
      * 从JVM系统属性获取值，支持两种命名风格
      * <p>
-     * 支持的格式：
+     * 支持的格式（按优先级）：
      * <ul>
-     * <li>logx.oss.endpoint （标准点号格式，优先）</li>
-     * <li>LOGX_OSS_ENDPOINT （大写下划线格式）</li>
+     * <li>logx.oss.accessKeyId （标准点号格式，优先）</li>
+     * <li>LOGX_OSS_ACCESS_KEY_ID （大写下划线格式，支持驼峰转换）</li>
      * </ul>
      *
      * @param key
@@ -302,14 +302,14 @@ public class ConfigManager {
      * @return JVM系统属性值，如果不存在返回null
      */
     private String getSystemProperty(String key) {
-        // 1. 先查找原始键（标准点号格式：logx.oss.endpoint）
+        // 1. 先查找原始键（标准点号格式：logx.oss.accessKeyId）
         String value = System.getProperty(key);
         if (value != null) {
             return value;
         }
 
-        // 2. 转换为大写下划线格式（LOGX_OSS_ENDPOINT）
-        String upperKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
+        // 2. 转换为大写下划线格式，支持驼峰命名（LOGX_OSS_ACCESS_KEY_ID）
+        String upperKey = toEnvironmentVariableFormat(key);
         value = System.getProperty(upperKey);
         if (value != null) {
             return value;
@@ -339,7 +339,14 @@ public class ConfigManager {
      * <p>
      * 只支持大写下划线格式，因为大多数shell（如bash）不支持点号作为环境变量名
      * <p>
-     * 示例：logx.oss.endpoint → LOGX_OSS_ENDPOINT
+     * 转换规则：处理驼峰命名 + 大写 + 点号转下划线
+     * <p>
+     * 示例：
+     * <ul>
+     * <li>logx.oss.endpoint → LOGX_OSS_ENDPOINT</li>
+     * <li>logx.oss.accessKeyId → LOGX_OSS_ACCESS_KEY_ID</li>
+     * <li>logx.oss.maxBatchCount → LOGX_OSS_MAX_BATCH_COUNT</li>
+     * </ul>
      *
      * @param key
      *            配置键
@@ -347,9 +354,34 @@ public class ConfigManager {
      * @return 环境变量值，如果不存在返回null
      */
     private String getEnvironmentVariable(String key) {
-        // 转换为大写下划线格式（LOGX_OSS_ENDPOINT）
-        String envKey = key.toUpperCase(java.util.Locale.ENGLISH).replace('.', '_');
+        // 转换为大写下划线格式，支持驼峰命名
+        String envKey = toEnvironmentVariableFormat(key);
         return System.getenv(envKey);
+    }
+
+    /**
+     * 将配置键转换为环境变量格式
+     * <p>
+     * 转换规则：
+     * <ol>
+     * <li>处理驼峰命名：在小写字母后紧跟大写字母的位置插入下划线</li>
+     * <li>全部转大写</li>
+     * <li>点号替换为下划线</li>
+     * </ol>
+     *
+     * @param key
+     *            配置键（如 logx.oss.accessKeyId）
+     *
+     * @return 环境变量格式（如 LOGX_OSS_ACCESS_KEY_ID）
+     */
+    private String toEnvironmentVariableFormat(String key) {
+        // 1. 处理驼峰：在小写字母后紧跟大写字母的位置插入下划线
+        String result = key.replaceAll("([a-z])([A-Z])", "$1_$2");
+        // 2. 转大写
+        result = result.toUpperCase(java.util.Locale.ENGLISH);
+        // 3. 点号替换为下划线
+        result = result.replace('.', '_');
+        return result;
     }
 
     /**
