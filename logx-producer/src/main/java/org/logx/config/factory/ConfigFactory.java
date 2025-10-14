@@ -74,33 +74,35 @@ public class ConfigFactory {
      * 创建AWS S3配置
      */
     private StorageConfig createAwsS3Config() {
-        return new ConfigFactory.AwsS3Config.Builder().endpoint(getProperty("logx.oss.endpoint", "https://s3.amazonaws.com"))
-                .region(getProperty("logx.oss.region", "US"))
+        return new ConfigFactory.AwsS3Config.Builder()
+                .endpoint(getProperty("logx.oss.endpoint", "https://s3.amazonaws.com"))
+                .region(getRegionWithDefault(StorageOssType.AWS_S3))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true)).build();
+                .pathStyleAccess(getPathStyleAccessWithDefault(StorageOssType.AWS_S3))
+                .connectTimeout(getConnectTimeoutWithDefault())
+                .readTimeout(getReadTimeoutWithDefault())
+                .maxConnections(getMaxConnectionsWithDefault())
+                .enableSsl(getEnableSslWithDefault(StorageOssType.AWS_S3))
+                .build();
     }
 
     /**
      * 创建MinIO配置
      */
     private StorageConfig createMinioConfig() {
-        // MinIO默认使用路径风格
-        // MinIO开发环境通常不用SSL
-        return new MinioConfig.Builder().endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "US")).accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
+        return new MinioConfig.Builder()
+                .endpoint(getRequiredProperty("logx.oss.endpoint"))
+                .region(getRegionWithDefault(StorageOssType.MINIO))
+                .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", false))
+                .pathStyleAccess(getPathStyleAccessWithDefault(StorageOssType.MINIO))
+                .connectTimeout(getConnectTimeoutWithDefault())
+                .readTimeout(getReadTimeoutWithDefault())
+                .maxConnections(getMaxConnectionsWithDefault())
+                .enableSsl(getEnableSslWithDefault(StorageOssType.MINIO))
                 .build();
     }
 
@@ -111,15 +113,15 @@ public class ConfigFactory {
     private StorageConfig createSfOssConfig() {
         return new SfOssConfig.Builder()
                 .endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "US"))
+                .region(getRegionWithDefault(StorageOssType.SF_OSS))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true))
+                .pathStyleAccess(getPathStyleAccessWithDefault(StorageOssType.SF_OSS))
+                .connectTimeout(getConnectTimeoutWithDefault())
+                .readTimeout(getReadTimeoutWithDefault())
+                .maxConnections(getMaxConnectionsWithDefault())
+                .enableSsl(getEnableSslWithDefault(StorageOssType.SF_OSS))
                 .build();
     }
 
@@ -136,15 +138,15 @@ public class ConfigFactory {
     private StorageConfig createSfS3Config() {
         return new SfS3Config.Builder()
                 .endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "US"))
+                .region(getRegionWithDefault(StorageOssType.SF_S3))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", true))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true))
+                .pathStyleAccess(getPathStyleAccessWithDefault(StorageOssType.SF_S3))
+                .connectTimeout(getConnectTimeoutWithDefault())
+                .readTimeout(getReadTimeoutWithDefault())
+                .maxConnections(getMaxConnectionsWithDefault())
+                .enableSsl(getEnableSslWithDefault(StorageOssType.SF_S3))
                 .build();
     }
 
@@ -154,15 +156,15 @@ public class ConfigFactory {
     private StorageConfig createGenericS3Config() {
         return new GenericS3Config.Builder()
                 .endpoint(getRequiredProperty("logx.oss.endpoint"))
-                .region(getProperty("logx.oss.region", "US"))
+                .region(getRegionWithDefault(StorageOssType.GENERIC_S3))
                 .accessKeyId(getRequiredProperty("logx.oss.accessKeyId"))
                 .accessKeySecret(getRequiredProperty("logx.oss.accessKeySecret"))
                 .bucket(getRequiredProperty("logx.oss.bucket"))
-                .pathStyleAccess(configManager.getBooleanProperty("logx.oss.pathStyleAccess", false))
-                .connectTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.connectTimeout", 30000)))
-                .readTimeout(Duration.ofMillis(configManager.getLongProperty("logx.oss.readTimeout", 60000)))
-                .maxConnections(configManager.getIntProperty("logx.oss.maxConnections", 50))
-                .enableSsl(configManager.getBooleanProperty("logx.oss.enableSsl", true))
+                .pathStyleAccess(getPathStyleAccessWithDefault(StorageOssType.GENERIC_S3))
+                .connectTimeout(getConnectTimeoutWithDefault())
+                .readTimeout(getReadTimeoutWithDefault())
+                .maxConnections(getMaxConnectionsWithDefault())
+                .enableSsl(getEnableSslWithDefault(StorageOssType.GENERIC_S3))
                 .build();
     }
 
@@ -182,6 +184,105 @@ public class ConfigFactory {
             throw new IllegalArgumentException("Required configuration property '" + key + "' is missing");
         }
         return value;
+    }
+
+    /**
+     * 获取region配置，支持vendor特定默认值
+     * <p>
+     * 优先级：
+     * <ol>
+     * <li>JVM系统属性、环境变量、配置文件</li>
+     * <li>Vendor特定默认值（SF_S3/SF_OSS/MINIO使用"US"）</li>
+     * <li>通用默认值（ap-guangzhou）</li>
+     * </ol>
+     */
+    private String getRegionWithDefault(StorageOssType ossType) {
+        String region = configManager.getProperty("logx.oss.region");
+        if (region != null) {
+            return region;
+        }
+
+        // Vendor特定默认值
+        switch (ossType) {
+            case SF_S3:
+            case SF_OSS:
+            case MINIO:
+                return "US";
+            default:
+                return CommonConfig.Defaults.REGION;
+        }
+    }
+
+    /**
+     * 获取pathStyleAccess配置，支持vendor特定默认值
+     */
+    private boolean getPathStyleAccessWithDefault(StorageOssType ossType) {
+        String value = configManager.getProperty("logx.oss.pathStyleAccess");
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+
+        // Vendor特定默认值：根据云服务商类型决定
+        switch (ossType) {
+            case SF_S3:
+            case SF_OSS:
+            case MINIO:
+            case ALIYUN_OSS:
+            case TENCENT_COS:
+            case HUAWEI_OBS:
+                return true;  // 路径风格
+            case AWS_S3:
+            case GENERIC_S3:
+            default:
+                return false; // 虚拟主机风格
+        }
+    }
+
+    /**
+     * 获取enableSsl配置，支持vendor特定默认值
+     * <p>
+     * 特殊逻辑：MINIO且使用http://端点时默认为false，其他情况默认为true
+     */
+    private boolean getEnableSslWithDefault(StorageOssType ossType) {
+        String value = configManager.getProperty("logx.oss.enableSsl");
+        if (value != null) {
+            return Boolean.parseBoolean(value);
+        }
+
+        // Vendor特定默认值：MINIO使用http://端点时默认false
+        String endpoint = configManager.getProperty("logx.oss.endpoint");
+        if (ossType == StorageOssType.MINIO && endpoint != null && endpoint.toLowerCase().startsWith("http://")) {
+            return false;
+        }
+        return true;
+    }
+
+    /**
+     * 获取connectTimeout配置，默认30秒
+     */
+    private Duration getConnectTimeoutWithDefault() {
+        String value = configManager.getProperty("logx.oss.connectTimeout");
+        return value != null
+            ? Duration.ofMillis(Long.parseLong(value))
+            : Duration.ofMillis(30000);
+    }
+
+    /**
+     * 获取readTimeout配置，默认60秒
+     */
+    private Duration getReadTimeoutWithDefault() {
+        String value = configManager.getProperty("logx.oss.readTimeout");
+        return value != null
+            ? Duration.ofMillis(Long.parseLong(value))
+            : Duration.ofMillis(60000);
+    }
+
+    /**
+     * 获取maxConnections配置，默认50
+     */
+    private int getMaxConnectionsWithDefault() {
+        String value = configManager.getProperty("logx.oss.maxConnections");
+        return value != null ? Integer.parseInt(value) : 50;
     }
 
     /**
@@ -292,15 +393,23 @@ public class ConfigFactory {
     /**
      * 应用云服务商特定的个性化配置
      * <p>
-     * 根据云服务商类型，统一应用个性化默认配置：
+     * 根据云服务商类型，统一应用个性化默认配置，优先级：
+     * <ol>
+     * <li>baseConfig中的显式配置值（来自XML配置）</li>
+     * <li>JVM系统属性、环境变量、配置文件（通过ConfigManager查询）</li>
+     * <li>Vendor特定默认值（如SF_S3的region=US）</li>
+     * <li>通用默认值（如region=ap-guangzhou）</li>
+     * </ol>
+     * <p>
+     * Vendor特定规则：
      * <ul>
-     * <li>SF_S3: region=US, pathStyleAccess=true, enableSsl=true</li>
-     * <li>MINIO: pathStyleAccess=true, enableSsl=false（本地HTTP端点）</li>
-     * <li>AWS_S3: pathStyleAccess=false, enableSsl=true</li>
+     * <li>SF_S3/SF_OSS: region=US, pathStyleAccess=true</li>
+     * <li>MINIO: region=US, pathStyleAccess=true, enableSsl=false（HTTP端点时）</li>
+     * <li>AWS_S3: pathStyleAccess=false</li>
      * <li>其他云服务商: 使用各自的pathStyleDefault配置</li>
      * </ul>
      *
-     * @param baseConfig 基础配置
+     * @param baseConfig 基础配置（来自框架适配器）
      * @param ossType 云服务商类型
      * @return 应用了个性化配置的新配置对象
      */
@@ -308,6 +417,9 @@ public class ConfigFactory {
         if (baseConfig == null || ossType == null) {
             return baseConfig;
         }
+
+        // 创建ConfigManager实例用于读取外部配置
+        ConfigManager configManager = new ConfigManager();
 
         class ConfigBuilder extends StorageConfig.Builder<ConfigBuilder> {
             @Override
@@ -330,6 +442,7 @@ public class ConfigFactory {
 
         ConfigBuilder builder = new ConfigBuilder();
 
+        // 保留baseConfig中已有的值
         builder.endpoint(baseConfig.getEndpoint())
                 .accessKeyId(baseConfig.getAccessKeyId())
                 .accessKeySecret(baseConfig.getAccessKeySecret())
@@ -339,30 +452,50 @@ public class ConfigFactory {
                 .readTimeout(baseConfig.getReadTimeout())
                 .maxConnections(baseConfig.getMaxConnections());
 
+        // region: baseConfig → ConfigManager → vendor默认值 → 通用默认值
         String region = baseConfig.getRegion();
         if (region == null || region.isEmpty()) {
-            if (ossType == StorageOssType.SF_S3) {
-                region = "US";
-            } else {
-                region = CommonConfig.Defaults.REGION;
+            region = configManager.getProperty("logx.oss.region");
+            if (region == null || region.isEmpty()) {
+                // Vendor特定默认值
+                if (ossType == StorageOssType.SF_S3 || ossType == StorageOssType.SF_OSS || ossType == StorageOssType.MINIO) {
+                    region = "US";
+                } else {
+                    region = CommonConfig.Defaults.REGION;
+                }
             }
         }
         builder.region(region);
 
-        boolean pathStyleAccess = ossType.isPathStyleDefault();
+        // pathStyleAccess: ConfigManager → vendor默认值 (总是重新计算，因为boolean无法判断是否配置过)
+        String pathStyleStr = configManager.getProperty("logx.oss.pathStyleAccess");
+        boolean pathStyleAccess;
+        if (pathStyleStr != null && !pathStyleStr.isEmpty()) {
+            pathStyleAccess = Boolean.parseBoolean(pathStyleStr);
+        } else {
+            // Vendor特定默认值
+            pathStyleAccess = ossType.isPathStyleDefault();
+        }
         builder.pathStyleAccess(pathStyleAccess);
 
+        // enableSsl: ConfigManager → 根据endpoint和vendor决定 (总是重新计算)
+        String enableSslStr = configManager.getProperty("logx.oss.enableSsl");
         boolean enableSsl;
-        String endpoint = baseConfig.getEndpoint();
-        if (endpoint != null && !endpoint.isEmpty()) {
-            String lowerEndpoint = endpoint.toLowerCase();
-            if (ossType == StorageOssType.MINIO && lowerEndpoint.startsWith("http://")) {
-                enableSsl = false;
-            } else {
-                enableSsl = lowerEndpoint.startsWith("https://");
-            }
+        if (enableSslStr != null && !enableSslStr.isEmpty()) {
+            enableSsl = Boolean.parseBoolean(enableSslStr);
         } else {
-            enableSsl = true;
+            // 根据endpoint判断
+            String endpoint = baseConfig.getEndpoint();
+            if (endpoint != null && !endpoint.isEmpty()) {
+                String lowerEndpoint = endpoint.toLowerCase();
+                if (ossType == StorageOssType.MINIO && lowerEndpoint.startsWith("http://")) {
+                    enableSsl = false;
+                } else {
+                    enableSsl = lowerEndpoint.startsWith("https://");
+                }
+            } else {
+                enableSsl = true;
+            }
         }
         builder.enableSsl(enableSsl);
 

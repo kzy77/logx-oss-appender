@@ -40,9 +40,9 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateAwsS3ConfigWithDefaults() {
         // 设置最少必需的配置
-        configManager.setDefault("logx.oss.accessKeyId", "AKIAIOSFODNN7EXAMPLE");
-        configManager.setDefault("logx.oss.accessKeySecret", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
-        configManager.setDefault("logx.oss.bucket", "my-test-bucket");
+        System.setProperty("logx.oss.accessKeyId", "AKIAIOSFODNN7EXAMPLE");
+        System.setProperty("logx.oss.accessKeySecret", "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
+        System.setProperty("logx.oss.bucket", "my-test-bucket");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
@@ -60,16 +60,16 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateAwsS3ConfigWithCustomValues() {
         // 设置自定义配置
-        configManager.setDefault("logx.oss.endpoint", "https://s3.eu-west-1.amazonaws.com");
-        configManager.setDefault("logx.oss.region", "eu-west-1");
-        configManager.setDefault("logx.oss.accessKeyId", "CUSTOM_ACCESS_KEY");
-        configManager.setDefault("logx.oss.accessKeySecret", "CUSTOM_SECRET_KEY");
-        configManager.setDefault("logx.oss.bucket", "custom-bucket");
-        configManager.setDefault("logx.oss.pathStyleAccess", "true");
-        configManager.setDefault("logx.oss.enableSsl", "false");
-        configManager.setDefault("logx.oss.maxConnections", "100");
-        configManager.setDefault("logx.oss.connectTimeout", "60000");
-        configManager.setDefault("logx.oss.readTimeout", "120000");
+        System.setProperty("logx.oss.endpoint", "https://s3.eu-west-1.amazonaws.com");
+        System.setProperty("logx.oss.region", "eu-west-1");
+        System.setProperty("logx.oss.accessKeyId", "CUSTOM_ACCESS_KEY");
+        System.setProperty("logx.oss.accessKeySecret", "CUSTOM_SECRET_KEY");
+        System.setProperty("logx.oss.bucket", "custom-bucket");
+        System.setProperty("logx.oss.pathStyleAccess", "true");
+        System.setProperty("logx.oss.enableSsl", "false");
+        System.setProperty("logx.oss.maxConnections", "100");
+        System.setProperty("logx.oss.connectTimeout", "60000");
+        System.setProperty("logx.oss.readTimeout", "120000");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
@@ -88,10 +88,10 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateMinioConfigWithDefaults() {
         // 设置必需的MinIO配置
-        configManager.setDefault("logx.oss.endpoint", "http://localhost:9000");
-        configManager.setDefault("logx.oss.accessKeyId", "minioadmin");
-        configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
-        configManager.setDefault("logx.oss.bucket", "logs");
+        System.setProperty("logx.oss.endpoint", "http://localhost:9000");
+        System.setProperty("logx.oss.accessKeyId", "minioadmin");
+        System.setProperty("logx.oss.accessKeySecret", "minioadmin");
+        System.setProperty("logx.oss.bucket", "logs");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.MINIO);
 
@@ -110,10 +110,10 @@ class ConfigFactoryTest {
     @Test
     void shouldCreateGenericS3ConfigWithDefaults() {
         // 设置必需的通用S3配置
-        configManager.setDefault("logx.oss.endpoint", "https://storage.example.com");
-        configManager.setDefault("logx.oss.accessKeyId", "EXAMPLE_ACCESS_KEY");
-        configManager.setDefault("logx.oss.accessKeySecret", "EXAMPLE_SECRET_KEY");
-        configManager.setDefault("logx.oss.bucket", "application-logs");
+        System.setProperty("logx.oss.endpoint", "https://storage.example.com");
+        System.setProperty("logx.oss.accessKeyId", "EXAMPLE_ACCESS_KEY");
+        System.setProperty("logx.oss.accessKeySecret", "EXAMPLE_SECRET_KEY");
+        System.setProperty("logx.oss.bucket", "application-logs");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.GENERIC_S3);
 
@@ -138,9 +138,9 @@ class ConfigFactoryTest {
     @Test
     void shouldThrowExceptionForEmptyRequiredProperties() {
         // 设置空的必需属性
-        configManager.setDefault("logx.oss.accessKeyId", "");
-        configManager.setDefault("logx.oss.accessKeySecret", "valid-secret");
-        configManager.setDefault("logx.oss.bucket", "valid-bucket");
+        System.setProperty("logx.oss.accessKeyId", "");
+        System.setProperty("logx.oss.accessKeySecret", "valid-secret");
+        System.setProperty("logx.oss.bucket", "valid-bucket");
 
         assertThatThrownBy(() -> configFactory.createConfig(StorageOssType.AWS_S3))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("logx.oss.accessKeyId");
@@ -154,34 +154,34 @@ class ConfigFactoryTest {
 
         // 创建一个会触发default分支的测试场景比较困难，
         // 但我们可以通过测试所有支持的backend来确保覆盖率
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
-        configManager.setDefault("logx.oss.endpoint", "http://test");
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.endpoint", "http://test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
-        configManager.setDefault("logx.oss.endpoint", "https://test");
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.endpoint", "https://test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
         // 验证所有支持的backend都能正常创建配置
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
-        configManager.setDefault("logx.oss.endpoint", "http://test");
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.endpoint", "http://test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
-        configManager.setDefault("logx.oss.endpoint", "https://test");
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.endpoint", "https://test");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
 
         assertThat(configFactory.createConfig(StorageOssType.AWS_S3)).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(configFactory.createConfig(StorageOssType.MINIO)).isInstanceOf(ConfigFactory.MinioConfig.class);
@@ -192,9 +192,9 @@ class ConfigFactoryTest {
     @Test
     void shouldUseSystemPropertiesOverDefaults() {
         // 设置默认值
-        configManager.setDefault("logx.oss.accessKeyId", "default-key");
-        configManager.setDefault("logx.oss.accessKeySecret", "default-secret");
-        configManager.setDefault("logx.oss.bucket", "default-bucket");
+        System.setProperty("logx.oss.accessKeyId", "default-key");
+        System.setProperty("logx.oss.accessKeySecret", "default-secret");
+        System.setProperty("logx.oss.bucket", "default-bucket");
 
         // 设置系统属性
         System.setProperty("logx.oss.accessKeyId", "system-key");
@@ -218,10 +218,10 @@ class ConfigFactoryTest {
 
     @Test
     void shouldHandleMinioSpecificDefaults() {
-        configManager.setDefault("logx.oss.endpoint", "http://localhost:9000");
-        configManager.setDefault("logx.oss.accessKeyId", "minioadmin");
-        configManager.setDefault("logx.oss.accessKeySecret", "minioadmin");
-        configManager.setDefault("logx.oss.bucket", "logs");
+        System.setProperty("logx.oss.endpoint", "http://localhost:9000");
+        System.setProperty("logx.oss.accessKeyId", "minioadmin");
+        System.setProperty("logx.oss.accessKeySecret", "minioadmin");
+        System.setProperty("logx.oss.bucket", "logs");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.MINIO);
 
@@ -234,12 +234,12 @@ class ConfigFactoryTest {
 
     @Test
     void shouldParseNumericPropertiesCorrectly() {
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
-        configManager.setDefault("logx.oss.maxConnections", "200");
-        configManager.setDefault("logx.oss.connectTimeout", "45000");
-        configManager.setDefault("logx.oss.readTimeout", "90000");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.maxConnections", "200");
+        System.setProperty("logx.oss.connectTimeout", "45000");
+        System.setProperty("logx.oss.readTimeout", "90000");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 
@@ -250,11 +250,11 @@ class ConfigFactoryTest {
 
     @Test
     void shouldParseBooleanPropertiesCorrectly() {
-        configManager.setDefault("logx.oss.accessKeyId", "test");
-        configManager.setDefault("logx.oss.accessKeySecret", "test");
-        configManager.setDefault("logx.oss.bucket", "test");
-        configManager.setDefault("logx.oss.pathStyleAccess", "true");
-        configManager.setDefault("logx.oss.enableSsl", "false");
+        System.setProperty("logx.oss.accessKeyId", "test");
+        System.setProperty("logx.oss.accessKeySecret", "test");
+        System.setProperty("logx.oss.bucket", "test");
+        System.setProperty("logx.oss.pathStyleAccess", "true");
+        System.setProperty("logx.oss.enableSsl", "false");
 
         StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);
 

@@ -209,9 +209,9 @@ class ConfigCompatibilityTest {
             ConfigManager configManager = new ConfigManager();
 
             // 设置配置文件属性（低优先级）
-            configManager.setDefault("logx.oss.region", "config-region");
-            configManager.setDefault("logx.oss.bucket", "config-bucket");
-            configManager.setDefault("logx.oss.accessKeyId", "config-key");
+            System.setProperty("logx.oss.region", "config-region");
+            System.setProperty("logx.oss.bucket", "config-bucket");
+            System.setProperty("logx.oss.accessKeyId", "config-key");
 
             // 验证系统属性优先级最高
             assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("system-region");
@@ -238,11 +238,11 @@ class ConfigCompatibilityTest {
         ConfigFactory configFactory = new ConfigFactory(configManager);
 
         // 设置logx.oss前缀的配置
-        configManager.setDefault("logx.oss.accessKeyId", "integration-key");
-        configManager.setDefault("logx.oss.accessKeySecret", "integration-secret");
-        configManager.setDefault("logx.oss.bucket", "integration-bucket");
-        configManager.setDefault("logx.oss.endpoint", "https://integration.example.com");
-        configManager.setDefault("logx.oss.region", "integration-region");
+        System.setProperty("logx.oss.accessKeyId", "integration-key");
+        System.setProperty("logx.oss.accessKeySecret", "integration-secret");
+        System.setProperty("logx.oss.bucket", "integration-bucket");
+        System.setProperty("logx.oss.endpoint", "https://integration.example.com");
+        System.setProperty("logx.oss.region", "integration-region");
 
         // 创建存储配置
         StorageConfig config = configFactory.createConfig(StorageOssType.AWS_S3);

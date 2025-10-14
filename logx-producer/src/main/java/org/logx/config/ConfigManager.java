@@ -30,7 +30,6 @@ public class ConfigManager {
     private static final String DEFAULT_CONFIG_FILE = "application.properties";
 
     private final Map<String, String> configCache = new ConcurrentHashMap<>();
-    private final Map<String, String> defaultValues = new HashMap<>();
     private Properties fileProperties;
     // 配置文件路径
     private String configFilePath;
@@ -51,7 +50,6 @@ public class ConfigManager {
         try {
             this.configFilePath = DEFAULT_CONFIG_FILE;
             loadFileProperties();
-            initializeDefaults();
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize ConfigManager", e);
         }
@@ -67,7 +65,6 @@ public class ConfigManager {
         try {
             this.configFilePath = configFilePath;
             loadFileProperties(configFilePath);
-            initializeDefaults();
         } catch (Exception e) {
             throw new RuntimeException("Failed to initialize ConfigManager with config file: " + configFilePath, e);
         }
@@ -82,6 +79,15 @@ public class ConfigManager {
      * <li>环境变量：只支持大写下划线格式（LOGX_OSS_ENDPOINT）</li>
      * <li>配置文件：标准点号格式（logx.oss.endpoint）</li>
      * </ul>
+     * <p>
+     * 优先级顺序（从高到低）：
+     * <ol>
+     * <li>JVM系统属性</li>
+     * <li>环境变量</li>
+     * <li>配置文件属性</li>
+     * </ol>
+     * <p>
+     * 如果所有配置源都找不到，返回null。默认值处理由调用方（如ConfigFactory）负责。
      *
      * @param key
      *            配置键（使用点号格式，如 logx.oss.endpoint）
@@ -119,13 +125,8 @@ public class ConfigManager {
             return value;
         }
 
-        // 优先级4: 默认值
-        value = defaultValues.get(key);
-        if (value != null) {
-            configCache.put(key, value);
-        }
-
-        return value;
+        // 未找到配置，返回null
+        return null;
     }
 
     /**
@@ -251,20 +252,6 @@ public class ConfigManager {
     }
 
     /**
-     * 设置默认值
-     *
-     * @param key
-     *            配置键
-     * @param value
-     *            默认值
-     */
-    public void setDefault(String key, String value) {
-        if (key != null && value != null) {
-            defaultValues.put(key, value);
-        }
-    }
-
-    /**
      * 清除配置缓存
      */
     public void clearCache() {
@@ -297,9 +284,6 @@ public class ConfigManager {
      */
     public Map<String, String> getAllProperties() {
         Map<String, String> allProperties = new HashMap<>();
-
-        // 添加默认值
-        allProperties.putAll(defaultValues);
 
         // 添加文件属性
         if (fileProperties != null) {
@@ -455,35 +439,6 @@ public class ConfigManager {
             // 配置文件不存在或无法读取，使用空属性
             fileProperties = new Properties();
         }
-    }
-
-    /**
-     * 初始化默认配置值
-     */
-    private void initializeDefaults() {
-        setDefault("logx.oss.region", CommonConfig.Defaults.REGION);
-        setDefault("logx.oss.keyPrefix", "logs/");
-        setDefault("logx.oss.connectTimeout", "10000");
-        setDefault("logx.oss.readTimeout", "30000");
-
-        // 批处理配置默认值
-        setDefault("logx.oss.maxBatchCount", String.valueOf(CommonConfig.Defaults.MAX_BATCH_COUNT));
-        setDefault("logx.oss.maxBatchBytes", String.valueOf(CommonConfig.Defaults.MAX_BATCH_BYTES));
-        setDefault("logx.oss.maxMessageAgeMs", String.valueOf(CommonConfig.Defaults.MAX_MESSAGE_AGE_MS));
-
-        // 队列配置默认值
-        setDefault("logx.oss.queueCapacity", String.valueOf(CommonConfig.Defaults.QUEUE_CAPACITY));
-        setDefault("logx.oss.blockWhenFull", "false");
-
-        // 线程池配置默认值
-        setDefault("logx.oss.corePoolSize", "2");
-        setDefault("logx.oss.maximumPoolSize", "4");
-        setDefault("logx.oss.keepAliveTime", "60000");
-
-        // 重试配置默认值
-        setDefault("logx.oss.maxRetries", "3");
-        setDefault("logx.oss.baseBackoffMs", "1000");
-        setDefault("logx.oss.maxBackoffMs", "30000");
     }
 
     /**

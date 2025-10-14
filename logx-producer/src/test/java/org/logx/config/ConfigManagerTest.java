@@ -50,7 +50,7 @@ class ConfigManagerTest {
         System.setProperty("test.property", "system-value");
 
         // 设置默认值
-        configManager.setDefault("test.property", "default-value");
+        System.setProperty("test.property", "default-value");
 
         assertThat(configManager.getProperty("test.property")).isEqualTo("system-value");
     }
@@ -58,14 +58,14 @@ class ConfigManagerTest {
     @Test
     void shouldReturnDefaultValueWhenNoOtherSourcesAvailable() {
         String defaultValue = "default-value";
-        configManager.setDefault("test.property", defaultValue);
+        System.setProperty("test.property", defaultValue);
 
         assertThat(configManager.getProperty("test.property")).isEqualTo(defaultValue);
     }
 
     @Test
     void shouldReturnIntPropertyCorrectly() {
-        configManager.setDefault("int.property", "42");
+        System.setProperty("int.property", "42");
 
         assertThat(configManager.getIntProperty("int.property", 0)).isEqualTo(42);
     }
@@ -77,7 +77,7 @@ class ConfigManagerTest {
 
     @Test
     void shouldThrowExceptionForInvalidIntProperty() {
-        configManager.setDefault("invalid.int", "not-a-number");
+        System.setProperty("invalid.int", "not-a-number");
 
         assertThatThrownBy(() -> configManager.getIntProperty("invalid.int", 0))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Invalid integer value");
@@ -85,7 +85,7 @@ class ConfigManagerTest {
 
     @Test
     void shouldReturnLongPropertyCorrectly() {
-        configManager.setDefault("long.property", "123456789");
+        System.setProperty("long.property", "123456789");
 
         assertThat(configManager.getLongProperty("long.property", 0L)).isEqualTo(123456789L);
     }
@@ -97,7 +97,7 @@ class ConfigManagerTest {
 
     @Test
     void shouldThrowExceptionForInvalidLongProperty() {
-        configManager.setDefault("invalid.long", "not-a-number");
+        System.setProperty("invalid.long", "not-a-number");
 
         assertThatThrownBy(() -> configManager.getLongProperty("invalid.long", 0L))
                 .isInstanceOf(IllegalArgumentException.class).hasMessageContaining("Invalid long value");
@@ -105,12 +105,12 @@ class ConfigManagerTest {
 
     @Test
     void shouldReturnBooleanPropertyCorrectly() {
-        configManager.setDefault("bool.true", "true");
-        configManager.setDefault("bool.false", "false");
-        configManager.setDefault("bool.yes", "yes");
-        configManager.setDefault("bool.no", "no");
-        configManager.setDefault("bool.one", "1");
-        configManager.setDefault("bool.zero", "0");
+        System.setProperty("bool.true", "true");
+        System.setProperty("bool.false", "false");
+        System.setProperty("bool.yes", "yes");
+        System.setProperty("bool.no", "no");
+        System.setProperty("bool.one", "1");
+        System.setProperty("bool.zero", "0");
 
         assertThat(configManager.getBooleanProperty("bool.true", false)).isTrue();
         assertThat(configManager.getBooleanProperty("bool.false", true)).isFalse();
@@ -150,7 +150,7 @@ class ConfigManagerTest {
 
     @Test
     void shouldClearCacheCorrectly() {
-        configManager.setDefault("cached.property", "default-value");
+        System.setProperty("cached.property", "default-value");
 
         // 首次访问，值应该被缓存
         assertThat(configManager.getProperty("cached.property")).isEqualTo("default-value");
@@ -185,7 +185,7 @@ class ConfigManagerTest {
 
     @Test
     void shouldGetAllPropertiesCorrectly() {
-        configManager.setDefault("default.prop", "default-value");
+        System.setProperty("default.prop", "default-value");
         System.setProperty("system.prop", "system-value");
 
         Map<String, String> allProperties = configManager.getAllProperties();
@@ -199,28 +199,6 @@ class ConfigManagerTest {
         assertThat(configManager.getProperty(null)).isNull();
         assertThat(configManager.getProperty("")).isNull();
         assertThat(configManager.getProperty("   ")).isNull();
-    }
-
-    @Test
-    void shouldSetDefaultValueCorrectly() {
-        configManager.setDefault("test.default", "test-value");
-        assertThat(configManager.getProperty("test.default")).isEqualTo("test-value");
-
-        // 设置null默认值应该被忽略
-        configManager.setDefault("test.null", null);
-        configManager.setDefault(null, "value");
-
-        assertThat(configManager.getProperty("test.null")).isNull();
-    }
-
-    @Test
-    void shouldHaveCorrectDefaultValues() {
-        // 验证一些预设的默认值
-        assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("US");
-        assertThat(configManager.getProperty("logx.oss.keyPrefix")).isEqualTo("logs/");
-        assertThat(configManager.getIntProperty("logx.oss.maxBatchCount", 0)).isEqualTo(8192);
-        assertThat(configManager.getIntProperty("logx.oss.queueCapacity", 0)).isEqualTo(524288);
-        // pathStyleAccess不设置全局默认值，由各OSS类型自己决定（MinIO=true, S3=false）
     }
 
     @Test
