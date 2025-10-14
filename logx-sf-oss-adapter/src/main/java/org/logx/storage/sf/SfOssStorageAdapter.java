@@ -1,5 +1,6 @@
 package org.logx.storage.sf;
 
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageInterface;
 
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
  */
 public final class SfOssStorageAdapter implements StorageInterface, AutoCloseable {
 
-    private static final String OSS_TYPE = "SF_OSS";
+    private static final ProtocolType PROTOCOL_TYPE = ProtocolType.SF_OSS;
 
     private final LogxSfOssClient logxSfOssClient;
     private final String bucketName;
@@ -89,8 +90,8 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     }
 
     @Override
-    public String getOssType() {
-        return OSS_TYPE;
+    public ProtocolType getProtocolType() {
+        return PROTOCOL_TYPE;
     }
 
     @Override

@@ -2,6 +2,7 @@ package org.logx.storage.s3;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -30,7 +31,7 @@ public class S3StorageAdapterTest {
         assertDoesNotThrow(() -> {
             S3StorageAdapter adapter = new S3StorageAdapter(config);
             assertNotNull(adapter);
-            assertEquals("S3", adapter.getOssType());
+            assertEquals(ProtocolType.S3, adapter.getProtocolType());
             assertEquals("test-bucket", adapter.getBucketName());
             adapter.close();
         });
@@ -50,7 +51,7 @@ public class S3StorageAdapterTest {
         assertDoesNotThrow(() -> {
             S3StorageAdapter adapter = new S3StorageAdapter(configWithoutEndpoint);
             assertNotNull(adapter);
-            assertEquals("S3", adapter.getOssType());
+            assertEquals(ProtocolType.S3, adapter.getProtocolType());
             assertEquals("test-bucket", adapter.getBucketName());
             adapter.close();
         });

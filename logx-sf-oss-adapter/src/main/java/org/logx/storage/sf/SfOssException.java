@@ -1,5 +1,6 @@
 package org.logx.storage.sf;
 
+import org.logx.storage.ProtocolType;
 /**
  * SF OSS异常
  * <p>

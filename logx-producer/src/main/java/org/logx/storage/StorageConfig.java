@@ -154,6 +154,11 @@ public class StorageConfig {
     }
 
     // Getter方法
+    /**
+     * 获取云服务商类型（如SF_S3、MINIO、AWS_S3等）
+     *
+     * @return 云服务商类型字符串
+     */
     public String getOssType() {
         return ossType;
     }

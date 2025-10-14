@@ -1,5 +1,6 @@
 package org.logx.storage.sf;
 
+import org.logx.storage.ProtocolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

@@ -26,7 +26,9 @@ import java.util.stream.Stream;
 public class FallbackUploaderTask implements Runnable {
     
     private static final Logger logger = LoggerFactory.getLogger(FallbackUploaderTask.class);
-    private static final String FALLBACK_FILE_SUFFIX = "_fallback.log";
+
+    // 兜底文件后缀（统一使用.log.gz格式）
+    private static final String FALLBACK_FILE_SUFFIX = ".log.gz";
     private static final int UPLOAD_TIMEOUT_SECONDS = 30;
     
     private final StorageService storageService;

@@ -1,6 +1,7 @@
 package org.logx.core;
 
 import org.junit.jupiter.api.Test;
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageService;
 
 import java.util.concurrent.CompletableFuture;
@@ -33,8 +34,8 @@ class ShutdownTest {
         }
 
         @Override
-        public String getOssType() {
-            return "test";
+        public ProtocolType getProtocolType() {
+            return ProtocolType.S3;
         }
 
         @Override
@@ -48,8 +49,8 @@ class ShutdownTest {
         }
 
         @Override
-        public boolean supportsOssType(String ossType) {
-            return "test".equals(ossType);
+        public boolean supportsProtocol(ProtocolType protocol) {
+            return protocol == ProtocolType.S3;
         }
 
         public int getUploadCount() {

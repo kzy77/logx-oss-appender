@@ -3,6 +3,7 @@ package org.logx.test;
 import org.logx.core.EnhancedDisruptorBatchingQueue;
 import org.logx.core.EnhancedDisruptorBatchingQueue.Config;
 import org.logx.storage.StorageService;
+import org.logx.storage.ProtocolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,22 +29,22 @@ public class DebugLogTest {
             }
             
             @Override
-            public String getOssType() {
-                return "MOCK";
+            public ProtocolType getProtocolType() {
+                return ProtocolType.S3;
             }
-            
+
             @Override
             public String getBucketName() {
                 return "mock-bucket";
             }
-            
+
             @Override
             public void close() {
             }
-            
+
             @Override
-            public boolean supportsOssType(String ossType) {
-                return "MOCK".equals(ossType);
+            public boolean supportsProtocol(ProtocolType protocol) {
+                return protocol == ProtocolType.S3;
             }
         };
         

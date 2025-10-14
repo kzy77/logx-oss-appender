@@ -1,5 +1,6 @@
 package org.logx.storage.s3;
 
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 import org.slf4j.Logger;
@@ -44,7 +45,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     /**
      * 适配器类型：标准S3协议
      */
-    private static final String ADAPTER_TYPE = "S3";
+    private static final ProtocolType ADAPTER_TYPE = ProtocolType.S3;
 
     private S3Client s3Client;
     private String bucketName;
@@ -172,7 +173,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     }
 
     @Override
-    public String getOssType() {
+    public ProtocolType getProtocolType() {
         return ADAPTER_TYPE;
     }
 
@@ -200,9 +201,8 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     }
 
     @Override
-    public boolean supportsOssType(String ossType) {
-        // 匹配协议类型：S3
-        return ADAPTER_TYPE.equalsIgnoreCase(ossType);
+    public boolean supportsProtocol(ProtocolType protocol) {
+        return ADAPTER_TYPE == protocol;
     }
 
     /**

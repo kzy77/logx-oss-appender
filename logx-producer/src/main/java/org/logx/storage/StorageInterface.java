@@ -26,11 +26,11 @@ public interface StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
 
     /**
-     * 获取OSS类型
+     * 获取协议类型
      *
-     * @return OSS类型字符串
+     * @return 协议类型枚举（S3或SF_OSS）
      */
-    String getOssType();
+    ProtocolType getProtocolType();
 
     /**
      * 获取存储桶名称

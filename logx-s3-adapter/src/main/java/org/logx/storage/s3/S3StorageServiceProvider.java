@@ -1,5 +1,6 @@
 package org.logx.storage.s3;
 
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 import java.util.concurrent.CompletableFuture;
@@ -18,7 +19,7 @@ public class S3StorageServiceProvider implements StorageService {
      * 适配器类型：标准S3协议
      * 用于匹配所有使用S3协议的存储服务（AWS S3, MinIO, 阿里云OSS, 腾讯云COS, SF S3等）
      */
-    private static final String ADAPTER_TYPE = "S3";
+    private static final ProtocolType ADAPTER_TYPE = ProtocolType.S3;
     private S3StorageAdapter adapter;
 
     /**
@@ -35,7 +36,7 @@ public class S3StorageServiceProvider implements StorageService {
     }
 
     @Override
-    public String getOssType() {
+    public ProtocolType getProtocolType() {
         return ADAPTER_TYPE;
     }
 
@@ -53,9 +54,8 @@ public class S3StorageServiceProvider implements StorageService {
     }
 
     @Override
-    public boolean supportsOssType(String ossType) {
-        // 匹配协议类型：S3
-        return ADAPTER_TYPE.equalsIgnoreCase(ossType);
+    public boolean supportsProtocol(ProtocolType protocol) {
+        return ADAPTER_TYPE == protocol;
     }
 
     /**

@@ -1,6 +1,7 @@
 package org.logx.core;
 
 import org.junit.jupiter.api.Test;
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageService;
 
 import java.util.concurrent.CompletableFuture;
@@ -33,13 +34,23 @@ class BatchMaxMessagesTest {
         }
 
         @Override
-        public String getOssType() { return "test"; }
+        public ProtocolType getProtocolType() {
+            return ProtocolType.S3;
+        }
+
         @Override
-        public String getBucketName() { return "test-bucket"; }
+        public String getBucketName() {
+            return "test-bucket";
+        }
+
         @Override
-        public void close() { }
+        public void close() {
+        }
+
         @Override
-        public boolean supportsOssType(String ossType) { return "test".equals(ossType); }
+        public boolean supportsProtocol(ProtocolType protocol) {
+            return protocol == ProtocolType.S3;
+        }
 
         public int getUploadCount() { return uploadCount.get(); }
     }

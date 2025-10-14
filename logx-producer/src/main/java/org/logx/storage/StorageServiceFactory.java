@@ -29,9 +29,25 @@ public class StorageServiceFactory {
      * @throws IllegalStateException 如果找不到合适的存储服务适配器
      */
     public static StorageService createStorageService(StorageConfig config) {
-        // 首先尝试自动检测OSS类型
+        // 首先尝试自动检测OSS类型并应用个性化配置
         StorageConfig detectedConfig = StorageConfig.detectBackendType(config);
+        // 获取云服务商类型，如"SF_S3"、"MINIO"等
         String ossType = detectedConfig.getOssType();
+
+        // 从云服务商类型获取协议类型（如SF_S3 → ProtocolType.S3）
+        ProtocolType protocol;
+        try {
+            StorageOssType ossTypeEnum = StorageOssType.valueOf(ossType);
+            protocol = ossTypeEnum.getProtocolType();
+        } catch (IllegalArgumentException e) {
+            // 如果ossType无法识别，尝试直接作为协议类型字符串解析
+            logger.warn("Unknown OSS type: {}, trying to parse as protocol type", ossType);
+            try {
+                protocol = ProtocolType.fromValue(ossType);
+            } catch (IllegalArgumentException e2) {
+                throw new IllegalStateException("Invalid OSS type or protocol: " + ossType, e2);
+            }
+        }
 
         // 使用Java SPI机制加载存储服务实现
         ServiceLoader<StorageService> loader = ServiceLoader.load(StorageService.class);
@@ -41,7 +57,7 @@ public class StorageServiceFactory {
         while (iterator.hasNext()) {
             try {
                 StorageService service = iterator.next();
-                if (service.supportsOssType(ossType)) {
+                if (service.supportsProtocol(protocol)) {
                     // 尝试调用初始化方法
                     try {
                         // 使用反射调用initialize方法（如果存在）
@@ -60,7 +76,7 @@ public class StorageServiceFactory {
         }
 
         // 如果没有找到支持的存储服务，抛出异常
-        throw new IllegalStateException("No storage service found for OSS type: " + ossType + 
+        throw new IllegalStateException("No storage service found for protocol type: " + protocol +
             ". Please ensure the appropriate adapter module is in the classpath.");
     }
 

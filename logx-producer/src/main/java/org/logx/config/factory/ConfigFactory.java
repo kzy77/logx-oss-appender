@@ -366,8 +366,8 @@ public class ConfigFactory {
         }
         builder.enableSsl(enableSsl);
 
-        String protocolType = ossType.getProtocolType();
-        builder.ossType(protocolType);
+        // 注意：不要覆盖ossType字段，保持用户配置的云服务商类型（如SF_S3、MINIO等）
+        // 在需要协议类型时，通过ossType.getProtocolType()动态获取
 
         return builder.build();
     }

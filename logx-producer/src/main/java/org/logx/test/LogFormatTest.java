@@ -4,6 +4,7 @@ import org.logx.core.EnhancedDisruptorBatchingQueue;
 import org.logx.core.EnhancedDisruptorBatchingQueue.Config;
 import org.logx.core.EnhancedDisruptorBatchingQueue.LogEvent;
 import org.logx.storage.StorageService;
+import org.logx.storage.ProtocolType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,10 +34,10 @@ public class LogFormatTest {
         Config config = Config.defaultConfig();
         StorageService mockStorage = new StorageService() {
             public CompletableFuture<Void> putObject(String key, byte[] data) { return CompletableFuture.completedFuture(null); }
-            public String getOssType() { return "MOCK"; }
+            public ProtocolType getProtocolType() { return ProtocolType.S3; }
             public String getBucketName() { return "mock"; }
             public void close() {}
-            public boolean supportsOssType(String ossType) { return true; }
+            public boolean supportsProtocol(ProtocolType protocol) { return true; }
         };
         
         EnhancedDisruptorBatchingQueue queue = new EnhancedDisruptorBatchingQueue(config, 

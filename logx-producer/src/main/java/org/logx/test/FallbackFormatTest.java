@@ -4,6 +4,7 @@ import org.logx.core.AsyncEngineImpl;
 import org.logx.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.logx.storage.ProtocolType;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -36,23 +37,23 @@ public class FallbackFormatTest {
                 }
                 
                 @Override
-                public String getOssType() {
-                    return "MOCK";
+                public ProtocolType getProtocolType() {
+                    return ProtocolType.S3;
                 }
-                
+
                 @Override
                 public String getBucketName() {
                     return "mock-bucket";
                 }
-                
+
                 @Override
                 public void close() {
                     logger.info("关闭模拟存储服务");
                 }
-                
+
                 @Override
-                public boolean supportsOssType(String ossType) {
-                    return "MOCK".equals(ossType);
+                public boolean supportsProtocol(ProtocolType protocol) {
+                    return protocol == ProtocolType.S3;
                 }
             };
             

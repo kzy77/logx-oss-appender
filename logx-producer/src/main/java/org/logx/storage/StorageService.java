@@ -22,11 +22,11 @@ public interface StorageService extends StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
 
     /**
-     * 获取OSS类型
+     * 获取协议类型
      *
-     * @return OSS类型字符串
+     * @return 协议类型枚举（S3或SF_OSS）
      */
-    String getOssType();
+    ProtocolType getProtocolType();
 
     /**
      * 获取存储桶名称
@@ -41,10 +41,10 @@ public interface StorageService extends StorageInterface {
     void close();
 
     /**
-     * 检查当前存储服务是否支持指定的OSS类型
+     * 检查当前存储服务是否支持指定的协议类型
      *
-     * @param ossType OSS类型
-     * @return 是否支持
+     * @param protocol 协议类型枚举（S3或SF_OSS）
+     * @return 是否支持该协议
      */
-    boolean supportsOssType(String ossType);
+    boolean supportsProtocol(ProtocolType protocol);
 }

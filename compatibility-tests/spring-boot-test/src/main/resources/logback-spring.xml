@@ -43,7 +43,7 @@
     </appender>
 
     <!-- 设置LogX相关包的日志级别为DEBUG -->
-    <logger name="org.logx" level="INFO"/>
+    <logger name="org.logx" level="DEBUG"/>
 
     <!-- 根日志配置 -->
     <root level="INFO">

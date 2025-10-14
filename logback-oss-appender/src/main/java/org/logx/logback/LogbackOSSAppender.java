@@ -64,6 +64,10 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             long finalBaseBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.baseBackoffMs", this.baseBackoffMs);
             long finalMaxBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxBackoffMs", this.maxBackoffMs);
 
+            // S3兼容存储配置（MinIO等）
+            boolean finalPathStyleAccess = AppenderConfigResolver.resolveBooleanConfig("logx.oss.pathStyleAccess", false);
+            boolean finalEnableSsl = AppenderConfigResolver.resolveBooleanConfig("logx.oss.enableSsl", true);
+
             // 验证必需参数
             if (finalAccessKeyId == null || finalAccessKeyId.trim().isEmpty()) {
                 addError("accessKeyId must be set");
@@ -87,6 +91,8 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
                 .accessKeySecret(finalAccessKeySecret)
                 .bucket(finalBucket)
                 .keyPrefix(finalKeyPrefix)
+                .pathStyleAccess(finalPathStyleAccess)
+                .enableSsl(finalEnableSsl)
                 .build();
 
             // 构建异步引擎配置

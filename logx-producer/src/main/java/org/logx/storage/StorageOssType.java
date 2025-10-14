@@ -15,48 +15,48 @@ public enum StorageOssType {
      * 阿里云对象存储OSS 优先支持的云存储服务
      * 使用S3协议访问
      */
-    ALIYUN_OSS("Aliyun OSS", "oss", "S3", true),
+    ALIYUN_OSS("Aliyun OSS", "oss", ProtocolType.S3, true),
 
     /**
      * Amazon Web Services S3 原生S3服务
      */
-    AWS_S3("AWS S3", "s3", "S3", false),
+    AWS_S3("AWS S3", "s3", ProtocolType.S3, false),
 
     /**
      * MinIO开源对象存储 兼容S3 API的开源解决方案
      */
-    MINIO("MinIO", "minio", "S3", true),
+    MINIO("MinIO", "minio", ProtocolType.S3, true),
 
     /**
      * 腾讯云对象存储COS 通过S3兼容API支持
      */
-    TENCENT_COS("Tencent COS", "cos", "S3", true),
+    TENCENT_COS("Tencent COS", "cos", ProtocolType.S3, true),
 
     /**
      * 华为云对象存储OBS 通过S3兼容API支持
      */
-    HUAWEI_OBS("Huawei OBS", "obs", "S3", true),
+    HUAWEI_OBS("Huawei OBS", "obs", ProtocolType.S3, true),
 
     /**
      * SF OSS存储服务
      * 使用个性化OSS协议
      */
-    SF_OSS("SF OSS", "sf", "SF_OSS", true),
+    SF_OSS("SF OSS", "sf", ProtocolType.SF_OSS, true),
 
     /**
      * SF S3兼容存储服务
      * 使用标准S3协议访问SF OSS，需要pathStyleAccess=true和X-Delete-After元数据
      */
-    SF_S3("SF S3", "sf", "S3", true),
+    SF_S3("SF S3", "sf", ProtocolType.S3, true),
 
     /**
      * 通用S3兼容存储 适用于其他S3兼容服务
      */
-    GENERIC_S3("Generic S3", "s3", "S3", true);
+    GENERIC_S3("Generic S3", "s3", ProtocolType.S3, true);
 
     private final String displayName;
     private final String urlPrefix;
-    private final String protocolType;
+    private final ProtocolType protocolType;
     private final boolean pathStyleDefault;
 
     /**
@@ -67,11 +67,11 @@ public enum StorageOssType {
      * @param urlPrefix
      *            URL前缀标识
      * @param protocolType
-     *            协议类型（"S3"表示标准S3协议，"SF_OSS"表示个性化OSS协议）
+     *            协议类型枚举（S3或SF_OSS）
      * @param pathStyleDefault
      *            默认是否使用路径风格访问
      */
-    StorageOssType(String displayName, String urlPrefix, String protocolType, boolean pathStyleDefault) {
+    StorageOssType(String displayName, String urlPrefix, ProtocolType protocolType, boolean pathStyleDefault) {
         this.displayName = displayName;
         this.urlPrefix = urlPrefix;
         this.protocolType = protocolType;
@@ -102,9 +102,9 @@ public enum StorageOssType {
     /**
      * 获取协议类型
      *
-     * @return 协议类型（"S3"表示标准S3协议，"SF_OSS"表示个性化OSS协议）
+     * @return 协议类型枚举（S3或SF_OSS）
      */
-    public String getProtocolType() {
+    public ProtocolType getProtocolType() {
         return protocolType;
     }
 
@@ -114,7 +114,7 @@ public enum StorageOssType {
      * @return true表示使用S3协议，false表示使用其他协议
      */
     public boolean isS3Protocol() {
-        return "S3".equals(protocolType);
+        return protocolType == ProtocolType.S3;
     }
 
     /**

@@ -1,5 +1,6 @@
 package org.logx.storage.s3;
 
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageInterface;
 import org.logx.storage.StorageConfig;
 import org.slf4j.Logger;
@@ -37,7 +38,7 @@ import java.util.concurrent.CompletableFuture;
 public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(S3StorageAdapter.class);
-    private static final String OSS_TYPE = "S3";
+    private static final ProtocolType PROTOCOL_TYPE = ProtocolType.S3;
 
     private final S3Client s3Client;
     private final String bucketName;
@@ -108,8 +109,8 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     }
 
     @Override
-    public String getOssType() {
-        return OSS_TYPE;
+    public ProtocolType getProtocolType() {
+        return PROTOCOL_TYPE;
     }
 
     @Override

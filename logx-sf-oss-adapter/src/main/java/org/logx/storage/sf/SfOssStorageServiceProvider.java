@@ -1,5 +1,6 @@
 package org.logx.storage.sf;
 
+import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageService;
 
 import java.util.concurrent.CompletableFuture;
@@ -13,7 +14,7 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 public class SfOssStorageServiceProvider implements StorageService {
-    private static final String OSS_TYPE = "SF_OSS";
+    private static final ProtocolType PROTOCOL_TYPE = ProtocolType.SF_OSS;
 
     /**
      * 构造SF OSS存储服务（用于SPI实例化）
@@ -28,8 +29,8 @@ public class SfOssStorageServiceProvider implements StorageService {
     }
 
     @Override
-    public String getOssType() {
-        return OSS_TYPE;
+    public ProtocolType getProtocolType() {
+        return PROTOCOL_TYPE;
     }
 
     @Override
@@ -43,7 +44,7 @@ public class SfOssStorageServiceProvider implements StorageService {
     }
 
     @Override
-    public boolean supportsOssType(String ossType) {
-        return OSS_TYPE.equalsIgnoreCase(ossType);
+    public boolean supportsProtocol(ProtocolType protocol) {
+        return PROTOCOL_TYPE == protocol;
     }
 }
