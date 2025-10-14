@@ -48,7 +48,7 @@ class ConfigFactoryTest {
 
         assertThat(config).isInstanceOf(ConfigFactory.AwsS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://s3.amazonaws.com");
-        assertThat(config.getRegion()).isEqualTo("US");
+        assertThat(config.getRegion()).isEqualTo("ap-guangzhou");
         assertThat(config.getAccessKeyId()).isEqualTo("AKIAIOSFODNN7EXAMPLE");
         assertThat(config.getAccessKeySecret()).isEqualTo("wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY");
         assertThat(config.getBucket()).isEqualTo("my-test-bucket");
@@ -119,7 +119,7 @@ class ConfigFactoryTest {
 
         assertThat(config).isInstanceOf(ConfigFactory.GenericS3Config.class);
         assertThat(config.getEndpoint()).isEqualTo("https://storage.example.com");
-        assertThat(config.getRegion()).isEqualTo("US");
+        assertThat(config.getRegion()).isEqualTo("ap-guangzhou");
         assertThat(config.getAccessKeyId()).isEqualTo("EXAMPLE_ACCESS_KEY");
         assertThat(config.getAccessKeySecret()).isEqualTo("EXAMPLE_SECRET_KEY");
         assertThat(config.getBucket()).isEqualTo("application-logs");
