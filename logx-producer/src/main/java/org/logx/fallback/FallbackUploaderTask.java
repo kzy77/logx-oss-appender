@@ -94,7 +94,7 @@ public class FallbackUploaderTask implements Runnable {
         try {
             // 从文件路径重建对象名
             String relativePath = getRelativePath(file);
-            String retryObjectName = nameGenerator.generateRetryObjectName(relativePath);
+            String retryObjectName = nameGenerator.generateObjectName();
             
             byte[] rawData = Files.readAllBytes(file);
             

@@ -62,7 +62,7 @@ public class FallbackManager {
         }
         
         try {
-            String fallbackObjectName = nameGenerator.generateFallbackObjectName();
+            String fallbackObjectName = nameGenerator.generateObjectName();
             Path fallbackFile = Paths.get(absoluteFallbackPath, fallbackObjectName);
             
             // 确保目录存在

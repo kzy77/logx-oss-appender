@@ -99,7 +99,7 @@ public class FallbackStressTest {
         if (Files.exists(fallbackDir)) {
             long fileCount = Files.walk(fallbackDir)
                     .filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith("_fallback.log.gz"))
+                    .filter(path -> path.toString().endsWith(".log.gz"))
                     .count();
             
             logger.info("Files created: {}", fileCount);

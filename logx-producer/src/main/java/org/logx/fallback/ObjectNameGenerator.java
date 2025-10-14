@@ -11,28 +11,43 @@ import java.util.UUID;
 /**
  * 对象名生成器
  * <p>
- * 负责生成与OSS保持一致的文件对象名
+ * 负责生成OSS对象名和本地兜底文件名
+ * <p>
+ * <b>统一时间格式规则</b>：
+ * <ul>
+ * <li>年月日：yyyy/MM/dd</li>
+ * <li>时间戳：HHmmssSSS（时分秒毫秒，紧凑格式无分隔符）</li>
+ * </ul>
+ * <p>
+ * <b>文件格式（OSS上传、本地兜底、重试上传统一）</b>：
+ * <pre>
+ * yyyy/MM/dd/HHmmssSSS-applog-IP-uniqueId.log.gz
+ * 示例：2025/10/14/143250200-applog-100.119.145.245-abc12345.log.gz
+ * </pre>
  *
  * @author OSS Appender Team
  * @since 1.0.0
  */
 public class ObjectNameGenerator {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(ObjectNameGenerator.class);
-    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM");
-    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HH:mm:ss:SSS");
+
+    private static final DateTimeFormatter YEAR_FORMATTER = DateTimeFormatter.ofPattern("yyyy");
+    private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
+    private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("dd");
+    private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmssSSS");
+
+    private static final String APP_IDENTIFIER = "applog";
     private static final String UNKNOWN_HOST = "unknown-host";
-    private static final String DEFAULT_SUFFIX = ".log.gz";
-    private static final String FALLBACK_SUFFIX = "_fallback.log.gz";
-    private static final String RETRIED_SUFFIX = "_retried.log.gz";
-    
+    private static final String FILE_SUFFIX = ".log.gz";
+
     private final String fileName;
     private final String localIP;
-    
+
     /**
      * 构造对象名生成器
-     * 
-     * @param fileName 文件名前缀
+     *
+     * @param fileName 文件名前缀（保留参数用于兼容性，实际使用固定标识applog）
      * @throws IllegalArgumentException 如果文件名为空
      */
     public ObjectNameGenerator(String fileName) {
@@ -42,77 +57,41 @@ public class ObjectNameGenerator {
         this.fileName = fileName.trim();
         this.localIP = getSafeLocalIP();
     }
-    
+
     /**
-     * 生成标准对象名
-     * 
-     * @return 标准对象名
+     * 生成对象名
+     * <p>
+     * 格式：yyyy/MM/dd/HHmmssSSS-applog-IP-uniqueId.log.gz
+     *
+     * @return 对象名
      */
-    public String generateNormalObjectName() {
+    public String generateObjectName() {
         try {
             LocalDateTime nowTime = LocalDateTime.now();
-            String datePath = nowTime.format(DATE_FORMATTER) + "/" + nowTime.getDayOfMonth();
-            String timePath = nowTime.format(TIME_FORMATTER);
-            
-            return fileName + "_" + datePath + "/" + timePath + "_" + localIP + DEFAULT_SUFFIX;
+            String year = nowTime.format(YEAR_FORMATTER);
+            String month = nowTime.format(MONTH_FORMATTER);
+            String day = nowTime.format(DAY_FORMATTER);
+            String time = nowTime.format(TIME_FORMATTER);
+            String uniqueId = UUID.randomUUID().toString().substring(0, 8);
+
+            return year + "/" + month + "/" + day + "/" + time + "-" + APP_IDENTIFIER + "-" + localIP + "-" + uniqueId + FILE_SUFFIX;
         } catch (Exception e) {
-            logger.warn("Failed to generate normal object name, using fallback naming", e);
-            return generateFallbackObjectNameInternal("_normal" + DEFAULT_SUFFIX);
-        }
-    }
-    
-    /**
-     * 生成兜底文件对象名
-     * 
-     * @return 兜底文件对象名
-     */
-    public String generateFallbackObjectName() {
-        try {
+            logger.warn("Failed to generate object name, using fallback naming", e);
+
             LocalDateTime nowTime = LocalDateTime.now();
-            String datePath = nowTime.format(DATE_FORMATTER) + "/" + nowTime.getDayOfMonth();
-            String timePath = nowTime.format(TIME_FORMATTER);
-            
-            return fileName + "_" + datePath + "/" + timePath + "_" + localIP + FALLBACK_SUFFIX;
-        } catch (Exception e) {
-            logger.warn("Failed to generate fallback object name, using fallback naming", e);
-            return generateFallbackObjectNameInternal(FALLBACK_SUFFIX);
+            String year = nowTime.format(YEAR_FORMATTER);
+            String month = nowTime.format(MONTH_FORMATTER);
+            String day = nowTime.format(DAY_FORMATTER);
+            String time = nowTime.format(TIME_FORMATTER);
+            String uniqueId = UUID.randomUUID().toString().substring(0, 8);
+
+            return year + "/" + month + "/" + day + "/" + time + "-" + APP_IDENTIFIER + "-" + uniqueId + FILE_SUFFIX;
         }
     }
-    
-    /**
-     * 生成重传对象名（基于原始对象名）
-     * 
-     * @param originalObjectName 原始对象名
-     * @return 重传对象名
-     */
-    public String generateRetryObjectName(String originalObjectName) {
-        if (originalObjectName == null) {
-            logger.warn("Original object name is null, generating unique retry name");
-            return generateFallbackObjectNameInternal("_retried" + DEFAULT_SUFFIX);
-        }
-        
-        String trimmedName = originalObjectName.trim();
-        if (trimmedName.isEmpty()) {
-            logger.warn("Original object name is empty, generating unique retry name");
-            return generateFallbackObjectNameInternal("_retried" + DEFAULT_SUFFIX);
-        }
-        
-        try {
-            if (trimmedName.endsWith(FALLBACK_SUFFIX)) {
-                return trimmedName.substring(0, trimmedName.length() - FALLBACK_SUFFIX.length()) + RETRIED_SUFFIX;
-            } else if (trimmedName.endsWith(DEFAULT_SUFFIX)) {
-                return trimmedName.substring(0, trimmedName.length() - DEFAULT_SUFFIX.length()) + RETRIED_SUFFIX;
-            }
-            return trimmedName + RETRIED_SUFFIX;
-        } catch (Exception e) {
-            logger.warn("Failed to generate retry object name, using fallback naming", e);
-            return generateFallbackObjectNameInternal("_retried_" + System.currentTimeMillis() + DEFAULT_SUFFIX);
-        }
-    }
-    
+
     /**
      * 安全获取本地IP地址
-     * 
+     *
      * @return 本地IP地址或默认值
      */
     private String getSafeLocalIP() {
@@ -127,20 +106,5 @@ public class ObjectNameGenerator {
             logger.warn("Failed to get local IP, using default", e);
             return UNKNOWN_HOST + "-" + UUID.randomUUID().toString().substring(0, 8);
         }
-    }
-    
-    /**
-     * 生成兜底对象名（内部使用）
-     * 
-     * @param suffix 后缀
-     * @return 兜底对象名
-     */
-    private String generateFallbackObjectNameInternal(String suffix) {
-        LocalDateTime nowTime = LocalDateTime.now();
-        String datePath = nowTime.format(DATE_FORMATTER) + "/" + nowTime.getDayOfMonth();
-        String timePath = nowTime.format(TIME_FORMATTER);
-        String uniqueId = UUID.randomUUID().toString().substring(0, 8);
-        
-        return fileName + "_" + datePath + "/" + timePath + "_" + uniqueId + suffix;
     }
 }

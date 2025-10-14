@@ -42,22 +42,24 @@ public class FallbackMechanismTest {
     public void testObjectNameGenerator() {
         ObjectNameGenerator generator = new ObjectNameGenerator("testapp");
 
-        // 测试正常对象名生成
-        String normalName = generator.generateNormalObjectName();
-        assertNotNull(normalName);
-        assertTrue(normalName.contains("testapp_"));
-        assertTrue(normalName.endsWith(".log.gz"));
+        // 测试对象名生成
+        // 格式：yyyy/MM/dd/HHmmssSSS-applog-IP-uniqueId.log.gz
+        String objectName = generator.generateObjectName();
+        assertNotNull(objectName);
+        assertTrue(objectName.contains("-applog-"));
+        assertTrue(objectName.endsWith(".log.gz"));
 
-        // 测试兜底对象名生成
-        String fallbackName = generator.generateFallbackObjectName();
+        // 测试兜底对象名生成（与正常上传使用相同规则）
+        String fallbackName = generator.generateObjectName();
         assertNotNull(fallbackName);
-        assertTrue(fallbackName.contains("testapp_"));
-        assertTrue(fallbackName.endsWith("_fallback.log.gz"));
+        assertTrue(fallbackName.contains("-applog-"));
+        assertTrue(fallbackName.endsWith(".log.gz"));
 
-        // 测试重传对象名生成
-        String retryName = generator.generateRetryObjectName(fallbackName);
+        // 测试重传对象名生成（与正常上传使用相同规则）
+        String retryName = generator.generateObjectName();
         assertNotNull(retryName);
-        assertTrue(retryName.endsWith("_retried.log.gz"));
+        assertTrue(retryName.contains("-applog-"));
+        assertTrue(retryName.endsWith(".log.gz"));
     }
 
     @Test
@@ -78,7 +80,7 @@ public class FallbackMechanismTest {
         // 检查是否有文件被创建
         try (java.util.stream.Stream<Path> files = Files.walk(fallbackDir)) {
             long fileCount = files.filter(Files::isRegularFile)
-                    .filter(path -> path.toString().endsWith("_fallback.log.gz"))
+                    .filter(path -> path.toString().endsWith(".log.gz"))
                     .count();
             assertEquals(1, fileCount);
         }

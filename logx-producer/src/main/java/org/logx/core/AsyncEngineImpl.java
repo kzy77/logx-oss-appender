@@ -424,7 +424,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
      */
     private boolean onBatch(byte[] batchData, int originalSize, boolean compressed, int messageCount) {
         // 使用ObjectNameGenerator生成统一的文件名
-        String key = nameGenerator.generateNormalObjectName();
+        String key = nameGenerator.generateObjectName();
 
         logger.info("提交批次到并行上传队列 - 文件名: {}, 消息数: {}, 原始大小: {} bytes, 压缩: {}, 最终大小: {} bytes",
                    key, messageCount, originalSize, compressed, batchData.length);
