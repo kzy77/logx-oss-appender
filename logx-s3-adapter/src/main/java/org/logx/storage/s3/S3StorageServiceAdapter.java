@@ -156,9 +156,11 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             PutObjectRequest putRequest = requestBuilder.build();
 
             RequestBody requestBody = RequestBody.fromBytes(data);
-            
+
             try {
                 s3Client.putObject(putRequest, requestBody);
+                logger.debug("Successfully uploaded object: bucket={}, key={}, size={} bytes",
+                    bucketName, fullKey, data.length);
             } catch (IllegalStateException e) {
                 // 检查是否是连接池关闭的异常
                 if (e.getMessage() != null && e.getMessage().contains("Connection pool shut down")) {
@@ -166,6 +168,9 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
                 }
                 throw e;
             } catch (Exception e) {
+                // 记录详细的错误信息用于排查
+                logger.error("Failed to upload object to S3. Endpoint: {}, Bucket: {}, Key: {}, Size: {} bytes, Error: {}",
+                    endpoint, bucketName, fullKey, data.length, e.getMessage(), e);
                 // 直接抛出异常，由核心层处理重试和错误处理
                 throw new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e);
             }
