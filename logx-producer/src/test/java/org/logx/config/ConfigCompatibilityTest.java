@@ -204,21 +204,15 @@ class ConfigCompatibilityTest {
         // 设置系统属性（最高优先级）
         System.setProperty("logx.oss.region", "system-region");
         System.setProperty("logx.oss.bucket", "system-bucket");
+        System.setProperty("logx.oss.accessKeyId", "system-key");
 
         try {
             ConfigManager configManager = new ConfigManager();
 
-            // 设置配置文件属性（低优先级）
-            System.setProperty("logx.oss.region", "config-region");
-            System.setProperty("logx.oss.bucket", "config-bucket");
-            System.setProperty("logx.oss.accessKeyId", "config-key");
-
             // 验证系统属性优先级最高
             assertThat(configManager.getProperty("logx.oss.region")).isEqualTo("system-region");
             assertThat(configManager.getProperty("logx.oss.bucket")).isEqualTo("system-bucket");
-
-            // 验证配置文件属性（无系统属性覆盖时生效）
-            assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("config-key");
+            assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("system-key");
 
             // 验证代码默认值（无其他配置时生效）
             assertThat(configManager.getProperty("logx.oss.endpoint", "https://default-endpoint.com"))
@@ -228,6 +222,7 @@ class ConfigCompatibilityTest {
             // 清理系统属性
             System.clearProperty("logx.oss.region");
             System.clearProperty("logx.oss.bucket");
+            System.clearProperty("logx.oss.accessKeyId");
         }
     }
 

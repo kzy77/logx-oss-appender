@@ -97,7 +97,7 @@ class ConfigFactoryTest {
 
         assertThat(config).isInstanceOf(ConfigFactory.MinioConfig.class);
         assertThat(config.getEndpoint()).isEqualTo("http://localhost:9000");
-        assertThat(config.getRegion()).isEqualTo("US");
+        assertThat(config.getRegion()).isEqualTo("ap-guangzhou");
         assertThat(config.getAccessKeyId()).isEqualTo("minioadmin");
         assertThat(config.getAccessKeySecret()).isEqualTo("minioadmin");
         assertThat(config.getBucket()).isEqualTo("logs");

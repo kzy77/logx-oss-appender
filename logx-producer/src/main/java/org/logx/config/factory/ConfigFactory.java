@@ -15,7 +15,7 @@ import java.time.Duration;
  * <p>
  * 统一管理所有云服务商的个性化配置，包括：
  * <ul>
- * <li>SF_S3: region=US, pathStyleAccess=true</li>
+ * <li>SF_S3/SF_OSS: region=US, pathStyleAccess=true</li>
  * <li>MINIO: pathStyleAccess=true, enableSsl=false（本地HTTP）</li>
  * <li>AWS_S3: pathStyleAccess=false</li>
  * </ul>
@@ -192,7 +192,7 @@ public class ConfigFactory {
      * 优先级：
      * <ol>
      * <li>JVM系统属性、环境变量、配置文件</li>
-     * <li>Vendor特定默认值（SF_S3/SF_OSS/MINIO使用"US"）</li>
+     * <li>Vendor特定默认值（SF_S3/SF_OSS使用"US"）</li>
      * <li>通用默认值（ap-guangzhou）</li>
      * </ol>
      */
@@ -206,7 +206,6 @@ public class ConfigFactory {
         switch (ossType) {
             case SF_S3:
             case SF_OSS:
-            case MINIO:
                 return "US";
             default:
                 return CommonConfig.Defaults.REGION;
@@ -404,7 +403,7 @@ public class ConfigFactory {
      * Vendor特定规则：
      * <ul>
      * <li>SF_S3/SF_OSS: region=US, pathStyleAccess=true</li>
-     * <li>MINIO: region=US, pathStyleAccess=true, enableSsl=false（HTTP端点时）</li>
+     * <li>MINIO: pathStyleAccess=true, enableSsl=false（HTTP端点时）</li>
      * <li>AWS_S3: pathStyleAccess=false</li>
      * <li>其他云服务商: 使用各自的pathStyleDefault配置</li>
      * </ul>
@@ -458,7 +457,7 @@ public class ConfigFactory {
             region = configManager.getProperty("logx.oss.region");
             if (region == null || region.isEmpty()) {
                 // Vendor特定默认值
-                if (ossType == StorageOssType.SF_S3 || ossType == StorageOssType.SF_OSS || ossType == StorageOssType.MINIO) {
+                if (ossType == StorageOssType.SF_S3 || ossType == StorageOssType.SF_OSS) {
                     region = "US";
                 } else {
                     region = CommonConfig.Defaults.REGION;
