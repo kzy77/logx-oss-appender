@@ -277,9 +277,9 @@ public final class CommonConfig {
         /**
          * 默认存储区域
          * <p>
-         * 默认为 "us"（广州区域）
+         * 默认为 "US"（广州区域）
          */
-        public static final String REGION = "us";
+        public static final String REGION = "US";
 
         // ==================== 队列配置 ====================
 

@@ -49,7 +49,7 @@ class MinIOIntegrationTest {
 
         // 从properties读取配置
         String endpoint = getProperty(properties, "logx.oss.endpoint", "http://localhost:9000");
-        String region = getProperty(properties, "logx.oss.region", "us");
+        String region = getProperty(properties, "logx.oss.region", "US");
         String accessKeyId = getProperty(properties, "logx.oss.accessKeyId", "minioadmin");
         String accessKeySecret = getProperty(properties, "logx.oss.accessKeySecret", "minioadmin");
         String bucket = getProperty(properties, "logx.oss.bucket", "logx-test-bucket");

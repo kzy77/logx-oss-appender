@@ -404,7 +404,7 @@ logx.oss.maxUploadSizeMb=10
 ```bash
 export LOGX_OSS_ACCESS_KEY_ID="your-access-key"
 export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
-export LOGX_OSS_REGION="us"
+export LOGX_OSS_REGION="US"
 export LOGX_OSS_BUCKET="your-bucket-name"
 export LOGX_OSS_TYPE="SF_OSS"
 export LOGX_OSS_MAX_BATCH_COUNT="4096"

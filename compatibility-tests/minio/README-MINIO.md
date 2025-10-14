@@ -204,7 +204,7 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 export LOGX_OSS_ENDPOINT="http://localhost:9000"
 
 # MinIO区域（默认：us）
-export LOGX_OSS_REGION="us"
+export LOGX_OSS_REGION="US"
 
 # MinIO访问凭证（默认：minioadmin/minioadmin）
 export LOGX_OSS_ACCESS_KEY_ID="minioadmin"
