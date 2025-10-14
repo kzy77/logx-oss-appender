@@ -81,11 +81,31 @@ public final class CommonConfig {
     public static final String KEY_PREFIX = "keyPrefix";
 
     /**
-     * 存储后端类型
+     * 存储后端类型（云服务商类型）
      * <p>
-     * 可选值：SF_OSS、S3
+     * 用户配置云服务商类型，系统自动转换为协议类型并加载相应的存储适配器。
      * <p>
-     * 可选参数，默认：SF_OSS
+     * 支持的云服务商类型：
+     * <ul>
+     * <li>SF_S3 - SF OSS使用S3协议访问（自动配置pathStyleAccess=true和X-Delete-After元数据）</li>
+     * <li>SF_OSS - SF OSS使用个性化OSS协议访问</li>
+     * <li>AWS_S3 - Amazon Web Services S3</li>
+     * <li>ALIYUN_OSS - 阿里云对象存储OSS（使用S3兼容API）</li>
+     * <li>TENCENT_COS - 腾讯云对象存储COS（使用S3兼容API）</li>
+     * <li>HUAWEI_OBS - 华为云对象存储OBS（使用S3兼容API）</li>
+     * <li>MINIO - MinIO开源对象存储</li>
+     * <li>GENERIC_S3 - 通用S3兼容存储</li>
+     * </ul>
+     * <p>
+     * 配置方式：
+     * <ul>
+     * <li>方式1：配置文件，如 logx.oss.ossType=SF_S3</li>
+     * <li>方式2：JVM系统属性，如 -Dlogx.oss.ossType=SF_S3 或 -DLOGX_OSS_OSS_TYPE=SF_S3</li>
+     * <li>方式3：环境变量 LOGX_OSS_OSS_TYPE=SF_S3</li>
+     * <li>方式4：不配置ossType，系统根据endpoint自动检测云服务商类型</li>
+     * </ul>
+     * <p>
+     * 可选参数，默认：SF_S3
      */
     public static final String OSS_TYPE = "ossType";
 
@@ -268,18 +288,24 @@ public final class CommonConfig {
         public static final String LOG_FILE_NAME = "applogx";
 
         /**
-         * 默认OSS存储类型
+         * 默认OSS存储类型（云服务商类型）
          * <p>
-         * 可选值：SF_OSS、S3
+         * 默认为SF_S3（SF OSS使用S3协议访问）
+         * <p>
+         * 支持的云服务商类型：SF_S3、SF_OSS、AWS_S3、ALIYUN_OSS、TENCENT_COS、HUAWEI_OBS、MINIO、GENERIC_S3
+         * <p>
+         * 用户未配置时默认使用SF_S3，或根据endpoint自动检测
          */
-        public static final String OSS_TYPE = "SF_OSS";
+        public static final String OSS_TYPE = "SF_S3";
 
         /**
          * 默认存储区域
          * <p>
-         * 默认为 "US"（广州区域）
+         * 默认为 "ap-guangzhou"（广州区域）
+         * <p>
+         * 注意：SF S3使用"US"作为默认region（在ConfigFactory.createSfS3Config中特殊处理）
          */
-        public static final String REGION = "US";
+        public static final String REGION = "ap-guangzhou";
 
         // ==================== 队列配置 ====================
 

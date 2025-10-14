@@ -3,6 +3,7 @@ package org.logx.storage;
 import java.time.Duration;
 import java.util.Objects;
 import org.logx.config.CommonConfig;
+import org.logx.config.factory.ConfigFactory;
 
 /**
  * 存储配置类
@@ -100,89 +101,56 @@ public class StorageConfig {
     }
 
     /**
-     * 自动检测后端类型、pathStyleAccess和enableSsl
+     * 自动检测后端类型并应用云服务商特定的个性化配置
      * <p>
-     * 根据endpoint自动识别并配置：
-     * - ossType: 根据endpoint域名特征识别存储类型
-     * - pathStyleAccess: 本地/MinIO环境自动启用路径风格访问
-     * - enableSsl: HTTP端点自动禁用SSL
+     * 此方法识别云服务商类型，然后委托给ConfigFactory统一应用个性化配置。
+     * <p>
+     * 工作流程：
+     * <ol>
+     * <li>识别云服务商类型（从用户配置或endpoint自动检测）</li>
+     * <li>调用ConfigFactory.applyVendorSpecificDefaults()应用个性化配置</li>
+     * <li>返回配置了协议类型和个性化默认值的StorageConfig</li>
+     * </ol>
+     * <p>
+     * 配置优先级：
+     * <ol>
+     * <li>用户显式配置 ossType（云服务商类型）→ 识别为云服务商类型</li>
+     * <li>未配置 ossType → 根据 endpoint 自动检测云服务商类型</li>
+     * <li>endpoint为null → 使用默认云服务商类型（SF_S3）</li>
+     * </ol>
+     * <p>
+     * 个性化配置由ConfigFactory统一管理，包括：
+     * <ul>
+     * <li>SF_S3: region=US, pathStyleAccess=true, enableSsl=true</li>
+     * <li>AWS_S3: pathStyleAccess=false, enableSsl=true</li>
+     * <li>MINIO: pathStyleAccess=true, enableSsl=false（本地HTTP）</li>
+     * </ul>
      *
      * @param config 原始配置
-     * @return StorageConfig 自动识别后的配置对象
+     * @return StorageConfig 应用个性化配置后的对象（ossType已转换为协议类型）
      */
     public static StorageConfig detectBackendType(StorageConfig config) {
-        // 创建一个具体的Builder实现来构建更新后的配置
-        class ConfigBuilder extends Builder<ConfigBuilder> {
-            @Override
-            protected ConfigBuilder self() {
-                return this;
-            }
-
-            @Override
-            public StorageConfig build() {
-                return new StorageConfig(this);
-            }
-        }
-
-        ConfigBuilder builder = new ConfigBuilder();
-
-        // 复制现有配置
-        builder.ossType(config.getOssType())
-               .endpoint(config.getEndpoint())
-               .region(config.getRegion())
-               .accessKeyId(config.getAccessKeyId())
-               .accessKeySecret(config.getAccessKeySecret())
-               .bucket(config.getBucket())
-               .keyPrefix(config.getKeyPrefix())
-               .connectTimeout(config.getConnectTimeout())
-               .readTimeout(config.getReadTimeout())
-               .maxConnections(config.getMaxConnections())
-               .fallbackPath(config.getFallbackPath())
-               .fallbackRetentionDays(config.getFallbackRetentionDays())
-               .fallbackScanIntervalSeconds(config.getFallbackScanIntervalSeconds());
-
-        // 根据endpoint自动检测并配置
         String endpoint = config.getEndpoint();
-        if (endpoint != null) {
-            String lowerEndpoint = endpoint.toLowerCase();
+        String configuredOssType = config.getOssType();
+        StorageOssType detectedType;
 
-            // 1. 自动检测ossType（如果未设置）
-            if (config.getOssType() == null || config.getOssType().isEmpty()) {
-                if (lowerEndpoint.contains("sf-oss.com")) {
-                    builder.ossType("SF_OSS");
-                } else if (lowerEndpoint.contains("aliyuncs.com")) {
-                    builder.ossType("S3");
-                } else if (lowerEndpoint.contains("amazonaws.com")) {
-                    builder.ossType("S3");
-                } else if (lowerEndpoint.contains("myqcloud.com")) {
-                    builder.ossType("S3");
-                } else if (lowerEndpoint.contains("myhuaweicloud.com")) {
-                    builder.ossType("S3");
-                } else {
-                    builder.ossType(CommonConfig.Defaults.OSS_TYPE);
-                }
+        if (configuredOssType != null && !configuredOssType.isEmpty()) {
+            try {
+                detectedType = StorageOssType.valueOf(configuredOssType);
+            } catch (IllegalArgumentException e) {
+                return config;
             }
-
-            // 2. 自动检测pathStyleAccess
-            // MinIO、本地开发环境需要path-style访问
-            boolean autoPathStyle = lowerEndpoint.contains("localhost") ||
-                                   lowerEndpoint.contains("127.0.0.1") ||
-                                   lowerEndpoint.contains(":9000") ||  // MinIO默认端口
-                                   lowerEndpoint.contains("minio");
-            builder.pathStyleAccess(autoPathStyle);
-
-            // 3. 自动检测enableSsl
-            // HTTP端点自动禁用SSL
-            boolean autoEnableSsl = lowerEndpoint.startsWith("https://");
-            builder.enableSsl(autoEnableSsl);
+        } else if (endpoint != null && !endpoint.isEmpty()) {
+            detectedType = StorageOssType.detectFromEndpoint(endpoint);
         } else {
-            // endpoint为null时使用默认值
-            builder.ossType(CommonConfig.Defaults.OSS_TYPE);
-            builder.pathStyleAccess(false);
-            builder.enableSsl(true);
+            try {
+                detectedType = StorageOssType.valueOf(CommonConfig.Defaults.OSS_TYPE);
+            } catch (IllegalArgumentException e) {
+                detectedType = StorageOssType.AWS_S3;
+            }
         }
 
-        return builder.build();
+        return ConfigFactory.applyVendorSpecificDefaults(config, detectedType);
     }
 
     // Getter方法

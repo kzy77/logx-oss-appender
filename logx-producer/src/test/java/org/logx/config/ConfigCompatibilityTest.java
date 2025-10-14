@@ -304,16 +304,17 @@ class ConfigCompatibilityTest {
     @Test
     void shouldUseCorrectDefaultRegionValue() {
         // 验证任务#8：StorageConfig默认region值与PRD一致
-        // 默认值应为 "US"（来自PRD FR3）
+        // 默认值应为 "ap-guangzhou"（来自PRD FR3）
+        // 注意：SF S3使用"US"作为特殊默认值（在ConfigFactory中配置）
         ConfigManager configManager = new ConfigManager();
 
         assertThat(CommonConfig.Defaults.REGION)
-                .isEqualTo("US")
+                .isEqualTo("ap-guangzhou")
                 .as("默认region值应与PRD保持一致");
 
         // 验证ConfigManager可以正确读取默认值
         assertThat(configManager.getProperty(CommonConfig.REGION, CommonConfig.Defaults.REGION))
-                .isEqualTo("US");
+                .isEqualTo("ap-guangzhou");
     }
 
     @Test

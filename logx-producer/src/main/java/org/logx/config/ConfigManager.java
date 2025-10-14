@@ -461,8 +461,7 @@ public class ConfigManager {
      * 初始化默认配置值
      */
     private void initializeDefaults() {
-        // LogX OSS统一配置默认值
-        setDefault("logx.oss.region", "US");
+        setDefault("logx.oss.region", CommonConfig.Defaults.REGION);
         setDefault("logx.oss.keyPrefix", "logs/");
         setDefault("logx.oss.connectTimeout", "10000");
         setDefault("logx.oss.readTimeout", "30000");

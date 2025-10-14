@@ -16,7 +16,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.logx.storage.StorageConfig;
 import org.logx.core.AsyncEngineConfig;
-import org.logx.config.ConfigManager;
+import org.logx.config.AppenderConfigResolver;
 
 /**
  * S3兼容对象存储 Log4j2 Appender
@@ -107,34 +107,29 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             return null;
         }
 
-        // 使用ConfigManager实现完整配置优先级：
-        // JVM系统属性 > 环境变量 > 配置文件 > XML配置 > 默认值
-        ConfigManager configManager = new ConfigManager();
-
-        // 解析所有配置，应用完整的优先级链
-        String finalEndpoint = resolveStringConfig(configManager, "logx.oss.endpoint", endpoint);
-        String finalRegion = resolveStringConfig(configManager, "logx.oss.region", region);
-        String finalAccessKeyId = resolveStringConfig(configManager, "logx.oss.accessKeyId", accessKeyId);
-        String finalAccessKeySecret = resolveStringConfig(configManager, "logx.oss.accessKeySecret", accessKeySecret);
-        String finalBucket = resolveStringConfig(configManager, "logx.oss.bucket", bucket);
-        String finalKeyPrefix = resolveStringConfig(configManager, "logx.oss.keyPrefix", keyPrefix);
+        String finalEndpoint = AppenderConfigResolver.resolveStringConfig("logx.oss.endpoint", endpoint);
+        String finalRegion = AppenderConfigResolver.resolveStringConfig("logx.oss.region", region);
+        String finalAccessKeyId = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeyId", accessKeyId);
+        String finalAccessKeySecret = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeySecret", accessKeySecret);
+        String finalBucket = AppenderConfigResolver.resolveStringConfig("logx.oss.bucket", bucket);
+        String finalKeyPrefix = AppenderConfigResolver.resolveStringConfig("logx.oss.keyPrefix", keyPrefix);
         if (finalKeyPrefix == null || finalKeyPrefix.isEmpty()) {
             finalKeyPrefix = org.logx.config.CommonConfig.Defaults.KEY_PREFIX;
         }
-        String finalOssType = resolveStringConfig(configManager, "logx.oss.ossType", ossType);
+        String finalOssType = AppenderConfigResolver.resolveStringConfig("logx.oss.ossType", ossType);
         if (finalOssType == null || finalOssType.isEmpty()) {
             finalOssType = org.logx.config.CommonConfig.Defaults.OSS_TYPE;
         }
 
-        int finalMaxQueueSize = resolveIntConfig(configManager, "logx.oss.queueCapacity", maxQueueSize);
-        int finalMaxBatchCount = resolveIntConfig(configManager, "logx.oss.maxBatchCount", maxBatchCount);
-        int finalMaxBatchBytes = resolveIntConfig(configManager, "logx.oss.maxBatchBytes", maxBatchBytes);
-        long finalMaxMessageAgeMs = resolveLongConfig(configManager, "logx.oss.maxMessageAgeMs", maxMessageAgeMs);
-        boolean finalDropWhenQueueFull = resolveBooleanConfig(configManager, "logx.oss.dropWhenQueueFull", dropWhenQueueFull);
-        boolean finalMultiProducer = resolveBooleanConfig(configManager, "logx.oss.multiProducer", multiProducer);
-        int finalMaxRetries = resolveIntConfig(configManager, "logx.oss.maxRetries", maxRetries);
-        long finalBaseBackoffMs = resolveLongConfig(configManager, "logx.oss.baseBackoffMs", baseBackoffMs);
-        long finalMaxBackoffMs = resolveLongConfig(configManager, "logx.oss.maxBackoffMs", maxBackoffMs);
+        int finalMaxQueueSize = AppenderConfigResolver.resolveIntConfig("logx.oss.queueCapacity", maxQueueSize);
+        int finalMaxBatchCount = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchCount", maxBatchCount);
+        int finalMaxBatchBytes = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchBytes", maxBatchBytes);
+        long finalMaxMessageAgeMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxMessageAgeMs", maxMessageAgeMs);
+        boolean finalDropWhenQueueFull = AppenderConfigResolver.resolveBooleanConfig("logx.oss.dropWhenQueueFull", dropWhenQueueFull);
+        boolean finalMultiProducer = AppenderConfigResolver.resolveBooleanConfig("logx.oss.multiProducer", multiProducer);
+        int finalMaxRetries = AppenderConfigResolver.resolveIntConfig("logx.oss.maxRetries", maxRetries);
+        long finalBaseBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.baseBackoffMs", baseBackoffMs);
+        long finalMaxBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxBackoffMs", maxBackoffMs);
 
         // 构建存储配置
         StorageConfig adapterConfig = new StorageConfigBuilder()
@@ -168,60 +163,5 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         }
 
         return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, adapterConfig, engineConfig);
-    }
-
-    /**
-     * 解析字符串配置，应用完整的优先级链
-     */
-    private static String resolveStringConfig(org.logx.config.ConfigManager configManager, String configKey, String xmlValue) {
-        String value = configManager.getProperty(configKey);
-        if (value != null && !value.trim().isEmpty()) {
-            return value;
-        }
-        return xmlValue;
-    }
-
-    /**
-     * 解析整数配置，应用完整的优先级链
-     */
-    private static int resolveIntConfig(org.logx.config.ConfigManager configManager, String configKey, int xmlValue) {
-        String value = configManager.getProperty(configKey);
-        if (value != null && !value.trim().isEmpty()) {
-            try {
-                return Integer.parseInt(value.trim());
-            } catch (NumberFormatException e) {
-                LOGGER.warn("Invalid integer value for {}: {}, using XML value: {}", configKey, value, xmlValue);
-                return xmlValue;
-            }
-        }
-        return xmlValue;
-    }
-
-    /**
-     * 解析长整数配置，应用完整的优先级链
-     */
-    private static long resolveLongConfig(org.logx.config.ConfigManager configManager, String configKey, long xmlValue) {
-        String value = configManager.getProperty(configKey);
-        if (value != null && !value.trim().isEmpty()) {
-            try {
-                return Long.parseLong(value.trim());
-            } catch (NumberFormatException e) {
-                LOGGER.warn("Invalid long value for {}: {}, using XML value: {}", configKey, value, xmlValue);
-                return xmlValue;
-            }
-        }
-        return xmlValue;
-    }
-
-    /**
-     * 解析布尔配置，应用完整的优先级链
-     */
-    private static boolean resolveBooleanConfig(org.logx.config.ConfigManager configManager, String configKey, boolean xmlValue) {
-        String value = configManager.getProperty(configKey);
-        if (value != null && !value.trim().isEmpty()) {
-            String trimmedValue = value.trim().toLowerCase(java.util.Locale.ENGLISH);
-            return "true".equals(trimmedValue) || "yes".equals(trimmedValue) || "1".equals(trimmedValue);
-        }
-        return xmlValue;
     }
 }

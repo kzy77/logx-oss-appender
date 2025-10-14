@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.ServiceLoader;
 import java.util.Iterator;
 
+import org.logx.config.ConfigManager;
+import org.logx.config.factory.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

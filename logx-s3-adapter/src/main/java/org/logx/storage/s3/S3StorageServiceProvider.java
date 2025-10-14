@@ -14,7 +14,11 @@ import java.util.concurrent.CompletableFuture;
  * @since 1.0.0
  */
 public class S3StorageServiceProvider implements StorageService {
-    private static final String OSS_TYPE = "S3";
+    /**
+     * 适配器类型：标准S3协议
+     * 用于匹配所有使用S3协议的存储服务（AWS S3, MinIO, 阿里云OSS, 腾讯云COS, SF S3等）
+     */
+    private static final String ADAPTER_TYPE = "S3";
     private S3StorageAdapter adapter;
 
     /**
@@ -32,7 +36,7 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public String getOssType() {
-        return OSS_TYPE;
+        return ADAPTER_TYPE;
     }
 
     @Override
@@ -50,13 +54,8 @@ public class S3StorageServiceProvider implements StorageService {
 
     @Override
     public boolean supportsOssType(String ossType) {
-        return OSS_TYPE.equalsIgnoreCase(ossType) ||
-               "AWS_S3".equalsIgnoreCase(ossType) ||
-               "ALIYUN_OSS".equalsIgnoreCase(ossType) ||
-               "TENCENT_COS".equalsIgnoreCase(ossType) ||
-               "MINIO".equalsIgnoreCase(ossType) ||
-               "HUAWEI_OBS".equalsIgnoreCase(ossType) ||
-               "GENERIC_S3".equalsIgnoreCase(ossType);
+        // 匹配协议类型：S3
+        return ADAPTER_TYPE.equalsIgnoreCase(ossType);
     }
 
     /**

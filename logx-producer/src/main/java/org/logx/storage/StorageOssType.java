@@ -13,41 +13,50 @@ public enum StorageOssType {
 
     /**
      * 阿里云对象存储OSS 优先支持的云存储服务
+     * 使用S3协议访问
      */
-    ALIYUN_OSS("Aliyun OSS", "oss", true),
+    ALIYUN_OSS("Aliyun OSS", "oss", "S3", true),
 
     /**
      * Amazon Web Services S3 原生S3服务
      */
-    AWS_S3("AWS S3", "s3", false),
+    AWS_S3("AWS S3", "s3", "S3", false),
 
     /**
      * MinIO开源对象存储 兼容S3 API的开源解决方案
      */
-    MINIO("MinIO", "minio", true),
+    MINIO("MinIO", "minio", "S3", true),
 
     /**
      * 腾讯云对象存储COS 通过S3兼容API支持
      */
-    TENCENT_COS("Tencent COS", "cos", true),
+    TENCENT_COS("Tencent COS", "cos", "S3", true),
 
     /**
      * 华为云对象存储OBS 通过S3兼容API支持
      */
-    HUAWEI_OBS("Huawei OBS", "obs", true),
+    HUAWEI_OBS("Huawei OBS", "obs", "S3", true),
 
     /**
      * SF OSS存储服务
+     * 使用个性化OSS协议
      */
-    SF_OSS("SF OSS", "sf", true),
+    SF_OSS("SF OSS", "sf", "SF_OSS", true),
+
+    /**
+     * SF S3兼容存储服务
+     * 使用标准S3协议访问SF OSS，需要pathStyleAccess=true和X-Delete-After元数据
+     */
+    SF_S3("SF S3", "sf", "S3", true),
 
     /**
      * 通用S3兼容存储 适用于其他S3兼容服务
      */
-    GENERIC_S3("Generic S3", "s3", true);
+    GENERIC_S3("Generic S3", "s3", "S3", true);
 
     private final String displayName;
     private final String urlPrefix;
+    private final String protocolType;
     private final boolean pathStyleDefault;
 
     /**
@@ -57,12 +66,15 @@ public enum StorageOssType {
      *            显示名称
      * @param urlPrefix
      *            URL前缀标识
+     * @param protocolType
+     *            协议类型（"S3"表示标准S3协议，"SF_OSS"表示个性化OSS协议）
      * @param pathStyleDefault
      *            默认是否使用路径风格访问
      */
-    StorageOssType(String displayName, String urlPrefix, boolean pathStyleDefault) {
+    StorageOssType(String displayName, String urlPrefix, String protocolType, boolean pathStyleDefault) {
         this.displayName = displayName;
         this.urlPrefix = urlPrefix;
+        this.protocolType = protocolType;
         this.pathStyleDefault = pathStyleDefault;
     }
 
@@ -88,6 +100,24 @@ public enum StorageOssType {
     }
 
     /**
+     * 获取协议类型
+     *
+     * @return 协议类型（"S3"表示标准S3协议，"SF_OSS"表示个性化OSS协议）
+     */
+    public String getProtocolType() {
+        return protocolType;
+    }
+
+    /**
+     * 判断是否使用S3协议
+     *
+     * @return true表示使用S3协议，false表示使用其他协议
+     */
+    public boolean isS3Protocol() {
+        return "S3".equals(protocolType);
+    }
+
+    /**
      * 根据端点URL自动检测存储后端类型
      *
      * @param endpoint
@@ -101,6 +131,11 @@ public enum StorageOssType {
         }
 
         String lowerEndpoint = endpoint.toLowerCase(java.util.Locale.ENGLISH);
+
+        // SF S3检测（sf-express或sfcloud，使用S3协议）
+        if (lowerEndpoint.contains("sf-express") || lowerEndpoint.contains("sfcloud")) {
+            return SF_S3;
+        }
 
         // SF OSS检测（放在前面，避免被其他检测匹配）
         if (lowerEndpoint.contains("sf-oss.com") || lowerEndpoint.contains("sf-oss-")) {
@@ -175,7 +210,7 @@ public enum StorageOssType {
      * 检查是否为国内云服务商
      */
     public boolean isDomesticCloud() {
-        return this == ALIYUN_OSS || this == TENCENT_COS || this == HUAWEI_OBS || this == SF_OSS;
+        return this == ALIYUN_OSS || this == TENCENT_COS || this == HUAWEI_OBS || this == SF_OSS || this == SF_S3;
     }
 
     /**

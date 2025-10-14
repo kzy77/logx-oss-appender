@@ -9,9 +9,14 @@ import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3ClientBuilder;
+import software.amazon.awssdk.services.s3.S3Configuration;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.net.URI;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -36,11 +41,15 @@ import java.util.concurrent.CompletableFuture;
 public final class S3StorageServiceAdapter implements StorageService, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(S3StorageServiceAdapter.class);
-    private static final String OSS_TYPE = "S3";
+    /**
+     * 适配器类型：标准S3协议
+     */
+    private static final String ADAPTER_TYPE = "S3";
 
     private S3Client s3Client;
     private String bucketName;
     private String keyPrefix;
+    private String endpoint;
 
     /**
      * 无参构造函数（用于SPI实例化）
@@ -71,12 +80,13 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         String accessKeyId = config.getAccessKeyId();
         String secretAccessKey = config.getAccessKeySecret();
         String bucketName = config.getBucket();
-        String endpoint = config.getEndpoint(); // 获取自定义endpoint
+        String endpoint = config.getEndpoint();
         this.bucketName = bucketName;
         this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
+        this.endpoint = endpoint;
 
         // 构建S3客户端
-        software.amazon.awssdk.services.s3.S3ClientBuilder clientBuilder = S3Client.builder()
+        S3ClientBuilder clientBuilder = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
                 .region(Region.of(region != null ? region : "US"));
@@ -89,7 +99,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         // 如果需要path-style访问（MinIO需要）
         if (config.isPathStyleAccess()) {
             clientBuilder.serviceConfiguration(
-                    software.amazon.awssdk.services.s3.S3Configuration.builder()
+                    S3Configuration.builder()
                             .pathStyleAccessEnabled(true)
                             .build()
             );
@@ -128,13 +138,21 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             if (data.length > 2 && data[0] == (byte) 0x1f && data[1] == (byte) 0x8b) {
                 contentType = "application/gzip";
             }
-            
-            PutObjectRequest putRequest = PutObjectRequest.builder()
+
+            PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
                     .bucket(bucketName)
                     .key(fullKey)
                     .contentLength((long) data.length)
-                    .contentType(contentType)
-                    .build();
+                    .contentType(contentType);
+
+            // SF OSS特殊处理：设置文件有效期元数据，默认保存一年
+            if (isSfOssEndpoint()) {
+                Map<String, String> metadata = new HashMap<>();
+                metadata.put("X-Delete-After", "31536000");
+                requestBuilder.metadata(metadata);
+            }
+
+            PutObjectRequest putRequest = requestBuilder.build();
 
             RequestBody requestBody = RequestBody.fromBytes(data);
             
@@ -155,7 +173,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
     @Override
     public String getOssType() {
-        return OSS_TYPE;
+        return ADAPTER_TYPE;
     }
 
     @Override
@@ -183,13 +201,21 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
     @Override
     public boolean supportsOssType(String ossType) {
-        return OSS_TYPE.equalsIgnoreCase(ossType) ||
-               "AWS_S3".equalsIgnoreCase(ossType) ||
-               "ALIYUN_OSS".equalsIgnoreCase(ossType) ||
-               "TENCENT_COS".equalsIgnoreCase(ossType) ||
-               "MINIO".equalsIgnoreCase(ossType) ||
-               "HUAWEI_OBS".equalsIgnoreCase(ossType) ||
-               "GENERIC_S3".equalsIgnoreCase(ossType);
+        // 匹配协议类型：S3
+        return ADAPTER_TYPE.equalsIgnoreCase(ossType);
+    }
+
+    /**
+     * 判断endpoint是否为SF OSS
+     *
+     * @return 如果是SF OSS返回true，否则返回false
+     */
+    private boolean isSfOssEndpoint() {
+        if (endpoint == null || endpoint.isEmpty()) {
+            return false;
+        }
+        String lowerEndpoint = endpoint.toLowerCase(Locale.ROOT);
+        return lowerEndpoint.contains("sf-express") || lowerEndpoint.contains("sfcloud");
     }
 
     /**
