@@ -71,12 +71,12 @@ public final class CommonConfig {
      * 文件路径前缀（同时用于OSS对象路径和本地兜底路径）
      * <p>
      * 用途：
-     * 1. OSS对象存储：logs/2024-10-05/applogx-xxx.log
-     * 2. 本地兜底文件：logs/applogx-fallback-xxx.log
+     * 1. OSS对象存储：logx/2024-10-05/applogx-xxx.log
+     * 2. 本地兜底文件：logx/applogx-fallback-xxx.log
      * <p>
-     * 示例：logs/
+     * 示例：logx/
      * <p>
-     * 可选参数，默认：logs/
+     * 可选参数，默认：logx/
      */
     public static final String KEY_PREFIX = "keyPrefix";
 
@@ -276,9 +276,9 @@ public final class CommonConfig {
         /**
          * 对象存储中的文件路径前缀
          * <p>
-         * 默认为 "logs/"，所有上传的日志文件都会存储在此目录下
+         * 默认为 "logx/"，所有上传的日志文件都会存储在此目录下
          */
-        public static final String KEY_PREFIX = "logs/";
+        public static final String KEY_PREFIX = "logx/";
 
         /**
          * 日志文件名前缀

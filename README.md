@@ -421,7 +421,7 @@ dependencies {
         <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
         <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
         <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
-        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logs/app/}"/>
+        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logx/app/}"/>
         <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-8192}"/>
         <param name="maxMessageAgeMs" value="${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}"/>
         <layout class="org.apache.log4j.PatternLayout">
@@ -449,7 +449,7 @@ log4j.appender.OSS.accessKeyId=${LOGX_OSS_ACCESS_KEY_ID}
 log4j.appender.OSS.accessKeySecret=${LOGX_OSS_ACCESS_KEY_SECRET}
 log4j.appender.OSS.bucket=${LOGX_OSS_BUCKET}
 log4j.appender.OSS.region=${LOGX_OSS_REGION:-cn-hangzhou}
-log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logs/app/}
+log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logx/app/}
 log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-8192}
 log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
@@ -468,7 +468,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
             <accessKeySecret>${sys:LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
             <bucket>${sys:LOGX_OSS_BUCKET}</bucket>
             <region>${sys:LOGX_OSS_REGION:-cn-hangzhou}</region>
-            <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
+            <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logx/app/}</keyPrefix>
             <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
             <maxMessageAgeMs>${sys:LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
         </OSS>
@@ -492,7 +492,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
         <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
         <bucket>${LOGX_OSS_BUCKET}</bucket>
         <region>${LOGX_OSS_REGION:-cn-hangzhou}</region>
-        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/app/}</keyPrefix>
+        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/app/}</keyPrefix>
         <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
         <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
@@ -524,7 +524,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
 | **region** | String | us | 存储区域 |
-| **keyPrefix** | String | logs/ | 对象存储中的文件路径前缀 |
+| **keyPrefix** | String | logx/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
 | **maxQueueSize** | Integer | 524288 | 内存队列大小（必须是2的幂） |
 | **maxBatchCount** | Integer | 8192 | 单批最大条数 |
@@ -701,7 +701,7 @@ logback-oss-appender
             <maxBatchCount>5000</maxBatchCount>     <!-- 增大批量大小 -->
             <maxMessageAgeMs>10000</maxMessageAgeMs> <!-- 降低消息年龄阈值，更快触发批处理 -->
             <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小（必须是2的幂） -->
-            <keyPrefix>logs/app/</keyPrefix>
+            <keyPrefix>logx/app/</keyPrefix>
 
             <!-- 重试策略 -->
             <maxRetries>3</maxRetries>

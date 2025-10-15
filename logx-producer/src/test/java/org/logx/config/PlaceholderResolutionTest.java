@@ -78,12 +78,12 @@ class PlaceholderResolutionTest {
         // 测试多个占位符
         System.setProperty("LOGX_OSS_BUCKET", "my-bucket");
 
-        String input = "s3://${LOGX_OSS_BUCKET:-default-bucket}/${LOGX_OSS_KEY_PREFIX:-logs/}";
+        String input = "s3://${LOGX_OSS_BUCKET:-default-bucket}/${LOGX_OSS_KEY_PREFIX:-logx/}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
             .as("应该正确解析多个占位符")
-            .isEqualTo("s3://my-bucket/logs/");
+            .isEqualTo("s3://my-bucket/logx/");
     }
 
     @Test

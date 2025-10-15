@@ -467,34 +467,49 @@ public class ConfigFactory {
         }
         builder.region(region);
 
-        // pathStyleAccess: ConfigManager → vendor默认值 (总是重新计算，因为boolean无法判断是否配置过)
-        String pathStyleStr = configManager.getProperty("logx.oss.pathStyleAccess");
+        // pathStyleAccess: baseConfig → ConfigManager → vendor默认值
         boolean pathStyleAccess;
-        if (pathStyleStr != null && !pathStyleStr.isEmpty()) {
-            pathStyleAccess = Boolean.parseBoolean(pathStyleStr);
+        // 检查baseConfig中是否已设置pathStyleAccess（非默认值）
+        if (baseConfig.isPathStyleAccess() != ossType.isPathStyleDefault()) {
+            // 使用baseConfig中的值
+            pathStyleAccess = baseConfig.isPathStyleAccess();
         } else {
-            // Vendor特定默认值
-            pathStyleAccess = ossType.isPathStyleDefault();
+            // 从配置源获取或使用vendor默认值
+            String pathStyleStr = configManager.getProperty("logx.oss.pathStyleAccess");
+            if (pathStyleStr != null && !pathStyleStr.isEmpty()) {
+                pathStyleAccess = Boolean.parseBoolean(pathStyleStr);
+            } else {
+                // Vendor特定默认值
+                pathStyleAccess = ossType.isPathStyleDefault();
+            }
         }
         builder.pathStyleAccess(pathStyleAccess);
 
-        // enableSsl: ConfigManager → 根据endpoint和vendor决定 (总是重新计算)
-        String enableSslStr = configManager.getProperty("logx.oss.enableSsl");
+        // enableSsl: baseConfig → ConfigManager → 根据endpoint和vendor决定
         boolean enableSsl;
-        if (enableSslStr != null && !enableSslStr.isEmpty()) {
-            enableSsl = Boolean.parseBoolean(enableSslStr);
+        // 检查baseConfig中是否已设置enableSsl（非默认值true）
+        // 只有当baseConfig中的值与默认值不同时才使用它
+        if (!baseConfig.isEnableSsl()) {
+            // 使用baseConfig中的值（false）
+            enableSsl = baseConfig.isEnableSsl();
         } else {
-            // 根据endpoint判断
-            String endpoint = baseConfig.getEndpoint();
-            if (endpoint != null && !endpoint.isEmpty()) {
-                String lowerEndpoint = endpoint.toLowerCase();
-                if (ossType == StorageOssType.MINIO && lowerEndpoint.startsWith("http://")) {
-                    enableSsl = false;
-                } else {
-                    enableSsl = lowerEndpoint.startsWith("https://");
-                }
+            // 从配置源获取或根据endpoint判断
+            String enableSslStr = configManager.getProperty("logx.oss.enableSsl");
+            if (enableSslStr != null && !enableSslStr.isEmpty()) {
+                enableSsl = Boolean.parseBoolean(enableSslStr);
             } else {
-                enableSsl = true;
+                // 根据endpoint判断
+                String endpoint = baseConfig.getEndpoint();
+                if (endpoint != null && !endpoint.isEmpty()) {
+                    String lowerEndpoint = endpoint.toLowerCase();
+                    if (ossType == StorageOssType.MINIO && lowerEndpoint.startsWith("http://")) {
+                        enableSsl = false;
+                    } else {
+                        enableSsl = lowerEndpoint.startsWith("https://");
+                    }
+                } else {
+                    enableSsl = true;
+                }
             }
         }
         builder.enableSsl(enableSsl);

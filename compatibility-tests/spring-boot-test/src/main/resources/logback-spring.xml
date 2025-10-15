@@ -38,7 +38,7 @@
         <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}</accessKeyId>
         <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}</accessKeySecret>
         <bucket>${LOGX_OSS_BUCKET:-logx-test-bucket}</bucket>
-        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logs/}</keyPrefix>
+        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/}</keyPrefix>
         <ossType>${LOGX_OSS_OSS_TYPE:-S3}</ossType>
     </appender>
 

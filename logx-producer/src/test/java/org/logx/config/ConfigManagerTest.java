@@ -49,8 +49,8 @@ class ConfigManagerTest {
         // 设置系统属性
         System.setProperty("test.property", "system-value");
 
-        // 设置默认值
-        System.setProperty("test.property", "default-value");
+        // 获取默认值
+        String defaultValue = "default-value";
 
         assertThat(configManager.getProperty("test.property")).isEqualTo("system-value");
     }

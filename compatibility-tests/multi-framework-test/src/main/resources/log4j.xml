@@ -27,7 +27,7 @@
         <param name="accessKeyId" value="${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}"/>
         <param name="accessKeySecret" value="${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}"/>
         <param name="bucket" value="${LOGX_OSS_BUCKET:-logx-test-bucket}"/>
-        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logs/log4j1/}"/>
+        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logx/log4j1/}"/>
         <param name="ossType" value="${LOGX_OSS_OSS_TYPE:-S3}"/>
 
         <!-- pathStyleAccess和enableSsl根据endpoint自动识别 -->
