@@ -50,15 +50,14 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
      * @param config
      *            存储配置
      * @param keyPrefix
-     *            对象键前缀，默认 "logs/"
+     *            对象键前缀，默认 "logx"
      */
     public S3StorageAdapter(StorageConfig config, String keyPrefix) {
         String region = config.getRegion();
         String accessKeyId = config.getAccessKeyId();
         String secretAccessKey = config.getAccessKeySecret();
-        String bucketName = config.getBucket();
-        this.bucketName = bucketName;
-        this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logs";
+        this.bucketName = config.getBucket();
+        this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logx";
 
         // 构建S3客户端 - 标准AWS S3配置
         this.s3Client = S3Client.builder()
@@ -71,7 +70,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
      * 简化构造函数：使用默认参数
      */
     public S3StorageAdapter(StorageConfig config) {
-        this(config, config.getKeyPrefix() != null ? config.getKeyPrefix() : "logs");
+        this(config, config.getKeyPrefix() != null ? config.getKeyPrefix() : "logx");
     }
 
     @Override

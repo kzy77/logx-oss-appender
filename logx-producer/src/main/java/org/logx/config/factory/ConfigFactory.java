@@ -449,7 +449,8 @@ public class ConfigFactory {
                 .keyPrefix(baseConfig.getKeyPrefix())
                 .connectTimeout(baseConfig.getConnectTimeout())
                 .readTimeout(baseConfig.getReadTimeout())
-                .maxConnections(baseConfig.getMaxConnections());
+                .maxConnections(baseConfig.getMaxConnections())
+                .ossType(ossType.name());
 
         // region: baseConfig → ConfigManager → vendor默认值 → 通用默认值
         String region = baseConfig.getRegion();
@@ -497,9 +498,6 @@ public class ConfigFactory {
             }
         }
         builder.enableSsl(enableSsl);
-
-        // 注意：不要覆盖ossType字段，保持用户配置的云服务商类型（如SF_S3、MINIO等）
-        // 在需要协议类型时，通过ossType.getProtocolType()动态获取
 
         return builder.build();
     }

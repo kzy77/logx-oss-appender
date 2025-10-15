@@ -138,7 +138,12 @@ public class StorageConfig {
             try {
                 detectedType = StorageOssType.valueOf(configuredOssType);
             } catch (IllegalArgumentException e) {
-                return config;
+                // ossType无法识别，回退到endpoint自动检测
+                if (endpoint != null && !endpoint.isEmpty()) {
+                    detectedType = StorageOssType.detectFromEndpoint(endpoint);
+                } else {
+                    detectedType = StorageOssType.AWS_S3;
+                }
             }
         } else if (endpoint != null && !endpoint.isEmpty()) {
             detectedType = StorageOssType.detectFromEndpoint(endpoint);

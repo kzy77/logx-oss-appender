@@ -51,6 +51,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     private String bucketName;
     private String keyPrefix;
     private String endpoint;
+    private String ossType;
 
     /**
      * 无参构造函数（用于SPI实例化）
@@ -85,25 +86,26 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         this.bucketName = bucketName;
         this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
         this.endpoint = endpoint;
+        this.ossType = config.getOssType();
 
-        // 构建S3客户端
+        // 构建S3客户端，完整应用config中的所有配置
         S3ClientBuilder clientBuilder = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
                 .region(Region.of(region != null ? region : "US"));
 
-        // 如果endpoint不为空，说明是自定义的，需要覆盖endpoint
+        // 设置自定义endpoint（MinIO、SF OSS等）
         if (endpoint != null && !endpoint.trim().isEmpty()) {
             clientBuilder.endpointOverride(URI.create(endpoint));
         }
 
-        // 如果需要path-style访问（MinIO需要）
+        // 只有当pathStyleAccess为true时才显式设置S3配置
+        // false时使用SDK默认行为（虚拟主机风格）
         if (config.isPathStyleAccess()) {
-            clientBuilder.serviceConfiguration(
-                    S3Configuration.builder()
-                            .pathStyleAccessEnabled(true)
-                            .build()
-            );
+            S3Configuration s3Config = S3Configuration.builder()
+                    .pathStyleAccessEnabled(true)
+                    .build();
+            clientBuilder.serviceConfiguration(s3Config);
         }
 
         this.s3Client = clientBuilder.build();
@@ -146,8 +148,9 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
                     .contentLength((long) data.length)
                     .contentType(contentType);
 
-            // SF OSS特殊处理：设置文件有效期元数据，默认保存一年
-            if (isSfOssEndpoint()) {
+            // SF S3特殊处理：设置文件有效期元数据，默认保存一年
+            // 当ossType为SF_S3时，需要设置X-Delete-After元数据
+            if ("SF_S3".equals(ossType)) {
                 Map<String, String> metadata = new HashMap<>();
                 metadata.put("X-Delete-After", "31536000");
                 requestBuilder.metadata(metadata);
@@ -159,8 +162,8 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
             try {
                 s3Client.putObject(putRequest, requestBody);
-                logger.debug("Successfully uploaded object: bucket={}, key={}, size={} bytes",
-                    bucketName, fullKey, data.length);
+                logger.debug("Successfully uploaded object: endpoint={}, bucket={}, key={}, size={} bytes",
+                    endpoint, bucketName, fullKey, data.length);
             } catch (IllegalStateException e) {
                 // 检查是否是连接池关闭的异常
                 if (e.getMessage() != null && e.getMessage().contains("Connection pool shut down")) {
@@ -170,7 +173,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             } catch (Exception e) {
                 // 记录详细的错误信息用于排查
                 logger.error("Failed to upload object to S3. Endpoint: {}, Bucket: {}, Key: {}, Size: {} bytes, Error: {}",
-                    endpoint, bucketName, fullKey, data.length, e.getMessage(), e);
+                    endpoint, bucketName, fullKey, data.length, e.getMessage());
                 // 直接抛出异常，由核心层处理重试和错误处理
                 throw new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e);
             }
@@ -208,19 +211,6 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
     @Override
     public boolean supportsProtocol(ProtocolType protocol) {
         return ADAPTER_TYPE == protocol;
-    }
-
-    /**
-     * 判断endpoint是否为SF OSS
-     *
-     * @return 如果是SF OSS返回true，否则返回false
-     */
-    private boolean isSfOssEndpoint() {
-        if (endpoint == null || endpoint.isEmpty()) {
-            return false;
-        }
-        String lowerEndpoint = endpoint.toLowerCase(Locale.ROOT);
-        return lowerEndpoint.contains("sf-express") || lowerEndpoint.contains("sfcloud");
     }
 
     /**

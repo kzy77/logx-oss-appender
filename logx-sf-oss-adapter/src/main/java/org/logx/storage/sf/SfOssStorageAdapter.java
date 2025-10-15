@@ -38,11 +38,11 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
      * @param config
      *            SF OSS存储配置
      * @param keyPrefix
-     *            对象键前缀，默认 "logs/"
+     *            对象键前缀，默认 "logx"
      */
     public SfOssStorageAdapter(org.logx.storage.StorageConfig config, String keyPrefix) {
         this.bucketName = config.getBucket();
-        this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logs";
+        this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logx";
 
         // 构建SF OSS客户端
         this.logxSfOssClient = new LogxSfOssClient(config.getEndpoint(), config.getRegion(), config.getAccessKeyId(), config.getAccessKeySecret());
@@ -52,7 +52,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
      * 简化构造函数：使用默认参数
      */
     public SfOssStorageAdapter(org.logx.storage.StorageConfig config) {
-        this(config, "logs");
+        this(config, "logx");
     }
 
     @Override
