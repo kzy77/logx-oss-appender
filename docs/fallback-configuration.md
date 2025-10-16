@@ -127,7 +127,7 @@ public class LogbackConfigExample {
 ### 示例1: 基本配置
 
 ```properties
-# application.properties
+# logx.properties
 # 存储配置
 logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
 logx.oss.storage.accessKeyId=your-access-key-id

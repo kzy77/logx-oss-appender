@@ -181,7 +181,7 @@ public interface StorageService extends StorageInterface {
 系统支持多种配置源,按以下优先级顺序读取配置:
 1. JVM系统属性 (-Dlogx.oss.storage.region=ap-guangzhou)
 2. 环境变量 (LOGX_OSS_STORAGE_REGION=ap-guangzhou)
-3. 配置文件属性 (application.properties中的logx.oss.storage.region=ap-guangzhou)
+3. 配置文件属性 (logx.properties中的logx.oss.storage.region=ap-guangzhou)
 4. 代码默认值
 
 ### 高级配置参数

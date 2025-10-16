@@ -384,9 +384,9 @@ sequenceDiagram
 
 **配置优先级**:
 系统支持多种配置源，按以下优先级顺序读取配置：
-1. JVM系统属性 (-Dlogx.oss.region=us)
+1. JVM系统属性 (-Dlogx.oss.storage.region=us)
 2. 环境变量 (LOGX_OSS_REGION=us)
-3. 配置文件属性 (application.properties中的logx.oss.region=us)
+3. 配置文件属性 (logx.properties中的logx.oss.storage.region=us)
 4. 代码默认值
 
 **属性文件配置支持**:

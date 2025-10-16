@@ -143,7 +143,7 @@
 | 6.0-UNIT-012 | Unit        | P0       | 验证maxUploadSizeMb验证规则 | 验证规则验证     |
 | 6.0-INT-026  | Integration | P0       | 验证maxUploadSizeMb配置支持 | 配置集成验证     |
 
-### AC14: 支持logx.oss前缀风格配置，如logx.oss.region=us
+### AC14: 支持logx.oss前缀风格配置，如logx.oss.storage.region=us
 
 #### 场景
 

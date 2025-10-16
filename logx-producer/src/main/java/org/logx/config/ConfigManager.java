@@ -17,7 +17,7 @@ import org.logx.config.properties.LogxOssProperties;
  * <ol>
  * <li>JVM系统属性 (-Dkey=value)</li>
  * <li>环境变量 (KEY=value)</li>
- * <li>配置文件属性 (application.properties)</li>
+ * <li>配置文件属性 (logx.properties)</li>
  * <li>代码默认值</li>
  * </ol>
  * <p>
@@ -29,7 +29,7 @@ import org.logx.config.properties.LogxOssProperties;
  */
 public class ConfigManager {
 
-    private static final String DEFAULT_CONFIG_FILE = "application.properties";
+    private static final String DEFAULT_CONFIG_FILE = "logx.properties";
 
     private final Map<String, String> configCache = new ConcurrentHashMap<>();
     private Properties fileProperties;

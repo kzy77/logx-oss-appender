@@ -555,7 +555,7 @@ export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
    - `-DLOGX_OSS_STORAGE_REGION=us` （大写下划线格式）
 2. 环境变量（只支持大写下划线格式）
    - `LOGX_OSS_STORAGE_REGION=us`
-3. 配置文件属性 (application.properties中的logx.oss.storage.region=ap-guangzhou)
+3. 配置文件属性 (logx.properties中的logx.oss.storage.region=ap-guangzhou)
 4. XML/配置文件中设置的字段值
 5. 代码默认值
 
