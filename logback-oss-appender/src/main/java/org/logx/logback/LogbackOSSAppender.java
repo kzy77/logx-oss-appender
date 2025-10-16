@@ -36,6 +36,9 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             this.configManager = new ConfigManager();
             LogxOssProperties properties = configManager.getLogxOssProperties();
 
+            // 预先解析xmlConfig中的所有占位符
+            resolveXmlConfigPlaceholders();
+
             // 应用XML配置（如果有的话）
             applyXmlConfig(properties);
 
@@ -67,61 +70,50 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
     }
 
     private void applyXmlConfig(LogxOssProperties properties) {
-        // 存储配置
+        // 存储配置（占位符已在resolveXmlConfigPlaceholders中解析）
         if (xmlConfig.containsKey("logx.oss.storage.endpoint")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.endpoint"));
-            properties.getStorage().setEndpoint(value);
+            properties.getStorage().setEndpoint(xmlConfig.get("logx.oss.storage.endpoint"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.region")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.region"));
-            properties.getStorage().setRegion(value);
+            properties.getStorage().setRegion(xmlConfig.get("logx.oss.storage.region"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.accessKeyId")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.accessKeyId"));
-            properties.getStorage().setAccessKeyId(value);
+            properties.getStorage().setAccessKeyId(xmlConfig.get("logx.oss.storage.accessKeyId"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.accessKeySecret")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.accessKeySecret"));
-            properties.getStorage().setAccessKeySecret(value);
+            properties.getStorage().setAccessKeySecret(xmlConfig.get("logx.oss.storage.accessKeySecret"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.bucket")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.bucket"));
-            properties.getStorage().setBucket(value);
+            properties.getStorage().setBucket(xmlConfig.get("logx.oss.storage.bucket"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.keyPrefix")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.keyPrefix"));
-            properties.getStorage().setKeyPrefix(value);
+            properties.getStorage().setKeyPrefix(xmlConfig.get("logx.oss.storage.keyPrefix"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.ossType")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.ossType"));
-            properties.getStorage().setOssType(value);
+            properties.getStorage().setOssType(xmlConfig.get("logx.oss.storage.ossType"));
         }
         if (xmlConfig.containsKey("logx.oss.storage.pathStyleAccess")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.pathStyleAccess"));
-            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(value));
+            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(xmlConfig.get("logx.oss.storage.pathStyleAccess")));
         }
 
         // 引擎配置 - 批处理
         if (xmlConfig.containsKey("logx.oss.engine.batch.count")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.count"));
-                properties.getEngine().getBatch().setCount(Integer.parseInt(value));
+                properties.getEngine().getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.count")));
             } catch (NumberFormatException e) {
                 addError("Invalid batch.count value", e);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.bytes")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.bytes"));
-                properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
+                properties.getEngine().getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.bytes")));
             } catch (NumberFormatException e) {
                 addError("Invalid batch.bytes value", e);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.maxAgeMs")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.maxAgeMs"));
-                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
+                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.engine.batch.maxAgeMs")));
             } catch (NumberFormatException e) {
                 addError("Invalid batch.maxAgeMs value", e);
             }
@@ -130,38 +122,33 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         // 引擎配置 - 队列
         if (xmlConfig.containsKey("logx.oss.engine.queue.capacity")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.queue.capacity"));
-                properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
+                properties.getEngine().getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.engine.queue.capacity")));
             } catch (NumberFormatException e) {
                 addError("Invalid queue.capacity value", e);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.queue.dropWhenFull")) {
-            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.queue.dropWhenFull"));
-            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(value));
+            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.engine.queue.dropWhenFull")));
         }
 
         // 引擎配置 - 重试
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxRetries")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.maxRetries"));
-                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
+                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.engine.retry.maxRetries")));
             } catch (NumberFormatException e) {
                 addError("Invalid retry.maxRetries value", e);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.baseBackoffMs")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs"));
-                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
+                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs")));
             } catch (NumberFormatException e) {
                 addError("Invalid retry.baseBackoffMs value", e);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxBackoffMs")) {
             try {
-                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs"));
-                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
+                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
             } catch (NumberFormatException e) {
                 addError("Invalid retry.maxBackoffMs value", e);
             }
@@ -190,6 +177,20 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             }
         }
         super.stop();
+    }
+
+    /**
+     * 预先解析xmlConfig中的所有占位符
+     * 支持 ${ENV_VAR:-default} 和 ${ENV_VAR:default} 语法
+     */
+    private void resolveXmlConfigPlaceholders() {
+        Map<String, String> resolved = new HashMap<>();
+        for (Map.Entry<String, String> entry : xmlConfig.entrySet()) {
+            String resolvedValue = configManager.resolvePlaceholders(entry.getValue());
+            resolved.put(entry.getKey(), resolvedValue);
+        }
+        xmlConfig.clear();
+        xmlConfig.putAll(resolved);
     }
 
     public void setEncoder(Encoder<ILoggingEvent> encoder) {
