@@ -13,6 +13,7 @@ import java.util.Map;
 public class Log4jOSSAppender extends AppenderSkeleton {
 
     private Log4j1xBridge adapter;
+    private ConfigManager configManager;
 
     // XML配置字段
     private final Map<String, String> xmlConfig = new HashMap<>();
@@ -22,7 +23,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         super.activateOptions();
 
         try {
-            ConfigManager configManager = new ConfigManager();
+            this.configManager = new ConfigManager();
             LogxOssProperties properties = configManager.getLogxOssProperties();
 
             // 应用XML配置（如果有的话）
@@ -49,48 +50,59 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     private void applyXmlConfig(LogxOssProperties properties) {
         // 存储配置
         if (xmlConfig.containsKey("logx.oss.storage.endpoint")) {
-            properties.getStorage().setEndpoint(xmlConfig.get("logx.oss.storage.endpoint"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.endpoint"));
+            properties.getStorage().setEndpoint(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.region")) {
-            properties.getStorage().setRegion(xmlConfig.get("logx.oss.storage.region"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.region"));
+            properties.getStorage().setRegion(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.accessKeyId")) {
-            properties.getStorage().setAccessKeyId(xmlConfig.get("logx.oss.storage.accessKeyId"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.accessKeyId"));
+            properties.getStorage().setAccessKeyId(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.accessKeySecret")) {
-            properties.getStorage().setAccessKeySecret(xmlConfig.get("logx.oss.storage.accessKeySecret"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.accessKeySecret"));
+            properties.getStorage().setAccessKeySecret(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.bucket")) {
-            properties.getStorage().setBucket(xmlConfig.get("logx.oss.storage.bucket"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.bucket"));
+            properties.getStorage().setBucket(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.keyPrefix")) {
-            properties.getStorage().setKeyPrefix(xmlConfig.get("logx.oss.storage.keyPrefix"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.keyPrefix"));
+            properties.getStorage().setKeyPrefix(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.ossType")) {
-            properties.getStorage().setOssType(xmlConfig.get("logx.oss.storage.ossType"));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.ossType"));
+            properties.getStorage().setOssType(value);
         }
         if (xmlConfig.containsKey("logx.oss.storage.pathStyleAccess")) {
-            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(xmlConfig.get("logx.oss.storage.pathStyleAccess")));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.storage.pathStyleAccess"));
+            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 批处理
         if (xmlConfig.containsKey("logx.oss.engine.batch.count")) {
             try {
-                properties.getEngine().getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.count")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.count"));
+                properties.getEngine().getBatch().setCount(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid batch.count value", e, 1);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.bytes")) {
             try {
-                properties.getEngine().getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.bytes")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.bytes"));
+                properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid batch.bytes value", e, 1);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.maxAgeMs")) {
             try {
-                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.engine.batch.maxAgeMs")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.batch.maxAgeMs"));
+                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid batch.maxAgeMs value", e, 1);
             }
@@ -99,33 +111,38 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         // 引擎配置 - 队列
         if (xmlConfig.containsKey("logx.oss.engine.queue.capacity")) {
             try {
-                properties.getEngine().getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.engine.queue.capacity")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.queue.capacity"));
+                properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid queue.capacity value", e, 1);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.queue.dropWhenFull")) {
-            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.engine.queue.dropWhenFull")));
+            String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.queue.dropWhenFull"));
+            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 重试
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxRetries")) {
             try {
-                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.engine.retry.maxRetries")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.maxRetries"));
+                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid retry.maxRetries value", e, 1);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.baseBackoffMs")) {
             try {
-                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs"));
+                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid retry.baseBackoffMs value", e, 1);
             }
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxBackoffMs")) {
             try {
-                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
+                String value = configManager.resolvePlaceholders(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs"));
+                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 getErrorHandler().error("Invalid retry.maxBackoffMs value", e, 1);
             }

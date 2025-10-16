@@ -95,60 +95,73 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 存储配置（对应 logx.oss.storage.* 配置键）
         if (endpoint != null) {
-            properties.getStorage().setEndpoint(endpoint);
+            String value = configManager.resolvePlaceholders(endpoint);
+            properties.getStorage().setEndpoint(value);
         }
         if (region != null) {
-            properties.getStorage().setRegion(region);
+            String value = configManager.resolvePlaceholders(region);
+            properties.getStorage().setRegion(value);
         }
         if (accessKeyId != null) {
-            properties.getStorage().setAccessKeyId(accessKeyId);
+            String value = configManager.resolvePlaceholders(accessKeyId);
+            properties.getStorage().setAccessKeyId(value);
         }
         if (accessKeySecret != null) {
-            properties.getStorage().setAccessKeySecret(accessKeySecret);
+            String value = configManager.resolvePlaceholders(accessKeySecret);
+            properties.getStorage().setAccessKeySecret(value);
         }
         if (bucket != null) {
-            properties.getStorage().setBucket(bucket);
+            String value = configManager.resolvePlaceholders(bucket);
+            properties.getStorage().setBucket(value);
         }
         if (ossType != null) {
-            properties.getStorage().setOssType(ossType);
+            String value = configManager.resolvePlaceholders(ossType);
+            properties.getStorage().setOssType(value);
         }
         if (keyPrefix != null) {
-            properties.getStorage().setKeyPrefix(keyPrefix);
+            String value = configManager.resolvePlaceholders(keyPrefix);
+            properties.getStorage().setKeyPrefix(value);
         }
         if (pathStyleAccess != null) {
-            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(pathStyleAccess));
+            String value = configManager.resolvePlaceholders(pathStyleAccess);
+            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 队列（对应 logx.oss.engine.queue.* 配置键）
         if (queueCapacity != null) {
             try {
-                properties.getEngine().getQueue().setCapacity(Integer.parseInt(queueCapacity));
+                String value = configManager.resolvePlaceholders(queueCapacity);
+                properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid queueCapacity value: {}", queueCapacity, e);
             }
         }
         if (dropWhenQueueFull != null) {
-            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(dropWhenQueueFull));
+            String value = configManager.resolvePlaceholders(dropWhenQueueFull);
+            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 批处理（对应 logx.oss.engine.batch.* 配置键）
         if (maxBatchCount != null) {
             try {
-                properties.getEngine().getBatch().setCount(Integer.parseInt(maxBatchCount));
+                String value = configManager.resolvePlaceholders(maxBatchCount);
+                properties.getEngine().getBatch().setCount(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid maxBatchCount value: {}", maxBatchCount, e);
             }
         }
         if (maxBatchBytes != null) {
             try {
-                properties.getEngine().getBatch().setBytes(Integer.parseInt(maxBatchBytes));
+                String value = configManager.resolvePlaceholders(maxBatchBytes);
+                properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid maxBatchBytes value: {}", maxBatchBytes, e);
             }
         }
         if (maxMessageAgeMs != null) {
             try {
-                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(maxMessageAgeMs));
+                String value = configManager.resolvePlaceholders(maxMessageAgeMs);
+                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid maxMessageAgeMs value: {}", maxMessageAgeMs, e);
             }
@@ -157,21 +170,24 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         // 引擎配置 - 重试（对应 logx.oss.engine.retry.* 配置键）
         if (maxRetries != null) {
             try {
-                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(maxRetries));
+                String value = configManager.resolvePlaceholders(maxRetries);
+                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid maxRetries value: {}", maxRetries, e);
             }
         }
         if (baseBackoffMs != null) {
             try {
-                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(baseBackoffMs));
+                String value = configManager.resolvePlaceholders(baseBackoffMs);
+                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid baseBackoffMs value: {}", baseBackoffMs, e);
             }
         }
         if (maxBackoffMs != null) {
             try {
-                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(maxBackoffMs));
+                String value = configManager.resolvePlaceholders(maxBackoffMs);
+                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
             } catch (NumberFormatException e) {
                 LOGGER.error("Invalid maxBackoffMs value: {}", maxBackoffMs, e);
             }
