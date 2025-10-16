@@ -367,16 +367,18 @@ sequenceDiagram
 ```xml
 <!-- 三个框架的统一配置key -->
 <appender name="OSS" class="org.logx.{framework}.OSSAppender">
-    <!-- 必需参数 -->
-    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
-    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <secretAccessKey>${LOGX_OSS_ACCESS_KEY_SECRET}</secretAccessKey>
-    <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
-    <!-- 可选参数 -->
-    <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
-    <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
-    <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
-    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
+    <!-- 必需参数（存储配置） -->
+    <region>${LOGX_OSS_STORAGE_REGION:-ap-guangzhou}</region>
+    <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+    <secretAccessKey>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</secretAccessKey>
+    <bucket>${LOGX_OSS_STORAGE_BUCKET:-my-log-bucket}</bucket>
+    <!-- 可选参数（存储配置） -->
+    <endpoint>${LOGX_OSS_STORAGE_ENDPOINT}</endpoint>
+    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_OSS}</ossType>
+    <!-- 可选参数（引擎配置） -->
+    <maxBatchCount>${LOGX_OSS_ENGINE_BATCH_COUNT:-8192}</maxBatchCount>
+    <maxMessageAgeMs>${LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
+    <maxUploadSizeMb>${LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
 </appender>
 ```
 
@@ -388,36 +390,50 @@ sequenceDiagram
 4. 代码默认值
 
 **属性文件配置支持**:
-支持使用`logx.oss`前缀的属性文件配置方式：
+支持使用`logx.oss`前缀的两层配置结构:
 ```properties
-logx.oss.region=us
-logx.oss.accessKeyId=your-access-key
-logx.oss.accessKeySecret=your-secret-key
-logx.oss.bucket=your-bucket-name
-logx.oss.ossType=SF_OSS
-logx.oss.maxBatchCount=8192
-logx.oss.maxMessageAgeMs=60000
-logx.oss.maxUploadSizeMb=10
+# 存储配置
+logx.oss.storage.region=ap-guangzhou
+logx.oss.storage.accessKeyId=your-access-key
+logx.oss.storage.accessKeySecret=your-secret-key
+logx.oss.storage.bucket=your-bucket-name
+logx.oss.storage.endpoint=https://oss-cn-guangzhou.aliyuncs.com
+logx.oss.storage.ossType=SF_OSS
+# 引擎配置
+logx.oss.engine.batch.count=8192
+logx.oss.engine.batch.maxAgeMs=60000
+logx.oss.engine.maxUploadSizeMb=10
 ```
 
 **环境变量支持**:
 ```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-secret-key"
-export LOGX_OSS_REGION="US"
-export LOGX_OSS_BUCKET="your-bucket-name"
-export LOGX_OSS_TYPE="SF_OSS"
-export LOGX_OSS_MAX_BATCH_COUNT="4096"
-export LOGX_OSS_MAX_MESSAGE_AGE_MS="600000"
-export LOGX_OSS_MAX_UPLOAD_SIZE_MB="10"
+# 存储配置
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-secret-key"
+export LOGX_OSS_STORAGE_REGION="ap-guangzhou"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-guangzhou.aliyuncs.com"
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_OSS"
+# 引擎配置
+export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
+export LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB="10"
 ```
 
 **配置参数说明**:
-- `region`: 云存储区域，默认值为ap-guangzhou
+
+存储配置 (`logx.oss.storage.*`):
+- `region`: 云存储区域,默认值为ap-guangzhou
 - `accessKeyId`: 访问密钥ID
-- `secretAccessKey`: 访问密钥Secret
-- `bucketName`: 存储桶名称
-- `ossType`: 存储类型，默认为SF_OSS，支持SF_OSS、S3等
-- `maxBatchCount`: 批处理最大消息数，默认8192条日志
-- `maxMessageAgeMs`: 最早消息年龄阈值（毫秒），默认60000（1分钟）
-- `maxUploadSizeMb`: 单个上传文件最大大小（MB），默认10MB，同时控制分片阈值和分片大小
+- `accessKeySecret`: 访问密钥Secret
+- `bucket`: 存储桶名称
+- `endpoint`: 云存储服务端点(可选)
+- `ossType`: 存储类型,默认为SF_OSS,支持SF_OSS、S3等
+- `keyPrefix`: 对象键前缀(可选)
+
+引擎配置 (`logx.oss.engine.*`):
+- `batch.count`: 批处理最大消息数,默认8192条日志
+- `batch.maxAgeMs`: 最早消息年龄阈值(毫秒),默认60000(1分钟)
+- `maxUploadSizeMb`: 单个上传文件最大大小(MB),默认10MB,同时控制分片阈值和分片大小
+- `queue.capacity`: 队列容量,默认524288
+- `retry.maxRetries`: 最大重试次数,默认3次

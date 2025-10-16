@@ -187,49 +187,49 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 
 ### 配置优先级（从高到低）
 
-1. **JVM系统属性**：`mvn test -Dlogx.oss.endpoint=http://localhost:9000`
-2. **环境变量**：`export LOGX_OSS_ENDPOINT=http://localhost:9000`
+1. **JVM系统属性**：`mvn test -Dlogx.oss.storage.endpoint=http://localhost:9000`
+2. **环境变量**：`export LOGX_OSS_STORAGE_ENDPOINT=http://localhost:9000`
 3. **配置文件默认值**：`minio-test.properties`
 
 ### 环境变量命名规则
 
-将配置键中的点号替换为下划线并转为大写：
-- `logx.oss.endpoint` → `LOGX_OSS_ENDPOINT`
-- `logx.oss.accessKeyId` → `LOGX_OSS_ACCESS_KEY_ID`
+将配置键中的点号替换为下划线并转为大写:
+- `logx.oss.storage.endpoint` → `LOGX_OSS_STORAGE_ENDPOINT`
+- `logx.oss.storage.accessKeyId` → `LOGX_OSS_STORAGE_ACCESS_KEY_ID`
 
 ### 常用环境变量示例
 
 ```bash
 # MinIO服务端点（默认：http://localhost:9000）
-export LOGX_OSS_ENDPOINT="http://localhost:9000"
+export LOGX_OSS_STORAGE_ENDPOINT="http://localhost:9000"
 
 # MinIO区域（默认：us）
-export LOGX_OSS_REGION="US"
+export LOGX_OSS_STORAGE_REGION="us"
 
 # MinIO访问凭证（默认：minioadmin/minioadmin）
-export LOGX_OSS_ACCESS_KEY_ID="minioadmin"
-export LOGX_OSS_ACCESS_KEY_SECRET="minioadmin"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="minioadmin"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="minioadmin"
 
 # MinIO存储桶（默认：logx-test-bucket）
-export LOGX_OSS_BUCKET="logx-test-bucket"
+export LOGX_OSS_STORAGE_BUCKET="logx-test-bucket"
 
 # 对象键前缀（默认：integration-test/）
-export LOGX_OSS_KEY_PREFIX="integration-test/"
+export LOGX_OSS_STORAGE_KEY_PREFIX="integration-test/"
 
 # OSS类型（默认：S3）
-export LOGX_OSS_OSS_TYPE="S3"
+export LOGX_OSS_STORAGE_OSS_TYPE="S3"
 ```
 
 ### 使用自定义MinIO实例
 
-如果您的MinIO运行在不同的地址或端口：
+如果您的MinIO运行在不同的地址或端口:
 
 ```bash
 # 自定义端点和凭证
-export LOGX_OSS_ENDPOINT="http://192.168.1.100:19000"
-export LOGX_OSS_ACCESS_KEY_ID="your-custom-key"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-custom-secret"
-export LOGX_OSS_BUCKET="your-custom-bucket"
+export LOGX_OSS_STORAGE_ENDPOINT="http://192.168.1.100:19000"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-custom-key"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-custom-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-custom-bucket"
 
 # 运行测试
 mvn test -Dtest=AsyncEngineIntegrationTest -pl logx-producer
@@ -333,13 +333,13 @@ minio.exe server C:\minio-data --console-address ":9001"
 
 ### 默认配置值
 
-所有兼容性测试使用以下默认值：
-- **endpoint**: `http://localhost:9000` (MinIO本地地址)
-- **region**: `us` (符合PRD文档规范)
-- **accessKeyId**: `minioadmin`
-- **accessKeySecret**: `minioadmin`
-- **bucket**: `logx-test-bucket`
-- **ossType**: `S3`
+所有兼容性测试使用以下默认值:
+- **storage.endpoint**: `http://localhost:9000` (MinIO本地地址)
+- **storage.region**: `us` (符合PRD文档规范)
+- **storage.accessKeyId**: `minioadmin`
+- **storage.accessKeySecret**: `minioadmin`
+- **storage.bucket**: `logx-test-bucket`
+- **storage.ossType**: `S3`
 
 ### 运行兼容性测试
 
@@ -353,9 +353,9 @@ cd ../..
 mvn clean install
 
 # 3. 如需自定义配置，可设置环境变量
-export LOGX_OSS_ENDPOINT="http://192.168.1.100:9000"
-export LOGX_OSS_ACCESS_KEY_ID="custom-key"
-export LOGX_OSS_ACCESS_KEY_SECRET="custom-secret"
+export LOGX_OSS_STORAGE_ENDPOINT="http://192.168.1.100:9000"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="custom-key"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="custom-secret"
 mvn clean install
 ```
 

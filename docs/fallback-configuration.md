@@ -70,29 +70,29 @@
 在`application.properties`或`log4j.properties`等配置文件中添加以下配置：
 
 ```properties
-# 兜底机制配置
-logx.oss.fallbackPath=fallback
-logx.oss.fallbackRetentionDays=7
-logx.oss.fallbackScanIntervalSeconds=60
-logx.oss.emergencyMemoryThresholdMb=512
+# 兜底机制配置（引擎配置）
+logx.oss.engine.fallback.path=fallback
+logx.oss.engine.fallback.retentionDays=7
+logx.oss.engine.fallback.scanIntervalSeconds=60
+logx.oss.engine.emergencyMemoryThresholdMb=512
 ```
 
 ### 2. 环境变量配置
 
 ```bash
-export LOGX_OSS_FALLBACK_PATH="fallback"
-export LOGX_OSS_FALLBACK_RETENTION_DAYS="7"
-export LOGX_OSS_FALLBACK_SCAN_INTERVAL_SECONDS="60"
-export LOGX_OSS_EMERGENCY_MEMORY_THRESHOLD_MB="512"
+export LOGX_OSS_ENGINE_FALLBACK_PATH="fallback"
+export LOGX_OSS_ENGINE_FALLBACK_RETENTION_DAYS="7"
+export LOGX_OSS_ENGINE_FALLBACK_SCAN_INTERVAL_SECONDS="60"
+export LOGX_OSS_ENGINE_EMERGENCY_MEMORY_THRESHOLD_MB="512"
 ```
 
 ### 3. JVM系统属性配置
 
 ```bash
-java -Dlogx.oss.fallbackPath=fallback \
-     -Dlogx.oss.fallbackRetentionDays=7 \
-     -Dlogx.oss.fallbackScanIntervalSeconds=60 \
-     -Dlogx.oss.emergencyMemoryThresholdMb=512 \
+java -Dlogx.oss.engine.fallback.path=fallback \
+     -Dlogx.oss.engine.fallback.retentionDays=7 \
+     -Dlogx.oss.engine.fallback.scanIntervalSeconds=60 \
+     -Dlogx.oss.engine.emergencyMemoryThresholdMb=512 \
      -jar your-application.jar
 ```
 
@@ -128,42 +128,48 @@ public class LogbackConfigExample {
 
 ```properties
 # application.properties
-logx.oss.endpoint=https://oss-cn-hangzhou.aliyuncs.com
-logx.oss.accessKeyId=your-access-key-id
-logx.oss.accessKeySecret=your-access-key-secret
-logx.oss.bucket=your-bucket-name
-logx.oss.fallbackPath=fallback
-logx.oss.fallbackRetentionDays=7
-logx.oss.fallbackScanIntervalSeconds=60
-logx.oss.emergencyMemoryThresholdMb=512
+# 存储配置
+logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
+logx.oss.storage.accessKeyId=your-access-key-id
+logx.oss.storage.accessKeySecret=your-access-key-secret
+logx.oss.storage.bucket=your-bucket-name
+# 引擎配置 - 兜底机制
+logx.oss.engine.fallback.path=fallback
+logx.oss.engine.fallback.retentionDays=7
+logx.oss.engine.fallback.scanIntervalSeconds=60
+logx.oss.engine.emergencyMemoryThresholdMb=512
 ```
 
 ### 示例2: 自定义路径和保留策略
 
 ```properties
 # log4j2.properties
-logx.oss.endpoint=https://oss-cn-hangzhou.aliyuncs.com
-logx.oss.accessKeyId=your-access-key-id
-logx.oss.accessKeySecret=your-access-key-secret
-logx.oss.bucket=your-bucket-name
-logx.oss.fallbackPath=/var/log/myapp/fallback
-logx.oss.fallbackRetentionDays=30
-logx.oss.fallbackScanIntervalSeconds=120
-logx.oss.emergencyMemoryThresholdMb=1024
+# 存储配置
+logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
+logx.oss.storage.accessKeyId=your-access-key-id
+logx.oss.storage.accessKeySecret=your-access-key-secret
+logx.oss.storage.bucket=your-bucket-name
+# 引擎配置 - 兜底机制（自定义路径和保留策略）
+logx.oss.engine.fallback.path=/var/log/myapp/fallback
+logx.oss.engine.fallback.retentionDays=30
+logx.oss.engine.fallback.scanIntervalSeconds=120
+logx.oss.engine.emergencyMemoryThresholdMb=1024
 ```
 
 ### 示例3: 开发环境配置
 
 ```properties
 # development.properties
-logx.oss.endpoint=https://oss-cn-hangzhou.aliyuncs.com
-logx.oss.accessKeyId=your-access-key-id
-logx.oss.accessKeySecret=your-access-key-secret
-logx.oss.bucket=your-bucket-name
-logx.oss.fallbackPath=temp/fallback
-logx.oss.fallbackRetentionDays=1
-logx.oss.fallbackScanIntervalSeconds=10
-logx.oss.emergencyMemoryThresholdMb=256
+# 存储配置
+logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
+logx.oss.storage.accessKeyId=your-access-key-id
+logx.oss.storage.accessKeySecret=your-access-key-secret
+logx.oss.storage.bucket=your-bucket-name
+# 引擎配置 - 兜底机制（开发环境配置）
+logx.oss.engine.fallback.path=temp/fallback
+logx.oss.engine.fallback.retentionDays=1
+logx.oss.engine.fallback.scanIntervalSeconds=10
+logx.oss.engine.emergencyMemoryThresholdMb=256
 ```
 
 ## 最佳实践

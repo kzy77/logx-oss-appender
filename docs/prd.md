@@ -116,8 +116,9 @@ OSS Appender项目旨在通过高性能异步队列技术（LMAX Disruptor）和
 - 统一使用LOGX_前缀的环境变量配置
 - 使用ossType参数指定存储服务类型，默认值为SF_OSS
 - 注：ossType已替代早期版本中的backend参数（历史兼容性说明）
-- 支持logx.oss.region格式的配置参数
-- 支持使用`logx.oss`前缀的属性文件配置方式，如logx.oss.region=us
+- 支持两层配置结构：
+  - `logx.oss.storage.*` - 存储配置（如logx.oss.storage.region=us, logx.oss.storage.bucket等）
+  - `logx.oss.engine.*` - 引擎配置（如logx.oss.engine.batch.count, logx.oss.engine.queue.capacity等）
 - 配置优先级顺序：JVM系统属性 > 环境变量 > 配置文件属性 > 代码默认值
 
 ## Epic列表

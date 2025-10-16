@@ -158,29 +158,30 @@ public interface StorageService extends StorageInterface {
 ```xml
 <!-- 三个框架的统一配置key -->
 <appender name="OSS" class="org.logx.{framework}.OSSAppender">
-    <!-- 必需参数 -->
-    <endpoint>${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOGX_OSS_BUCKET:-my-log-bucket}</bucket>
-    <!-- 可选参数 -->
-    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
-    <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/}</keyPrefix>
-    <ossType>${LOGX_OSS_TYPE:-SF_S3}</ossType>
-    <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
-    <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
-    <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
-    <pathStyleAccess>${LOGX_OSS_PATH_STYLE_ACCESS:-false}</pathStyleAccess>
-    <enableSsl>${LOGX_OSS_ENABLE_SSL:-true}</enableSsl>
+    <!-- 必需参数（存储配置） -->
+    <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+    <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_STORAGE_BUCKET:-my-log-bucket}</bucket>
+    <!-- 可选参数（存储配置） -->
+    <region>${LOGX_OSS_STORAGE_REGION:-ap-guangzhou}</region>
+    <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/}</keyPrefix>
+    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_OSS}</ossType>
+    <pathStyleAccess>${LOGX_OSS_STORAGE_PATH_STYLE_ACCESS:-false}</pathStyleAccess>
+    <enableSsl>${LOGX_OSS_STORAGE_ENABLE_SSL:-true}</enableSsl>
+    <!-- 可选参数（引擎配置） -->
+    <maxBatchCount>${LOGX_OSS_ENGINE_BATCH_COUNT:-8192}</maxBatchCount>
+    <maxMessageAgeMs>${LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
+    <maxUploadSizeMb>${LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
 </appender>
 ```
 
 ### 配置优先级
 
-系统支持多种配置源，按以下优先级顺序读取配置：
-1. JVM系统属性 (-Dlogx.oss.region=us)
-2. 环境变量 (LOGX_OSS_REGION=us)
-3. 配置文件属性 (application.properties中的logx.oss.region=us)
+系统支持多种配置源,按以下优先级顺序读取配置:
+1. JVM系统属性 (-Dlogx.oss.storage.region=ap-guangzhou)
+2. 环境变量 (LOGX_OSS_STORAGE_REGION=ap-guangzhou)
+3. 配置文件属性 (application.properties中的logx.oss.storage.region=ap-guangzhou)
 4. 代码默认值
 
 ### 高级配置参数
