@@ -1,45 +1,39 @@
 package org.logx.compatibility.spring.mvc;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
+import org.logx.compatibility.spring.mvc.config.WebConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.logx.compatibility.spring.mvc.controller.TestLogController;
-
-/**
- * Spring MVC兼容性测试 - 使用真实MinIO环境
- *
- * 测试前请按照 compatibility-tests/minio/README-MINIO.md 指南启动MinIO服务
- *
- * 快速启动：
- * cd compatibility-tests/minio
- * ./start-minio-local.sh
- *
- * 标准配置：
- * - 端点: http://localhost:9000
- * - 控制台: http://localhost:9001
- * - 用户名/密码: minioadmin/minioadmin
- * - 测试桶: logx-test-bucket
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureWebMvc
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = WebConfig.class)
 public class SpringMVCCompatibilityTest {
 
     private static final Logger logger = LoggerFactory.getLogger(SpringMVCCompatibilityTest.class);
 
     @Autowired
+    private WebApplicationContext wac;
+
     private MockMvc mockMvc;
+
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    }
 
     @Test
     public void testBusinessLogGenerationWithRealOSS() throws Exception {

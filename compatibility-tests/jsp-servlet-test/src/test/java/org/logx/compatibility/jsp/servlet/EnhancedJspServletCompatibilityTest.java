@@ -100,7 +100,27 @@ public class EnhancedJspServletCompatibilityTest {
         logger.info("异常Servlet业务日志测试完成");
     }
 
-    // 简单的Mock实现 - 仅用于测试参数传递，不依赖外部Mock框架
+    private static class MockServletConfig implements javax.servlet.ServletConfig {
+        private final java.util.Map<String, String> initParameters = new java.util.HashMap<>();
+
+        public String getServletName() {
+            return "TestServlet";
+        }
+
+        public javax.servlet.ServletContext getServletContext() {
+            return null; // In a real test, you might need a mock ServletContext
+        }
+
+        public String getInitParameter(String name) {
+            return initParameters.get(name);
+        }
+
+        public java.util.Enumeration<String> getInitParameterNames() {
+            return java.util.Collections.enumeration(initParameters.keySet());
+        }
+    }
+
+    // Simple mock implementation - for testing parameter passing without external mock frameworks
     private static class MockHttpServletRequest extends javax.servlet.http.HttpServletRequestWrapper {
         private final java.util.Map<String, String> parameters = new java.util.HashMap<>();
         private final java.util.Map<String, String> headers = new java.util.HashMap<>();
@@ -109,7 +129,77 @@ public class EnhancedJspServletCompatibilityTest {
         private String remoteAddr;
 
         public MockHttpServletRequest() {
-            super(null); // 简单实现，传入null
+            super(new javax.servlet.http.HttpServletRequest() {
+                public javax.servlet.AsyncContext getAsyncContext() { return null; }
+                public Object getAttribute(String name) { return null; }
+                public java.util.Enumeration<String> getAttributeNames() { return null; }
+                public String getCharacterEncoding() { return null; }
+                public void setCharacterEncoding(String env) throws java.io.UnsupportedEncodingException { }
+                public int getContentLength() { return 0; }
+                public long getContentLengthLong() { return 0; }
+                public String getContentType() { return null; }
+                public javax.servlet.ServletInputStream getInputStream() throws java.io.IOException { return null; }
+                public String getParameter(String name) { return null; }
+                public java.util.Map<String, String[]> getParameterMap() { return null; }
+                public java.util.Enumeration<String> getParameterNames() { return null; }
+                public String[] getParameterValues(String name) { return null; }
+                public String getProtocol() { return null; }
+                public String getScheme() { return null; }
+                public String getServerName() { return null; }
+                public int getServerPort() { return 0; }
+                public java.io.BufferedReader getReader() throws java.io.IOException { return null; }
+                public String getRemoteAddr() { return null; }
+                public String getRemoteHost() { return null; }
+                public void setAttribute(String name, Object o) { }
+                public void removeAttribute(String name) { }
+                public java.util.Locale getLocale() { return null; }
+                public java.util.Enumeration<java.util.Locale> getLocales() { return null; }
+                public boolean isSecure() { return false; }
+                public javax.servlet.RequestDispatcher getRequestDispatcher(String path) { return null; }
+                public String getRealPath(String path) { return null; }
+                public int getRemotePort() { return 0; }
+                public String getLocalName() { return null; }
+                public String getLocalAddr() { return null; }
+                public int getLocalPort() { return 0; }
+                public javax.servlet.ServletContext getServletContext() { return null; }
+                public javax.servlet.AsyncContext startAsync() throws IllegalStateException { return null; }
+                public javax.servlet.AsyncContext startAsync(javax.servlet.ServletRequest servletRequest, javax.servlet.ServletResponse servletResponse) throws IllegalStateException { return null; }
+                public boolean isAsyncStarted() { return false; }
+                public boolean isAsyncSupported() { return false; }
+                public javax.servlet.DispatcherType getDispatcherType() { return null; }
+                public String getAuthType() { return null; }
+                public javax.servlet.http.Cookie[] getCookies() { return null; }
+                public long getDateHeader(String name) { return 0; }
+                public String getHeader(String name) { return null; }
+                public java.util.Enumeration<String> getHeaders(String name) { return null; }
+                public java.util.Enumeration<String> getHeaderNames() { return null; }
+                public int getIntHeader(String name) { return 0; }
+                public String getMethod() { return null; }
+                public String getPathInfo() { return null; }
+                public String getPathTranslated() { return null; }
+                public String getContextPath() { return null; }
+                public String getQueryString() { return null; }
+                public String getRemoteUser() { return null; }
+                public boolean isUserInRole(String role) { return false; }
+                public java.security.Principal getUserPrincipal() { return null; }
+                public String getRequestedSessionId() { return null; }
+                public String getRequestURI() { return null; }
+                public StringBuffer getRequestURL() { return null; }
+                public String getServletPath() { return null; }
+                public javax.servlet.http.HttpSession getSession(boolean create) { return null; }
+                public javax.servlet.http.HttpSession getSession() { return null; }
+                public String changeSessionId() { return null; }
+                public boolean isRequestedSessionIdValid() { return false; }
+                public boolean isRequestedSessionIdFromCookie() { return false; }
+                public boolean isRequestedSessionIdFromURL() { return false; }
+                public boolean isRequestedSessionIdFromUrl() { return false; }
+                public boolean authenticate(javax.servlet.http.HttpServletResponse response) throws java.io.IOException, javax.servlet.ServletException { return false; }
+                public void login(String username, String password) throws javax.servlet.ServletException { }
+                public void logout() throws javax.servlet.ServletException { }
+                public java.util.Collection<javax.servlet.http.Part> getParts() throws java.io.IOException, javax.servlet.ServletException { return null; }
+                public javax.servlet.http.Part getPart(String name) throws java.io.IOException, javax.servlet.ServletException { return null; }
+                public <T extends javax.servlet.http.HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws java.io.IOException, javax.servlet.ServletException { return null; }
+            });
         }
 
         public void setParameter(String name, String value) {
@@ -168,7 +258,45 @@ public class EnhancedJspServletCompatibilityTest {
         private String contentType;
 
         public MockHttpServletResponse() {
-            super(null); // 简单实现，传入null
+            super(new javax.servlet.http.HttpServletResponse() {
+                public void addCookie(javax.servlet.http.Cookie cookie) { }
+                public boolean containsHeader(String name) { return false; }
+                public String encodeURL(String url) { return null; }
+                public String encodeRedirectURL(String url) { return null; }
+                public String encodeUrl(String url) { return null; }
+                public String encodeRedirectUrl(String url) { return null; }
+                public void sendError(int sc, String msg) throws java.io.IOException { }
+                public void sendError(int sc) throws java.io.IOException { }
+                public void sendRedirect(String location) throws java.io.IOException { }
+                public void setDateHeader(String name, long date) { }
+                public void addDateHeader(String name, long date) { }
+                public void setHeader(String name, String value) { }
+                public void addHeader(String name, String value) { }
+                public void setIntHeader(String name, int value) { }
+                public void addIntHeader(String name, int value) { }
+                public void setStatus(int sc) { }
+                public void setStatus(int sc, String sm) { }
+                public int getStatus() { return 0; }
+                public String getHeader(String name) { return null; }
+                public java.util.Collection<String> getHeaders(String name) { return null; }
+                public java.util.Collection<String> getHeaderNames() { return null; }
+                public String getCharacterEncoding() { return null; }
+                public String getContentType() { return null; }
+                public javax.servlet.ServletOutputStream getOutputStream() throws java.io.IOException { return null; }
+                public java.io.PrintWriter getWriter() throws java.io.IOException { return null; }
+                public void setCharacterEncoding(String charset) { }
+                public void setContentLength(int len) { }
+                public void setContentLengthLong(long len) { }
+                public void setContentType(String type) { }
+                public void setBufferSize(int size) { }
+                public int getBufferSize() { return 0; }
+                public void flushBuffer() throws java.io.IOException { }
+                public void resetBuffer() { }
+                public boolean isCommitted() { return false; }
+                public void reset() { }
+                public void setLocale(java.util.Locale loc) { }
+                public java.util.Locale getLocale() { return null; }
+            });
         }
 
         public int getStatus() {

@@ -30,7 +30,7 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithBashStyleDefault() {
         // 测试bash风格的默认值语法 ${VAR:-default}
-        String input = "${LOGX_OSS_REGION:-us}";
+        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -54,7 +54,7 @@ class PlaceholderResolutionTest {
         // 设置JVM系统属性
         System.setProperty("LOGX_OSS_REGION", "us-west-1");
 
-        String input = "${LOGX_OSS_REGION:-us}";
+        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)

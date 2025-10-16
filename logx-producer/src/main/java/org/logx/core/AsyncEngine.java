@@ -41,40 +41,33 @@ public interface AsyncEngine {
     /**
      * 创建并返回一个AsyncEngine的实例
      *
-     * @param storage
-     *            存储服务的实现
+     * @param config
+     *            异步引擎配置
      *
      * @return AsyncEngine的实例
      */
-    static AsyncEngine create(StorageService storage) {
-        return new AsyncEngineImpl(storage);
+    static AsyncEngine create(AsyncEngineConfig config) {
+        return new AsyncEngineImpl(config);
     }
     
     /**
      * 创建并返回一个AsyncEngine的实例
      *
-     * @param storage
-     *            存储服务的实现
      * @param config
      *            异步引擎配置
      *
      * @return AsyncEngine的实例
      */
     static AsyncEngine create(StorageService storage, AsyncEngineConfig config) {
-        return new AsyncEngineImpl(storage, config);
+        return new AsyncEngineImpl(config);
     }
     
     /**
      * 创建并返回一个AsyncEngine的实例，使用默认配置构建器
      *
-     * @param storage
-     *            存储服务的实现
-     *
      * @return AsyncEngine的实例
      */
-    static AsyncEngine createWithConfig(StorageService storage) {
-        return new AsyncEngineImpl(storage, AsyncEngineConfigBuilder.buildConfig());
+    static AsyncEngine createWithConfig() {
+        return new AsyncEngineImpl(AsyncEngineConfigBuilder.buildConfig());
     }
 }
-
-

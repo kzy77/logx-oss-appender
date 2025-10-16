@@ -1,6 +1,8 @@
 package org.logx.test;
 
+import org.logx.core.AsyncEngineConfig;
 import org.logx.core.AsyncEngineImpl;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,47 +20,11 @@ public class FallbackFormatTest {
         try {
             // 创建一个模拟的存储服务，模拟上传失败的情况
             AtomicInteger uploadCount = new AtomicInteger(0);
-            StorageService mockStorageService = new StorageService() {
-                @Override
-                public CompletableFuture<Void> putObject(String key, byte[] data) {
-                    logger.info("模拟上传对象: {}, 数据大小: {} 字节", key, data.length);
-                    
-                    // 模拟前几次上传失败，触发兜底机制
-                    if (uploadCount.incrementAndGet() <= 2) {
-                        logger.info("模拟上传失败，触发兜底机制");
-                        CompletableFuture<Void> future = new CompletableFuture<>();
-                        future.completeExceptionally(new RuntimeException("模拟上传失败"));
-                        return future;
-                    }
-                    
-                    // 后续上传成功
-                    logger.info("上传成功");
-                    return CompletableFuture.completedFuture(null);
-                }
-                
-                @Override
-                public ProtocolType getProtocolType() {
-                    return ProtocolType.S3;
-                }
-
-                @Override
-                public String getBucketName() {
-                    return "mock-bucket";
-                }
-
-                @Override
-                public void close() {
-                    logger.info("关闭模拟存储服务");
-                }
-
-                @Override
-                public boolean supportsProtocol(ProtocolType protocol) {
-                    return protocol == ProtocolType.S3;
-                }
-            };
             
             // 创建AsyncEngineImpl实例
-            AsyncEngineImpl engine = new AsyncEngineImpl(mockStorageService);
+            AsyncEngineConfig config = AsyncEngineConfig.defaultConfig();
+            config.setStorageConfig(new StorageConfig(new org.logx.config.properties.LogxOssProperties()));
+            AsyncEngineImpl engine = new AsyncEngineImpl(config);
             engine.start();
             
             // 提交一些测试日志数据

@@ -25,18 +25,21 @@ public class LogbackBridge extends AbstractUniversalAdapter {
     public LogbackBridge(StorageConfig config, AsyncEngineConfig engineConfig) {
         // 使用存储服务工厂创建存储服务
         StorageService storageService = StorageServiceFactory.createStorageService(config);
-        
+
         // 从存储服务获取存储接口
         this.s3Storage = storageService;
-        
+
         // 保存引擎配置
         this.engineConfig = engineConfig;
-        
-        // 创建异步引擎
+
+        // 设置StorageConfig到引擎配置
         if (engineConfig != null) {
-            this.asyncEngine = AsyncEngine.create(storageService, engineConfig);
+            engineConfig.setStorageConfig(config);
+            this.asyncEngine = AsyncEngine.create(engineConfig);
         } else {
-            this.asyncEngine = AsyncEngine.create(storageService);
+            AsyncEngineConfig defaultConfig = AsyncEngineConfig.defaultConfig();
+            defaultConfig.setStorageConfig(config);
+            this.asyncEngine = AsyncEngine.create(defaultConfig);
         }
     }
     

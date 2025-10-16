@@ -3,41 +3,21 @@ package org.logx.logback;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.AppenderBase;
 import ch.qos.logback.core.encoder.Encoder;
-import org.logx.storage.StorageConfig;
+import org.logx.config.ConfigManager;
+import org.logx.config.properties.LogxOssProperties;
 import org.logx.core.AsyncEngineConfig;
-import org.logx.config.AppenderConfigResolver;
+import org.logx.storage.StorageConfig;
 
-/**
- * S3兼容对象存储 Logback Appender： - 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储 - 基于AWS SDK v2构建，提供统一的对象存储接口 - 继承
- * AppenderBase 避免线程同步开销 - 依赖 Encoder 将 ILoggingEvent 序列化为字符串 - 核心逻辑委托给
- * 通用适配器框架（复用logx-producer的高性能组件）
- */
+import java.util.HashMap;
+import java.util.Map;
+
 public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
-    // Logback必需
     private Encoder<ILoggingEvent> encoder;
-
-    // S3兼容存储配置 - 必需参数
-    private String endpoint;
-    private String region;
-    private String accessKeyId;
-    private String accessKeySecret;
-    private String bucket;
-
-    // 应用行为配置 - 可选参数，提供最优默认值（使用CommonConfig.Defaults统一管理）
-    private String keyPrefix = org.logx.config.CommonConfig.Defaults.KEY_PREFIX;
-    private String ossType = org.logx.config.CommonConfig.Defaults.OSS_TYPE;
-    private int maxQueueSize = org.logx.config.CommonConfig.Defaults.QUEUE_CAPACITY;
-    private int maxBatchCount = org.logx.config.CommonConfig.Defaults.MAX_BATCH_COUNT;
-    private int maxBatchBytes = org.logx.config.CommonConfig.Defaults.MAX_BATCH_BYTES;
-    private long maxMessageAgeMs = org.logx.config.CommonConfig.Defaults.MAX_MESSAGE_AGE_MS;
-    private boolean dropWhenQueueFull = org.logx.config.CommonConfig.Defaults.DROP_WHEN_QUEUE_FULL;
-    private boolean multiProducer = org.logx.config.CommonConfig.Defaults.MULTI_PRODUCER;
-    private int maxRetries = org.logx.config.CommonConfig.Defaults.MAX_RETRIES;
-    private long baseBackoffMs = org.logx.config.CommonConfig.Defaults.BASE_BACKOFF_MS;
-    private long maxBackoffMs = org.logx.config.CommonConfig.Defaults.MAX_BACKOFF_MS;
-
     private LogbackBridge adapter;
+
+    // XML配置字段
+    private final Map<String, String> xmlConfig = new HashMap<>();
 
     @Override
     public void start() {
@@ -46,67 +26,20 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         try {
-            String finalEndpoint = AppenderConfigResolver.resolveStringConfig("logx.oss.endpoint", this.endpoint);
-            String finalRegion = AppenderConfigResolver.resolveStringConfig("logx.oss.region", this.region);
-            String finalAccessKeyId = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeyId", this.accessKeyId);
-            String finalAccessKeySecret = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeySecret", this.accessKeySecret);
-            String finalBucket = AppenderConfigResolver.resolveStringConfig("logx.oss.bucket", this.bucket);
-            String finalKeyPrefix = AppenderConfigResolver.resolveStringConfig("logx.oss.keyPrefix", this.keyPrefix);
-            String finalOssType = AppenderConfigResolver.resolveStringConfig("logx.oss.ossType", this.ossType);
+            ConfigManager configManager = new ConfigManager();
+            LogxOssProperties properties = configManager.getLogxOssProperties();
 
-            int finalMaxQueueSize = AppenderConfigResolver.resolveIntConfig("logx.oss.queueCapacity", this.maxQueueSize);
-            int finalMaxBatchCount = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchCount", this.maxBatchCount);
-            int finalMaxBatchBytes = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchBytes", this.maxBatchBytes);
-            long finalMaxMessageAgeMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxMessageAgeMs", this.maxMessageAgeMs);
-            boolean finalDropWhenQueueFull = AppenderConfigResolver.resolveBooleanConfig("logx.oss.dropWhenQueueFull", this.dropWhenQueueFull);
-            boolean finalMultiProducer = AppenderConfigResolver.resolveBooleanConfig("logx.oss.multiProducer", this.multiProducer);
-            int finalMaxRetries = AppenderConfigResolver.resolveIntConfig("logx.oss.maxRetries", this.maxRetries);
-            long finalBaseBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.baseBackoffMs", this.baseBackoffMs);
-            long finalMaxBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxBackoffMs", this.maxBackoffMs);
+            // 应用XML配置（如果有的话）
+            applyXmlConfig(properties);
 
-            // S3兼容存储配置（MinIO等）
-            boolean finalPathStyleAccess = AppenderConfigResolver.resolveBooleanConfig("logx.oss.pathStyleAccess", false);
-            boolean finalEnableSsl = AppenderConfigResolver.resolveBooleanConfig("logx.oss.enableSsl", true);
+            StorageConfig storageConfig = new StorageConfig(properties);
 
-            // 验证必需参数
-            if (finalAccessKeyId == null || finalAccessKeyId.trim().isEmpty()) {
-                addError("accessKeyId must be set");
-                return;
-            }
-            if (finalAccessKeySecret == null || finalAccessKeySecret.trim().isEmpty()) {
-                addError("accessKeySecret must be set");
-                return;
-            }
-            if (finalBucket == null || finalBucket.trim().isEmpty()) {
-                addError("bucket must be set");
-                return;
-            }
-
-            // 构建存储配置
-            StorageConfig storageConfig = new StorageConfigBuilder()
-                .ossType(finalOssType != null && !finalOssType.isEmpty() ? finalOssType : org.logx.config.CommonConfig.Defaults.OSS_TYPE)
-                .endpoint(finalEndpoint)
-                .region(finalRegion)
-                .accessKeyId(finalAccessKeyId)
-                .accessKeySecret(finalAccessKeySecret)
-                .bucket(finalBucket)
-                .keyPrefix(finalKeyPrefix)
-                .pathStyleAccess(finalPathStyleAccess)
-                .enableSsl(finalEnableSsl)
-                .build();
-
-            // 构建异步引擎配置
-            AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig()
-                .queueCapacity(finalMaxQueueSize)
-                .batchMaxMessages(finalMaxBatchCount)
-                .batchMaxBytes(finalMaxBatchBytes)
-                .maxMessageAgeMs(finalMaxMessageAgeMs)
-                .blockOnFull(finalDropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
-                .multiProducer(finalMultiProducer)
-                .logFilePrefix(finalKeyPrefix)
-                .logFileName("applogx") // Default log file name
-                .fallbackRetentionDays(org.logx.config.CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
-                .fallbackScanIntervalSeconds(org.logx.config.CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS);
+            AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
+            engineConfig.queueCapacity(properties.getQueue().getCapacity());
+            engineConfig.batchMaxMessages(properties.getBatch().getCount());
+            engineConfig.batchMaxBytes(properties.getBatch().getBytes());
+            engineConfig.maxMessageAgeMs(properties.getBatch().getMaxAgeMs());
+            engineConfig.blockOnFull(!properties.getQueue().isDropWhenFull());
 
             this.adapter = new LogbackBridge(storageConfig, engineConfig);
             this.adapter.setEncoder(encoder);
@@ -118,6 +51,64 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         }
     }
 
+    private void applyXmlConfig(LogxOssProperties properties) {
+        // 存储配置
+        if (xmlConfig.containsKey("logx.oss.storage.endpoint")) {
+            properties.getStorage().setEndpoint(xmlConfig.get("logx.oss.storage.endpoint"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.region")) {
+            properties.getStorage().setRegion(xmlConfig.get("logx.oss.storage.region"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.accessKeyId")) {
+            properties.getStorage().setAccessKeyId(xmlConfig.get("logx.oss.storage.accessKeyId"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.accessKeySecret")) {
+            properties.getStorage().setAccessKeySecret(xmlConfig.get("logx.oss.storage.accessKeySecret"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.bucket")) {
+            properties.getStorage().setBucket(xmlConfig.get("logx.oss.storage.bucket"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.keyPrefix")) {
+            properties.getStorage().setKeyPrefix(xmlConfig.get("logx.oss.storage.keyPrefix"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.ossType")) {
+            properties.getStorage().setOssType(xmlConfig.get("logx.oss.storage.ossType"));
+        }
+        if (xmlConfig.containsKey("logx.oss.storage.pathStyleAccess")) {
+            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(xmlConfig.get("logx.oss.storage.pathStyleAccess")));
+        }
+
+        // 批处理配置
+        if (xmlConfig.containsKey("logx.oss.batch.count")) {
+            properties.getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.batch.count")));
+        }
+        if (xmlConfig.containsKey("logx.oss.batch.bytes")) {
+            properties.getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.batch.bytes")));
+        }
+        if (xmlConfig.containsKey("logx.oss.batch.maxAgeMs")) {
+            properties.getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.batch.maxAgeMs")));
+        }
+
+        // 队列配置
+        if (xmlConfig.containsKey("logx.oss.queue.capacity")) {
+            properties.getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.queue.capacity")));
+        }
+        if (xmlConfig.containsKey("logx.oss.queue.dropWhenFull")) {
+            properties.getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.queue.dropWhenFull")));
+        }
+
+        // 重试配置
+        if (xmlConfig.containsKey("logx.oss.retry.maxRetries")) {
+            properties.getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.retry.maxRetries")));
+        }
+        if (xmlConfig.containsKey("logx.oss.retry.baseBackoffMs")) {
+            properties.getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.retry.baseBackoffMs")));
+        }
+        if (xmlConfig.containsKey("logx.oss.retry.maxBackoffMs")) {
+            properties.getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.retry.maxBackoffMs")));
+        }
+    }
+
     @Override
     protected void append(ILoggingEvent eventObject) {
         if (!isStarted() || adapter == null) {
@@ -126,7 +117,7 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         try {
             adapter.append(eventObject);
         } catch (Exception e) {
-            handleAppendError("Failed to encode and send log event", e);
+            addError("Failed to encode and send log event", e);
         }
     }
 
@@ -142,148 +133,72 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         super.stop();
     }
 
-    // region setters for logback config
-    public Encoder<ILoggingEvent> getEncoder() {
-        return encoder;
-    }
-
     public void setEncoder(Encoder<ILoggingEvent> encoder) {
         this.encoder = encoder;
     }
 
-    public String getEndpoint() {
-        return endpoint;
-    }
-
+    // Setter方法保存XML配置，使用新格式
     public void setEndpoint(String endpoint) {
-        this.endpoint = endpoint;
-    }
-
-    public String getRegion() {
-        return region;
+        xmlConfig.put("logx.oss.storage.endpoint", endpoint);
     }
 
     public void setRegion(String region) {
-        this.region = region;
-    }
-
-    public String getAccessKeyId() {
-        return accessKeyId;
+        xmlConfig.put("logx.oss.storage.region", region);
     }
 
     public void setAccessKeyId(String accessKeyId) {
-        this.accessKeyId = accessKeyId;
-    }
-
-    public String getAccessKeySecret() {
-        return accessKeySecret;
+        xmlConfig.put("logx.oss.storage.accessKeyId", accessKeyId);
     }
 
     public void setAccessKeySecret(String accessKeySecret) {
-        this.accessKeySecret = accessKeySecret;
-    }
-
-    public String getBucket() {
-        return bucket;
+        xmlConfig.put("logx.oss.storage.accessKeySecret", accessKeySecret);
     }
 
     public void setBucket(String bucket) {
-        this.bucket = bucket;
-    }
-
-    public String getKeyPrefix() {
-        return keyPrefix;
+        xmlConfig.put("logx.oss.storage.bucket", bucket);
     }
 
     public void setKeyPrefix(String keyPrefix) {
-        this.keyPrefix = keyPrefix;
-    }
-
-    public String getOssType() {
-        return ossType;
+        xmlConfig.put("logx.oss.storage.keyPrefix", keyPrefix);
     }
 
     public void setOssType(String ossType) {
-        this.ossType = ossType;
+        xmlConfig.put("logx.oss.storage.ossType", ossType);
     }
 
-    public int getMaxQueueSize() {
-        return maxQueueSize;
-    }
-
-    public void setMaxQueueSize(int maxQueueSize) {
-        this.maxQueueSize = maxQueueSize;
-    }
-
-    public int getMaxBatchCount() {
-        return maxBatchCount;
+    public void setQueueCapacity(int queueCapacity) {
+        xmlConfig.put("logx.oss.queue.capacity", String.valueOf(queueCapacity));
     }
 
     public void setMaxBatchCount(int maxBatchCount) {
-        this.maxBatchCount = maxBatchCount;
-    }
-
-    public int getMaxBatchBytes() {
-        return maxBatchBytes;
+        xmlConfig.put("logx.oss.batch.count", String.valueOf(maxBatchCount));
     }
 
     public void setMaxBatchBytes(int maxBatchBytes) {
-        this.maxBatchBytes = maxBatchBytes;
-    }
-
-    public long getMaxMessageAgeMs() {
-        return maxMessageAgeMs;
+        xmlConfig.put("logx.oss.batch.bytes", String.valueOf(maxBatchBytes));
     }
 
     public void setMaxMessageAgeMs(long maxMessageAgeMs) {
-        this.maxMessageAgeMs = maxMessageAgeMs;
-    }
-
-    public boolean isDropWhenQueueFull() {
-        return dropWhenQueueFull;
+        xmlConfig.put("logx.oss.batch.maxAgeMs", String.valueOf(maxMessageAgeMs));
     }
 
     public void setDropWhenQueueFull(boolean dropWhenQueueFull) {
-        this.dropWhenQueueFull = dropWhenQueueFull;
-    }
-
-    public boolean isMultiProducer() {
-        return multiProducer;
-    }
-
-    public void setMultiProducer(boolean multiProducer) {
-        this.multiProducer = multiProducer;
-    }
-
-    public int getMaxRetries() {
-        return maxRetries;
+        xmlConfig.put("logx.oss.queue.dropWhenFull", String.valueOf(dropWhenQueueFull));
     }
 
     public void setMaxRetries(int maxRetries) {
-        this.maxRetries = maxRetries;
-    }
-
-    public long getBaseBackoffMs() {
-        return baseBackoffMs;
+        xmlConfig.put("logx.oss.retry.maxRetries", String.valueOf(maxRetries));
     }
 
     public void setBaseBackoffMs(long baseBackoffMs) {
-        this.baseBackoffMs = baseBackoffMs;
-    }
-
-    public long getMaxBackoffMs() {
-        return maxBackoffMs;
+        xmlConfig.put("logx.oss.retry.baseBackoffMs", String.valueOf(baseBackoffMs));
     }
 
     public void setMaxBackoffMs(long maxBackoffMs) {
-        this.maxBackoffMs = maxBackoffMs;
+        xmlConfig.put("logx.oss.retry.maxBackoffMs", String.valueOf(maxBackoffMs));
     }
-    // endregion
 
-    /**
-     * 统一错误处理方法
-     */
-    private void handleAppendError(String message, Throwable throwable) {
-        addError(message, throwable);
+    public void setPathStyleAccess(boolean pathStyleAccess) {
+        xmlConfig.put("logx.oss.storage.pathStyleAccess", String.valueOf(pathStyleAccess));
     }
 }

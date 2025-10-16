@@ -1,45 +1,40 @@
 package org.logx.compatibility.spring.mvc;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureWebMvc;
+import org.logx.compatibility.spring.mvc.config.WebConfig;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.web.WebAppConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.Matchers.containsString;
 
-import org.logx.compatibility.spring.mvc.controller.TestLogController;
-
-/**
- * 增强的Spring MVC兼容性测试 - 使用真实MinIO环境
- *
- * 测试前请按照 compatibility-tests/minio/README-MINIO.md 指南启动MinIO服务
- *
- * 快速启动：
- * cd compatibility-tests/minio
- * ./start-minio-local.sh
- *
- * 标准配置：
- * - 端点: http://localhost:9000
- * - 控制台: http://localhost:9001
- * - 用户名/密码: minioadmin/minioadmin
- * - 测试桶: logx-test-bucket
- */
-@RunWith(SpringRunner.class)
-@SpringBootTest
-@AutoConfigureWebMvc
+@RunWith(SpringJUnit4ClassRunner.class)
+@WebAppConfiguration
+@ContextConfiguration(classes = WebConfig.class)
 public class EnhancedSpringMVCCompatibilityTest {
 
     private static final Logger logger = LoggerFactory.getLogger(EnhancedSpringMVCCompatibilityTest.class);
 
     @Autowired
+    private WebApplicationContext wac;
+
     private MockMvc mockMvc;
+
+    @Before
+    public void setup() {
+        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.wac).build();
+    }
 
     @Test
     public void testLogEndpointWithDifferentLevels() throws Exception {
@@ -47,17 +42,17 @@ public class EnhancedSpringMVCCompatibilityTest {
         mockMvc.perform(get("/test-log").param("level", "info").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("日志消息已生成"));
+                .andExpect(content().string(containsString("业务日志已生成")));
 
         mockMvc.perform(get("/test-log").param("level", "debug").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("日志消息已生成"));
+                .andExpect(content().string(containsString("业务日志已生成")));
 
         mockMvc.perform(get("/test-log").param("level", "error").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("日志消息已生成"));
+                .andExpect(content().string(containsString("业务日志已生成")));
 
         // 等待所有日志上传到MinIO
         Thread.sleep(3000);
@@ -71,7 +66,7 @@ public class EnhancedSpringMVCCompatibilityTest {
         mockMvc.perform(get("/test-exception").param("stacktrace", "true").characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("异常日志已生成"));
+                .andExpect(content().string(containsString("异常日志已生成")));
 
         // 等待异常日志上传到MinIO
         Thread.sleep(2000);
@@ -106,7 +101,7 @@ public class EnhancedSpringMVCCompatibilityTest {
                 .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("日志消息已生成"));
+                .andExpect(content().string(containsString("业务日志已生成")));
 
         // 等待配置验证和日志上传
         Thread.sleep(2000);
@@ -161,7 +156,7 @@ public class EnhancedSpringMVCCompatibilityTest {
                 .characterEncoding("UTF-8"))
                 .andExpect(status().isOk())
                 .andExpect(content().encoding("UTF-8"))
-                .andExpect(content().string("日志消息已生成"));
+                .andExpect(content().string(containsString("业务日志已生成")));
 
         // 等待配置覆盖生效和日志上传
         Thread.sleep(2000);

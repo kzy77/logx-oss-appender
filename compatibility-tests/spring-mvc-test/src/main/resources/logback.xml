@@ -29,12 +29,12 @@
     <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
         <!-- 存储配置（使用环境变量，支持MinIO/S3/OSS） -->
         <endpoint>${LOGX_OSS_ENDPOINT:-http://localhost:9000}</endpoint>
-        <region>${LOGX_OSS_REGION:-us}</region>
+        <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
         <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID:-minioadmin}</accessKeyId>
         <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET:-minioadmin}</accessKeySecret>
         <bucket>${LOGX_OSS_BUCKET:-logx-test-bucket}</bucket>
         <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/}</keyPrefix>
-        <ossType>${LOGX_OSS_OSS_TYPE:-S3}</ossType>
+        <ossType>${L${LOGX_OSS_OSS_TYPE:-MINIO}</ossType>
 
         <!-- pathStyleAccess和enableSsl根据endpoint自动识别 -->
     </appender>

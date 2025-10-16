@@ -1,6 +1,8 @@
 package org.logx.logback;
 
 import org.junit.jupiter.api.Test;
+import org.logx.config.ConfigManager;
+import org.logx.config.properties.LogxOssProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -14,25 +16,21 @@ class LogbackOSSAppenderSfOssTest {
     @Test
     void testAppenderConfigurationWithSfOssEndpoint() {
         // Given
-        LogbackOSSAppender appender = new LogbackOSSAppender();
-        String endpoint = "https://sf-oss-cn-north-1.sf-oss.com";
-        String region = "cn-north-1";
-        String accessKeyId = "test-access-key";
-        String accessKeySecret = "test-secret-key";
-        String bucket = "test-bucket";
+        System.setProperty("logx.oss.storage.endpoint", "https://sf-oss-cn-north-1.sf-oss.com");
+        System.setProperty("logx.oss.storage.region", "cn-north-1");
+        System.setProperty("logx.oss.storage.accessKeyId", "test-access-key");
+        System.setProperty("logx.oss.storage.accessKeySecret", "test-secret-key");
+        System.setProperty("logx.oss.storage.bucket", "test-bucket");
 
         // When
-        appender.setEndpoint(endpoint);
-        appender.setRegion(region);
-        appender.setAccessKeyId(accessKeyId);
-        appender.setAccessKeySecret(accessKeySecret);
-        appender.setBucket(bucket);
+        ConfigManager configManager = new ConfigManager();
+        LogxOssProperties properties = configManager.getLogxOssProperties();
 
         // Then
-        assertThat(appender.getEndpoint()).isEqualTo(endpoint);
-        assertThat(appender.getRegion()).isEqualTo(region);
-        assertThat(appender.getAccessKeyId()).isEqualTo(accessKeyId);
-        assertThat(appender.getAccessKeySecret()).isEqualTo(accessKeySecret);
-        assertThat(appender.getBucket()).isEqualTo(bucket);
+        assertThat(properties.getStorage().getEndpoint()).isEqualTo("https://sf-oss-cn-north-1.sf-oss.com");
+        assertThat(properties.getStorage().getRegion()).isEqualTo("cn-north-1");
+        assertThat(properties.getStorage().getAccessKeyId()).isEqualTo("test-access-key");
+        assertThat(properties.getStorage().getAccessKeySecret()).isEqualTo("test-secret-key");
+        assertThat(properties.getStorage().getBucket()).isEqualTo("test-bucket");
     }
 }

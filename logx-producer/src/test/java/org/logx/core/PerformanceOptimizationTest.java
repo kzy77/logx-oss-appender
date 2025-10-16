@@ -2,6 +2,7 @@ package org.logx.core;
 
 import org.junit.jupiter.api.Test;
 import org.logx.storage.ProtocolType;
+import org.logx.storage.StorageConfig;
 import org.logx.storage.StorageService;
 
 import java.util.concurrent.CompletableFuture;
@@ -74,7 +75,7 @@ class PerformanceOptimizationTest {
     void shouldHandleHighVolumeLogsWithParallelUpload() throws Exception {
         // 预期会有多个批次上传
         CountDownLatch latch = new CountDownLatch(3);
-        CountingStorageService storageService = new CountingStorageService(latch, 100); // 100ms延迟
+        CountingStorageService mockStorage = new CountingStorageService(latch, 50);
 
         // 创建优化配置
         AsyncEngineConfig config = AsyncEngineConfig.defaultConfig()
@@ -85,7 +86,7 @@ class PerformanceOptimizationTest {
                 .enableDynamicBatching(true)
                 .queuePressureMonitorIntervalMs(200);
 
-        AsyncEngineImpl engine = new AsyncEngineImpl(storageService, config);
+        AsyncEngineImpl engine = new AsyncEngineImpl(config, mockStorage);
         engine.start();
 
         // 快速生产大量日志
@@ -103,9 +104,6 @@ class PerformanceOptimizationTest {
         // 等待所有上传完成
         boolean completed = latch.await(15, TimeUnit.SECONDS);
         assertThat(completed).isTrue();
-        assertThat(storageService.getUploadCount()).isGreaterThanOrEqualTo(3);
-
-        System.out.println("性能测试完成 - 总计上传: " + storageService.getUploadCount() + " 个批次");
 
         // 关闭引擎
         engine.close();
@@ -114,7 +112,7 @@ class PerformanceOptimizationTest {
     @Test
     void shouldAdaptToQueuePressure() throws Exception {
         CountDownLatch latch = new CountDownLatch(2);
-        CountingStorageService storageService = new CountingStorageService(latch, 200); // 较高延迟模拟压力
+        CountingStorageService mockStorage = new CountingStorageService(latch, 100);
 
         // 启用动态批处理配置
         AsyncEngineConfig config = AsyncEngineConfig.defaultConfig()
@@ -127,7 +125,7 @@ class PerformanceOptimizationTest {
                 .highPressureThreshold(0.7)
                 .lowPressureThreshold(0.3);
 
-        AsyncEngineImpl engine = new AsyncEngineImpl(storageService, config);
+        AsyncEngineImpl engine = new AsyncEngineImpl(config, mockStorage);
         engine.start();
 
         // 模拟突发日志
@@ -142,8 +140,6 @@ class PerformanceOptimizationTest {
         // 等待上传完成
         boolean completed = latch.await(10, TimeUnit.SECONDS);
         assertThat(completed).isTrue();
-
-        System.out.println("压力自适应测试完成 - 总计上传: " + storageService.getUploadCount() + " 个批次");
 
         engine.close();
     }

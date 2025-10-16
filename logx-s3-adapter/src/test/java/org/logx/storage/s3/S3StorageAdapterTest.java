@@ -2,34 +2,32 @@ package org.logx.storage.s3;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.logx.config.properties.LogxOssProperties;
 import org.logx.storage.ProtocolType;
 import org.logx.storage.StorageConfig;
 import static org.junit.jupiter.api.Assertions.*;
 
-/**
- * S3StorageAdapter测试类
- */
 public class S3StorageAdapterTest {
 
     private StorageConfig config;
 
     @BeforeEach
     public void setUp() {
-        config = new StorageConfigBuilder()
-            .ossType("S3")
-            .endpoint("https://oss-cn-hangzhou.aliyuncs.com")
-            .region("cn-hangzhou")
-            .accessKeyId("test-access-key-id")
-            .accessKeySecret("test-access-key-secret")
-            .bucket("test-bucket")
-            .build();
+        LogxOssProperties properties = new LogxOssProperties();
+        properties.getStorage().setOssType("S3");
+        properties.getStorage().setEndpoint("https://oss-cn-hangzhou.aliyuncs.com");
+        properties.getStorage().setRegion("cn-hangzhou");
+        properties.getStorage().setAccessKeyId("test-access-key-id");
+        properties.getStorage().setAccessKeySecret("test-access-key-secret");
+        properties.getStorage().setBucket("test-bucket");
+        config = new StorageConfig(properties);
     }
 
     @Test
     public void testS3StorageAdapterCreationWithEndpoint() {
-        // 测试使用endpoint创建S3StorageAdapter
         assertDoesNotThrow(() -> {
-            S3StorageAdapter adapter = new S3StorageAdapter(config);
+            S3StorageServiceAdapter adapter = new S3StorageServiceAdapter();
+            adapter.initialize(config);
             assertNotNull(adapter);
             assertEquals(ProtocolType.S3, adapter.getProtocolType());
             assertEquals("test-bucket", adapter.getBucketName());
@@ -39,17 +37,17 @@ public class S3StorageAdapterTest {
 
     @Test
     public void testS3StorageAdapterCreationWithoutEndpoint() {
-        // 测试不使用endpoint创建S3StorageAdapter
-        StorageConfig configWithoutEndpoint = new StorageConfigBuilder()
-            .ossType("S3")
-            .region("us-east-1")
-            .accessKeyId("test-access-key-id")
-            .accessKeySecret("test-access-key-secret")
-            .bucket("test-bucket")
-            .build();
+        LogxOssProperties properties = new LogxOssProperties();
+        properties.getStorage().setOssType("S3");
+        properties.getStorage().setRegion("us-east-1");
+        properties.getStorage().setAccessKeyId("test-access-key-id");
+        properties.getStorage().setAccessKeySecret("test-access-key-secret");
+        properties.getStorage().setBucket("test-bucket");
+        StorageConfig configWithoutEndpoint = new StorageConfig(properties);
 
         assertDoesNotThrow(() -> {
-            S3StorageAdapter adapter = new S3StorageAdapter(configWithoutEndpoint);
+            S3StorageServiceAdapter adapter = new S3StorageServiceAdapter();
+            adapter.initialize(configWithoutEndpoint);
             assertNotNull(adapter);
             assertEquals(ProtocolType.S3, adapter.getProtocolType());
             assertEquals("test-bucket", adapter.getBucketName());
@@ -59,19 +57,18 @@ public class S3StorageAdapterTest {
 
     @Test
     public void testS3StorageAdapterCreationWithInvalidEndpoint() {
-        // 测试使用无效endpoint创建S3StorageAdapter
-        StorageConfig configWithInvalidEndpoint = new StorageConfigBuilder()
-            .ossType("S3")
-            .endpoint("invalid-url")
-            .region("cn-hangzhou")
-            .accessKeyId("test-access-key-id")
-            .accessKeySecret("test-access-key-secret")
-            .bucket("test-bucket")
-            .build();
+        LogxOssProperties properties = new LogxOssProperties();
+        properties.getStorage().setOssType("S3");
+        properties.getStorage().setEndpoint("invalid-url");
+        properties.getStorage().setRegion("cn-hangzhou");
+        properties.getStorage().setAccessKeyId("test-access-key-id");
+        properties.getStorage().setAccessKeySecret("test-access-key-secret");
+        properties.getStorage().setBucket("test-bucket");
+        StorageConfig configWithInvalidEndpoint = new StorageConfig(properties);
 
-        // 注意：AWS SDK可能会在实际使用时才验证URL，所以在构造时可能不会抛出异常
         assertDoesNotThrow(() -> {
-            S3StorageAdapter adapter = new S3StorageAdapter(configWithInvalidEndpoint);
+            S3StorageServiceAdapter adapter = new S3StorageServiceAdapter();
+            adapter.initialize(configWithInvalidEndpoint);
             assertNotNull(adapter);
             adapter.close();
         });

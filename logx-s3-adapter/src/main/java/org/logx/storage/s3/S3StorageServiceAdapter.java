@@ -84,7 +84,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         String bucketName = config.getBucket();
         String endpoint = config.getEndpoint();
         this.bucketName = bucketName;
-        this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logs";
+        this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logx";
         this.endpoint = endpoint;
         this.ossType = config.getOssType();
 
@@ -96,7 +96,11 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
         // 设置自定义endpoint（MinIO、SF OSS等）
         if (endpoint != null && !endpoint.trim().isEmpty()) {
-            clientBuilder.endpointOverride(URI.create(endpoint));
+            try {
+                clientBuilder.endpointOverride(URI.create(endpoint));
+            } catch (Exception e) {
+                logger.warn("Invalid endpoint URI: {}. Ignoring endpoint override.", endpoint);
+            }
         }
 
         // 只有当pathStyleAccess为true时才显式设置S3配置

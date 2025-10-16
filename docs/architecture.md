@@ -368,7 +368,7 @@ sequenceDiagram
 <!-- 三个框架的统一配置key -->
 <appender name="OSS" class="org.logx.{framework}.OSSAppender">
     <!-- 必需参数 -->
-    <region>${LOGX_OSS_REGION:-us}</region>
+    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
     <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
     <secretAccessKey>${LOGX_OSS_ACCESS_KEY_SECRET}</secretAccessKey>
     <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>

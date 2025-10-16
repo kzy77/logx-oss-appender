@@ -1,6 +1,8 @@
 package org.logx.log4j;
 
 import org.junit.jupiter.api.Test;
+import org.logx.config.ConfigManager;
+import org.logx.config.properties.LogxOssProperties;
 
 import static org.assertj.core.api.Assertions.*;
 
@@ -14,83 +16,70 @@ class Log4jOSSAppenderTest {
     @Test
     void testAppenderConfigurationWithRegion() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
-        String endpoint = "https://oss-cn-hangzhou.aliyuncs.com";
-        String region = "cn-hangzhou";
-        String accessKeyId = "test-access-key";
-        String accessKeySecret = "test-secret-key";
-        String bucket = "test-bucket";
+        System.setProperty("logx.oss.storage.endpoint", "https://oss-cn-hangzhou.aliyuncs.com");
+        System.setProperty("logx.oss.storage.region", "cn-hangzhou");
+        System.setProperty("logx.oss.storage.accessKeyId", "test-access-key");
+        System.setProperty("logx.oss.storage.accessKeySecret", "test-secret-key");
+        System.setProperty("logx.oss.storage.bucket", "test-bucket");
 
         // When
-        appender.setEndpoint(endpoint);
-        appender.setRegion(region);
-        appender.setAccessKeyId(accessKeyId);
-        appender.setAccessKeySecret(accessKeySecret);
-        appender.setBucket(bucket);
+        ConfigManager configManager = new ConfigManager();
+        LogxOssProperties properties = configManager.getLogxOssProperties();
 
         // Then
-        assertThat(appender.getEndpoint()).isEqualTo(endpoint);
-        assertThat(appender.getRegion()).isEqualTo(region);
-        assertThat(appender.getAccessKeyId()).isEqualTo(accessKeyId);
-        assertThat(appender.getAccessKeySecret()).isEqualTo(accessKeySecret);
-        assertThat(appender.getBucket()).isEqualTo(bucket);
+        assertThat(properties.getStorage().getEndpoint()).isEqualTo("https://oss-cn-hangzhou.aliyuncs.com");
+        assertThat(properties.getStorage().getRegion()).isEqualTo("cn-hangzhou");
+        assertThat(properties.getStorage().getAccessKeyId()).isEqualTo("test-access-key");
+        assertThat(properties.getStorage().getAccessKeySecret()).isEqualTo("test-secret-key");
+        assertThat(properties.getStorage().getBucket()).isEqualTo("test-bucket");
     }
 
     @Test
     void testAppenderConfigurationWithDefaultValues() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
+        ConfigManager configManager = new ConfigManager();
+
+        // When
+        LogxOssProperties properties = configManager.getLogxOssProperties();
 
         // Then
-        assertThat(appender.getKeyPrefix()).isEqualTo("logs/");
-        assertThat(appender.getMaxQueueSize()).isEqualTo(524288);
-        assertThat(appender.getMaxBatchCount()).isEqualTo(8192);
-        assertThat(appender.getMaxBatchBytes()).isEqualTo(10 * 1024 * 1024);
-        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(60000L);
-        assertThat(appender.isDropWhenQueueFull()).isFalse();
-        assertThat(appender.isMultiProducer()).isFalse();
-        assertThat(appender.getMaxRetries()).isEqualTo(3);
-        assertThat(appender.getBaseBackoffMs()).isEqualTo(200L);
-        assertThat(appender.getMaxBackoffMs()).isEqualTo(10000L);
+        assertThat(properties.getStorage().getKeyPrefix()).isEqualTo("logx/");
+        assertThat(properties.getQueue().getCapacity()).isEqualTo(524288);
+        assertThat(properties.getBatch().getCount()).isEqualTo(8192);
+        assertThat(properties.getBatch().getBytes()).isEqualTo(10 * 1024 * 1024);
+        assertThat(properties.getBatch().getMaxAgeMs()).isEqualTo(60000L);
+        assertThat(properties.getQueue().isDropWhenFull()).isFalse();
+        assertThat(properties.getRetry().getMaxRetries()).isEqualTo(3);
+        assertThat(properties.getRetry().getBaseBackoffMs()).isEqualTo(200L);
+        assertThat(properties.getRetry().getMaxBackoffMs()).isEqualTo(10000L);
     }
 
     @Test
     void testAppenderConfigurationWithCustomValues() {
         // Given
-        Log4jOSSAppender appender = new Log4jOSSAppender();
-        String keyPrefix = "custom-logs/";
-        int maxQueueSize = 100000;
-        int maxBatchCount = 2000;
-        int maxBatchBytes = 2 * 1024 * 1024;
-        long maxMessageAgeMs = 300000L;
-        boolean dropWhenQueueFull = true;
-        boolean multiProducer = true;
-        int maxRetries = 3;
-        long baseBackoffMs = 100L;
-        long maxBackoffMs = 5000L;
+        System.setProperty("logx.oss.storage.keyPrefix", "custom-logs/");
+        System.setProperty("logx.oss.queue.capacity", "100000");
+        System.setProperty("logx.oss.batch.count", "2000");
+        System.setProperty("logx.oss.batch.bytes", "2097152");
+        System.setProperty("logx.oss.batch.maxAgeMs", "300000");
+        System.setProperty("logx.oss.queue.dropWhenFull", "true");
+        System.setProperty("logx.oss.retry.maxRetries", "5");
+        System.setProperty("logx.oss.retry.baseBackoffMs", "100");
+        System.setProperty("logx.oss.retry.maxBackoffMs", "5000");
 
         // When
-        appender.setKeyPrefix(keyPrefix);
-        appender.setMaxQueueSize(maxQueueSize);
-        appender.setMaxBatchCount(maxBatchCount);
-        appender.setMaxBatchBytes(maxBatchBytes);
-        appender.setMaxMessageAgeMs(maxMessageAgeMs);
-        appender.setDropWhenQueueFull(dropWhenQueueFull);
-        appender.setMultiProducer(multiProducer);
-        appender.setMaxRetries(maxRetries);
-        appender.setBaseBackoffMs(baseBackoffMs);
-        appender.setMaxBackoffMs(maxBackoffMs);
+        ConfigManager configManager = new ConfigManager();
+        LogxOssProperties properties = configManager.getLogxOssProperties();
 
         // Then
-        assertThat(appender.getKeyPrefix()).isEqualTo(keyPrefix);
-        assertThat(appender.getMaxQueueSize()).isEqualTo(maxQueueSize);
-        assertThat(appender.getMaxBatchCount()).isEqualTo(maxBatchCount);
-        assertThat(appender.getMaxBatchBytes()).isEqualTo(maxBatchBytes);
-        assertThat(appender.getMaxMessageAgeMs()).isEqualTo(maxMessageAgeMs);
-        assertThat(appender.isDropWhenQueueFull()).isTrue();
-        assertThat(appender.isMultiProducer()).isTrue();
-        assertThat(appender.getMaxRetries()).isEqualTo(maxRetries);
-        assertThat(appender.getBaseBackoffMs()).isEqualTo(baseBackoffMs);
-        assertThat(appender.getMaxBackoffMs()).isEqualTo(maxBackoffMs);
+        assertThat(properties.getStorage().getKeyPrefix()).isEqualTo("custom-logs/");
+        assertThat(properties.getQueue().getCapacity()).isEqualTo(100000);
+        assertThat(properties.getBatch().getCount()).isEqualTo(2000);
+        assertThat(properties.getBatch().getBytes()).isEqualTo(2097152);
+        assertThat(properties.getBatch().getMaxAgeMs()).isEqualTo(300000L);
+        assertThat(properties.getQueue().isDropWhenFull()).isTrue();
+        assertThat(properties.getRetry().getMaxRetries()).isEqualTo(5);
+        assertThat(properties.getRetry().getBaseBackoffMs()).isEqualTo(100L);
+        assertThat(properties.getRetry().getMaxBackoffMs()).isEqualTo(5000L);
     }
 }

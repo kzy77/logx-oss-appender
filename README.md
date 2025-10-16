@@ -549,11 +549,11 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 
 系统支持多种配置源，按以下优先级顺序读取配置：
 1. JVM系统属性（支持两种命名风格）
-   - `-Dlogx.oss.region=us` （点号格式，优先）
-   - `-DLOGX_OSS_REGION=us` （大写下划线格式）
+   - `-Dlogx.oss.storage.region=us` （点号格式，优先）
+   - `-DLOGX_OSS_STORAGE_REGION=us` （大写下划线格式）
 2. 环境变量（只支持大写下划线格式）
-   - `LOGX_OSS_REGION=us`
-3. 配置文件属性 (application.properties中的logx.oss.region=us)
+   - `LOGX_OSS_STORAGE_REGION=us`
+3. 配置文件属性 (application.properties中的logx.oss.storage.region=ap-guangzhou)
 4. XML/配置文件中设置的字段值
 5. 代码默认值
 
@@ -592,18 +592,22 @@ http://localhost:9000                    # 本地MinIO
 3. 点号替换为下划线
 
 示例：
-- `logx.oss.endpoint` → `LOGX_OSS_ENDPOINT`
-- `logx.oss.accessKeyId` → `LOGX_OSS_ACCESS_KEY_ID`（驼峰转换）
-- `logx.oss.maxBatchCount` → `LOGX_OSS_MAX_BATCH_COUNT`
-- `logx.oss.region` → `LOGX_OSS_REGION`
+- `logx.oss.storage.endpoint` → `LOGX_OSS_STORAGE_ENDPOINT`
+- `logx.oss.storage.accessKeyId` → `LOGX_OSS_STORAGE_ACCESS_KEY_ID`（驼峰转换）
+- `logx.oss.batch.count` → `LOGX_OSS_BATCH_COUNT`
+- `logx.oss.storage.region` → `LOGX_OSS_STORAGE_REGION`
 
 ```bash
-# 设置环境变量
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_BUCKET="your-bucket-name"
-export LOGX_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export LOGX_OSS_REGION="cn-hangzhou"
+# 设置存储配置环境变量
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
+
+# 批处理配置（可选）
+export LOGX_OSS_BATCH_COUNT="8192"
+export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
 ```
 
 ### Java代码示例

@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.logx.config.properties.LogxOssProperties;
+
 /**
  * 统一配置管理器
  * <p>
@@ -107,6 +109,7 @@ public class ConfigManager {
         // 优先级1: JVM系统属性
         String value = getSystemProperty(key);
         if (value != null) {
+            value = resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -114,6 +117,7 @@ public class ConfigManager {
         // 优先级2: 环境变量 (支持不同命名格式)
         value = getEnvironmentVariable(key);
         if (value != null) {
+            value = resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -121,6 +125,7 @@ public class ConfigManager {
         // 优先级3: 配置文件属性
         value = getFileProperty(key);
         if (value != null) {
+            value = resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -249,6 +254,11 @@ public class ConfigManager {
         }
         String trimmedValue = value.trim().toLowerCase(java.util.Locale.ENGLISH);
         return "true".equals(trimmedValue) || "yes".equals(trimmedValue) || "1".equals(trimmedValue);
+    }
+
+    public LogxOssProperties getLogxOssProperties() {
+        LogxOssConfigResolver resolver = new LogxOssConfigResolver(this);
+        return resolver.resolve();
     }
 
     /**

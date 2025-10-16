@@ -1,8 +1,5 @@
 package org.logx.log4j2;
 
-import java.io.Serializable;
-import java.util.concurrent.TimeUnit;
-
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.Core;
 import org.apache.logging.log4j.core.Filter;
@@ -14,38 +11,22 @@ import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.config.plugins.PluginFactory;
-import org.logx.storage.StorageConfig;
+import org.logx.config.ConfigManager;
+import org.logx.config.properties.LogxOssProperties;
 import org.logx.core.AsyncEngineConfig;
-import org.logx.config.AppenderConfigResolver;
+import org.logx.storage.StorageConfig;
 
-/**
- * S3兼容对象存储 Log4j2 Appender
- * 支持AWS S3、阿里云OSS、腾讯云COS、MinIO、Cloudflare R2等所有S3兼容存储
- *
- * <p>批处理配置参数（maxBatchCount、maxQueueSize等）通过系统属性或环境变量传递给底层AsyncEngine：
- * - logx.oss.maxBatchCount: 批处理大小（默认：4096）
- * - logx.oss.maxQueueSize: 队列容量（默认：65536）
- * - logx.oss.maxMessageAgeMs: 最早消息年龄阈值（默认：600000ms即10分钟）
- * - logx.oss.dropWhenQueueFull: 队列满时是否丢弃（默认：false）
- * - logx.oss.maxRetries: 最大重试次数（默认：5）
- *
- * <p><b>注意</b>：由于Log4j2 @PluginAttribute注解限制，默认值必须硬编码在注解中。
- * 这些默认值来自{@link org.logx.config.CommonConfig.Defaults}，如需修改默认值，请同步更新两处：
- * <ul>
- *   <li>CommonConfig.Defaults中的常量定义</li>
- *   <li>本类createAppender方法中的@PluginAttribute默认值</li>
- * </ul>
- *
- * @see org.logx.config.CommonConfig.Defaults 统一的默认值定义
- */
+import java.io.Serializable;
+import java.util.concurrent.TimeUnit;
+
 @Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
 
     private final Log4j2Bridge adapter;
 
     private Log4j2OSSAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout,
-            final boolean ignoreExceptions, final Property[] properties, final StorageConfig adapterConfig,
-            final AsyncEngineConfig engineConfig) {
+                            final boolean ignoreExceptions, final Property[] properties, final StorageConfig adapterConfig,
+                            final AsyncEngineConfig engineConfig) {
         super(name, filter, layout, ignoreExceptions, properties);
         this.adapter = new Log4j2Bridge(adapterConfig, engineConfig);
         this.adapter.setLayout(layout);
@@ -77,91 +58,98 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
     @PluginFactory
     public static Log4j2OSSAppender createAppender(@PluginAttribute("name") final String name,
-            @PluginElement("Layout") Layout<? extends Serializable> layout,
-            @PluginElement("Filter") final Filter filter,
-            @PluginAttribute("endpoint") final String endpoint,
-            @PluginAttribute("region") final String region,
-            @PluginAttribute("accessKeyId") final String accessKeyId,
-            @PluginAttribute("accessKeySecret") final String accessKeySecret,
-            @PluginAttribute("bucket") final String bucket,
-            @PluginAttribute("ossType") final String ossType,
-            @PluginAttribute("keyPrefix") final String keyPrefix,
-            @PluginAttribute(value = "maxQueueSize", defaultInt = 65536) final int maxQueueSize,
-            @PluginAttribute(value = "maxBatchCount", defaultInt = 4096) final int maxBatchCount,
-            @PluginAttribute(value = "maxBatchBytes", defaultInt = 10485760) final int maxBatchBytes,
-            @PluginAttribute(value = "maxMessageAgeMs", defaultLong = 600000L) final long maxMessageAgeMs,
-            @PluginAttribute(value = "dropWhenQueueFull", defaultBoolean = false) final boolean dropWhenQueueFull,
-            @PluginAttribute(value = "multiProducer", defaultBoolean = false) final boolean multiProducer,
-            @PluginAttribute(value = "maxRetries", defaultInt = 5) final int maxRetries,
-            @PluginAttribute(value = "baseBackoffMs", defaultLong = 200L) final long baseBackoffMs,
-            @PluginAttribute(value = "maxBackoffMs", defaultLong = 10000L) final long maxBackoffMs,
-            @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) final boolean ignoreExceptions) {
+                                                  @PluginElement("Layout") Layout<? extends Serializable> layout,
+                                                  @PluginElement("Filter") final Filter filter,
+                                                  @PluginAttribute("endpoint") final String endpoint,
+                                                  @PluginAttribute("region") final String region,
+                                                  @PluginAttribute("accessKeyId") final String accessKeyId,
+                                                  @PluginAttribute("accessKeySecret") final String accessKeySecret,
+                                                  @PluginAttribute("bucket") final String bucket,
+                                                  @PluginAttribute("ossType") final String ossType,
+                                                  @PluginAttribute("keyPrefix") final String keyPrefix,
+                                                  @PluginAttribute("queueCapacity") final String queueCapacity,
+                                                  @PluginAttribute("maxBatchCount") final String maxBatchCount,
+                                                  @PluginAttribute("maxBatchBytes") final String maxBatchBytes,
+                                                  @PluginAttribute("maxMessageAgeMs") final String maxMessageAgeMs,
+                                                  @PluginAttribute("dropWhenQueueFull") final String dropWhenQueueFull,
+                                                  @PluginAttribute("maxRetries") final String maxRetries,
+                                                  @PluginAttribute("baseBackoffMs") final String baseBackoffMs,
+                                                  @PluginAttribute("maxBackoffMs") final String maxBackoffMs,
+                                                  @PluginAttribute("pathStyleAccess") final String pathStyleAccess,
+                                                  @PluginAttribute(value = "ignoreExceptions", defaultBoolean = true) final boolean ignoreExceptions) {
 
         if (name == null) {
-            LOGGER.error("错误：未提供Log4j2OSSAppender的名称");
+            LOGGER.error("No name provided for Log4j2OSSAppender");
             return null;
         }
 
         if (layout == null) {
-            LOGGER.error("错误：未给Appender {} 设置Layout", name);
+            LOGGER.error("No layout provided for Log4j2OSSAppender '{}'", name);
             return null;
         }
 
-        String finalEndpoint = AppenderConfigResolver.resolveStringConfig("logx.oss.endpoint", endpoint);
-        String finalRegion = AppenderConfigResolver.resolveStringConfig("logx.oss.region", region);
-        String finalAccessKeyId = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeyId", accessKeyId);
-        String finalAccessKeySecret = AppenderConfigResolver.resolveStringConfig("logx.oss.accessKeySecret", accessKeySecret);
-        String finalBucket = AppenderConfigResolver.resolveStringConfig("logx.oss.bucket", bucket);
-        String finalKeyPrefix = AppenderConfigResolver.resolveStringConfig("logx.oss.keyPrefix", keyPrefix);
-        if (finalKeyPrefix == null || finalKeyPrefix.isEmpty()) {
-            finalKeyPrefix = org.logx.config.CommonConfig.Defaults.KEY_PREFIX;
+        ConfigManager configManager = new ConfigManager();
+        LogxOssProperties properties = configManager.getLogxOssProperties();
+
+        // 应用XML参数到properties (优先级高于环境变量和配置文件)
+        if (endpoint != null) {
+            properties.getStorage().setEndpoint(endpoint);
         }
-        String finalOssType = AppenderConfigResolver.resolveStringConfig("logx.oss.ossType", ossType);
-        if (finalOssType == null || finalOssType.isEmpty()) {
-            finalOssType = org.logx.config.CommonConfig.Defaults.OSS_TYPE;
+        if (region != null) {
+            properties.getStorage().setRegion(region);
         }
-
-        int finalMaxQueueSize = AppenderConfigResolver.resolveIntConfig("logx.oss.queueCapacity", maxQueueSize);
-        int finalMaxBatchCount = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchCount", maxBatchCount);
-        int finalMaxBatchBytes = AppenderConfigResolver.resolveIntConfig("logx.oss.maxBatchBytes", maxBatchBytes);
-        long finalMaxMessageAgeMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxMessageAgeMs", maxMessageAgeMs);
-        boolean finalDropWhenQueueFull = AppenderConfigResolver.resolveBooleanConfig("logx.oss.dropWhenQueueFull", dropWhenQueueFull);
-        boolean finalMultiProducer = AppenderConfigResolver.resolveBooleanConfig("logx.oss.multiProducer", multiProducer);
-        int finalMaxRetries = AppenderConfigResolver.resolveIntConfig("logx.oss.maxRetries", maxRetries);
-        long finalBaseBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.baseBackoffMs", baseBackoffMs);
-        long finalMaxBackoffMs = AppenderConfigResolver.resolveLongConfig("logx.oss.maxBackoffMs", maxBackoffMs);
-
-        // 构建存储配置
-        StorageConfig adapterConfig = new StorageConfigBuilder()
-            .ossType(finalOssType)
-            .endpoint(finalEndpoint)
-            .region(finalRegion)
-            .accessKeyId(finalAccessKeyId)
-            .accessKeySecret(finalAccessKeySecret)
-            .bucket(finalBucket)
-            .keyPrefix(finalKeyPrefix)
-            .build();
-
-        // 构建异步引擎配置
-        AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig()
-            .queueCapacity(finalMaxQueueSize)
-            .batchMaxMessages(finalMaxBatchCount)
-            .batchMaxBytes(finalMaxBatchBytes)
-            .maxMessageAgeMs(finalMaxMessageAgeMs)
-            .blockOnFull(finalDropWhenQueueFull) // Note: inverted logic (dropWhenQueueFull vs blockOnFull)
-            .multiProducer(finalMultiProducer)
-            .logFilePrefix(finalKeyPrefix)
-            .logFileName("applogx") // Default log file name
-            .fallbackRetentionDays(org.logx.config.CommonConfig.Defaults.FALLBACK_RETENTION_DAYS)
-            .fallbackScanIntervalSeconds(org.logx.config.CommonConfig.Defaults.FALLBACK_SCAN_INTERVAL_SECONDS);
-
-        try {
-            adapterConfig.validateConfig();
-        } catch (IllegalArgumentException e) {
-            LOGGER.error("错误：配置验证失败: {}", e.getMessage());
-            return null;
+        if (accessKeyId != null) {
+            properties.getStorage().setAccessKeyId(accessKeyId);
+        }
+        if (accessKeySecret != null) {
+            properties.getStorage().setAccessKeySecret(accessKeySecret);
+        }
+        if (bucket != null) {
+            properties.getStorage().setBucket(bucket);
+        }
+        if (ossType != null) {
+            properties.getStorage().setOssType(ossType);
+        }
+        if (keyPrefix != null) {
+            properties.getStorage().setKeyPrefix(keyPrefix);
+        }
+        if (pathStyleAccess != null) {
+            properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(pathStyleAccess));
+        }
+        if (queueCapacity != null) {
+            properties.getQueue().setCapacity(Integer.parseInt(queueCapacity));
+        }
+        if (maxBatchCount != null) {
+            properties.getBatch().setCount(Integer.parseInt(maxBatchCount));
+        }
+        if (maxBatchBytes != null) {
+            properties.getBatch().setBytes(Integer.parseInt(maxBatchBytes));
+        }
+        if (maxMessageAgeMs != null) {
+            properties.getBatch().setMaxAgeMs(Long.parseLong(maxMessageAgeMs));
+        }
+        if (dropWhenQueueFull != null) {
+            properties.getQueue().setDropWhenFull(Boolean.parseBoolean(dropWhenQueueFull));
+        }
+        if (maxRetries != null) {
+            properties.getRetry().setMaxRetries(Integer.parseInt(maxRetries));
+        }
+        if (baseBackoffMs != null) {
+            properties.getRetry().setBaseBackoffMs(Long.parseLong(baseBackoffMs));
+        }
+        if (maxBackoffMs != null) {
+            properties.getRetry().setMaxBackoffMs(Long.parseLong(maxBackoffMs));
         }
 
-        return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, adapterConfig, engineConfig);
+        StorageConfig storageConfig = new StorageConfig(properties);
+
+        AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
+        engineConfig.queueCapacity(properties.getQueue().getCapacity());
+        engineConfig.batchMaxMessages(properties.getBatch().getCount());
+        engineConfig.batchMaxBytes(properties.getBatch().getBytes());
+        engineConfig.maxMessageAgeMs(properties.getBatch().getMaxAgeMs());
+        engineConfig.blockOnFull(!properties.getQueue().isDropWhenFull());
+
+        return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, storageConfig, engineConfig);
     }
 }

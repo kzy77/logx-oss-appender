@@ -2,14 +2,14 @@
 
 ## 项目概述
 
-LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到阿里云OSS和AWS S3兼容的对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块，提供完整的日志上传解决方案。
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到多种云对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块，提供完整的日志上传解决方案。
 
 ### 核心特性
 
 ✅ **高性能异步处理** - 使用LMAX Disruptor实现低延迟队列  
-✅ **多云支持** - 支持阿里云OSS和AWS S3兼容存储  
+✅ **多云支持** - 支持阿里云OSS、AWS S3、腾讯云COS、华为云OBS、MinIO、SF OSS等所有S3兼容存储  
 ✅ **多框架支持** - 完整支持Log4j、Log4j2、Logback日志框架  
-✅ **企业级可靠性** - 全面的错误处理和重试机制  
+✅ **企业级可靠性** - 全面的错误处理、重试机制和兜底文件机制  
 ✅ **零性能影响** - 非阻塞设计，不影响应用程序性能  
 ✅ **模块化设计** - 通过Java SPI机制实现低侵入性架构  
 
@@ -48,13 +48,13 @@ logback-oss-appender
 - 技术: LMAX Disruptor 3.4.4
 - 队列管理: RingBuffer容量65536，YieldingWaitStrategy
 - 批处理聚合: 事件驱动触发机制
-  * 三个触发条件: 消息数4096、总字节数10MB、消息年龄600000毫秒(10分钟)
+  * 三个触发条件: 消息数8192、总字节数10MB、消息年龄60000毫秒(1分钟)
   * 触发时机: 新消息到达或批次结束时检查，无主动定时器线程
 - NDJSON序列化: 将LogEvent列表序列化为NDJSON格式
 - GZIP压缩: 阈值1KB，自动压缩批次数据
 - 数据分片: 阈值10MB，自动分片大文件
 - 性能统计: BatchMetrics（批次数、消息数、字节数、压缩率、分片数等）
-- 容量控制: 失败重试5次 + 队列满时丢弃 + 限制队列大小
+- 容量控制: 失败重试3次 + 队列满时丢弃 + 限制队列大小
 - 多生产者模式: 支持并发日志写入（thread-safe）
 
 #### AsyncEngine
@@ -88,7 +88,7 @@ public interface StorageService extends StorageInterface {
 ```
 
 #### ThreadPoolManager
-- 固定线程池: 默认2个线程，可配置
+- 固定线程池: 默认1个线程，可配置
 - 低优先级: Thread.MIN_PRIORITY
 - CPU让出: CPU繁忙时主动yield
 - 优雅关闭: 配合shutdown hook
@@ -159,15 +159,19 @@ public interface StorageService extends StorageInterface {
 <!-- 三个框架的统一配置key -->
 <appender name="OSS" class="org.logx.{framework}.OSSAppender">
     <!-- 必需参数 -->
-    <region>${LOGX_OSS_REGION:-us}</region>
+    <endpoint>${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
     <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <secretAccessKey>${LOGX_OSS_ACCESS_KEY_SECRET}</secretAccessKey>
-    <bucketName>${LOGX_OSS_BUCKET:-my-log-bucket}</bucketName>
+    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_BUCKET:-my-log-bucket}</bucket>
     <!-- 可选参数 -->
-    <ossType>${LOGX_OSS_TYPE:-SF_OSS}</ossType>
-    <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-4096}</maxBatchCount>
-    <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-600000}</maxMessageAgeMs>
+    <region>${LOGX_OSS_REGION:-ap-guangzhou}</region>
+    <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/}</keyPrefix>
+    <ossType>${LOGX_OSS_TYPE:-SF_S3}</ossType>
+    <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
+    <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
     <maxUploadSizeMb>${LOGX_OSS_MAX_UPLOAD_SIZE_MB:-10}</maxUploadSizeMb>
+    <pathStyleAccess>${LOGX_OSS_PATH_STYLE_ACCESS:-false}</pathStyleAccess>
+    <enableSsl>${LOGX_OSS_ENABLE_SSL:-true}</enableSsl>
 </appender>
 ```
 
@@ -179,13 +183,15 @@ public interface StorageService extends StorageInterface {
 3. 配置文件属性 (application.properties中的logx.oss.region=us)
 4. 代码默认值
 
-### 兜底机制配置
+### 高级配置参数
 
 | 参数名 | 类型 | 默认值 | 描述 |
 |--------|------|--------|------|
-| `fallbackPath` | String | "fallback" | 兜底文件存储路径，支持相对路径和绝对路径 |
-| `fallbackRetentionDays` | Integer | 7 | 兜底文件保留天数，超过此天数的文件将被自动清理 |
-| `fallbackScanIntervalSeconds` | Integer | 60 | 兜底文件扫描间隔（秒），定时任务检查和重传兜底文件的间隔 |
+| `pathStyleAccess` | Boolean | 根据云服务商类型自动识别 | 是否使用路径风格访问（Path-style Access） |
+| `enableSsl` | Boolean | 根据endpoint自动识别 | 是否启用SSL连接 |
+| `emergencyMemoryThresholdMb` | Integer | 512 | 紧急保护阈值（MB），当队列内存占用超过此值时直接写入兜底文件 |
+| `fallbackRetentionDays` | Integer | 7 | 兜底文件保留天数 |
+| `fallbackScanIntervalSeconds` | Integer | 60 | 兜底文件扫描间隔（秒） |
 
 ## Maven项目结构
 
@@ -389,15 +395,15 @@ mvn clean install -U
 当前MVP版本专注于核心功能，确保日志上传的**高性能**和**高可靠性**：
 
 **✅ 已实现功能**：
-- 高性能异步队列（LMAX Disruptor，24,777+ 消息/秒）
+- 高性能异步队列（LMAX Disruptor，100,000+ 消息/秒）
 - 智能批处理优化（三触发条件：消息数、字节数、消息年龄）
 - GZIP压缩（90%+压缩率）
 - 数据分片处理（自动分片大文件）
-- 失败重试机制（指数退避，最多5次）
+- 失败重试机制（指数退避，最多3次）
 - 兜底文件机制（网络异常时本地缓存）
 - 优雅关闭保护（30秒超时保护）
 - 多框架支持（Log4j、Log4j2、Logback）
-- 多云支持（AWS S3、阿里云OSS、MinIO等）
+- 多云支持（AWS S3、阿里云OSS、腾讯云COS、华为云OBS、MinIO、SF OSS等）
 
 **❌ 明确不在当前版本范围的功能**：
 
