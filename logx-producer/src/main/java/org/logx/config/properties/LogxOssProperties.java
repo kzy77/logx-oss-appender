@@ -3,9 +3,7 @@ package org.logx.config.properties;
 public class LogxOssProperties {
 
     private Storage storage = new Storage();
-    private Batch batch = new Batch();
-    private Retry retry = new Retry();
-    private Queue queue = new Queue();
+    private Engine engine = new Engine();
 
     public Storage getStorage() {
         return storage;
@@ -15,28 +13,12 @@ public class LogxOssProperties {
         this.storage = storage;
     }
 
-    public Batch getBatch() {
-        return batch;
+    public Engine getEngine() {
+        return engine;
     }
 
-    public void setBatch(Batch batch) {
-        this.batch = batch;
-    }
-
-    public Retry getRetry() {
-        return retry;
-    }
-
-    public void setRetry(Retry retry) {
-        this.retry = retry;
-    }
-
-    public Queue getQueue() {
-        return queue;
-    }
-
-    public void setQueue(Queue queue) {
-        this.queue = queue;
+    public void setEngine(Engine engine) {
+        this.engine = engine;
     }
 
     public static class Storage {
@@ -192,6 +174,208 @@ public class LogxOssProperties {
 
         public void setDropWhenFull(boolean dropWhenFull) {
             this.dropWhenFull = dropWhenFull;
+        }
+    }
+
+    /**
+     * 引擎配置类
+     * 包含所有与AsyncEngine相关的配置项
+     */
+    public static class Engine {
+        // 内部嵌套的配置类
+        private Batch batch = new Batch();
+        private Retry retry = new Retry();
+        private Queue queue = new Queue();
+        private Fallback fallback = new Fallback();
+        private ThreadPool threadPool = new ThreadPool();
+
+        // 其他引擎配置
+        private boolean multiProducer = false;
+        private boolean enableCpuYield = true;
+        private boolean enableMemoryProtection = true;
+        private long maxShutdownWaitMs = 30000L;
+        private String logFileName = "applogx";
+        private int emergencyMemoryThresholdMb = 512;
+        private boolean enableCompression = true;
+        private int compressionThreshold = 1024;
+        private boolean enableSharding = true;
+        private int maxUploadSizeMb = 10;
+
+        public Batch getBatch() {
+            return batch;
+        }
+
+        public void setBatch(Batch batch) {
+            this.batch = batch;
+        }
+
+        public Retry getRetry() {
+            return retry;
+        }
+
+        public void setRetry(Retry retry) {
+            this.retry = retry;
+        }
+
+        public Queue getQueue() {
+            return queue;
+        }
+
+        public void setQueue(Queue queue) {
+            this.queue = queue;
+        }
+
+        public Fallback getFallback() {
+            return fallback;
+        }
+
+        public void setFallback(Fallback fallback) {
+            this.fallback = fallback;
+        }
+
+        public ThreadPool getThreadPool() {
+            return threadPool;
+        }
+
+        public void setThreadPool(ThreadPool threadPool) {
+            this.threadPool = threadPool;
+        }
+
+        public boolean isMultiProducer() {
+            return multiProducer;
+        }
+
+        public void setMultiProducer(boolean multiProducer) {
+            this.multiProducer = multiProducer;
+        }
+
+        public boolean isEnableCpuYield() {
+            return enableCpuYield;
+        }
+
+        public void setEnableCpuYield(boolean enableCpuYield) {
+            this.enableCpuYield = enableCpuYield;
+        }
+
+        public boolean isEnableMemoryProtection() {
+            return enableMemoryProtection;
+        }
+
+        public void setEnableMemoryProtection(boolean enableMemoryProtection) {
+            this.enableMemoryProtection = enableMemoryProtection;
+        }
+
+        public long getMaxShutdownWaitMs() {
+            return maxShutdownWaitMs;
+        }
+
+        public void setMaxShutdownWaitMs(long maxShutdownWaitMs) {
+            this.maxShutdownWaitMs = maxShutdownWaitMs;
+        }
+
+        public String getLogFileName() {
+            return logFileName;
+        }
+
+        public void setLogFileName(String logFileName) {
+            this.logFileName = logFileName;
+        }
+
+        public int getEmergencyMemoryThresholdMb() {
+            return emergencyMemoryThresholdMb;
+        }
+
+        public void setEmergencyMemoryThresholdMb(int emergencyMemoryThresholdMb) {
+            this.emergencyMemoryThresholdMb = emergencyMemoryThresholdMb;
+        }
+
+        public boolean isEnableCompression() {
+            return enableCompression;
+        }
+
+        public void setEnableCompression(boolean enableCompression) {
+            this.enableCompression = enableCompression;
+        }
+
+        public int getCompressionThreshold() {
+            return compressionThreshold;
+        }
+
+        public void setCompressionThreshold(int compressionThreshold) {
+            this.compressionThreshold = compressionThreshold;
+        }
+
+        public boolean isEnableSharding() {
+            return enableSharding;
+        }
+
+        public void setEnableSharding(boolean enableSharding) {
+            this.enableSharding = enableSharding;
+        }
+
+        public int getMaxUploadSizeMb() {
+            return maxUploadSizeMb;
+        }
+
+        public void setMaxUploadSizeMb(int maxUploadSizeMb) {
+            this.maxUploadSizeMb = maxUploadSizeMb;
+        }
+    }
+
+    /**
+     * 兜底机制配置
+     */
+    public static class Fallback {
+        private String path = "fallback/logs";
+        private int retentionDays = 7;
+        private int scanIntervalSeconds = 60;
+
+        public String getPath() {
+            return path;
+        }
+
+        public void setPath(String path) {
+            this.path = path;
+        }
+
+        public int getRetentionDays() {
+            return retentionDays;
+        }
+
+        public void setRetentionDays(int retentionDays) {
+            this.retentionDays = retentionDays;
+        }
+
+        public int getScanIntervalSeconds() {
+            return scanIntervalSeconds;
+        }
+
+        public void setScanIntervalSeconds(int scanIntervalSeconds) {
+            this.scanIntervalSeconds = scanIntervalSeconds;
+        }
+    }
+
+    /**
+     * 线程池配置
+     */
+    public static class ThreadPool {
+        private int corePoolSize = 1;
+        private int maximumPoolSize = 1;
+
+        public int getCorePoolSize() {
+            return corePoolSize;
+        }
+
+        public void setCorePoolSize(int corePoolSize) {
+            this.corePoolSize = corePoolSize;
+        }
+
+        public int getMaximumPoolSize() {
+            return maximumPoolSize;
+        }
+
+        public void setMaximumPoolSize(int maximumPoolSize) {
+            this.maximumPoolSize = maximumPoolSize;
         }
     }
 }
