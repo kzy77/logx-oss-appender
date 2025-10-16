@@ -208,39 +208,39 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
         xmlConfig.put("logx.oss.storage.ossType", ossType);
     }
 
-    public void setQueueCapacity(int queueCapacity) {
-        xmlConfig.put("logx.oss.engine.queue.capacity", String.valueOf(queueCapacity));
+    public void setQueueCapacity(String queueCapacity) {
+        xmlConfig.put("logx.oss.engine.queue.capacity", queueCapacity);
     }
 
-    public void setMaxBatchCount(int maxBatchCount) {
-        xmlConfig.put("logx.oss.engine.batch.count", String.valueOf(maxBatchCount));
+    public void setMaxBatchCount(String maxBatchCount) {
+        xmlConfig.put("logx.oss.engine.batch.count", maxBatchCount);
     }
 
-    public void setMaxBatchBytes(int maxBatchBytes) {
-        xmlConfig.put("logx.oss.engine.batch.bytes", String.valueOf(maxBatchBytes));
+    public void setMaxBatchBytes(String maxBatchBytes) {
+        xmlConfig.put("logx.oss.engine.batch.bytes", maxBatchBytes);
     }
 
-    public void setMaxMessageAgeMs(long maxMessageAgeMs) {
-        xmlConfig.put("logx.oss.engine.batch.maxAgeMs", String.valueOf(maxMessageAgeMs));
+    public void setMaxMessageAgeMs(String maxMessageAgeMs) {
+        xmlConfig.put("logx.oss.engine.batch.maxAgeMs", maxMessageAgeMs);
     }
 
-    public void setDropWhenQueueFull(boolean dropWhenQueueFull) {
-        xmlConfig.put("logx.oss.engine.queue.dropWhenFull", String.valueOf(dropWhenQueueFull));
+    public void setDropWhenQueueFull(String dropWhenQueueFull) {
+        xmlConfig.put("logx.oss.engine.queue.dropWhenFull", dropWhenQueueFull);
     }
 
-    public void setMaxRetries(int maxRetries) {
-        xmlConfig.put("logx.oss.engine.retry.maxRetries", String.valueOf(maxRetries));
+    public void setMaxRetries(String maxRetries) {
+        xmlConfig.put("logx.oss.engine.retry.maxRetries", maxRetries);
     }
 
-    public void setBaseBackoffMs(long baseBackoffMs) {
-        xmlConfig.put("logx.oss.engine.retry.baseBackoffMs", String.valueOf(baseBackoffMs));
+    public void setBaseBackoffMs(String baseBackoffMs) {
+        xmlConfig.put("logx.oss.engine.retry.baseBackoffMs", baseBackoffMs);
     }
 
-    public void setMaxBackoffMs(long maxBackoffMs) {
-        xmlConfig.put("logx.oss.engine.retry.maxBackoffMs", String.valueOf(maxBackoffMs));
+    public void setMaxBackoffMs(String maxBackoffMs) {
+        xmlConfig.put("logx.oss.engine.retry.maxBackoffMs", maxBackoffMs);
     }
 
-    public void setPathStyleAccess(boolean pathStyleAccess) {
-        xmlConfig.put("logx.oss.storage.pathStyleAccess", String.valueOf(pathStyleAccess));
+    public void setPathStyleAccess(String pathStyleAccess) {
+        xmlConfig.put("logx.oss.storage.pathStyleAccess", pathStyleAccess);
     }
 }
