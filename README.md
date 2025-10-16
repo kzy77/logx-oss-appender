@@ -881,7 +881,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 | 配置项 | 默认值 | 说明 | 决策记录 |
 |--------|--------|------|----------|
-| region | us | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
+| region | US | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
 | maxBatchCount | 8192 | 批处理大小 | 性能测试验证 |
 | maxBatchBytes | 10MB | 批处理字节数 | 性能测试验证 |
 | maxMessageAgeMs | 60000 (1分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
