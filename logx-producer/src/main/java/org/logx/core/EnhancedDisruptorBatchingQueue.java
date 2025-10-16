@@ -497,11 +497,14 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 byte[] shardData = new byte[length];
                 System.arraycopy(data, start, shardData, 0, length);
 
-                String shardKey = "logs/batch-" + System.currentTimeMillis() +
-                        "_part_" + String.format("%04d", i + 1) + ".log";
+                // Compress each shard individually
+                byte[] finalShardData = config.enableCompression ? compressData(shardData) : shardData;
+
+                // Generate a unique object name for each shard using the global generator
+                String shardKey = nameGenerator.generateObjectName();
                 totalShardsCreated.incrementAndGet();
 
-                CompletableFuture<Void> future = storageService.putObject(shardKey, shardData);
+                CompletableFuture<Void> future = storageService.putObject(shardKey, finalShardData);
                 future.get(30, TimeUnit.SECONDS);
             }
 

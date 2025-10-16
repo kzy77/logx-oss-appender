@@ -121,7 +121,7 @@ public class ConfigConsistencyVerifierTest {
         // 使用真实的MinIO配置（符合minio/README-MINIO.md规范）
         // 存储配置
         config.put("logx.oss.storage.bucket", "logx-test-bucket");
-        config.put("logx.oss.storage.keyPrefix", "integration-test/");
+        config.put("logx.oss.storage.keyPrefix", "logx/");
         config.put("logx.oss.storage.region", "US");
         config.put("logx.oss.storage.accessKeyId", "minioadmin");
         config.put("logx.oss.storage.accessKeySecret", "minioadmin");
@@ -139,7 +139,7 @@ public class ConfigConsistencyVerifierTest {
         Map<String, String> config = new HashMap<>();
         // 缺少一些关键配置参数（使用新的两层结构）
         config.put("logx.oss.storage.bucket", "logx-test-bucket");
-        config.put("logx.oss.storage.keyPrefix", "integration-test/");
+        config.put("logx.oss.storage.keyPrefix", "logx/");
         // 缺少 logx.oss.storage.region
         config.put("logx.oss.storage.accessKeyId", "minioadmin");
         // 缺少 logx.oss.storage.accessKeySecret
@@ -155,7 +155,7 @@ public class ConfigConsistencyVerifierTest {
         envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "minioadmin");
         envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET", "minioadmin");
         envVars.put("LOGX_OSS_STORAGE_BUCKET", "logx-test-bucket");
-        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "integration-test/");
+        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "logx/");
         envVars.put("LOGX_OSS_STORAGE_OSS_TYPE", "S3");
         // 引擎配置环境变量
         envVars.put("LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB", "20");
@@ -166,7 +166,7 @@ public class ConfigConsistencyVerifierTest {
         Map<String, String> envVars = new HashMap<>();
         // 使用新的两层结构环境变量
         envVars.put("LOGX_OSS_STORAGE_BUCKET", "logx-test-bucket");
-        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "integration-test/");
+        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "logx/");
         // 缺少 LOGX_OSS_STORAGE_REGION
         envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "minioadmin");
         // 缺少 LOGX_OSS_STORAGE_ACCESS_KEY_SECRET

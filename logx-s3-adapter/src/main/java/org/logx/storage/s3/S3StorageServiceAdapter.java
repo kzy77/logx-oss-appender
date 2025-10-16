@@ -195,6 +195,12 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         return bucketName;
     }
 
+    @Override
+    public String getKeyPrefix() {
+        ensureInitialized();
+        return keyPrefix;
+    }
+
     /**
      * 确保存储服务已初始化
      */

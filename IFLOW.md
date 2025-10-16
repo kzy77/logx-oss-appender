@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到多种云对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含六个核心模块，提供完整的日志上传解决方案。
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到多种云对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含八个核心模块，提供完整的日志上传解决方案。
 
 ### 核心特性
 
@@ -12,6 +12,7 @@ LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志�
 ✅ **企业级可靠性** - 全面的错误处理、重试机制和兜底文件机制  
 ✅ **零性能影响** - 非阻塞设计，不影响应用程序性能  
 ✅ **模块化设计** - 通过Java SPI机制实现低侵入性架构  
+✅ **统一配置标准** - 所有框架使用一致的配置参数和环境变量命名  
 
 ## 项目架构
 
@@ -25,6 +26,7 @@ logx-oss-appender/
 ├── log4j-oss-appender/         # Log4j 1.x版本的OSS Appender
 ├── log4j2-oss-appender/        # Log4j2版本的OSS Appender
 ├── logback-oss-appender/       # Logback版本的OSS Appender
+├── compatibility-tests/        # 兼容性测试模块
 └── docs/                       # 项目文档
 ```
 
@@ -44,9 +46,9 @@ logback-oss-appender
 
 ### 1. logx-producer (核心抽象层)
 
-#### EnhancedDisruptorBatchingQueue
+#### EnhancedDisruptorBatchingQueue (2025-10-05架构优化)
 - 技术: LMAX Disruptor 3.4.4
-- 队列管理: RingBuffer容量65536，YieldingWaitStrategy
+- 队列管理: RingBuffer容量524288，YieldingWaitStrategy
 - 批处理聚合: 事件驱动触发机制
   * 三个触发条件: 消息数8192、总字节数10MB、消息年龄60000毫秒(1分钟)
   * 触发时机: 新消息到达或批次结束时检查，无主动定时器线程
@@ -56,12 +58,15 @@ logback-oss-appender
 - 性能统计: BatchMetrics（批次数、消息数、字节数、压缩率、分片数等）
 - 容量控制: 失败重试3次 + 队列满时丢弃 + 限制队列大小
 - 多生产者模式: 支持并发日志写入（thread-safe）
+- 架构优化: 合并原BatchProcessor和DisruptorBatchingQueue，减少247行代码(-24%)，调用层次减少43%
 
 #### AsyncEngine
 - 技术: 基于EnhancedDisruptorBatchingQueue实现
 - 职责: 协调整个日志处理流程，管理组件生命周期
 - 资源管理: 统一管理兜底文件、关闭钩子等资源
 - 数据流: 接收日志数据 → EnhancedDisruptorBatchingQueue → 存储服务
+- 紧急保护: 内存超过512MB时直接写入兜底文件
+- 并行上传: 支持多线程并行上传，默认2个线程
 
 #### 存储服务接口设计
 
@@ -71,10 +76,9 @@ logback-oss-appender
 ```java
 public interface StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
-    String getOssType();
+    ProtocolType getProtocolType();
     String getBucketName();
     void close();
-    boolean supportsOssType(String ossType);
 }
 ```
 
@@ -83,7 +87,23 @@ public interface StorageInterface {
 // 继承StorageInterface
 public interface StorageService extends StorageInterface {
     // 继承StorageInterface的所有方法
+    boolean supportsProtocol(ProtocolType protocol);
     // 可扩展更高级的服务方法
+}
+```
+
+#### ProtocolType (协议类型枚举)
+```java
+public enum ProtocolType {
+    S3("S3"),        // 标准S3协议，适用于所有S3兼容存储
+    SF_OSS("SF_OSS") // SF OSS专有协议
+}
+```
+
+#### StorageOssType (存储后端类型枚举)
+```java
+public enum StorageOssType {
+    ALIYUN_OSS, AWS_S3, MINIO, TENCENT_COS, HUAWEI_OBS, SF_OSS, SF_S3, GENERIC_S3
 }
 ```
 
@@ -116,16 +136,19 @@ public interface StorageService extends StorageInterface {
 - 继承: AppenderSkeleton
 - 配置: 与log4j2/logback保持一致的key
 - 转换: LoggingEvent → 内部LogEvent格式
+- 编码: 支持Encoder编码日志
 
 #### log4j2-oss-appender
 - 继承: AbstractAppender
 - 配置: 统一配置key标准
 - 异步: 优化的异步事件处理
+- 插件: 支持Log4j2插件机制
 
 #### logback-oss-appender
 - 继承: AppenderBase<ILoggingEvent>
 - 配置: 统一配置key标准
 - SLF4J: 完整兼容性支持
+- 编码: 支持Encoder编码日志
 
 ### 3. 存储适配器层
 
@@ -134,11 +157,13 @@ public interface StorageService extends StorageInterface {
 - 不再处理数据分片逻辑
 - 依赖核心层的数据分片处理
 - 不再提供putObjects方法，只提供putObject方法
+- 支持多种S3兼容存储（AWS S3、阿里云OSS、腾讯云COS、MinIO等）
 
 #### logx-sf-oss-adapter
 - 只负责具体的上传实现
 - 不再提供putObjects方法，只提供putObject方法
 - 依赖核心层的数据分片处理
+- 使用SF OSS专有协议
 
 ## 技术栈
 
@@ -150,6 +175,7 @@ public interface StorageService extends StorageInterface {
 | **云存储SDK** | AWS SDK | 2.28.16 | S3兼容存储 |
 | **测试框架** | JUnit 5 | 5.10.1 | 单元测试 |
 | **断言库** | AssertJ | 3.24.2 | 流式断言 |
+| **Mock框架** | Mockito | 5.8.0 | Mock测试 |
 
 ## 配置管理
 
@@ -164,11 +190,10 @@ public interface StorageService extends StorageInterface {
     <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
     <bucket>${LOGX_OSS_STORAGE_BUCKET:-my-log-bucket}</bucket>
     <!-- 可选参数（存储配置） -->
-    <region>${LOGX_OSS_STORAGE_REGION:-ap-guangzhou}</region>
+    <region>${LOGX_OSS_STORAGE_REGION:-US}</region>
     <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/}</keyPrefix>
-    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_OSS}</ossType>
+    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_S3}</ossType>
     <pathStyleAccess>${LOGX_OSS_STORAGE_PATH_STYLE_ACCESS:-false}</pathStyleAccess>
-    <enableSsl>${LOGX_OSS_STORAGE_ENABLE_SSL:-true}</enableSsl>
     <!-- 可选参数（引擎配置） -->
     <maxBatchCount>${LOGX_OSS_ENGINE_BATCH_COUNT:-8192}</maxBatchCount>
     <maxMessageAgeMs>${LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
@@ -179,18 +204,41 @@ public interface StorageService extends StorageInterface {
 ### 配置优先级
 
 系统支持多种配置源,按以下优先级顺序读取配置:
-1. JVM系统属性 (-Dlogx.oss.storage.region=ap-guangzhou)
-2. 环境变量 (LOGX_OSS_STORAGE_REGION=ap-guangzhou)
-3. 配置文件属性 (logx.properties中的logx.oss.storage.region=ap-guangzhou)
+1. JVM系统属性 (-Dlogx.oss.storage.region=US)
+2. 环境变量 (LOGX_OSS_STORAGE_REGION=US)
+3. 配置文件属性 (logx.properties中的logx.oss.storage.region=US)
 4. 代码默认值
 
 ### 高级配置参数
 
+#### 存储配置参数
 | 参数名 | 类型 | 默认值 | 描述 |
 |--------|------|--------|------|
+| `endpoint` | String | 根据云服务商自动识别 | 对象存储服务的访问端点 |
+| `region` | String | US | 存储区域 |
+| `accessKeyId` | String | 必需 | 访问密钥ID |
+| `accessKeySecret` | String | 必需 | 访问密钥Secret |
+| `bucket` | String | my-log-bucket | 存储桶名称 |
+| `keyPrefix` | String | logx/ | 对象存储中的文件路径前缀 |
+| `ossType` | String | SF_S3 | 存储后端类型，支持SF_S3、S3、SF_OSS等 |
 | `pathStyleAccess` | Boolean | 根据云服务商类型自动识别 | 是否使用路径风格访问（Path-style Access） |
-| `enableSsl` | Boolean | 根据endpoint自动识别 | 是否启用SSL连接 |
-| `emergencyMemoryThresholdMb` | Integer | 512 | 紧急保护阈值（MB），当队列内存占用超过此值时直接写入兜底文件 |
+
+#### 引擎配置参数
+| 参数名 | 类型 | 默认值 | 描述 |
+|--------|------|--------|------|
+| `maxBatchCount` | Integer | 8192 | 批处理最大消息数 |
+| `maxMessageAgeMs` | Long | 60000 | 最早消息年龄阈值（毫秒） |
+| `maxUploadSizeMb` | Integer | 10 | 单个上传文件最大大小（MB），同时控制分片阈值 |
+| `queueCapacity` | Integer | 524288 | 队列容量（必须是2的幂） |
+| `dropWhenQueueFull` | Boolean | false | 队列满时是否丢弃日志 |
+| `multiProducer` | Boolean | false | 是否支持多生产者 |
+| `maxRetries` | Integer | 3 | 最大重试次数 |
+| `baseBackoffMs` | Long | 200 | 基础退避时间(毫秒) |
+| `maxBackoffMs` | Long | 10000 | 最大退避时间(毫秒) |
+| `enableCompression` | Boolean | true | 是否启用数据压缩 |
+| `compressionThreshold` | Integer | 1024 | 启用压缩的数据大小阈值(字节) |
+| `enableSharding` | Boolean | true | 是否启用数据分片处理 |
+| `emergencyMemoryThresholdMb` | Integer | 512 | 紧急保护阈值（MB） |
 | `fallbackRetentionDays` | Integer | 7 | 兜底文件保留天数 |
 | `fallbackScanIntervalSeconds` | Integer | 60 | 兜底文件扫描间隔（秒） |
 
@@ -212,6 +260,7 @@ public interface StorageService extends StorageInterface {
 1. **内部模块依赖**：所有内部模块（如`logx-producer`、`log4j2-oss-appender`等）的版本在父POM中统一管理，子模块直接引用无需指定版本号
 2. **第三方依赖版本控制**：通过`dependencyManagement`统一管理第三方依赖版本，确保所有模块使用一致的依赖版本
 3. **日志框架版本属性**：为常用的日志框架（Log4j、Log4j2、Logback）定义了版本属性，便于维护和升级
+4. **模块化适配器设计**：具体的云存储SDK依赖放在独立的适配器模块中，降低核心模块的依赖侵入性
 
 ## 开发环境
 
@@ -266,7 +315,7 @@ mvn test
 # 运行特定模块测试
 mvn test -pl logx-producer
 
-# 运行集成测试
+# 运行集成测试（需要MinIO环境）
 mvn verify -Pintegration-tests
 
 # 生成测试报告
@@ -322,6 +371,8 @@ mvn org.owasp:dependency-check-maven:check -Psecurity
 - `log4j`: log4j适配器
 - `log4j2`: log4j2适配器
 - `logback`: logback适配器
+- `s3`: S3存储适配器
+- `sf`: SF OSS存储适配器
 - `docs`: 文档
 - `build`: 构建相关
 
@@ -368,6 +419,21 @@ mvn dependency:tree
 mvn clean install -U
 ```
 
+### MinIO集成测试环境
+
+运行集成测试需要MinIO环境：
+
+```bash
+# 进入兼容性测试目录
+cd compatibility-tests/minio
+
+# 启动MinIO本地环境
+./start-minio-local.sh
+
+# 运行集成测试
+mvn test -pl logx-s3-adapter
+```
+
 ## 发布流程
 
 ### 准备发布
@@ -405,6 +471,7 @@ mvn clean install -U
 - 优雅关闭保护（30秒超时保护）
 - 多框架支持（Log4j、Log4j2、Logback）
 - 多云支持（AWS S3、阿里云OSS、腾讯云COS、华为云OBS、MinIO、SF OSS等）
+- 模块化适配器设计（通过Java SPI机制支持运行时动态加载）
 
 **❌ 明确不在当前版本范围的功能**：
 
@@ -442,6 +509,7 @@ mvn clean install -U
 - [开发者指南](docs/developer-guide.md) - 开发环境设置和贡献指南
 - [Git管理指南](docs/git-management.md) - 分支策略、版本发布、协作流程
 - [兜底机制配置文档](docs/fallback-configuration.md) - 兜底文件机制配置说明
+- [测试规范文档](docs/testing-standards.md) - 测试标准和规范
 
 ## 许可证
 

@@ -231,7 +231,7 @@ logx.oss.storage.accessKeyId       // 访问密钥ID
 logx.oss.storage.accessKeySecret   // 访问密钥Secret
 logx.oss.storage.bucket            // 存储桶名称
 logx.oss.storage.region            // 存储区域，默认值为ap-guangzhou
-logx.oss.storage.keyPrefix         // 对象存储中的文件路径前缀，默认为logs/
+logx.oss.storage.keyPrefix         // 对象存储中的文件路径前缀，默认为logx/
 logx.oss.storage.ossType           // 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
 
 // 引擎配置项命名 (logx.oss.engine.*)

@@ -4,7 +4,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.Iterator;
+import java.util.Set;
 import java.util.ServiceLoader;
 
 public class StorageServiceFactory {
@@ -41,21 +43,29 @@ public class StorageServiceFactory {
 
         ServiceLoader<StorageService> loader = ServiceLoader.load(StorageService.class);
         Iterator<StorageService> iterator = loader.iterator();
+        Set<String> loadedClasses = new HashSet<>();
 
         while (iterator.hasNext()) {
             try {
                 StorageService service = iterator.next();
+                String serviceClassName = service.getClass().getName();
+
+                if (loadedClasses.contains(serviceClassName)) {
+                    continue; // Skip already processed service implementation
+                }
+                loadedClasses.add(serviceClassName);
+                
                 if (service.supportsProtocol(protocol)) {
                     try {
                         Method initializeMethod = service.getClass().getMethod("initialize", StorageConfig.class);
                         initializeMethod.invoke(service, config);
                     } catch (Exception e) {
-                        // Ignore if initialize method is not found or fails
+                        logger.warn("Failed to initialize storage service: {}", e);
                     }
                     return service;
                 }
             } catch (Exception e) {
-                logger.error("Failed to load storage service: {}", e.getMessage());
+                logger.error("Failed to load storage service: {}", e);
             }
         }
 

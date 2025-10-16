@@ -226,7 +226,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 <Configuration>
   <Appenders>
     <OSS name="OSS_APPENDER">
-      <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
+      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n" charset="UTF-8"/>
     </OSS>
   </Appenders>
 

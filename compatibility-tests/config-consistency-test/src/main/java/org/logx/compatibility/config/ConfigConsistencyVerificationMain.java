@@ -132,7 +132,7 @@ public class ConfigConsistencyVerificationMain {
     private static Map<String, String> createMockConfig() {
         Map<String, String> config = new HashMap<>();
         config.put("logx.oss.storage.bucket", "test-bucket");
-        config.put("logx.oss.storage.keyPrefix", "logs/");
+        config.put("logx.oss.storage.keyPrefix", "logx/");
         config.put("logx.oss.storage.region", "us-east-1");
         config.put("logx.oss.storage.accessKeyId", "test-access-key");
         config.put("logx.oss.storage.accessKeySecret", "test-secret-key");
@@ -153,7 +153,7 @@ public class ConfigConsistencyVerificationMain {
         envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "test-access-key");
         envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET", "test-secret-key");
         envVars.put("LOGX_OSS_STORAGE_BUCKET", "test-bucket");
-        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "logs/");
+        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "logx/");
         envVars.put("LOGX_OSS_STORAGE_OSS_TYPE", "SF_OSS");
         envVars.put("LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB", "20");
         return envVars;

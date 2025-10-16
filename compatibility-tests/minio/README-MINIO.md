@@ -159,7 +159,7 @@ mvn test -Dtest=MinIOIntegrationTest#shouldUploadLogsToMinIO -pl logx-s3-adapter
 | Access Key ID | minioadmin |
 | Access Key Secret | minioadmin |
 | 测试Bucket | logx-test-bucket |
-| 对象前缀 | integration-test/ |
+| 对象前缀 | logx/ |
 
 ## 测试用例说明
 
@@ -213,8 +213,8 @@ export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="minioadmin"
 # MinIO存储桶（默认：logx-test-bucket）
 export LOGX_OSS_STORAGE_BUCKET="logx-test-bucket"
 
-# 对象键前缀（默认：integration-test/）
-export LOGX_OSS_STORAGE_KEY_PREFIX="integration-test/"
+# 对象键前缀（默认：logx/）
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
 
 # OSS类型（默认：S3）
 export LOGX_OSS_STORAGE_OSS_TYPE="S3"

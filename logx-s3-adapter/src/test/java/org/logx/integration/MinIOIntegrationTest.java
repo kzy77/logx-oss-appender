@@ -4,6 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.logx.config.properties.LogxOssProperties;
+import org.logx.fallback.ObjectNameGenerator;
 import org.logx.storage.StorageConfig;
 import org.logx.storage.s3.S3StorageServiceAdapter;
 import org.slf4j.Logger;
@@ -22,6 +23,7 @@ class MinIOIntegrationTest {
     private static final Logger logger = LoggerFactory.getLogger(MinIOIntegrationTest.class);
 
     private S3StorageServiceAdapter storageService;
+    private ObjectNameGenerator nameGenerator;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -38,7 +40,7 @@ class MinIOIntegrationTest {
         String accessKeyId = getProperty(properties, "logx.oss.storage.accessKeyId", "minioadmin");
         String accessKeySecret = getProperty(properties, "logx.oss.storage.accessKeySecret", "minioadmin");
         String bucket = getProperty(properties, "logx.oss.storage.bucket", "logx-test-bucket");
-        String keyPrefix = getProperty(properties, "logx.oss.storage.keyPrefix", "integration-test/");
+        String keyPrefix = getProperty(properties, "logx.oss.storage.keyPrefix", "logx/");
 
         LogxOssProperties logxOssProperties = new LogxOssProperties();
         logxOssProperties.getStorage().setOssType("S3");
@@ -54,6 +56,8 @@ class MinIOIntegrationTest {
 
         storageService = new S3StorageServiceAdapter();
         storageService.initialize(config);
+
+        nameGenerator = new ObjectNameGenerator("minio-test");
     }
 
     private String getProperty(Properties properties, String key, String defaultValue) {
@@ -79,7 +83,7 @@ class MinIOIntegrationTest {
     void shouldUploadLogsToMinIO() throws Exception {
         String testContent = "MinIO Integration Test - " + System.currentTimeMillis() + "\n";
         byte[] data = testContent.getBytes(StandardCharsets.UTF_8);
-        String objectKey = "test-logs/integration-test-" + System.currentTimeMillis() + ".log";
+        String objectKey = nameGenerator.generateObjectName();
 
         CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
 
@@ -92,7 +96,7 @@ class MinIOIntegrationTest {
         for (int i = 0; i < 5; i++) {
             String testContent = String.format("Test file #%d - %d\n", i, System.currentTimeMillis());
             byte[] data = testContent.getBytes(StandardCharsets.UTF_8);
-            String objectKey = String.format("test-logs/multi-test-%d-%d.log", i, System.currentTimeMillis());
+            String objectKey = nameGenerator.generateObjectName();
 
             CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
             uploadFuture.get(10, TimeUnit.SECONDS);
@@ -107,7 +111,7 @@ class MinIOIntegrationTest {
         }
 
         byte[] data = content.toString().getBytes(StandardCharsets.UTF_8);
-        String objectKey = "test-logs/large-file-" + System.currentTimeMillis() + ".log";
+        String objectKey = nameGenerator.generateObjectName();
 
         CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
 

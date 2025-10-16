@@ -254,7 +254,7 @@ public class BusinessLogGenerationTest {
         logger.info("✅ 测试2 - 字节数触发 (10MB): 完成");
         logger.info("✅ 测试3 - 消息年龄触发 (60秒): 完成");
         logger.info("✅ 测试4 - 512MB保护机制: 完成");
-        logger.info("{} 测试5 - QPS性能测试: {} 条/秒 (目标: 100,000+)",
+        logger.info("{} 测试5 - QPS性能测试: {} 条/秒 (目标: 10,000+)",
                    qpsPass ? "✅" : "⚠️", String.format("%.0f", actualQPS));
         logger.info("📊 最终队列内存使用: {} MB (限制: 512MB) - {}",
                    String.format("%.2f", finalMemoryMB), finalMemoryMB < 512 ? "✓ 合格" : "⚠ 超标");
@@ -322,7 +322,7 @@ public class BusinessLogGenerationTest {
         logger.info("OSS连接和日志上传诊断测试完成！");
         logger.info("请检查MinIO控制台: http://localhost:9001");
         logger.info("查看桶: logx-test-bucket");
-        logger.info("查看路径: logs/");
+        logger.info("查看路径: logx/");
         logger.info("如果没有看到日志文件，请检查:");
         logger.info("1. MinIO服务是否正在运行");
         logger.info("2. 网络连接是否正常");

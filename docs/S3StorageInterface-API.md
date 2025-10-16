@@ -39,7 +39,7 @@ public interface S3StorageInterface {
 S3StorageInterface storage = new S3StorageAdapter(...);
 byte[] logData = "Hello World".getBytes(StandardCharsets.UTF_8);
 
-storage.putObject("logs/2024/01/01/app.log", logData)
+storage.putObject("logx/2024/01/01/app.log", logData)
     .thenRun(() -> System.out.println("上传成功"))
     .exceptionally(throwable -> {
         System.err.println("上传失败: " + throwable.getMessage());
@@ -60,8 +60,8 @@ storage.putObject("logs/2024/01/01/app.log", logData)
 **使用示例：**
 ```java
 Map<String, byte[]> logFiles = new HashMap<>();
-logFiles.put("logs/2024/01/01/app-1.log", data1);
-logFiles.put("logs/2024/01/01/app-2.log", data2);
+logFiles.put("logx/2024/01/01/app-1.log", data1);
+logFiles.put("logx/2024/01/01/app-2.log", data2);
 
 storage.putObjects(logFiles)
     .thenRun(() -> System.out.println("批量上传完成"))

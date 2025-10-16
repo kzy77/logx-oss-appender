@@ -36,6 +36,13 @@ public interface StorageService extends StorageInterface {
     String getBucketName();
 
     /**
+     * 获取对象键前缀
+     *
+     * @return 对象键前缀
+     */
+    String getKeyPrefix();
+
+    /**
      * 关闭存储服务，释放资源
      */
     void close();

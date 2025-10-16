@@ -37,8 +37,8 @@
 3. 为每个分片生成唯一的键名，格式为：`original_key_part_0001`, `original_key_part_0002`, ...
 
 #### 键名生成规则
-- 原始键名：`logs/2025-09-24/application.log`
-- 分片键名：`logs/2025-09-24/application.log_part_0001`, `logs/2025-09-24/application.log_part_0002`, ...
+- 原始键名：`logx/2025-09-24/application.log`
+- 分片键名：`logx/2025-09-24/application.log_part_0001`, `logx/2025-09-24/application.log_part_0002`, ...
 
 ### 数据流
 

@@ -105,8 +105,8 @@ mvn test -Dtest=org.logx.compatibility.multiframework.ComprehensiveCompatibility
 - 各框架特定性能测试
 
 每个框架使用不同的日志前缀以确保日志输出的隔离性：
-- Logback: `logs/logback/`
-- Log4j2: `logs/log4j2/`
-- Log4j 1.x: `logs/log4j1/`
+- Logback: `logx/logback/`
+- Log4j2: `logx/log4j2/`
+- Log4j 1.x: `logx/log4j1/`
 
 这样可以验证每个框架的日志都能正确上传到指定位置，而不会相互干扰。

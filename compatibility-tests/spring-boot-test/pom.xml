@@ -35,6 +35,7 @@
             <artifactId>logx-s3-adapter</artifactId>
         </dependency>
 
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>org.springframework.boot</groupId>

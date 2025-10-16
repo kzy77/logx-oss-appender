@@ -47,6 +47,12 @@ public class S3StorageServiceProvider implements StorageService {
     }
 
     @Override
+    public String getKeyPrefix() {
+        ensureInitialized();
+        return adapter.getKeyPrefix();
+    }
+
+    @Override
     public void close() {
         if (adapter != null) {
             adapter.close();
