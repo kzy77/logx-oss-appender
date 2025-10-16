@@ -222,18 +222,23 @@ org.logx.log4j2.*                 // Log4j2专用包
 
 ### 配置Key统一
 ```java
-// 所有适配器使用相同配置前缀
+// 所有适配器使用相同配置前缀和两层结构
 public static final String CONFIG_PREFIX = "logx.oss";
 
-// 统一配置项命名
-logx.oss.endpoint      // 对象存储服务的访问端点
-logx.oss.accessKeyId   // 访问密钥ID
-logx.oss.accessKeySecret // 访问密钥Secret
-logx.oss.bucket        // 存储桶名称
-logx.oss.region        // 存储区域，默认值为ap-guangzhou
-logx.oss.keyPrefix     // 对象存储中的文件路径前缀，默认为logs/
-logx.oss.ossType       // 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
-logx.oss.maxUploadSizeMb // 单个上传文件最大大小（MB），默认10MB
+// 存储配置项命名 (logx.oss.storage.*)
+logx.oss.storage.endpoint          // 对象存储服务的访问端点
+logx.oss.storage.accessKeyId       // 访问密钥ID
+logx.oss.storage.accessKeySecret   // 访问密钥Secret
+logx.oss.storage.bucket            // 存储桶名称
+logx.oss.storage.region            // 存储区域，默认值为ap-guangzhou
+logx.oss.storage.keyPrefix         // 对象存储中的文件路径前缀，默认为logs/
+logx.oss.storage.ossType           // 存储后端类型，默认为SF_OSS，支持SF_OSS、S3等
+
+// 引擎配置项命名 (logx.oss.engine.*)
+logx.oss.engine.maxUploadSizeMb    // 单个上传文件最大大小（MB），默认10MB
+logx.oss.engine.batch.count        // 批处理最大消息数，默认8192
+logx.oss.engine.batch.maxAgeMs     // 最早消息年龄阈值（毫秒），默认60000
+logx.oss.engine.queue.capacity     // 队列容量，默认524288
 ```
 
 ## 文档组织结构

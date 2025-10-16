@@ -49,23 +49,29 @@ mvn clean package
 使用 `web.xml` 文件配置Logback
 
 ### 系统属性配置
-支持通过系统属性覆盖配置（logx.oss前缀）：
-- `logx.oss.endpoint` - 存储端点
-- `logx.oss.region` - 存储区域
-- `logx.oss.accessKeyId` - 访问密钥ID
-- `logx.oss.accessKeySecret` - 秘密访问密钥
-- `logx.oss.bucket` - 存储桶名称
-- `logx.oss.keyPrefix` - 对象key前缀
-- `logx.oss.pathStyleAccess` - 路径风格访问
-- `logx.oss.enableSsl` - SSL启用
+支持通过系统属性覆盖配置（logx.oss前缀，两层结构）：
+
+**存储配置** (`logx.oss.storage.*`):
+- `logx.oss.storage.endpoint` - 存储端点
+- `logx.oss.storage.region` - 存储区域
+- `logx.oss.storage.accessKeyId` - 访问密钥ID
+- `logx.oss.storage.accessKeySecret` - 秘密访问密钥
+- `logx.oss.storage.bucket` - 存储桶名称
+- `logx.oss.storage.keyPrefix` - 对象key前缀
+- `logx.oss.storage.pathStyleAccess` - 路径风格访问
+- `logx.oss.storage.enableSsl` - SSL启用
 
 ### 环境变量配置
-支持通过环境变量覆盖配置（LOGX_OSS前缀）：
-- `LOGX_OSS_ENDPOINT` - 存储端点
-- `LOGX_OSS_REGION` - 存储区域
-- `LOGX_OSS_ACCESS_KEY_ID` - 访问密钥ID
-- `LOGX_OSS_ACCESS_KEY_SECRET` - 秘密访问密钥
-- `LOGX_OSS_BUCKET` - 存储桶名称
-- `LOGX_OSS_KEY_PREFIX` - 对象key前缀
-- `LOGX_OSS_TYPE` - OSS类型
-- `LOGX_OSS_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小
+支持通过环境变量覆盖配置（LOGX_OSS前缀，两层结构）：
+
+**存储配置环境变量**:
+- `LOGX_OSS_STORAGE_ENDPOINT` - 存储端点
+- `LOGX_OSS_STORAGE_REGION` - 存储区域
+- `LOGX_OSS_STORAGE_ACCESS_KEY_ID` - 访问密钥ID
+- `LOGX_OSS_STORAGE_ACCESS_KEY_SECRET` - 秘密访问密钥
+- `LOGX_OSS_STORAGE_BUCKET` - 存储桶名称
+- `LOGX_OSS_STORAGE_KEY_PREFIX` - 对象key前缀
+- `LOGX_OSS_STORAGE_OSS_TYPE` - OSS类型
+
+**引擎配置环境变量**:
+- `LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小

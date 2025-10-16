@@ -119,53 +119,57 @@ public class ConfigConsistencyVerifierTest {
     private Map<String, String> createRealConfig() {
         Map<String, String> config = new HashMap<>();
         // 使用真实的MinIO配置（符合minio/README-MINIO.md规范）
-        config.put("logx.oss.bucket", "logx-test-bucket");
-        config.put("logx.oss.keyPrefix", "integration-test/");
-        config.put("logx.oss.region", "US");
-        config.put("logx.oss.accessKeyId", "minioadmin");
-        config.put("logx.oss.accessKeySecret", "minioadmin");
-        config.put("logx.oss.endpoint", "http://localhost:9000");
-        config.put("logx.oss.ossType", "S3");
-        config.put("logx.oss.pathStyleAccess", "true");
-        config.put("logx.oss.enableSsl", "false");
-        config.put("logx.oss.maxConnections", "50");
-        config.put("logx.oss.connectTimeout", "30000");
-        config.put("logx.oss.readTimeout", "60000");
+        // 存储配置
+        config.put("logx.oss.storage.bucket", "logx-test-bucket");
+        config.put("logx.oss.storage.keyPrefix", "integration-test/");
+        config.put("logx.oss.storage.region", "US");
+        config.put("logx.oss.storage.accessKeyId", "minioadmin");
+        config.put("logx.oss.storage.accessKeySecret", "minioadmin");
+        config.put("logx.oss.storage.endpoint", "http://localhost:9000");
+        config.put("logx.oss.storage.ossType", "S3");
+        config.put("logx.oss.storage.pathStyleAccess", "true");
+        config.put("logx.oss.storage.enableSsl", "false");
+        config.put("logx.oss.storage.maxConnections", "50");
+        config.put("logx.oss.storage.connectTimeout", "30000");
+        config.put("logx.oss.storage.readTimeout", "60000");
         return config;
     }
 
     private Map<String, String> createInconsistentRealConfig() {
         Map<String, String> config = new HashMap<>();
-        // 缺少一些关键配置参数
-        config.put("logx.oss.bucket", "logx-test-bucket");
-        config.put("logx.oss.keyPrefix", "integration-test/");
-        // 缺少 logx.oss.region
-        config.put("logx.oss.accessKeyId", "minioadmin");
-        // 缺少 logx.oss.accessKeySecret
+        // 缺少一些关键配置参数（使用新的两层结构）
+        config.put("logx.oss.storage.bucket", "logx-test-bucket");
+        config.put("logx.oss.storage.keyPrefix", "integration-test/");
+        // 缺少 logx.oss.storage.region
+        config.put("logx.oss.storage.accessKeyId", "minioadmin");
+        // 缺少 logx.oss.storage.accessKeySecret
         // 缺少其他参数
         return config;
     }
 
     private Map<String, String> createRealEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("LOGX_OSS_ENDPOINT", "http://localhost:9000");
-        envVars.put("LOGX_OSS_REGION", "US");
-        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "minioadmin");
-        envVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "minioadmin");
-        envVars.put("LOGX_OSS_BUCKET", "logx-test-bucket");
-        envVars.put("LOGX_OSS_KEY_PREFIX", "integration-test/");
-        envVars.put("LOGX_OSS_OSS_TYPE", "S3");
-        envVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "20");
+        // 存储配置环境变量
+        envVars.put("LOGX_OSS_STORAGE_ENDPOINT", "http://localhost:9000");
+        envVars.put("LOGX_OSS_STORAGE_REGION", "US");
+        envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "minioadmin");
+        envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET", "minioadmin");
+        envVars.put("LOGX_OSS_STORAGE_BUCKET", "logx-test-bucket");
+        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "integration-test/");
+        envVars.put("LOGX_OSS_STORAGE_OSS_TYPE", "S3");
+        // 引擎配置环境变量
+        envVars.put("LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB", "20");
         return envVars;
     }
 
     private Map<String, String> createInconsistentEnvironmentVariables() {
         Map<String, String> envVars = new HashMap<>();
-        envVars.put("LOGX_OSS_BUCKET", "logx-test-bucket");
-        envVars.put("LOGX_OSS_KEY_PREFIX", "integration-test/");
-        // 缺少 LOGX_OSS_REGION
-        envVars.put("LOGX_OSS_ACCESS_KEY_ID", "minioadmin");
-        // 缺少 LOGX_OSS_ACCESS_KEY_SECRET
+        // 使用新的两层结构环境变量
+        envVars.put("LOGX_OSS_STORAGE_BUCKET", "logx-test-bucket");
+        envVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "integration-test/");
+        // 缺少 LOGX_OSS_STORAGE_REGION
+        envVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "minioadmin");
+        // 缺少 LOGX_OSS_STORAGE_ACCESS_KEY_SECRET
         // 缺少其他参数
         return envVars;
     }

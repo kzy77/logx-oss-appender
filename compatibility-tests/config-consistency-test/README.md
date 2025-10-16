@@ -36,30 +36,36 @@ mvn test
 ## 验证内容
 
 ### 配置参数一致性
-验证所有框架使用相同的配置参数名称（logx.oss前缀）：
-- `logx.oss.bucket` - 存储桶名称
-- `logx.oss.keyPrefix` - 对象key前缀
-- `logx.oss.region` - 存储区域
-- `logx.oss.accessKeyId` - 访问密钥ID
-- `logx.oss.accessKeySecret` - 秘密访问密钥
-- `logx.oss.endpoint` - 存储端点
-- `logx.oss.ossType` - OSS类型
-- `logx.oss.pathStyleAccess` - 路径风格访问
-- `logx.oss.enableSsl` - SSL启用
-- `logx.oss.maxConnections` - 最大连接数
-- `logx.oss.connectTimeout` - 连接超时
-- `logx.oss.readTimeout` - 读取超时
+验证所有框架使用相同的配置参数名称（logx.oss前缀，两层结构）：
+
+**存储配置** (`logx.oss.storage.*`):
+- `logx.oss.storage.bucket` - 存储桶名称
+- `logx.oss.storage.keyPrefix` - 对象key前缀
+- `logx.oss.storage.region` - 存储区域
+- `logx.oss.storage.accessKeyId` - 访问密钥ID
+- `logx.oss.storage.accessKeySecret` - 秘密访问密钥
+- `logx.oss.storage.endpoint` - 存储端点
+- `logx.oss.storage.ossType` - OSS类型
+- `logx.oss.storage.pathStyleAccess` - 路径风格访问
+- `logx.oss.storage.enableSsl` - SSL启用
+- `logx.oss.storage.maxConnections` - 最大连接数
+- `logx.oss.storage.connectTimeout` - 连接超时
+- `logx.oss.storage.readTimeout` - 读取超时
 
 ### 环境变量一致性
-验证所有框架支持相同的环境变量（LOGX_OSS前缀）：
-- `LOGX_OSS_ENDPOINT` - 存储端点
-- `LOGX_OSS_REGION` - 存储区域
-- `LOGX_OSS_ACCESS_KEY_ID` - 访问密钥ID
-- `LOGX_OSS_ACCESS_KEY_SECRET` - 秘密访问密钥
-- `LOGX_OSS_BUCKET` - 存储桶名称
-- `LOGX_OSS_KEY_PREFIX` - 对象key前缀
-- `LOGX_OSS_TYPE` - OSS类型
-- `LOGX_OSS_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小
+验证所有框架支持相同的环境变量（LOGX_OSS前缀，两层结构）：
+
+**存储配置环境变量**:
+- `LOGX_OSS_STORAGE_ENDPOINT` - 存储端点
+- `LOGX_OSS_STORAGE_REGION` - 存储区域
+- `LOGX_OSS_STORAGE_ACCESS_KEY_ID` - 访问密钥ID
+- `LOGX_OSS_STORAGE_ACCESS_KEY_SECRET` - 秘密访问密钥
+- `LOGX_OSS_STORAGE_BUCKET` - 存储桶名称
+- `LOGX_OSS_STORAGE_KEY_PREFIX` - 对象key前缀
+- `LOGX_OSS_STORAGE_OSS_TYPE` - OSS类型
+
+**引擎配置环境变量**:
+- `LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB` - 最大上传文件大小
 
 ### 验证机制一致性
 验证所有框架使用相同的配置验证机制：

@@ -131,20 +131,23 @@ BatchProcessor                  // 批处理器
 
 #### 配置Key统一规范
 ```java
-// 所有框架使用统一的配置前缀和命名
+// 所有框架使用统一的配置前缀和两层结构命名
 public static final String CONFIG_PREFIX = "logx.oss";
 
-// 统一配置项命名
-public static final String ENDPOINT = "logx.oss.endpoint";
-public static final String ACCESS_KEY_ID = "logx.oss.accessKeyId";
-public static final String ACCESS_KEY_SECRET = "logx.oss.accessKeySecret";
-public static final String BUCKET = "logx.oss.bucket";
-public static final String REGION = "logx.oss.region";
-public static final String KEY_PREFIX = "logx.oss.keyPrefix";
-public static final String OSS_TYPE = "logx.oss.ossType";
-public static final String MAX_UPLOAD_SIZE_MB = "logx.oss.maxUploadSizeMb";
-public static final String BATCH_SIZE = "logx.oss.batch.size";
-public static final String MAX_MESSAGE_AGE_MS = "logx.oss.maxMessageAgeMs";
+// 存储配置项命名 (logx.oss.storage.*)
+public static final String STORAGE_ENDPOINT = "logx.oss.storage.endpoint";
+public static final String STORAGE_ACCESS_KEY_ID = "logx.oss.storage.accessKeyId";
+public static final String STORAGE_ACCESS_KEY_SECRET = "logx.oss.storage.accessKeySecret";
+public static final String STORAGE_BUCKET = "logx.oss.storage.bucket";
+public static final String STORAGE_REGION = "logx.oss.storage.region";
+public static final String STORAGE_KEY_PREFIX = "logx.oss.storage.keyPrefix";
+public static final String STORAGE_OSS_TYPE = "logx.oss.storage.ossType";
+
+// 引擎配置项命名 (logx.oss.engine.*)
+public static final String ENGINE_MAX_UPLOAD_SIZE_MB = "logx.oss.engine.maxUploadSizeMb";
+public static final String ENGINE_BATCH_COUNT = "logx.oss.engine.batch.count";
+public static final String ENGINE_BATCH_MAX_AGE_MS = "logx.oss.engine.batch.maxAgeMs";
+public static final String ENGINE_QUEUE_CAPACITY = "logx.oss.engine.queue.capacity";
 ```
 
 ### 代码组织

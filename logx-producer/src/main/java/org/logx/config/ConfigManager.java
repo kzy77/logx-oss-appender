@@ -77,9 +77,9 @@ public class ConfigManager {
      * <p>
      * 支持多种命名格式：
      * <ul>
-     * <li>JVM系统属性：支持点号格式（logx.oss.endpoint）和大写下划线格式（LOGX_OSS_ENDPOINT），点号格式优先</li>
-     * <li>环境变量：只支持大写下划线格式（LOGX_OSS_ENDPOINT）</li>
-     * <li>配置文件：标准点号格式（logx.oss.endpoint）</li>
+     * <li>JVM系统属性：支持点号格式（logx.oss.storage.endpoint）和大写下划线格式（LOGX_OSS_STORAGE_ENDPOINT），点号格式优先</li>
+     * <li>环境变量：只支持大写下划线格式（LOGX_OSS_STORAGE_ENDPOINT）</li>
+     * <li>配置文件：标准点号格式（logx.oss.storage.endpoint）</li>
      * </ul>
      * <p>
      * 优先级顺序（从高到低）：
@@ -92,7 +92,7 @@ public class ConfigManager {
      * 如果所有配置源都找不到，返回null。默认值处理由调用方（如ConfigFactory）负责。
      *
      * @param key
-     *            配置键（使用点号格式，如 logx.oss.endpoint）
+     *            配置键（使用点号格式，如 logx.oss.storage.endpoint）
      *
      * @return 配置值，如果不存在返回null
      */
@@ -157,7 +157,7 @@ public class ConfigManager {
      * 用于支持XML中的默认值语法 ${ENV:-xmlDefault}，确保XML默认值优先于ConfigManager默认值
      *
      * @param key
-     *            配置键（使用点号格式，如 logx.oss.endpoint）
+     *            配置键（使用点号格式，如 logx.oss.storage.endpoint）
      *
      * @return 高优先级配置值，如果不存在返回null
      */
@@ -324,8 +324,8 @@ public class ConfigManager {
      * <p>
      * 支持的格式（按优先级）：
      * <ul>
-     * <li>logx.oss.accessKeyId （标准点号格式，优先）</li>
-     * <li>LOGX_OSS_ACCESS_KEY_ID （大写下划线格式，支持驼峰转换）</li>
+     * <li>logx.oss.storage.accessKeyId （标准点号格式，优先）</li>
+     * <li>LOGX_OSS_STORAGE_ACCESS_KEY_ID （大写下划线格式，支持驼峰转换）</li>
      * </ul>
      *
      * @param key
@@ -334,13 +334,13 @@ public class ConfigManager {
      * @return JVM系统属性值，如果不存在返回null
      */
     private String getSystemProperty(String key) {
-        // 1. 先查找原始键（标准点号格式：logx.oss.accessKeyId）
+        // 1. 先查找原始键（标准点号格式：logx.oss.storage.accessKeyId）
         String value = System.getProperty(key);
         if (value != null) {
             return value;
         }
 
-        // 2. 转换为大写下划线格式，支持驼峰命名（LOGX_OSS_ACCESS_KEY_ID）
+        // 2. 转换为大写下划线格式，支持驼峰命名（LOGX_OSS_STORAGE_ACCESS_KEY_ID）
         String upperKey = toEnvironmentVariableFormat(key);
         value = System.getProperty(upperKey);
         if (value != null) {
@@ -375,9 +375,9 @@ public class ConfigManager {
      * <p>
      * 示例：
      * <ul>
-     * <li>logx.oss.endpoint → LOGX_OSS_ENDPOINT</li>
-     * <li>logx.oss.accessKeyId → LOGX_OSS_ACCESS_KEY_ID</li>
-     * <li>logx.oss.maxBatchCount → LOGX_OSS_MAX_BATCH_COUNT</li>
+     * <li>logx.oss.storage.endpoint → LOGX_OSS_STORAGE_ENDPOINT</li>
+     * <li>logx.oss.storage.accessKeyId → LOGX_OSS_STORAGE_ACCESS_KEY_ID</li>
+     * <li>logx.oss.engine.batch.count → LOGX_OSS_ENGINE_BATCH_COUNT</li>
      * </ul>
      *
      * @param key
@@ -402,9 +402,9 @@ public class ConfigManager {
      * </ol>
      *
      * @param key
-     *            配置键（如 logx.oss.accessKeyId）
+     *            配置键（如 logx.oss.storage.accessKeyId）
      *
-     * @return 环境变量格式（如 LOGX_OSS_ACCESS_KEY_ID）
+     * @return 环境变量格式（如 LOGX_OSS_STORAGE_ACCESS_KEY_ID）
      */
     private String toEnvironmentVariableFormat(String key) {
         // 1. 处理驼峰：在小写字母后紧跟大写字母的位置插入下划线
