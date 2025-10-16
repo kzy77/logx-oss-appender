@@ -42,7 +42,7 @@
             <artifactId>logback-oss-appender</artifactId>
         </dependency>
 
-        <dependency>
+        <!-- <dependency>
             <groupId>org.logx</groupId>
             <artifactId>log4j2-oss-appender</artifactId>
         </dependency>
@@ -50,7 +50,7 @@
         <dependency>
             <groupId>org.logx</groupId>
             <artifactId>log4j-oss-appender</artifactId>
-        </dependency>
+        </dependency> -->
 
         <dependency>
             <groupId>org.logx</groupId>
