@@ -400,15 +400,7 @@ dependencies {
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration>
-    <appender name="OSS" class="org.logx.log4j.Log4jOSSAppender">
-        <param name="endpoint" value="${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
-        <param name="accessKeyId" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}"/>
-        <param name="accessKeySecret" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"/>
-        <param name="bucket" value="${sys:LOGX_OSS_STORAGE_BUCKET}"/>
-        <param name="region" value="${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}"/>
-        <param name="keyPrefix" value="${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}"/>
-        <param name="maxBatchCount" value="${LOGX_OSS_BATCH_COUNT:-8192}"/>
-        <param name="maxMessageAgeMs" value="${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}"/>
+    <appender name="OSS_APPENDER" class="org.logx.log4j.Log4jOSSAppender">
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -416,29 +408,37 @@ dependencies {
 
     <root>
         <level value="INFO"/>
-        <appender-ref ref="OSS"/>
+        <appender-ref ref="OSS_APPENDER"/>
     </root>
 </log4j:configuration>
+```
+
+**环境变量配置：**
+
+```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
+export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+
+# 批处理配置（可选）
+export LOGX_OSS_BATCH_COUNT="8192"
+export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
 ```
 
 **Log4j 1.x properties文件配置：**
 
 ```properties
 # log4j.properties
-log4j.rootLogger=INFO, OSS
+log4j.rootLogger=INFO, OSS_APPENDER
 
 # OSS Appender配置
-log4j.appender.OSS=org.logx.log4j.Log4jOSSAppender
-log4j.appender.OSS.endpoint=${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}
-log4j.appender.OSS.accessKeyId=${LOGX_OSS_STORAGE_ACCESS_KEY_ID}
-log4j.appender.OSS.accessKeySecret=${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}
-log4j.appender.OSS.bucket=${LOGX_OSS_STORAGE_BUCKET}
-log4j.appender.OSS.region=${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}
-log4j.appender.OSS.keyPrefix=${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}
-log4j.appender.OSS.maxBatchCount=${LOGX_OSS_BATCH_COUNT:-8192}
-log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}
-log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
-log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
+log4j.appender.OSS_APPENDER=org.logx.log4j.Log4jOSSAppender
+log4j.appender.OSS_APPENDER.layout=org.apache.log4j.PatternLayout
+log4j.appender.OSS_APPENDER.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
 
 #### Log4j2 示例
@@ -447,23 +447,32 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 <!-- log4j2.xml -->
 <Configuration>
     <Appenders>
-        <OSS name="OSS">
-            <endpoint>${sys:LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-            <accessKeyId>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
-            <accessKeySecret>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
-            <bucket>${sys:LOGX_OSS_STORAGE_BUCKET}</bucket>
-            <region>${sys:LOGX_OSS_STORAGE_REGION:-cn-hangzhou}</region>
-            <keyPrefix>${sys:LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}</keyPrefix>
-            <maxBatchCount>${sys:LOGX_OSS_BATCH_COUNT:-8192}</maxBatchCount>
-            <maxMessageAgeMs>${sys:LOGX_OSS_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
+        <OSS name="OSS_APPENDER">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
         </OSS>
     </Appenders>
     <Loggers>
         <Root level="INFO">
-            <AppenderRef ref="OSS"/>
+            <AppenderRef ref="OSS_APPENDER"/>
         </Root>
     </Loggers>
 </Configuration>
+```
+
+**环境变量配置：**
+
+```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
+export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+
+# 批处理配置（可选）
+export LOGX_OSS_BATCH_COUNT="8192"
+export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
 ```
 
 #### Logback 示例
@@ -471,24 +480,32 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 ```xml
 <!-- logback.xml -->
 <configuration>
-    <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-        <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
-        <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
-        <bucket>${LOGX_OSS_STORAGE_BUCKET}</bucket>
-        <region>${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}</region>
-        <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}</keyPrefix>
-        <maxBatchCount>${LOGX_OSS_BATCH_COUNT:-8192}</maxBatchCount>
-        <maxMessageAgeMs>${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
+    <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
     </appender>
 
     <root level="INFO">
-        <appender-ref ref="OSS"/>
+        <appender-ref ref="OSS_APPENDER"/>
     </root>
 </configuration>
+```
+
+**环境变量配置：**
+
+```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
+export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+
+# 批处理配置（可选）
+export LOGX_OSS_BATCH_COUNT="8192"
+export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
 ```
 
 ### 配置参数说明
@@ -508,7 +525,7 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
-| **region** | String | us | 存储区域 |
+| **region** | String | ap-guangzhou | 存储区域 |
 | **keyPrefix** | String | logx/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
 | **maxQueueSize** | Integer | 524288 | 内存队列大小（必须是2的幂） |
