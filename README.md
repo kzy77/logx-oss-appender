@@ -149,10 +149,10 @@ logx-oss-appender/
 ```xml
 <configuration>
   <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
-    <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOGX_OSS_BUCKET}</bucket>
+    <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
+    <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+    <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
+    <bucket>${LOGX_OSS_STORAGE_BUCKET}</bucket>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
@@ -163,9 +163,9 @@ logx-oss-appender/
 
 3. **环境变量配置**
 ```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 #### 其他框架示例
@@ -194,10 +194,10 @@ export LOGX_OSS_BUCKET="your-bucket-name"
 ```xml
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
   <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
-    <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
-    <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
-    <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
+    <param name="endpoint" value="${LOGX_OSS_STORAGE_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
+    <param name="accessKeyId" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}"/>
+    <param name="accessKeySecret" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"/>
+    <param name="bucket" value="${sys:LOGX_OSS_STORAGE_BUCKET}"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.} - %m%ex{full}"/>
     </layout>
@@ -211,9 +211,9 @@ export LOGX_OSS_BUCKET="your-bucket-name"
 
 3. **环境变量配置**
 ```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 ##### Log4j2 + SF-OSS快速开始
@@ -241,8 +241,8 @@ export LOGX_OSS_BUCKET="your-bucket-name"
 <Configuration>
   <Appenders>
     <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
-                 accessKeyId="${sys:LOGX_OSS_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"
-                 bucket="${sys:LOGX_OSS_BUCKET}">
+                 accessKeyId="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"
+                 bucket="${sys:LOGX_OSS_STORAGE_BUCKET}">
       <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
     </OSS>
   </Appenders>
@@ -257,9 +257,9 @@ export LOGX_OSS_BUCKET="your-bucket-name"
 
 3. **环境变量配置**
 ```bash
-export LOGX_OSS_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_BUCKET="your-bucket-name"
+export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
+export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
+export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 ### 构建项目
@@ -416,14 +416,14 @@ dependencies {
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
 <log4j:configuration>
     <appender name="OSS" class="org.logx.log4j.Log4jOSSAppender">
-        <param name="endpoint" value="${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
-        <param name="accessKeyId" value="${sys:LOGX_OSS_ACCESS_KEY_ID}"/>
-        <param name="accessKeySecret" value="${sys:LOGX_OSS_ACCESS_KEY_SECRET}"/>
-        <param name="bucket" value="${sys:LOGX_OSS_BUCKET}"/>
-        <param name="region" value="${LOGX_OSS_REGION:-cn-hangzhou}"/>
-        <param name="keyPrefix" value="${LOGX_OSS_KEY_PREFIX:-logx/app/}"/>
-        <param name="maxBatchCount" value="${LOGX_OSS_MAX_BATCH_COUNT:-8192}"/>
-        <param name="maxMessageAgeMs" value="${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}"/>
+        <param name="endpoint" value="${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}"/>
+        <param name="accessKeyId" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}"/>
+        <param name="accessKeySecret" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"/>
+        <param name="bucket" value="${sys:LOGX_OSS_STORAGE_BUCKET}"/>
+        <param name="region" value="${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}"/>
+        <param name="keyPrefix" value="${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}"/>
+        <param name="maxBatchCount" value="${LOGX_OSS_BATCH_COUNT:-8192}"/>
+        <param name="maxMessageAgeMs" value="${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}"/>
         <layout class="org.apache.log4j.PatternLayout">
             <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
         </layout>
@@ -444,14 +444,14 @@ log4j.rootLogger=INFO, OSS
 
 # OSS Appender配置
 log4j.appender.OSS=org.logx.log4j.Log4jOSSAppender
-log4j.appender.OSS.endpoint=${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}
-log4j.appender.OSS.accessKeyId=${LOGX_OSS_ACCESS_KEY_ID}
-log4j.appender.OSS.accessKeySecret=${LOGX_OSS_ACCESS_KEY_SECRET}
-log4j.appender.OSS.bucket=${LOGX_OSS_BUCKET}
-log4j.appender.OSS.region=${LOGX_OSS_REGION:-cn-hangzhou}
-log4j.appender.OSS.keyPrefix=${LOGX_OSS_KEY_PREFIX:-logx/app/}
-log4j.appender.OSS.maxBatchCount=${LOGX_OSS_MAX_BATCH_COUNT:-8192}
-log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}
+log4j.appender.OSS.endpoint=${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}
+log4j.appender.OSS.accessKeyId=${LOGX_OSS_STORAGE_ACCESS_KEY_ID}
+log4j.appender.OSS.accessKeySecret=${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}
+log4j.appender.OSS.bucket=${LOGX_OSS_STORAGE_BUCKET}
+log4j.appender.OSS.region=${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}
+log4j.appender.OSS.keyPrefix=${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}
+log4j.appender.OSS.maxBatchCount=${LOGX_OSS_BATCH_COUNT:-8192}
+log4j.appender.OSS.maxMessageAgeMs=${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}
 log4j.appender.OSS.layout=org.apache.log4j.PatternLayout
 log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
 ```
@@ -463,14 +463,14 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 <Configuration>
     <Appenders>
         <OSS name="OSS">
-            <endpoint>${sys:LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-            <accessKeyId>${sys:LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-            <accessKeySecret>${sys:LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-            <bucket>${sys:LOGX_OSS_BUCKET}</bucket>
-            <region>${sys:LOGX_OSS_REGION:-cn-hangzhou}</region>
-            <keyPrefix>${sys:LOGX_OSS_KEY_PREFIX:-logx/app/}</keyPrefix>
-            <maxBatchCount>${sys:LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
-            <maxMessageAgeMs>${sys:LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
+            <endpoint>${sys:LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+            <accessKeyId>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
+            <bucket>${sys:LOGX_OSS_STORAGE_BUCKET}</bucket>
+            <region>${sys:LOGX_OSS_STORAGE_REGION:-cn-hangzhou}</region>
+            <keyPrefix>${sys:LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}</keyPrefix>
+            <maxBatchCount>${sys:LOGX_OSS_BATCH_COUNT:-8192}</maxBatchCount>
+            <maxMessageAgeMs>${sys:LOGX_OSS_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
         </OSS>
     </Appenders>
     <Loggers>
@@ -487,14 +487,14 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 <!-- logback.xml -->
 <configuration>
     <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
-        <endpoint>${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
-        <accessKeyId>${LOGX_OSS_ACCESS_KEY_ID}</accessKeyId>
-        <accessKeySecret>${LOGX_OSS_ACCESS_KEY_SECRET}</accessKeySecret>
-        <bucket>${LOGX_OSS_BUCKET}</bucket>
-        <region>${LOGX_OSS_REGION:-cn-hangzhou}</region>
-        <keyPrefix>${LOGX_OSS_KEY_PREFIX:-logx/app/}</keyPrefix>
-        <maxBatchCount>${LOGX_OSS_MAX_BATCH_COUNT:-8192}</maxBatchCount>
-        <maxMessageAgeMs>${LOGX_OSS_MAX_MESSAGE_AGE_MS:-60000}</maxMessageAgeMs>
+        <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}</endpoint>
+        <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+        <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
+        <bucket>${LOGX_OSS_STORAGE_BUCKET}</bucket>
+        <region>${LOGX_OSS_STORAGE_REGION:-cn-hangzhou}</region>
+        <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/app/}</keyPrefix>
+        <maxBatchCount>${LOGX_OSS_BATCH_COUNT:-8192}</maxBatchCount>
+        <maxMessageAgeMs>${LOGX_OSS_BATCH_MAX_AGE_MS:-60000}</maxMessageAgeMs>
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
@@ -515,8 +515,8 @@ log4j.appender.OSS.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c
 | 参数名 | 类型 | 说明 | 示例 |
 |--------|------|------|------|
 | **endpoint** | String | 对象存储服务的访问端点 | `https://oss-cn-hangzhou.aliyuncs.com` |
-| **accessKeyId** | String | 访问密钥ID | `${LOGX_OSS_ACCESS_KEY_ID}` |
-| **accessKeySecret** | String | 访问密钥Secret | `${LOGX_OSS_ACCESS_KEY_SECRET}` |
+| **accessKeyId** | String | 访问密钥ID | `${LOGX_OSS_STORAGE_ACCESS_KEY_ID}` |
+| **accessKeySecret** | String | 访问密钥Secret | `${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}` |
 | **bucket** | String | 存储桶名称 | `my-log-bucket` |
 
 #### 可选参数
@@ -696,8 +696,8 @@ logback-oss-appender
     <Appenders>
         <OSS name="OSS">
             <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-            <accessKeyId>${env:OSS_ACCESS_KEY_ID}</accessKeyId>
-            <accessKeySecret>${env:OSS_ACCESS_KEY_SECRET}</accessKeySecret>
+            <accessKeyId>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
+            <accessKeySecret>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
             <bucket>my-log-bucket</bucket>
             <region>cn-hangzhou</region>
 
@@ -785,11 +785,11 @@ logging:
   config: classpath:logback-spring.xml
 
 # 环境变量
-OSS_ACCESS_KEY_ID: ${LOGX_OSS_ACCESS_KEY_ID}
-OSS_ACCESS_KEY_SECRET: ${LOGX_OSS_ACCESS_KEY_SECRET}
-OSS_BUCKET: ${LOGX_OSS_BUCKET:app-logs}
-LOGX_OSS_ENDPOINT: ${LOGX_OSS_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
-LOGX_OSS_REGION: ${LOGX_OSS_REGION:cn-hangzhou}
+OSS_ACCESS_KEY_ID: ${LOGX_OSS_STORAGE_ACCESS_KEY_ID}
+OSS_ACCESS_KEY_SECRET: ${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}
+OSS_BUCKET: ${LOGX_OSS_STORAGE_BUCKET:app-logs}
+LOGX_OSS_STORAGE_ENDPOINT: ${LOGX_OSS_STORAGE_ENDPOINT:https://oss-cn-hangzhou.aliyuncs.com}
+LOGX_OSS_STORAGE_REGION: ${LOGX_OSS_STORAGE_REGION:cn-hangzhou}
 ```
 
 #### Docker部署
@@ -800,11 +800,11 @@ FROM openjdk:8-jre-alpine
 COPY app.jar /app.jar
 
 # 设置环境变量
-ENV LOGX_OSS_ACCESS_KEY_ID=""
-ENV LOGX_OSS_ACCESS_KEY_SECRET=""
-ENV LOGX_OSS_BUCKET="app-logs"
-ENV LOGX_OSS_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-ENV LOGX_OSS_REGION="cn-hangzhou"
+ENV LOGX_OSS_STORAGE_ACCESS_KEY_ID=""
+ENV LOGX_OSS_STORAGE_ACCESS_KEY_SECRET=""
+ENV LOGX_OSS_STORAGE_BUCKET="app-logs"
+ENV LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
+ENV LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 
 ENTRYPOINT ["java", "-jar", "/app.jar"]
 ```
