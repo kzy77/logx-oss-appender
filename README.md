@@ -145,14 +145,10 @@ logx-oss-appender/
 ```
 
 
-2. **最简配置（以SF OSS为例）**
+2. **最简配置（所有参数通过环境变量配置）**
 ```xml
 <configuration>
   <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
-    <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}</endpoint>
-    <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
-    <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
-    <bucket>${LOGX_OSS_STORAGE_BUCKET}</bucket>
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
@@ -163,6 +159,7 @@ logx-oss-appender/
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
@@ -190,14 +187,10 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 
-2. **最简配置（以SF OSS为例）**
+2. **最简配置（所有参数通过环境变量配置）**
 ```xml
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
   <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
-    <param name="endpoint" value="${LOGX_OSS_STORAGE_ENDPOINT:-https://sf-oss-cn-north-1.sf-oss.com}"/>
-    <param name="accessKeyId" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}"/>
-    <param name="accessKeySecret" value="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"/>
-    <param name="bucket" value="${sys:LOGX_OSS_STORAGE_BUCKET}"/>
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.} - %m%ex{full}"/>
     </layout>
@@ -211,6 +204,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
@@ -236,13 +230,11 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 
-2. **最简配置（以SF OSS为例）**
+2. **最简配置（所有参数通过环境变量配置）**
 ```xml
 <Configuration>
   <Appenders>
-    <OSS name="oss" endpoint="https://sf-oss-cn-north-1.sf-oss.com"
-                 accessKeyId="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}" accessKeySecret="${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}"
-                 bucket="${sys:LOGX_OSS_STORAGE_BUCKET}">
+    <OSS name="oss">
       <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
     </OSS>
   </Appenders>
@@ -257,6 +249,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
