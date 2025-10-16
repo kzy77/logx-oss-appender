@@ -91,7 +91,9 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         ConfigManager configManager = new ConfigManager();
         LogxOssProperties properties = configManager.getLogxOssProperties();
 
-        // 应用XML参数到properties (优先级高于环境变量和配置文件)
+        // 应用XML参数到properties（XML属性具有最高优先级，覆盖环境变量和配置文件）
+
+        // 存储配置（对应 logx.oss.storage.* 配置键）
         if (endpoint != null) {
             properties.getStorage().setEndpoint(endpoint);
         }
@@ -116,39 +118,73 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         if (pathStyleAccess != null) {
             properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(pathStyleAccess));
         }
+
+        // 引擎配置 - 队列（对应 logx.oss.engine.queue.* 配置键）
         if (queueCapacity != null) {
-            properties.getQueue().setCapacity(Integer.parseInt(queueCapacity));
-        }
-        if (maxBatchCount != null) {
-            properties.getBatch().setCount(Integer.parseInt(maxBatchCount));
-        }
-        if (maxBatchBytes != null) {
-            properties.getBatch().setBytes(Integer.parseInt(maxBatchBytes));
-        }
-        if (maxMessageAgeMs != null) {
-            properties.getBatch().setMaxAgeMs(Long.parseLong(maxMessageAgeMs));
+            try {
+                properties.getEngine().getQueue().setCapacity(Integer.parseInt(queueCapacity));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid queueCapacity value: {}", queueCapacity, e);
+            }
         }
         if (dropWhenQueueFull != null) {
-            properties.getQueue().setDropWhenFull(Boolean.parseBoolean(dropWhenQueueFull));
+            properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(dropWhenQueueFull));
         }
+
+        // 引擎配置 - 批处理（对应 logx.oss.engine.batch.* 配置键）
+        if (maxBatchCount != null) {
+            try {
+                properties.getEngine().getBatch().setCount(Integer.parseInt(maxBatchCount));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid maxBatchCount value: {}", maxBatchCount, e);
+            }
+        }
+        if (maxBatchBytes != null) {
+            try {
+                properties.getEngine().getBatch().setBytes(Integer.parseInt(maxBatchBytes));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid maxBatchBytes value: {}", maxBatchBytes, e);
+            }
+        }
+        if (maxMessageAgeMs != null) {
+            try {
+                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(maxMessageAgeMs));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid maxMessageAgeMs value: {}", maxMessageAgeMs, e);
+            }
+        }
+
+        // 引擎配置 - 重试（对应 logx.oss.engine.retry.* 配置键）
         if (maxRetries != null) {
-            properties.getRetry().setMaxRetries(Integer.parseInt(maxRetries));
+            try {
+                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(maxRetries));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid maxRetries value: {}", maxRetries, e);
+            }
         }
         if (baseBackoffMs != null) {
-            properties.getRetry().setBaseBackoffMs(Long.parseLong(baseBackoffMs));
+            try {
+                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(baseBackoffMs));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid baseBackoffMs value: {}", baseBackoffMs, e);
+            }
         }
         if (maxBackoffMs != null) {
-            properties.getRetry().setMaxBackoffMs(Long.parseLong(maxBackoffMs));
+            try {
+                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(maxBackoffMs));
+            } catch (NumberFormatException e) {
+                LOGGER.error("Invalid maxBackoffMs value: {}", maxBackoffMs, e);
+            }
         }
 
         StorageConfig storageConfig = new StorageConfig(properties);
 
         AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
-        engineConfig.queueCapacity(properties.getQueue().getCapacity());
-        engineConfig.batchMaxMessages(properties.getBatch().getCount());
-        engineConfig.batchMaxBytes(properties.getBatch().getBytes());
-        engineConfig.maxMessageAgeMs(properties.getBatch().getMaxAgeMs());
-        engineConfig.blockOnFull(!properties.getQueue().isDropWhenFull());
+        engineConfig.queueCapacity(properties.getEngine().getQueue().getCapacity());
+        engineConfig.batchMaxMessages(properties.getEngine().getBatch().getCount());
+        engineConfig.batchMaxBytes(properties.getEngine().getBatch().getBytes());
+        engineConfig.maxMessageAgeMs(properties.getEngine().getBatch().getMaxAgeMs());
+        engineConfig.blockOnFull(!properties.getEngine().getQueue().isDropWhenFull());
 
         return new Log4j2OSSAppender(name, filter, layout, ignoreExceptions, null, storageConfig, engineConfig);
     }

@@ -45,13 +45,13 @@ class LogbackOSSAppenderTest {
 
         // Then
         assertThat(properties.getStorage().getKeyPrefix()).isEqualTo("logx/");
-        assertThat(properties.getQueue().getCapacity()).isEqualTo(524288);
-        assertThat(properties.getBatch().getCount()).isEqualTo(8192);
-        assertThat(properties.getBatch().getBytes()).isEqualTo(10 * 1024 * 1024);
-        assertThat(properties.getQueue().isDropWhenFull()).isFalse();
-        assertThat(properties.getRetry().getMaxRetries()).isEqualTo(3);
-        assertThat(properties.getRetry().getBaseBackoffMs()).isEqualTo(200L);
-        assertThat(properties.getRetry().getMaxBackoffMs()).isEqualTo(10000L);
+        assertThat(properties.getEngine().getQueue().getCapacity()).isEqualTo(524288);
+        assertThat(properties.getEngine().getBatch().getCount()).isEqualTo(8192);
+        assertThat(properties.getEngine().getBatch().getBytes()).isEqualTo(10 * 1024 * 1024);
+        assertThat(properties.getEngine().getQueue().isDropWhenFull()).isFalse();
+        assertThat(properties.getEngine().getRetry().getMaxRetries()).isEqualTo(3);
+        assertThat(properties.getEngine().getRetry().getBaseBackoffMs()).isEqualTo(200L);
+        assertThat(properties.getEngine().getRetry().getMaxBackoffMs()).isEqualTo(10000L);
     }
 
     @Test
@@ -72,13 +72,13 @@ class LogbackOSSAppenderTest {
 
         // Then
         assertThat(properties.getStorage().getKeyPrefix()).isEqualTo("custom-logs/");
-        assertThat(properties.getQueue().getCapacity()).isEqualTo(100000);
-        assertThat(properties.getBatch().getCount()).isEqualTo(2000);
-        assertThat(properties.getBatch().getBytes()).isEqualTo(2097152);
-        assertThat(properties.getQueue().isDropWhenFull()).isTrue();
-        assertThat(properties.getRetry().getMaxRetries()).isEqualTo(5);
-        assertThat(properties.getRetry().getBaseBackoffMs()).isEqualTo(100L);
-        assertThat(properties.getRetry().getMaxBackoffMs()).isEqualTo(5000L);
+        assertThat(properties.getEngine().getQueue().getCapacity()).isEqualTo(100000);
+        assertThat(properties.getEngine().getBatch().getCount()).isEqualTo(2000);
+        assertThat(properties.getEngine().getBatch().getBytes()).isEqualTo(2097152);
+        assertThat(properties.getEngine().getQueue().isDropWhenFull()).isTrue();
+        assertThat(properties.getEngine().getRetry().getMaxRetries()).isEqualTo(5);
+        assertThat(properties.getEngine().getRetry().getBaseBackoffMs()).isEqualTo(100L);
+        assertThat(properties.getEngine().getRetry().getMaxBackoffMs()).isEqualTo(5000L);
     }
 
     @Test
