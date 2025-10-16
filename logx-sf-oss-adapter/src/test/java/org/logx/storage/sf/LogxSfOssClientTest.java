@@ -30,10 +30,10 @@ public class LogxSfOssClientTest {
 
     @Test
     public void testLogxSfOssClientCreation() {
-        String endpoint = getProperty("logx.oss.endpoint", "https://sf-oss-cn-hangzhou.example.com");
-        String region = getProperty("logx.oss.region", "cn-hangzhou");
-        String accessKeyId = getProperty("logx.oss.accessKeyId", "test-access-key-id");
-        String accessKeySecret = getProperty("logx.oss.accessKeySecret", "test-access-key-secret");
+        String endpoint = getProperty("logx.oss.storage.endpoint", "https://sf-oss-cn-hangzhou.example.com");
+        String region = getProperty("logx.oss.storage.region", "cn-hangzhou");
+        String accessKeyId = getProperty("logx.oss.storage.accessKeyId", "test-access-key-id");
+        String accessKeySecret = getProperty("logx.oss.storage.accessKeySecret", "test-access-key-secret");
 
         LogxSfOssClient client = new LogxSfOssClient(
             endpoint,
@@ -49,11 +49,11 @@ public class LogxSfOssClientTest {
 
     @Test
     public void testLogxSfOssClientPutObject() {
-        String endpoint = getProperty("logx.oss.endpoint", "https://sf-oss-cn-hangzhou.example.com");
-        String region = getProperty("logx.oss.region", "cn-hangzhou");
-        String accessKeyId = getProperty("logx.oss.accessKeyId", "test-access-key-id");
-        String accessKeySecret = getProperty("logx.oss.accessKeySecret", "test-access-key-secret");
-        String bucket = getProperty("logx.oss.bucket", "test-bucket");
+        String endpoint = getProperty("logx.oss.storage.endpoint", "https://sf-oss-cn-hangzhou.example.com");
+        String region = getProperty("logx.oss.storage.region", "cn-hangzhou");
+        String accessKeyId = getProperty("logx.oss.storage.accessKeyId", "test-access-key-id");
+        String accessKeySecret = getProperty("logx.oss.storage.accessKeySecret", "test-access-key-secret");
+        String bucket = getProperty("logx.oss.storage.bucket", "test-bucket");
 
         LogxSfOssClient client = new LogxSfOssClient(
             endpoint,
@@ -71,10 +71,10 @@ public class LogxSfOssClientTest {
 
     @Test
     public void testLogxSfOssClientWithNullEndpoint() {
-        String region = getProperty("logx.oss.region", "cn-hangzhou");
-        String accessKeyId = getProperty("logx.oss.accessKeyId", "test-access-key-id");
-        String accessKeySecret = getProperty("logx.oss.accessKeySecret", "test-access-key-secret");
-        String bucket = getProperty("logx.oss.bucket", "test-bucket");
+        String region = getProperty("logx.oss.storage.region", "cn-hangzhou");
+        String accessKeyId = getProperty("logx.oss.storage.accessKeyId", "test-access-key-id");
+        String accessKeySecret = getProperty("logx.oss.storage.accessKeySecret", "test-access-key-secret");
+        String bucket = getProperty("logx.oss.storage.bucket", "test-bucket");
 
         LogxSfOssClient client = new LogxSfOssClient(
             null,

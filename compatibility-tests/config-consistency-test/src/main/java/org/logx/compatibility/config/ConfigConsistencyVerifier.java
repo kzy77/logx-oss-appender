@@ -29,18 +29,18 @@ public class ConfigConsistencyVerifier {
 
         // 定义期望的统一配置参数名称（使用logx.oss前缀）
         Set<String> expectedParameters = new HashSet<>(Arrays.asList(
-                "logx.oss.bucket",
-                "logx.oss.keyPrefix",
-                "logx.oss.region",
-                "logx.oss.accessKeyId",
-                "logx.oss.accessKeySecret",
-                "logx.oss.endpoint",
-                "logx.oss.ossType",
-                "logx.oss.pathStyleAccess",
-                "logx.oss.enableSsl",
-                "logx.oss.maxConnections",
-                "logx.oss.connectTimeout",
-                "logx.oss.readTimeout"
+                "logx.oss.storage.bucket",
+                "logx.oss.storage.keyPrefix",
+                "logx.oss.storage.region",
+                "logx.oss.storage.accessKeyId",
+                "logx.oss.storage.accessKeySecret",
+                "logx.oss.storage.endpoint",
+                "logx.oss.storage.ossType",
+                "logx.oss.storage.pathStyleAccess",
+                "logx.oss.storage.enableSsl",
+                "logx.oss.storage.maxConnections",
+                "logx.oss.storage.connectTimeout",
+                "logx.oss.storage.readTimeout"
         ));
 
         // 验证Logback配置参数
@@ -65,14 +65,14 @@ public class ConfigConsistencyVerifier {
 
         // 定义期望的环境变量名称（使用LOGX_OSS前缀）
         Map<String, String> expectedEnvVars = new HashMap<>();
-        expectedEnvVars.put("LOGX_OSS_ENDPOINT", "logx.oss.endpoint");
-        expectedEnvVars.put("LOGX_OSS_REGION", "logx.oss.region");
-        expectedEnvVars.put("LOGX_OSS_ACCESS_KEY_ID", "logx.oss.accessKeyId");
-        expectedEnvVars.put("LOGX_OSS_ACCESS_KEY_SECRET", "logx.oss.accessKeySecret");
-        expectedEnvVars.put("LOGX_OSS_BUCKET", "logx.oss.bucket");
-        expectedEnvVars.put("LOGX_OSS_KEY_PREFIX", "logx.oss.keyPrefix");
-        expectedEnvVars.put("LOGX_OSS_TYPE", "logx.oss.ossType");
-        expectedEnvVars.put("LOGX_OSS_MAX_UPLOAD_SIZE_MB", "logx.oss.maxUploadSizeMb");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_ENDPOINT", "logx.oss.storage.endpoint");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_REGION", "logx.oss.storage.region");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "logx.oss.storage.accessKeyId");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET", "logx.oss.storage.accessKeySecret");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_BUCKET", "logx.oss.storage.bucket");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_KEY_PREFIX", "logx.oss.storage.keyPrefix");
+        expectedEnvVars.put("LOGX_OSS_STORAGE_OSS_TYPE", "logx.oss.storage.ossType");
+        expectedEnvVars.put("LOGX_OSS_ENGINE_MAX_UPLOAD_SIZE_MB", "logx.oss.engine.maxUploadSizeMb");
 
         // 验证环境变量
         for (Map.Entry<String, String> entry : expectedEnvVars.entrySet()) {
@@ -226,12 +226,12 @@ public class ConfigConsistencyVerifier {
 
         // 定义需要验证值一致性的参数
         Set<String> valueSensitiveParameters = new HashSet<>(Arrays.asList(
-                "logx.oss.region",
-                "logx.oss.ossType",
-                "logx.oss.batchSize",
-                "logx.oss.maxMessageAgeMs",
-                "logx.oss.queueCapacity",
-                "logx.oss.compressionEnabled"
+                "logx.oss.storage.region",
+                "logx.oss.storage.ossType",
+                "logx.oss.engine.batch.count",
+                "logx.oss.engine.batch.maxAgeMs",
+                "logx.oss.engine.queue.capacity",
+                "logx.oss.engine.enableCompression"
         ));
 
         // 验证各框架配置值的一致性
