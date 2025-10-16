@@ -73,34 +73,34 @@ public class Log4jOSSAppender extends AppenderSkeleton {
             properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(xmlConfig.get("logx.oss.storage.pathStyleAccess")));
         }
 
-        // 批处理配置
-        if (xmlConfig.containsKey("logx.oss.batch.count")) {
-            properties.getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.batch.count")));
+        // 引擎配置 - 批处理
+        if (xmlConfig.containsKey("logx.oss.engine.batch.count")) {
+            properties.getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.count")));
         }
-        if (xmlConfig.containsKey("logx.oss.batch.bytes")) {
-            properties.getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.batch.bytes")));
+        if (xmlConfig.containsKey("logx.oss.engine.batch.bytes")) {
+            properties.getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.bytes")));
         }
-        if (xmlConfig.containsKey("logx.oss.batch.maxAgeMs")) {
-            properties.getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.batch.maxAgeMs")));
-        }
-
-        // 队列配置
-        if (xmlConfig.containsKey("logx.oss.queue.capacity")) {
-            properties.getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.queue.capacity")));
-        }
-        if (xmlConfig.containsKey("logx.oss.queue.dropWhenFull")) {
-            properties.getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.queue.dropWhenFull")));
+        if (xmlConfig.containsKey("logx.oss.engine.batch.maxAgeMs")) {
+            properties.getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.engine.batch.maxAgeMs")));
         }
 
-        // 重试配置
-        if (xmlConfig.containsKey("logx.oss.retry.maxRetries")) {
-            properties.getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.retry.maxRetries")));
+        // 引擎配置 - 队列
+        if (xmlConfig.containsKey("logx.oss.engine.queue.capacity")) {
+            properties.getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.engine.queue.capacity")));
         }
-        if (xmlConfig.containsKey("logx.oss.retry.baseBackoffMs")) {
-            properties.getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.retry.baseBackoffMs")));
+        if (xmlConfig.containsKey("logx.oss.engine.queue.dropWhenFull")) {
+            properties.getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.engine.queue.dropWhenFull")));
         }
-        if (xmlConfig.containsKey("logx.oss.retry.maxBackoffMs")) {
-            properties.getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.retry.maxBackoffMs")));
+
+        // 引擎配置 - 重试
+        if (xmlConfig.containsKey("logx.oss.engine.retry.maxRetries")) {
+            properties.getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.engine.retry.maxRetries")));
+        }
+        if (xmlConfig.containsKey("logx.oss.engine.retry.baseBackoffMs")) {
+            properties.getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs")));
+        }
+        if (xmlConfig.containsKey("logx.oss.engine.retry.maxBackoffMs")) {
+            properties.getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
         }
     }
 
@@ -169,35 +169,35 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     }
 
     public void setQueueCapacity(int queueCapacity) {
-        xmlConfig.put("logx.oss.queue.capacity", String.valueOf(queueCapacity));
+        xmlConfig.put("logx.oss.engine.queue.capacity", String.valueOf(queueCapacity));
     }
 
     public void setMaxBatchCount(int maxBatchCount) {
-        xmlConfig.put("logx.oss.batch.count", String.valueOf(maxBatchCount));
+        xmlConfig.put("logx.oss.engine.batch.count", String.valueOf(maxBatchCount));
     }
 
     public void setMaxBatchBytes(int maxBatchBytes) {
-        xmlConfig.put("logx.oss.batch.bytes", String.valueOf(maxBatchBytes));
+        xmlConfig.put("logx.oss.engine.batch.bytes", String.valueOf(maxBatchBytes));
     }
 
     public void setMaxMessageAgeMs(long maxMessageAgeMs) {
-        xmlConfig.put("logx.oss.batch.maxAgeMs", String.valueOf(maxMessageAgeMs));
+        xmlConfig.put("logx.oss.engine.batch.maxAgeMs", String.valueOf(maxMessageAgeMs));
     }
 
     public void setDropWhenQueueFull(boolean dropWhenQueueFull) {
-        xmlConfig.put("logx.oss.queue.dropWhenFull", String.valueOf(dropWhenQueueFull));
+        xmlConfig.put("logx.oss.engine.queue.dropWhenFull", String.valueOf(dropWhenQueueFull));
     }
 
     public void setMaxRetries(int maxRetries) {
-        xmlConfig.put("logx.oss.retry.maxRetries", String.valueOf(maxRetries));
+        xmlConfig.put("logx.oss.engine.retry.maxRetries", String.valueOf(maxRetries));
     }
 
     public void setBaseBackoffMs(long baseBackoffMs) {
-        xmlConfig.put("logx.oss.retry.baseBackoffMs", String.valueOf(baseBackoffMs));
+        xmlConfig.put("logx.oss.engine.retry.baseBackoffMs", String.valueOf(baseBackoffMs));
     }
 
     public void setMaxBackoffMs(long maxBackoffMs) {
-        xmlConfig.put("logx.oss.retry.maxBackoffMs", String.valueOf(maxBackoffMs));
+        xmlConfig.put("logx.oss.engine.retry.maxBackoffMs", String.valueOf(maxBackoffMs));
     }
 
     public void setPathStyleAccess(boolean pathStyleAccess) {

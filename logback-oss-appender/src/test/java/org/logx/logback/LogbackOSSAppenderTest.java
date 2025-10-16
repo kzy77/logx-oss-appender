@@ -58,13 +58,13 @@ class LogbackOSSAppenderTest {
     void testAppenderConfigurationWithCustomValues() {
         // Given
         System.setProperty("logx.oss.storage.keyPrefix", "custom-logs/");
-        System.setProperty("logx.oss.queue.capacity", "100000");
-        System.setProperty("logx.oss.batch.count", "2000");
-        System.setProperty("logx.oss.batch.bytes", "2097152");
-        System.setProperty("logx.oss.queue.dropWhenFull", "true");
-        System.setProperty("logx.oss.retry.maxRetries", "5");
-        System.setProperty("logx.oss.retry.baseBackoffMs", "100");
-        System.setProperty("logx.oss.retry.maxBackoffMs", "5000");
+        System.setProperty("logx.oss.engine.queue.capacity", "100000");
+        System.setProperty("logx.oss.engine.batch.count", "2000");
+        System.setProperty("logx.oss.engine.batch.bytes", "2097152");
+        System.setProperty("logx.oss.engine.queue.dropWhenFull", "true");
+        System.setProperty("logx.oss.engine.retry.maxRetries", "5");
+        System.setProperty("logx.oss.engine.retry.baseBackoffMs", "100");
+        System.setProperty("logx.oss.engine.retry.maxBackoffMs", "5000");
 
         // When
         ConfigManager configManager = new ConfigManager();
