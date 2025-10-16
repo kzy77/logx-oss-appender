@@ -34,6 +34,9 @@ public class LogxOssConfigResolver {
         if(storage.getOssType() == null) {
             storage.setOssType("sf_s3");
         }
+        if(storage.getRegion() == null) {
+            storage.setRegion("US");
+        }
         // Personalized default values
         if ("minio".equalsIgnoreCase(storage.getOssType()) || "sf_s3".equalsIgnoreCase(storage.getOssType())) {
             storage.setPathStyleAccess(true);
