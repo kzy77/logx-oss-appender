@@ -26,11 +26,25 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             return;
         }
         try {
+            // 打印XML配置
+            addInfo("=== XML Config Debug ===");
+            for (Map.Entry<String, String> entry : xmlConfig.entrySet()) {
+                addInfo(entry.getKey() + " = " + entry.getValue());
+            }
+
             ConfigManager configManager = new ConfigManager();
             LogxOssProperties properties = configManager.getLogxOssProperties();
 
             // 应用XML配置（如果有的话）
             applyXmlConfig(properties);
+
+            // 打印最终配置
+            addInfo("=== Final Config Debug ===");
+            addInfo("ossType: " + properties.getStorage().getOssType());
+            addInfo("endpoint: " + properties.getStorage().getEndpoint());
+            addInfo("region: " + properties.getStorage().getRegion());
+            addInfo("accessKeyId: " + properties.getStorage().getAccessKeyId());
+            addInfo("bucket: " + properties.getStorage().getBucket());
 
             StorageConfig storageConfig = new StorageConfig(properties);
 
