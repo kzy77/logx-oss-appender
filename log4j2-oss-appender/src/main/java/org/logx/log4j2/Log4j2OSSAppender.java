@@ -129,12 +129,8 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 引擎配置 - 队列（对应 logx.oss.engine.queue.* 配置键）
         if (queueCapacity != null) {
-            try {
-                String value = configManager.resolvePlaceholders(queueCapacity);
-                properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid queueCapacity value: {}", queueCapacity, e);
-            }
+            String value = configManager.resolvePlaceholders(queueCapacity);
+            properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
         }
         if (dropWhenQueueFull != null) {
             String value = configManager.resolvePlaceholders(dropWhenQueueFull);
@@ -143,54 +139,30 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 引擎配置 - 批处理（对应 logx.oss.engine.batch.* 配置键）
         if (maxBatchCount != null) {
-            try {
-                String value = configManager.resolvePlaceholders(maxBatchCount);
-                properties.getEngine().getBatch().setCount(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid maxBatchCount value: {}", maxBatchCount, e);
-            }
+            String value = configManager.resolvePlaceholders(maxBatchCount);
+            properties.getEngine().getBatch().setCount(Integer.parseInt(value));
         }
         if (maxBatchBytes != null) {
-            try {
-                String value = configManager.resolvePlaceholders(maxBatchBytes);
-                properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid maxBatchBytes value: {}", maxBatchBytes, e);
-            }
+            String value = configManager.resolvePlaceholders(maxBatchBytes);
+            properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
         }
         if (maxMessageAgeMs != null) {
-            try {
-                String value = configManager.resolvePlaceholders(maxMessageAgeMs);
-                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid maxMessageAgeMs value: {}", maxMessageAgeMs, e);
-            }
+            String value = configManager.resolvePlaceholders(maxMessageAgeMs);
+            properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
         }
 
         // 引擎配置 - 重试（对应 logx.oss.engine.retry.* 配置键）
         if (maxRetries != null) {
-            try {
-                String value = configManager.resolvePlaceholders(maxRetries);
-                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid maxRetries value: {}", maxRetries, e);
-            }
+            String value = configManager.resolvePlaceholders(maxRetries);
+            properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
         }
         if (baseBackoffMs != null) {
-            try {
-                String value = configManager.resolvePlaceholders(baseBackoffMs);
-                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid baseBackoffMs value: {}", baseBackoffMs, e);
-            }
+            String value = configManager.resolvePlaceholders(baseBackoffMs);
+            properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
         }
         if (maxBackoffMs != null) {
-            try {
-                String value = configManager.resolvePlaceholders(maxBackoffMs);
-                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
-            } catch (NumberFormatException e) {
-                LOGGER.error("Invalid maxBackoffMs value: {}", maxBackoffMs, e);
-            }
+            String value = configManager.resolvePlaceholders(maxBackoffMs);
+            properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
         }
 
         StorageConfig storageConfig = new StorageConfig(properties);

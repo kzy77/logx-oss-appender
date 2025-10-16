@@ -98,34 +98,18 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
         // 引擎配置 - 批处理
         if (xmlConfig.containsKey("logx.oss.engine.batch.count")) {
-            try {
-                properties.getEngine().getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.count")));
-            } catch (NumberFormatException e) {
-                addError("Invalid batch.count value", e);
-            }
+            properties.getEngine().getBatch().setCount(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.count")));
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.bytes")) {
-            try {
-                properties.getEngine().getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.bytes")));
-            } catch (NumberFormatException e) {
-                addError("Invalid batch.bytes value", e);
-            }
+            properties.getEngine().getBatch().setBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.batch.bytes")));
         }
         if (xmlConfig.containsKey("logx.oss.engine.batch.maxAgeMs")) {
-            try {
-                properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.engine.batch.maxAgeMs")));
-            } catch (NumberFormatException e) {
-                addError("Invalid batch.maxAgeMs value", e);
-            }
+            properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(xmlConfig.get("logx.oss.engine.batch.maxAgeMs")));
         }
 
         // 引擎配置 - 队列
         if (xmlConfig.containsKey("logx.oss.engine.queue.capacity")) {
-            try {
-                properties.getEngine().getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.engine.queue.capacity")));
-            } catch (NumberFormatException e) {
-                addError("Invalid queue.capacity value", e);
-            }
+            properties.getEngine().getQueue().setCapacity(Integer.parseInt(xmlConfig.get("logx.oss.engine.queue.capacity")));
         }
         if (xmlConfig.containsKey("logx.oss.engine.queue.dropWhenFull")) {
             properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(xmlConfig.get("logx.oss.engine.queue.dropWhenFull")));
@@ -133,25 +117,13 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
         // 引擎配置 - 重试
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxRetries")) {
-            try {
-                properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.engine.retry.maxRetries")));
-            } catch (NumberFormatException e) {
-                addError("Invalid retry.maxRetries value", e);
-            }
+            properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(xmlConfig.get("logx.oss.engine.retry.maxRetries")));
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.baseBackoffMs")) {
-            try {
-                properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs")));
-            } catch (NumberFormatException e) {
-                addError("Invalid retry.baseBackoffMs value", e);
-            }
+            properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.baseBackoffMs")));
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxBackoffMs")) {
-            try {
-                properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
-            } catch (NumberFormatException e) {
-                addError("Invalid retry.maxBackoffMs value", e);
-            }
+            properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
         }
     }
 
