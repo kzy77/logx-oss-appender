@@ -11,8 +11,8 @@ import org.logx.config.ConfigManager;
  * @since 1.0.0
  */
 public class AsyncEngineConfigBuilder {
-    
-    private static final String CONFIG_PREFIX = "logx.oss.async.";
+
+    private static final String CONFIG_PREFIX = "logx.oss.engine.";
     
     /**
      * 从配置管理器构建AsyncEngineConfig
