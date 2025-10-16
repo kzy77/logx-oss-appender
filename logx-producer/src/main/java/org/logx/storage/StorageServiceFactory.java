@@ -12,7 +12,18 @@ public class StorageServiceFactory {
     private static final Logger logger = LoggerFactory.getLogger(StorageServiceFactory.class);
 
     public static StorageService createStorageService(StorageConfig config) {
+        if (config == null) {
+            throw new IllegalArgumentException("StorageConfig cannot be null");
+        }
+
         String ossType = config.getOssType();
+        if (ossType == null || ossType.trim().isEmpty()) {
+            throw new IllegalArgumentException("ossType is required but was null or empty. " +
+                    "Please set logx.oss.storage.ossType property or LOGX_OSS_STORAGE_OSS_TYPE environment variable");
+        }
+
+        // Normalize ossType to uppercase
+        ossType = ossType.trim().toUpperCase();
 
         ProtocolType protocol;
         try {
@@ -23,7 +34,8 @@ public class StorageServiceFactory {
             try {
                 protocol = ProtocolType.fromValue(ossType);
             } catch (IllegalArgumentException e2) {
-                throw new IllegalStateException("Invalid OSS type or protocol: " + ossType, e2);
+                throw new IllegalStateException("Invalid OSS type or protocol: " + ossType +
+                        ". Valid values are: SF_S3, SF_OSS, AWS_S3, ALIYUN_OSS, TENCENT_COS, HUAWEI_OBS, MINIO, GENERIC_S3", e2);
             }
         }
 
