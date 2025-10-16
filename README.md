@@ -123,9 +123,9 @@ logx-oss-appender/
 
 ### SDK使用快速开始
 
-以下是以Logback和SF-OSS为主要示例的快速开始指南：
+以下是以Logback和SF_S3为主要示例的快速开始指南：
 
-#### 主要示例：Logback + SF-OSS快速开始
+#### 主要示例：Logback + SF_S3快速开始
 
 1. **添加依赖**
 ```xml
@@ -145,20 +145,21 @@ logx-oss-appender/
 ```
 
 
-2. **最简配置（所有参数通过环境变量配置）**
+2. **最简配置（以SF OSS为例）**
 ```xml
 <configuration>
-  <appender name="SF_OSS" class="org.logx.logback.LogbackOSSAppender">
+  <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
     <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
       <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
     </encoder>
   </appender>
-  <root level="INFO"><appender-ref ref="SF_OSS"/></root>
+  <root level="INFO"><appender-ref ref="OSS_APPENDER"/></root>
 </configuration>
 ```
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
 export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
@@ -167,7 +168,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 
 #### 其他框架示例
 
-##### Log4j 1.x + SF-OSS快速开始
+##### Log4j 1.x + SF_S3快速开始
 
 1. **添加依赖**
 ```xml
@@ -187,30 +188,31 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 
-2. **最简配置（所有参数通过环境变量配置）**
+2. **最简配置（以SF OSS为例）**
 ```xml
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-  <appender name="oss" class="org.logx.log4j.Log4jOSSAppender">
+  <appender name="OSS_APPENDER" class="org.logx.log4j.Log4jOSSAppender">
     <layout class="org.apache.log4j.PatternLayout">
       <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.} - %m%ex{full}"/>
     </layout>
   </appender>
   <root>
     <priority value="info"/>
-    <appender-ref ref="oss"/>
+    <appender-ref ref="OSS_APPENDER"/>
   </root>
 </log4j:configuration>
 ```
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
 export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
-##### Log4j2 + SF-OSS快速开始
+##### Log4j2 + SF_S3快速开始
 
 1. **添加依赖**
 ```xml
@@ -230,18 +232,18 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 ```
 
 
-2. **最简配置（所有参数通过环境变量配置）**
+2. **最简配置（以SF OSS为例）**
 ```xml
 <Configuration>
   <Appenders>
-    <OSS name="oss">
+    <OSS name="OSS_APPENDER">
       <PatternLayout pattern="%d{ISO8601} %level %logger - %msg%n"/>
     </OSS>
   </Appenders>
 
   <Loggers>
     <Root level="info">
-      <AppenderRef ref="oss"/>
+      <AppenderRef ref="OSS_APPENDER"/>
     </Root>
   </Loggers>
 </Configuration>
@@ -249,6 +251,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 
 3. **环境变量配置**
 ```bash
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
 export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"

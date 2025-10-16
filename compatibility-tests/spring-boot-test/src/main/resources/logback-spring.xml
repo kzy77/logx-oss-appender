@@ -26,20 +26,11 @@
     </appender>
 
     <!-- OSS Appender配置 -->
-    <appender name="OSS" class="org.logx.logback.LogbackOSSAppender">
+    <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
         <!-- 编码器配置 -->
         <encoder>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-
-        <!-- 存储配置（使用环境变量，支持MinIO/S3/OSS） -->
-        <endpoint>${LOGX_OSS_STORAGE_ENDPOINT:-http://localhost:9000}</endpoint>
-        <region>${LOGX_OSS_STORAGE_REGION:-ap-guangzhou}</region>
-        <accessKeyId>${LOGX_OSS_STORAGE_ACCESS_KEY_ID:-minioadmin}</accessKeyId>
-        <accessKeySecret>${LOGX_OSS_STORAGE_ACCESS_KEY_SECRET:-minioadmin}</accessKeySecret>
-        <bucket>${LOGX_OSS_STORAGE_BUCKET:-logx-test-bucket}</bucket>
-        <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logs/}</keyPrefix>
-        <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-MINIO}</ossType>
     </appender>
 
     <!-- 设置LogX相关包的日志级别为DEBUG -->
@@ -49,6 +40,6 @@
     <root level="INFO">
         <appender-ref ref="CONSOLE"/>
         <appender-ref ref="FILE"/>
-        <appender-ref ref="OSS"/>
+        <appender-ref ref="OSS_APPENDER"/>
     </root>
 </configuration>
