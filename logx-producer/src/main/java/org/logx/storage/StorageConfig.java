@@ -125,52 +125,52 @@ public class StorageConfig {
     }
 
     public int getQueueCapacity() {
-        return properties.getQueue().getCapacity();
+        return properties.getEngine().getQueue().getCapacity();
     }
 
     public void setQueueCapacity(int queueCapacity) {
         if (properties != null) {
-            properties.getQueue().setCapacity(queueCapacity);
+            properties.getEngine().getQueue().setCapacity(queueCapacity);
         }
     }
 
     public int getBatchMaxMessages() {
-        return properties.getBatch().getCount();
+        return properties.getEngine().getBatch().getCount();
     }
 
     public void setBatchMaxMessages(int batchMaxMessages) {
         if (properties != null) {
-            properties.getBatch().setCount(batchMaxMessages);
+            properties.getEngine().getBatch().setCount(batchMaxMessages);
         }
     }
 
     public int getBatchMaxBytes() {
-        return properties.getBatch().getBytes();
+        return properties.getEngine().getBatch().getBytes();
     }
 
     public void setBatchMaxBytes(int batchMaxBytes) {
         if (properties != null) {
-            properties.getBatch().setBytes(batchMaxBytes);
+            properties.getEngine().getBatch().setBytes(batchMaxBytes);
         }
     }
 
     public long getMaxMessageAgeMs() {
-        return properties.getBatch().getMaxAgeMs();
+        return properties.getEngine().getBatch().getMaxAgeMs();
     }
 
     public void setMaxMessageAgeMs(long maxMessageAgeMs) {
         if (properties != null) {
-            properties.getBatch().setMaxAgeMs(maxMessageAgeMs);
+            properties.getEngine().getBatch().setMaxAgeMs(maxMessageAgeMs);
         }
     }
 
     public boolean isDropWhenQueueFull() {
-        return properties.getQueue().isDropWhenFull();
+        return properties.getEngine().getQueue().isDropWhenFull();
     }
 
     public void setDropWhenQueueFull(boolean dropWhenQueueFull) {
         if (properties != null) {
-            properties.getQueue().setDropWhenFull(dropWhenQueueFull);
+            properties.getEngine().getQueue().setDropWhenFull(dropWhenQueueFull);
         }
     }
 
