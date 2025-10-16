@@ -204,27 +204,27 @@ class ConfigManagerTest {
     @Test
     void shouldSupportUppercaseUnderscoreStyleForSystemProperties() {
         // 设置大写下划线风格的系统属性
-        System.setProperty("LOGX_OSS_ENDPOINT", "http://uppercase-endpoint.example.com");
+        System.setProperty("LOGX_OSS_STORAGE_ENDPOINT", "http://uppercase-endpoint.example.com");
 
         // 使用标准点号格式查询应该能获取到大写下划线格式的值
-        assertThat(configManager.getProperty("logx.oss.endpoint")).isEqualTo("http://uppercase-endpoint.example.com");
+        assertThat(configManager.getProperty("logx.oss.storage.endpoint")).isEqualTo("http://uppercase-endpoint.example.com");
 
         // 清理
-        System.clearProperty("LOGX_OSS_ENDPOINT");
+        System.clearProperty("LOGX_OSS_STORAGE_ENDPOINT");
     }
 
     @Test
     void shouldPreferDotStyleOverUppercaseStyleForSystemProperties() {
         // 同时设置点号格式和大写下划线格式
-        System.setProperty("logx.oss.endpoint", "http://dot-style.example.com");
-        System.setProperty("LOGX_OSS_ENDPOINT", "http://uppercase-style.example.com");
+        System.setProperty("logx.oss.storage.endpoint", "http://dot-style.example.com");
+        System.setProperty("LOGX_OSS_STORAGE_ENDPOINT", "http://uppercase-style.example.com");
 
         // 应该优先使用点号格式的值
-        assertThat(configManager.getProperty("logx.oss.endpoint")).isEqualTo("http://dot-style.example.com");
+        assertThat(configManager.getProperty("logx.oss.storage.endpoint")).isEqualTo("http://dot-style.example.com");
 
         // 清理
-        System.clearProperty("logx.oss.endpoint");
-        System.clearProperty("LOGX_OSS_ENDPOINT");
+        System.clearProperty("logx.oss.storage.endpoint");
+        System.clearProperty("LOGX_OSS_STORAGE_ENDPOINT");
     }
 
 
@@ -232,96 +232,96 @@ class ConfigManagerTest {
     void shouldSupportBothStylesInMixedScenarios() throws IOException {
         // 创建临时配置文件
         Path configFile = tempDir.resolve("mixed-style.properties");
-        Files.write(configFile, "logx.oss.endpoint=http://file-endpoint.example.com".getBytes());
+        Files.write(configFile, "logx.oss.storage.endpoint=http://file-endpoint.example.com".getBytes());
 
         ConfigManager fileConfigManager = new ConfigManager(configFile.toString());
 
         // 默认情况：从文件读取
-        assertThat(fileConfigManager.getProperty("logx.oss.endpoint")).isEqualTo("http://file-endpoint.example.com");
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.endpoint")).isEqualTo("http://file-endpoint.example.com");
 
         // 设置系统属性（大写下划线格式），应该覆盖文件值
-        System.setProperty("LOGX_OSS_ENDPOINT", "http://system-uppercase.example.com");
+        System.setProperty("LOGX_OSS_STORAGE_ENDPOINT", "http://system-uppercase.example.com");
         fileConfigManager.clearCache();
-        assertThat(fileConfigManager.getProperty("logx.oss.endpoint"))
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.endpoint"))
                 .isEqualTo("http://system-uppercase.example.com");
 
         // 设置系统属性（点号格式），应该覆盖大写下划线格式
-        System.setProperty("logx.oss.endpoint", "http://system-dot.example.com");
+        System.setProperty("logx.oss.storage.endpoint", "http://system-dot.example.com");
         fileConfigManager.clearCache();
-        assertThat(fileConfigManager.getProperty("logx.oss.endpoint")).isEqualTo("http://system-dot.example.com");
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.endpoint")).isEqualTo("http://system-dot.example.com");
 
         // 清理
-        System.clearProperty("LOGX_OSS_ENDPOINT");
-        System.clearProperty("logx.oss.endpoint");
+        System.clearProperty("LOGX_OSS_STORAGE_ENDPOINT");
+        System.clearProperty("logx.oss.storage.endpoint");
     }
 
     @Test
     void shouldRespectPriorityChainWithBothStyles() throws IOException {
         // 创建临时配置文件
         Path configFile = tempDir.resolve("priority-styles.properties");
-        Files.write(configFile, "logx.oss.region=file-region".getBytes());
+        Files.write(configFile, "logx.oss.storage.region=file-region".getBytes());
 
         ConfigManager fileConfigManager = new ConfigManager(configFile.toString());
 
         // 1. 默认情况：从文件读取
-        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("file-region");
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.region")).isEqualTo("file-region");
 
         // 2. 设置系统属性（大写下划线格式），应该覆盖文件值
-        System.setProperty("LOGX_OSS_REGION", "system-uppercase-region");
+        System.setProperty("LOGX_OSS_STORAGE_REGION", "system-uppercase-region");
         fileConfigManager.clearCache();
-        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("system-uppercase-region");
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.region")).isEqualTo("system-uppercase-region");
 
         // 3. 设置系统属性（点号格式），应该优先于大写下划线格式
-        System.setProperty("logx.oss.region", "system-dot-region");
+        System.setProperty("logx.oss.storage.region", "system-dot-region");
         fileConfigManager.clearCache();
-        assertThat(fileConfigManager.getProperty("logx.oss.region")).isEqualTo("system-dot-region");
+        assertThat(fileConfigManager.getProperty("logx.oss.storage.region")).isEqualTo("system-dot-region");
 
         // 清理
-        System.clearProperty("LOGX_OSS_REGION");
-        System.clearProperty("logx.oss.region");
+        System.clearProperty("LOGX_OSS_STORAGE_REGION");
+        System.clearProperty("logx.oss.storage.region");
     }
 
     @Test
     void shouldHandleCamelCaseInSystemProperties() {
         // 设置驼峰命名的配置键，使用大写下划线格式的系统属性
-        System.setProperty("LOGX_OSS_ACCESS_KEY_ID", "test-access-key");
+        System.setProperty("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "test-access-key");
 
         // 使用驼峰格式查询应该能获取到值
-        assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("test-access-key");
+        assertThat(configManager.getProperty("logx.oss.storage.accessKeyId")).isEqualTo("test-access-key");
 
         // 清理
-        System.clearProperty("LOGX_OSS_ACCESS_KEY_ID");
+        System.clearProperty("LOGX_OSS_STORAGE_ACCESS_KEY_ID");
     }
 
     @Test
     void shouldHandleCamelCaseWithDotStylePriority() {
         // 同时设置驼峰格式和大写下划线格式
-        System.setProperty("logx.oss.accessKeyId", "camel-case-value");
-        System.setProperty("LOGX_OSS_ACCESS_KEY_ID", "uppercase-value");
+        System.setProperty("logx.oss.storage.accessKeyId", "camel-case-value");
+        System.setProperty("LOGX_OSS_STORAGE_ACCESS_KEY_ID", "uppercase-value");
 
         // 应该优先使用驼峰格式的值
-        assertThat(configManager.getProperty("logx.oss.accessKeyId")).isEqualTo("camel-case-value");
+        assertThat(configManager.getProperty("logx.oss.storage.accessKeyId")).isEqualTo("camel-case-value");
 
         // 清理
-        System.clearProperty("logx.oss.accessKeyId");
-        System.clearProperty("LOGX_OSS_ACCESS_KEY_ID");
+        System.clearProperty("logx.oss.storage.accessKeyId");
+        System.clearProperty("LOGX_OSS_STORAGE_ACCESS_KEY_ID");
     }
 
     @Test
     void shouldConvertCamelCaseCorrectly() {
         // 测试多个驼峰命名的转换
-        System.setProperty("LOGX_OSS_MAX_BATCH_COUNT", "5000");
-        System.setProperty("LOGX_OSS_ACCESS_KEY_SECRET", "secret-value");
-        System.setProperty("LOGX_OSS_ENABLE_SSL", "false");
+        System.setProperty("LOGX_OSS_ENGINE_BATCH_COUNT", "5000");
+        System.setProperty("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET", "secret-value");
+        System.setProperty("LOGX_OSS_STORAGE_ENABLE_SSL", "false");
 
         // 验证所有驼峰命名都能正确转换和查询
-        assertThat(configManager.getProperty("logx.oss.maxBatchCount")).isEqualTo("5000");
-        assertThat(configManager.getProperty("logx.oss.accessKeySecret")).isEqualTo("secret-value");
-        assertThat(configManager.getProperty("logx.oss.enableSsl")).isEqualTo("false");
+        assertThat(configManager.getProperty("logx.oss.engine.batch.count")).isEqualTo("5000");
+        assertThat(configManager.getProperty("logx.oss.storage.accessKeySecret")).isEqualTo("secret-value");
+        assertThat(configManager.getProperty("logx.oss.storage.enableSsl")).isEqualTo("false");
 
         // 清理
-        System.clearProperty("LOGX_OSS_MAX_BATCH_COUNT");
-        System.clearProperty("LOGX_OSS_ACCESS_KEY_SECRET");
-        System.clearProperty("LOGX_OSS_ENABLE_SSL");
+        System.clearProperty("LOGX_OSS_ENGINE_BATCH_COUNT");
+        System.clearProperty("LOGX_OSS_STORAGE_ACCESS_KEY_SECRET");
+        System.clearProperty("LOGX_OSS_STORAGE_ENABLE_SSL");
     }
 }

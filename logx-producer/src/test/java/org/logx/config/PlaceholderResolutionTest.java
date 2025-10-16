@@ -18,30 +18,36 @@ class PlaceholderResolutionTest {
         configManager = new ConfigManager();
         // 清除可能存在的JVM系统属性
         System.clearProperty("TEST_VAR");
-        System.clearProperty("LOGX_OSS_REGION");
+        System.clearProperty("LOGX_OSS_STORAGE_REGION");
+        System.clearProperty("LOGX_OSS_STORAGE_BUCKET");
+        System.clearProperty("LOGX_OSS_STORAGE_KEY_PREFIX");
+        System.clearProperty("LOGX_OSS_STORAGE_ENDPOINT");
     }
 
     @AfterEach
     void tearDown() {
         System.clearProperty("TEST_VAR");
-        System.clearProperty("LOGX_OSS_REGION");
+        System.clearProperty("LOGX_OSS_STORAGE_REGION");
+        System.clearProperty("LOGX_OSS_STORAGE_BUCKET");
+        System.clearProperty("LOGX_OSS_STORAGE_KEY_PREFIX");
+        System.clearProperty("LOGX_OSS_STORAGE_ENDPOINT");
     }
 
     @Test
     void testResolvePlaceholderWithBashStyleDefault() {
         // 测试bash风格的默认值语法 ${VAR:-default}
-        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
+        String input = "${LOGX_OSS_STORAGE_REGION:-us}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
-            .as("应该使用默认值ap-guangzhou")
+            .as("应该使用默认值us")
             .isEqualTo("us");
     }
 
     @Test
     void testResolvePlaceholderWithSimpleStyleDefault() {
         // 测试简化风格的默认值语法 ${VAR:default}
-        String input = "${LOGX_OSS_REGION:cn-beijing}";
+        String input = "${LOGX_OSS_STORAGE_REGION:cn-beijing}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -52,9 +58,9 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithJvmSystemProperty() {
         // 设置JVM系统属性
-        System.setProperty("LOGX_OSS_REGION", "us-west-1");
+        System.setProperty("LOGX_OSS_STORAGE_REGION", "us-west-1");
 
-        String input = "${LOGX_OSS_REGION:-ap-guangzhou}";
+        String input = "${LOGX_OSS_STORAGE_REGION:-us}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -65,7 +71,7 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithoutDefault() {
         // 测试没有默认值的占位符
-        String input = "${LOGX_OSS_REGION}";
+        String input = "${LOGX_OSS_STORAGE_REGION}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -76,9 +82,9 @@ class PlaceholderResolutionTest {
     @Test
     void testResolveMultiplePlaceholders() {
         // 测试多个占位符
-        System.setProperty("LOGX_OSS_BUCKET", "my-bucket");
+        System.setProperty("LOGX_OSS_STORAGE_BUCKET", "my-bucket");
 
-        String input = "s3://${LOGX_OSS_BUCKET:-default-bucket}/${LOGX_OSS_KEY_PREFIX:-logx/}";
+        String input = "s3://${LOGX_OSS_STORAGE_BUCKET:-default-bucket}/${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -121,7 +127,7 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithEmptyDefault() {
         // 测试空默认值
-        String input = "${LOGX_OSS_REGION:-}";
+        String input = "${LOGX_OSS_STORAGE_REGION:-}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)
@@ -132,7 +138,7 @@ class PlaceholderResolutionTest {
     @Test
     void testResolvePlaceholderWithSpecialCharactersInDefault() {
         // 测试默认值包含特殊字符
-        String input = "${LOGX_OSS_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}";
+        String input = "${LOGX_OSS_STORAGE_ENDPOINT:-https://oss-cn-hangzhou.aliyuncs.com}";
         String result = configManager.resolvePlaceholders(input);
 
         assertThat(result)

@@ -73,23 +73,23 @@ class ConfigCompatibilityTest {
         // 验证统一的logx.oss.前缀配置风格
         Properties unifiedConfig = new Properties();
 
-        // 设置logx.oss.前缀的配置
-        unifiedConfig.setProperty("logx.oss.endpoint", "https://oss-cn-guangzhou.aliyuncs.com");
-        unifiedConfig.setProperty("logx.oss.region", "US");
-        unifiedConfig.setProperty("logx.oss.accessKeyId", "unified-access-key");
-        unifiedConfig.setProperty("logx.oss.accessKeySecret", "unified-secret-key");
-        unifiedConfig.setProperty("logx.oss.bucket", "unified-bucket");
-        unifiedConfig.setProperty("logx.oss.keyPrefix", "unified-logs/");
-        unifiedConfig.setProperty("logx.oss.pathStyleAccess", "true");
+        // 设置logx.oss.storage.前缀的配置
+        unifiedConfig.setProperty("logx.oss.storage.endpoint", "https://oss-cn-guangzhou.aliyuncs.com");
+        unifiedConfig.setProperty("logx.oss.storage.region", "US");
+        unifiedConfig.setProperty("logx.oss.storage.accessKeyId", "unified-access-key");
+        unifiedConfig.setProperty("logx.oss.storage.accessKeySecret", "unified-secret-key");
+        unifiedConfig.setProperty("logx.oss.storage.bucket", "unified-bucket");
+        unifiedConfig.setProperty("logx.oss.storage.keyPrefix", "unified-logs/");
+        unifiedConfig.setProperty("logx.oss.storage.pathStyleAccess", "true");
 
-        // 验证所有配置项都使用logx.oss.前缀
-        assertThat(unifiedConfig.getProperty("logx.oss.endpoint")).isEqualTo("https://oss-cn-guangzhou.aliyuncs.com");
-        assertThat(unifiedConfig.getProperty("logx.oss.region")).isEqualTo("US");
-        assertThat(unifiedConfig.getProperty("logx.oss.accessKeyId")).isEqualTo("unified-access-key");
-        assertThat(unifiedConfig.getProperty("logx.oss.accessKeySecret")).isEqualTo("unified-secret-key");
-        assertThat(unifiedConfig.getProperty("logx.oss.bucket")).isEqualTo("unified-bucket");
-        assertThat(unifiedConfig.getProperty("logx.oss.keyPrefix")).isEqualTo("unified-logs/");
-        assertThat(unifiedConfig.getProperty("logx.oss.pathStyleAccess")).isEqualTo("true");
+        // 验证所有配置项都使用logx.oss.storage.前缀
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.endpoint")).isEqualTo("https://oss-cn-guangzhou.aliyuncs.com");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.region")).isEqualTo("US");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.accessKeyId")).isEqualTo("unified-access-key");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.accessKeySecret")).isEqualTo("unified-secret-key");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.bucket")).isEqualTo("unified-bucket");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.keyPrefix")).isEqualTo("unified-logs/");
+        assertThat(unifiedConfig.getProperty("logx.oss.storage.pathStyleAccess")).isEqualTo("true");
     }
 
     @Test
@@ -100,9 +100,9 @@ class ConfigCompatibilityTest {
 
         // 测试默认值
         assertThat(properties.getStorage().getKeyPrefix()).isEqualTo("logx/");
-        assertThat(properties.getQueue().getCapacity()).isEqualTo(524288);
-        assertThat(properties.getBatch().getCount()).isEqualTo(8192);
-        assertThat(properties.getBatch().getMaxAgeMs()).isEqualTo(60000L);
+        assertThat(properties.getEngine().getQueue().getCapacity()).isEqualTo(524288);
+        assertThat(properties.getEngine().getBatch().getCount()).isEqualTo(8192);
+        assertThat(properties.getEngine().getBatch().getMaxAgeMs()).isEqualTo(60000L);
     }
 
     @Test
