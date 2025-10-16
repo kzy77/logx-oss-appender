@@ -15,7 +15,6 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     private Encoder<ILoggingEvent> encoder;
     private LogbackBridge adapter;
-    private ConfigManager configManager;
 
     // XML配置字段
     private final Map<String, String> xmlConfig = new HashMap<>();
@@ -33,11 +32,11 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
                 addInfo(entry.getKey() + " = " + entry.getValue());
             }
 
-            this.configManager = new ConfigManager();
+            ConfigManager configManager = new ConfigManager();
             LogxOssProperties properties = configManager.getLogxOssProperties();
 
             // 预先解析xmlConfig中的所有占位符
-            resolveXmlConfigPlaceholders();
+            ConfigManager.resolveMapPlaceholders(xmlConfig);
 
             // 应用XML配置（如果有的话）
             applyXmlConfig(properties);
@@ -149,20 +148,6 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
             }
         }
         super.stop();
-    }
-
-    /**
-     * 预先解析xmlConfig中的所有占位符
-     * 支持 ${ENV_VAR:-default} 和 ${ENV_VAR:default} 语法
-     */
-    private void resolveXmlConfigPlaceholders() {
-        Map<String, String> resolved = new HashMap<>();
-        for (Map.Entry<String, String> entry : xmlConfig.entrySet()) {
-            String resolvedValue = configManager.resolvePlaceholders(entry.getValue());
-            resolved.put(entry.getKey(), resolvedValue);
-        }
-        xmlConfig.clear();
-        xmlConfig.putAll(resolved);
     }
 
     public void setEncoder(Encoder<ILoggingEvent> encoder) {

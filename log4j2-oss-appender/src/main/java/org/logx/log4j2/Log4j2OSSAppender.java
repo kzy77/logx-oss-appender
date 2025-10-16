@@ -95,73 +95,73 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
         // 存储配置（对应 logx.oss.storage.* 配置键）
         if (endpoint != null) {
-            String value = configManager.resolvePlaceholders(endpoint);
+            String value = ConfigManager.resolvePlaceholders(endpoint);
             properties.getStorage().setEndpoint(value);
         }
         if (region != null) {
-            String value = configManager.resolvePlaceholders(region);
+            String value = ConfigManager.resolvePlaceholders(region);
             properties.getStorage().setRegion(value);
         }
         if (accessKeyId != null) {
-            String value = configManager.resolvePlaceholders(accessKeyId);
+            String value = ConfigManager.resolvePlaceholders(accessKeyId);
             properties.getStorage().setAccessKeyId(value);
         }
         if (accessKeySecret != null) {
-            String value = configManager.resolvePlaceholders(accessKeySecret);
+            String value = ConfigManager.resolvePlaceholders(accessKeySecret);
             properties.getStorage().setAccessKeySecret(value);
         }
         if (bucket != null) {
-            String value = configManager.resolvePlaceholders(bucket);
+            String value = ConfigManager.resolvePlaceholders(bucket);
             properties.getStorage().setBucket(value);
         }
         if (ossType != null) {
-            String value = configManager.resolvePlaceholders(ossType);
+            String value = ConfigManager.resolvePlaceholders(ossType);
             properties.getStorage().setOssType(value);
         }
         if (keyPrefix != null) {
-            String value = configManager.resolvePlaceholders(keyPrefix);
+            String value = ConfigManager.resolvePlaceholders(keyPrefix);
             properties.getStorage().setKeyPrefix(value);
         }
         if (pathStyleAccess != null) {
-            String value = configManager.resolvePlaceholders(pathStyleAccess);
+            String value = ConfigManager.resolvePlaceholders(pathStyleAccess);
             properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 队列（对应 logx.oss.engine.queue.* 配置键）
         if (queueCapacity != null) {
-            String value = configManager.resolvePlaceholders(queueCapacity);
+            String value = ConfigManager.resolvePlaceholders(queueCapacity);
             properties.getEngine().getQueue().setCapacity(Integer.parseInt(value));
         }
         if (dropWhenQueueFull != null) {
-            String value = configManager.resolvePlaceholders(dropWhenQueueFull);
+            String value = ConfigManager.resolvePlaceholders(dropWhenQueueFull);
             properties.getEngine().getQueue().setDropWhenFull(Boolean.parseBoolean(value));
         }
 
         // 引擎配置 - 批处理（对应 logx.oss.engine.batch.* 配置键）
         if (maxBatchCount != null) {
-            String value = configManager.resolvePlaceholders(maxBatchCount);
+            String value = ConfigManager.resolvePlaceholders(maxBatchCount);
             properties.getEngine().getBatch().setCount(Integer.parseInt(value));
         }
         if (maxBatchBytes != null) {
-            String value = configManager.resolvePlaceholders(maxBatchBytes);
+            String value = ConfigManager.resolvePlaceholders(maxBatchBytes);
             properties.getEngine().getBatch().setBytes(Integer.parseInt(value));
         }
         if (maxMessageAgeMs != null) {
-            String value = configManager.resolvePlaceholders(maxMessageAgeMs);
+            String value = ConfigManager.resolvePlaceholders(maxMessageAgeMs);
             properties.getEngine().getBatch().setMaxAgeMs(Long.parseLong(value));
         }
 
         // 引擎配置 - 重试（对应 logx.oss.engine.retry.* 配置键）
         if (maxRetries != null) {
-            String value = configManager.resolvePlaceholders(maxRetries);
+            String value = ConfigManager.resolvePlaceholders(maxRetries);
             properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(value));
         }
         if (baseBackoffMs != null) {
-            String value = configManager.resolvePlaceholders(baseBackoffMs);
+            String value = ConfigManager.resolvePlaceholders(baseBackoffMs);
             properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(value));
         }
         if (maxBackoffMs != null) {
-            String value = configManager.resolvePlaceholders(maxBackoffMs);
+            String value = ConfigManager.resolvePlaceholders(maxBackoffMs);
             properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(value));
         }
 

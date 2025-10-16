@@ -109,7 +109,7 @@ public class ConfigManager {
         // 优先级1: JVM系统属性
         String value = getSystemProperty(key);
         if (value != null) {
-            value = resolvePlaceholders(value);
+            value = ConfigManager.resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -117,7 +117,7 @@ public class ConfigManager {
         // 优先级2: 环境变量 (支持不同命名格式)
         value = getEnvironmentVariable(key);
         if (value != null) {
-            value = resolvePlaceholders(value);
+            value = ConfigManager.resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -125,7 +125,7 @@ public class ConfigManager {
         // 优先级3: 配置文件属性
         value = getFileProperty(key);
         if (value != null) {
-            value = resolvePlaceholders(value);
+            value = ConfigManager.resolvePlaceholders(value);
             configCache.put(key, value);
             return value;
         }
@@ -468,7 +468,7 @@ public class ConfigManager {
      *
      * @return 解析后的字符串，如果无法解析返回原始值
      */
-    public String resolvePlaceholders(String value) {
+    public static String resolvePlaceholders(String value) {
         if (value == null || !value.contains("${")) {
             return value;
         }
@@ -503,6 +503,32 @@ public class ConfigManager {
     }
 
     /**
+     * 批量解析Map中所有值的占位符
+     * <p>
+     * 遍历Map中的所有条目，对每个值调用 {@link #resolvePlaceholders(String)} 进行占位符解析，
+     * 原Map会被就地修改。
+     * <p>
+     * 支持的占位符格式：
+     * <ul>
+     * <li>${ENV_VAR:-default} - bash风格，使用:-作为分隔符</li>
+     * <li>${ENV_VAR:default} - 简化风格，使用:作为分隔符</li>
+     * <li>${ENV_VAR} - 只有变量名，无默认值</li>
+     * </ul>
+     *
+     * @param configMap
+     *            包含可能含有占位符的配置Map，将被就地修改
+     */
+    public static void resolveMapPlaceholders(Map<String, String> configMap) {
+        Map<String, String> resolved = new HashMap<>();
+        for (Map.Entry<String, String> entry : configMap.entrySet()) {
+            String resolvedValue = resolvePlaceholders(entry.getValue());
+            resolved.put(entry.getKey(), resolvedValue);
+        }
+        configMap.clear();
+        configMap.putAll(resolved);
+    }
+
+    /**
      * 解析单个占位符
      *
      * @param placeholder
@@ -510,7 +536,7 @@ public class ConfigManager {
      *
      * @return 解析后的值，如果无法解析返回null
      */
-    private String resolveSinglePlaceholder(String placeholder) {
+    private static String resolveSinglePlaceholder(String placeholder) {
         String varName;
         String defaultValue = null;
 

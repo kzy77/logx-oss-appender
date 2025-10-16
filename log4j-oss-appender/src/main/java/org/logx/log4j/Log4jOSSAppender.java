@@ -13,7 +13,6 @@ import java.util.Map;
 public class Log4jOSSAppender extends AppenderSkeleton {
 
     private Log4j1xBridge adapter;
-    private ConfigManager configManager;
 
     // XML配置字段
     private final Map<String, String> xmlConfig = new HashMap<>();
@@ -23,11 +22,11 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         super.activateOptions();
 
         try {
-            this.configManager = new ConfigManager();
+            ConfigManager configManager = new ConfigManager();
             LogxOssProperties properties = configManager.getLogxOssProperties();
 
             // 预先解析xmlConfig中的所有占位符
-            resolveXmlConfigPlaceholders();
+            ConfigManager.resolveMapPlaceholders(xmlConfig);
 
             // 应用XML配置（如果有的话）
             applyXmlConfig(properties);
@@ -48,20 +47,6 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         } catch (Exception e) {
             getErrorHandler().error("Failed to initialize Log4jOSSAppender: " + e.getMessage(), e, 1);
         }
-    }
-
-    /**
-     * 预先解析xmlConfig中的所有占位符
-     * 支持 ${ENV_VAR:-default} 和 ${ENV_VAR:default} 语法
-     */
-    private void resolveXmlConfigPlaceholders() {
-        Map<String, String> resolved = new HashMap<>();
-        for (Map.Entry<String, String> entry : xmlConfig.entrySet()) {
-            String resolvedValue = configManager.resolvePlaceholders(entry.getValue());
-            resolved.put(entry.getKey(), resolvedValue);
-        }
-        xmlConfig.clear();
-        xmlConfig.putAll(resolved);
     }
 
     private void applyXmlConfig(LogxOssProperties properties) {
