@@ -60,7 +60,7 @@ public class StorageServiceFactory {
                         Method initializeMethod = service.getClass().getMethod("initialize", StorageConfig.class);
                         initializeMethod.invoke(service, config);
                     } catch (Exception e) {
-                        logger.warn("Failed to initialize storage service: {}", e);
+                        logger.error("Failed to initialize storage service: {}", e);
                     }
                     return service;
                 }
