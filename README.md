@@ -424,9 +424,9 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
 
-# 批处理配置（可选）
-export LOGX_OSS_BATCH_COUNT="8192"
-export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
+# 引擎配置（可选）
+export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 ```
 
 **Log4j 1.x properties文件配置：**
@@ -470,9 +470,9 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
 
-# 批处理配置（可选）
-export LOGX_OSS_BATCH_COUNT="8192"
-export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
+# 引擎配置（可选）
+export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 ```
 
 #### Logback 示例
@@ -503,9 +503,9 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
 
-# 批处理配置（可选）
-export LOGX_OSS_BATCH_COUNT="8192"
-export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
+# 引擎配置（可选）
+export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 ```
 
 ### 配置参数说明
@@ -596,7 +596,7 @@ http://localhost:9000                    # 本地MinIO
 示例：
 - `logx.oss.storage.endpoint` → `LOGX_OSS_STORAGE_ENDPOINT`
 - `logx.oss.storage.accessKeyId` → `LOGX_OSS_STORAGE_ACCESS_KEY_ID`（驼峰转换）
-- `logx.oss.batch.count` → `LOGX_OSS_BATCH_COUNT`
+- `logx.oss.engine.batch.count` → `LOGX_OSS_ENGINE_BATCH_COUNT`
 - `logx.oss.storage.region` → `LOGX_OSS_STORAGE_REGION`
 
 ```bash
@@ -607,9 +607,9 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 
-# 批处理配置（可选）
-export LOGX_OSS_BATCH_COUNT="8192"
-export LOGX_OSS_BATCH_MAX_AGE_MS="60000"
+# 引擎配置（可选）
+export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 ```
 
 ### Java代码示例
