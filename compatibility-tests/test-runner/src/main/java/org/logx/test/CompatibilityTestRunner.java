@@ -327,6 +327,9 @@ public class CompatibilityTestRunner {
 
             if (exitCode != 0) {
                 System.out.println(ANSI_RED + "  测试失败，退出码: " + exitCode + ANSI_RESET);
+                System.out.println();
+
+                checkAndReportFailureDetails(module);
             }
 
             return exitCode == 0;
@@ -336,5 +339,58 @@ public class CompatibilityTestRunner {
             e.printStackTrace();
             return false;
         }
+    }
+
+    private void checkAndReportFailureDetails(String module) {
+        System.out.println(ANSI_YELLOW + "检查失败详情..." + ANSI_RESET);
+
+        Path errorLog = rootPath.resolve("compatibility-tests")
+            .resolve(module)
+            .resolve("logs")
+            .resolve("application-error.log");
+
+        if (Files.exists(errorLog)) {
+            try {
+                List<String> lines = Files.readAllLines(errorLog);
+                List<String> realErrors = new ArrayList<>();
+
+                for (String line : lines) {
+                    if (!line.contains("测试错误日志")) {
+                        realErrors.add(line);
+                    }
+                }
+
+                if (!realErrors.isEmpty()) {
+                    System.out.println(ANSI_RED + "发现错误日志 (" + realErrors.size() + " 行):" + ANSI_RESET);
+
+                    int displayLimit = 20;
+
+                    for (int i = 0; i < Math.min(displayLimit, realErrors.size()); i++) {
+                        System.out.println(realErrors.get(i));
+                    }
+
+                    if (realErrors.size() > displayLimit) {
+                        System.out.println(ANSI_YELLOW + "... (" + (realErrors.size() - displayLimit) + " 行已省略)" + ANSI_RESET);
+                    }
+                } else {
+                    System.out.println(ANSI_GREEN + "错误日志文件存在，但都是测试日志（已过滤）" + ANSI_RESET);
+                }
+            } catch (IOException e) {
+                System.err.println(ANSI_YELLOW + "无法读取错误日志: " + e.getMessage() + ANSI_RESET);
+            }
+        } else {
+            System.out.println(ANSI_YELLOW + "未找到错误日志文件" + ANSI_RESET);
+        }
+
+        Path surefireReports = rootPath.resolve("compatibility-tests")
+            .resolve(module)
+            .resolve("target")
+            .resolve("surefire-reports");
+
+        if (Files.exists(surefireReports)) {
+            System.out.println(ANSI_YELLOW + "Maven测试报告位置: " + surefireReports + ANSI_RESET);
+        }
+
+        System.out.println();
     }
 }
