@@ -34,14 +34,16 @@ public class FallbackUploaderTask implements Runnable {
     private final StorageService storageService;
     private final String fallbackPath;
     private final String absoluteFallbackPath;
-    private final ObjectNameGenerator nameGenerator;
     private final int retentionDays;
-    
+
+    /**
+     * @deprecated fileName参数已废弃，ObjectNameGenerator使用固定默认值
+     */
+    @Deprecated
     public FallbackUploaderTask(StorageService storageService, String fallbackPath, String fileName, int retentionDays) {
         this.storageService = storageService;
         this.fallbackPath = fallbackPath;
         this.absoluteFallbackPath = FallbackPathResolver.resolveAbsolutePath(fallbackPath);
-        this.nameGenerator = new ObjectNameGenerator(fileName);
         this.retentionDays = retentionDays;
     }
     
@@ -94,12 +96,11 @@ public class FallbackUploaderTask implements Runnable {
     
     private void retryUpload(Path file) {
         try {
-            // 从文件路径重建对象名
-            String relativePath = getRelativePath(file);
-            String retryObjectName = nameGenerator.generateObjectName();
-            
+            // 使用源文件的相对路径作为对象名，保留原有的日期和时间信息
+            String retryObjectName = getRelativePath(file);
+
             byte[] rawData = Files.readAllBytes(file);
-            
+
             // 将原始数据转换为格式化的日志数据
             byte[] formattedData = formatLogData(rawData);
 
@@ -108,7 +109,7 @@ public class FallbackUploaderTask implements Runnable {
 
             // 30秒超时
             future.get(UPLOAD_TIMEOUT_SECONDS, TimeUnit.SECONDS);
-            
+
             // 上传成功后删除本地文件
             Files.delete(file);
             logger.info("Successfully resent fallback file as: {}", retryObjectName);
@@ -215,7 +216,7 @@ public class FallbackUploaderTask implements Runnable {
             String fullPath = file.toString();
             
             if (fullPath.startsWith(absoluteFallbackPath)) {
-                return fullPath.substring(absoluteFallbackPath.length() + 1);
+                return fullPath.substring(absoluteFallbackPath.length() + 1) + "/logx/";
             }
         } catch (Exception e) {
             logger.warn("Failed to extract relative path for file: {}", file.getFileName(), e);

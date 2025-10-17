@@ -26,7 +26,6 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private final EnhancedDisruptorBatchingQueue batchingQueue;
     private final AsyncEngineConfig config;
     private final FallbackManager fallbackManager;
-    private final ObjectNameGenerator nameGenerator;
     private ScheduledExecutorService fallbackScheduler;
     private java.util.concurrent.ExecutorService uploadExecutor;
     private ScheduledExecutorService queueMonitor;
@@ -38,8 +37,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         this.config = config;
         this.storageService = StorageServiceFactory.createStorageService(config.getStorageConfig());
         this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
-        this.nameGenerator = new ObjectNameGenerator(config.getLogFileName());
-        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), config.getLogFileName());
+        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
 
         EnhancedDisruptorBatchingQueue.Config queueConfig = new EnhancedDisruptorBatchingQueue.Config()
                 .queueCapacity(config.getQueueCapacity())
@@ -79,8 +77,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         this.config = config;
         this.storageService = storageService;
         this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
-        this.nameGenerator = new ObjectNameGenerator(config.getLogFileName());
-        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), config.getLogFileName());
+        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
 
         EnhancedDisruptorBatchingQueue.Config queueConfig = new EnhancedDisruptorBatchingQueue.Config()
                 .queueCapacity(config.getQueueCapacity())
@@ -228,7 +225,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     }
 
     private boolean onBatch(byte[] batchData, int originalSize, boolean compressed, int messageCount) {
-        String key = nameGenerator.generateObjectName();
+        String key = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
 
         if (uploadExecutor != null && !uploadExecutor.isShutdown()) {
             uploadExecutor.submit(() -> {

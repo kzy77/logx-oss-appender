@@ -130,8 +130,6 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             return future;
         }
 
-        String fullKey = buildFullKey(key);
-
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
             // 检查客户端是否已关闭
@@ -148,7 +146,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
 
             PutObjectRequest.Builder requestBuilder = PutObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(fullKey)
+                    .key(key)
                     .contentLength((long) data.length)
                     .contentType(contentType);
 
@@ -223,13 +221,4 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
         return ADAPTER_TYPE == protocol;
     }
 
-    /**
-     * 构建完整的对象键
-     */
-    private String buildFullKey(String key) {
-        if (keyPrefix.isEmpty()) {
-            return key;
-        }
-        return keyPrefix + "/" + key;
-    }
 }

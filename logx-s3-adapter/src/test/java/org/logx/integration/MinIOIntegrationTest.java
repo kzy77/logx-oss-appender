@@ -23,7 +23,6 @@ class MinIOIntegrationTest {
     private static final Logger logger = LoggerFactory.getLogger(MinIOIntegrationTest.class);
 
     private S3StorageServiceAdapter storageService;
-    private ObjectNameGenerator nameGenerator;
 
     @BeforeEach
     void setUp() throws Exception {
@@ -56,8 +55,6 @@ class MinIOIntegrationTest {
 
         storageService = new S3StorageServiceAdapter();
         storageService.initialize(config);
-
-        nameGenerator = new ObjectNameGenerator("minio-test");
     }
 
     private String getProperty(Properties properties, String key, String defaultValue) {
@@ -83,7 +80,7 @@ class MinIOIntegrationTest {
     void shouldUploadLogsToMinIO() throws Exception {
         String testContent = "MinIO Integration Test - " + System.currentTimeMillis() + "\n";
         byte[] data = testContent.getBytes(StandardCharsets.UTF_8);
-        String objectKey = nameGenerator.generateObjectName();
+        String objectKey = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
 
         CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
 
@@ -96,7 +93,7 @@ class MinIOIntegrationTest {
         for (int i = 0; i < 5; i++) {
             String testContent = String.format("Test file #%d - %d\n", i, System.currentTimeMillis());
             byte[] data = testContent.getBytes(StandardCharsets.UTF_8);
-            String objectKey = nameGenerator.generateObjectName();
+            String objectKey = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
 
             CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
             uploadFuture.get(10, TimeUnit.SECONDS);
@@ -111,7 +108,7 @@ class MinIOIntegrationTest {
         }
 
         byte[] data = content.toString().getBytes(StandardCharsets.UTF_8);
-        String objectKey = nameGenerator.generateObjectName();
+        String objectKey = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
 
         CompletableFuture<Void> uploadFuture = storageService.putObject(objectKey, data);
 

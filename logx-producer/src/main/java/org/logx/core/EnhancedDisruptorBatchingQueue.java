@@ -6,6 +6,7 @@ import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
+import org.logx.fallback.ObjectNameGenerator;
 import org.logx.storage.StorageService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -500,8 +501,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 // Compress each shard individually
                 byte[] finalShardData = config.enableCompression ? compressData(shardData) : shardData;
 
-                // Generate a unique object name for each shard using the global generator
-                String shardKey = nameGenerator.generateObjectName();
+                // Generate a unique object name for each shard using the static generator
+                String shardKey = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
                 totalShardsCreated.incrementAndGet();
 
                 CompletableFuture<Void> future = storageService.putObject(shardKey, finalShardData);

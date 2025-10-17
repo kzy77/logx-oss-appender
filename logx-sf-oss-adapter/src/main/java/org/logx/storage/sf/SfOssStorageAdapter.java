@@ -68,7 +68,6 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
             return future;
         }
 
-        String fullKey = buildFullKey(key);
 
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
@@ -81,7 +80,7 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
                 }
                 
                 // 注意：这里需要修改LogxSfOssClient的putObject方法以支持contentType参数
-                logxSfOssClient.putObject(bucketName, fullKey, data, contentType);
+                logxSfOssClient.putObject(bucketName, key, data, contentType);
             } catch (Exception e) {
                 // 直接抛出异常，由核心层处理重试和错误处理
                 throw new RuntimeException("Failed to upload object to SF OSS: " + e.getMessage(), e);
@@ -100,19 +99,14 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
     }
 
     @Override
+    public String getKeyPrefix() {
+        return keyPrefix;
+    }
+
+    @Override
     public void close() {
         if (logxSfOssClient != null) {
             logxSfOssClient.close();
         }
-    }
-
-    /**
-     * 构建完整的对象键
-     */
-    private String buildFullKey(String key) {
-        if (keyPrefix.isEmpty()) {
-            return key;
-        }
-        return keyPrefix + "/" + key;
     }
 }

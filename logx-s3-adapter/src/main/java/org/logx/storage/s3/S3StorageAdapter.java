@@ -47,30 +47,20 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     /**
      * 构造S3存储适配器
      *
-     * @param config
-     *            存储配置
-     * @param keyPrefix
-     *            对象键前缀，默认 "logx"
+     * @param config 存储配置
      */
-    public S3StorageAdapter(StorageConfig config, String keyPrefix) {
+    public S3StorageAdapter(StorageConfig config) {
         String region = config.getRegion();
         String accessKeyId = config.getAccessKeyId();
         String secretAccessKey = config.getAccessKeySecret();
         this.bucketName = config.getBucket();
-        this.keyPrefix = keyPrefix != null ? keyPrefix.replaceAll("^/+|/+$", "") : "logx";
+        this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logx";
 
         // 构建S3客户端 - 标准AWS S3配置
         this.s3Client = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
                 .region(Region.of(region != null ? region : "US")).build();
-    }
-
-    /**
-     * 简化构造函数：使用默认参数
-     */
-    public S3StorageAdapter(StorageConfig config) {
-        this(config, config.getKeyPrefix() != null ? config.getKeyPrefix() : "logx");
     }
 
     @Override
@@ -86,13 +76,12 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
             return future;
         }
 
-        String fullKey = buildFullKey(key);
-
+        // ObjectNameGenerator已经生成完整路径，直接使用
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
             PutObjectRequest putRequest = PutObjectRequest.builder()
                     .bucket(bucketName)
-                    .key(fullKey)
+                    .key(key)
                     .contentLength((long) data.length)
                     .build();
 
@@ -118,29 +107,14 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
     }
 
     @Override
+    public String getKeyPrefix() {
+        return keyPrefix;
+    }
+
+    @Override
     public void close() {
         if (s3Client != null) {
             s3Client.close();
         }
-    }
-
-    /**
-     * 构建完整的对象键
-     */
-    private String buildFullKey(String key) {
-        // 如果keyPrefix为空或ObjectNameGenerator生成的key已经是完整路径，则直接返回
-        if (keyPrefix.isEmpty() || isFullPathKey(key)) {
-            return key;
-        }
-        return keyPrefix + "/" + key;
-    }
-    
-    /**
-     * 判断是否为完整路径键
-     * ObjectNameGenerator生成的路径包含日期结构，如 application_2025-09/30/05:07:02:972_192.168.130.118.log
-     */
-    private boolean isFullPathKey(String key) {
-        // 检查是否包含日期路径结构
-        return key != null && key.contains("_") && key.contains("/") && key.contains(":");
     }
 }

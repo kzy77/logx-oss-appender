@@ -2,12 +2,12 @@
 
 ## 项目概述
 
-LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到多种云对象存储服务。项目采用单仓库多模块（Monorepo）架构，包含八个核心模块，提供完整的日志上传解决方案。
+LogX OSS Appender 是一个高性能日志上传组件套件，支持将日志异步批量上传到多种云对象存储服务。项目采用单仓库多模块（Monorepo）架构，提供完整的日志上传解决方案。
 
 ### 核心特性
 
 ✅ **高性能异步处理** - 使用LMAX Disruptor实现低延迟队列  
-✅ **多云支持** - 支持阿里云OSS、AWS S3、腾讯云COS、华为云OBS、MinIO、SF OSS等所有S3兼容存储  
+✅ **多云支持** - 支持阿里云OSS、AWS S3、腾讯云COS、MinIO、SF OSS等所有S3兼容存储  
 ✅ **多框架支持** - 完整支持Log4j、Log4j2、Logback日志框架  
 ✅ **企业级可靠性** - 全面的错误处理、重试机制和兜底文件机制  
 ✅ **零性能影响** - 非阻塞设计，不影响应用程序性能  
@@ -66,7 +66,7 @@ logback-oss-appender
 - 资源管理: 统一管理兜底文件、关闭钩子等资源
 - 数据流: 接收日志数据 → EnhancedDisruptorBatchingQueue → 存储服务
 - 紧急保护: 内存超过512MB时直接写入兜底文件
-- 并行上传: 支持多线程并行上传，默认2个线程
+- 并行上传: 支持多线程并行上传，默认1个线程
 
 #### 存储服务接口设计
 
@@ -76,9 +76,10 @@ logback-oss-appender
 ```java
 public interface StorageInterface {
     CompletableFuture<Void> putObject(String key, byte[] data);
-    ProtocolType getProtocolType();
+    String getOssType();
     String getBucketName();
     void close();
+    boolean supportsOssType(String ossType);
 }
 ```
 
@@ -87,16 +88,7 @@ public interface StorageInterface {
 // 继承StorageInterface
 public interface StorageService extends StorageInterface {
     // 继承StorageInterface的所有方法
-    boolean supportsProtocol(ProtocolType protocol);
     // 可扩展更高级的服务方法
-}
-```
-
-#### ProtocolType (协议类型枚举)
-```java
-public enum ProtocolType {
-    S3("S3"),        // 标准S3协议，适用于所有S3兼容存储
-    SF_OSS("SF_OSS") // SF OSS专有协议
 }
 ```
 
@@ -136,7 +128,6 @@ public enum StorageOssType {
 - 继承: AppenderSkeleton
 - 配置: 与log4j2/logback保持一致的key
 - 转换: LoggingEvent → 内部LogEvent格式
-- 编码: 支持Encoder编码日志
 
 #### log4j2-oss-appender
 - 继承: AbstractAppender
@@ -148,7 +139,6 @@ public enum StorageOssType {
 - 继承: AppenderBase<ILoggingEvent>
 - 配置: 统一配置key标准
 - SLF4J: 完整兼容性支持
-- 编码: 支持Encoder编码日志
 
 ### 3. 存储适配器层
 
@@ -192,7 +182,7 @@ public enum StorageOssType {
     <!-- 可选参数（存储配置） -->
     <region>${LOGX_OSS_STORAGE_REGION:-US}</region>
     <keyPrefix>${LOGX_OSS_STORAGE_KEY_PREFIX:-logx/}</keyPrefix>
-    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_S3}</ossType>
+    <ossType>${LOGX_OSS_STORAGE_OSS_TYPE:-SF_OSS}</ossType>
     <pathStyleAccess>${LOGX_OSS_STORAGE_PATH_STYLE_ACCESS:-false}</pathStyleAccess>
     <!-- 可选参数（引擎配置） -->
     <maxBatchCount>${LOGX_OSS_ENGINE_BATCH_COUNT:-8192}</maxBatchCount>
@@ -220,7 +210,7 @@ public enum StorageOssType {
 | `accessKeySecret` | String | 必需 | 访问密钥Secret |
 | `bucket` | String | my-log-bucket | 存储桶名称 |
 | `keyPrefix` | String | logx/ | 对象存储中的文件路径前缀 |
-| `ossType` | String | SF_S3 | 存储后端类型，支持SF_S3、S3、SF_OSS等 |
+| `ossType` | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
 | `pathStyleAccess` | Boolean | 根据云服务商类型自动识别 | 是否使用路径风格访问（Path-style Access） |
 
 #### 引擎配置参数
@@ -470,7 +460,7 @@ mvn test -pl logx-s3-adapter
 - 兜底文件机制（网络异常时本地缓存）
 - 优雅关闭保护（30秒超时保护）
 - 多框架支持（Log4j、Log4j2、Logback）
-- 多云支持（AWS S3、阿里云OSS、腾讯云COS、华为云OBS、MinIO、SF OSS等）
+- 多云支持（AWS S3、阿里云OSS、腾讯云COS、MinIO、SF OSS等）
 - 模块化适配器设计（通过Java SPI机制支持运行时动态加载）
 
 **❌ 明确不在当前版本范围的功能**：

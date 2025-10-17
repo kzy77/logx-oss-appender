@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 /**
- * 对象名生成器
+ * 对象名生成器（静态工具类）
  * <p>
  * 负责生成OSS对象名和本地兜底文件名
  * <p>
@@ -21,14 +21,14 @@ import java.util.UUID;
  * <p>
  * <b>文件格式（OSS上传、本地兜底、重试上传统一）</b>：
  * <pre>
- * yyyy/MM/dd/HHmmssSSS-applog-IP-uniqueId.log.gz
- * 示例：2025/10/14/143250200-applog-100.119.145.245-abc12345.log.gz
+ * yyyy/MM/dd/HHmmssSSS-{fileName}-IP-uniqueId.log.gz
+ * 示例：2025/10/14/143250200-applogx-100.119.145.245-abc12345.log.gz
  * </pre>
  *
  * @author OSS Appender Team
  * @since 1.0.0
  */
-public class ObjectNameGenerator {
+public final class ObjectNameGenerator {
 
     private static final Logger logger = LoggerFactory.getLogger(ObjectNameGenerator.class);
 
@@ -36,65 +36,49 @@ public class ObjectNameGenerator {
     private static final DateTimeFormatter MONTH_FORMATTER = DateTimeFormatter.ofPattern("MM");
     private static final DateTimeFormatter DAY_FORMATTER = DateTimeFormatter.ofPattern("dd");
     private static final DateTimeFormatter TIME_FORMATTER = DateTimeFormatter.ofPattern("HHmmssSSS");
-
-    private static final String APP_IDENTIFIER = "applog";
+    private static final String DEFAULT_KEY_PREFIX = "logx";
+    private static final String DEFAULT_FILE_NAME_PREFIX = "applogx";
     private static final String UNKNOWN_HOST = "unknown-host";
     private static final String FILE_SUFFIX = ".log.gz";
 
-    private final String fileName;
-    private final String localIP;
-
     /**
-     * 构造对象名生成器
-     *
-     * @param fileName 文件名前缀（保留参数用于兼容性，实际使用固定标识applog）
-     * @throws IllegalArgumentException 如果文件名为空
+     * 私有构造器，防止实例化
      */
-    public ObjectNameGenerator(String fileName) {
-        if (fileName == null || fileName.trim().isEmpty()) {
-            throw new IllegalArgumentException("File name cannot be null or empty");
-        }
-        this.fileName = fileName.trim();
-        this.localIP = getSafeLocalIP();
+    private ObjectNameGenerator() {
+        throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
     }
 
     /**
-     * 生成对象名
+     * 生成对象名（静态方法）
      * <p>
-     * 格式：yyyy/MM/dd/HHmmssSSS-applog-IP-uniqueId.log.gz
+     * 格式：yyyy/MM/dd/HHmmssSSS-applogx-IP-uniqueId.log.gz
      *
      * @return 对象名
      */
-    public String generateObjectName() {
-        try {
-            LocalDateTime nowTime = LocalDateTime.now();
-            String year = nowTime.format(YEAR_FORMATTER);
-            String month = nowTime.format(MONTH_FORMATTER);
-            String day = nowTime.format(DAY_FORMATTER);
-            String time = nowTime.format(TIME_FORMATTER);
-            String uniqueId = UUID.randomUUID().toString().substring(0, 8);
-
-            return year + "/" + month + "/" + day + "/" + time + "-" + APP_IDENTIFIER + "-" + localIP + "-" + uniqueId + FILE_SUFFIX;
-        } catch (Exception e) {
-            logger.warn("Failed to generate object name, using fallback naming", e);
-
-            LocalDateTime nowTime = LocalDateTime.now();
-            String year = nowTime.format(YEAR_FORMATTER);
-            String month = nowTime.format(MONTH_FORMATTER);
-            String day = nowTime.format(DAY_FORMATTER);
-            String time = nowTime.format(TIME_FORMATTER);
-            String uniqueId = UUID.randomUUID().toString().substring(0, 8);
-
-            return year + "/" + month + "/" + day + "/" + time + "-" + APP_IDENTIFIER + "-" + uniqueId + FILE_SUFFIX;
+    public static String generateObjectName(String keyPrefix) {
+        if (keyPrefix == null || keyPrefix.trim().isEmpty()) {
+            keyPrefix = DEFAULT_KEY_PREFIX;
+        } else {
+            keyPrefix = keyPrefix.replaceAll("^/+|/+$", "");
         }
+        
+
+        String ip = getLocalIPForGeneration();
+        LocalDateTime nowTime = LocalDateTime.now();
+        String year = nowTime.format(YEAR_FORMATTER);
+        String month = nowTime.format(MONTH_FORMATTER);
+        String day = nowTime.format(DAY_FORMATTER);
+        String time = nowTime.format(TIME_FORMATTER);
+        String uniqueId = UUID.randomUUID().toString().substring(0, 8);
+        return keyPrefix + "/" + year + "/" + month + "/" + day + "/" + time + "-" + DEFAULT_FILE_NAME_PREFIX + "-" + ip + "-" + uniqueId + FILE_SUFFIX;
     }
 
     /**
-     * 安全获取本地IP地址
+     * 获取本地IP用于生成对象名（静态方法）
      *
      * @return 本地IP地址或默认值
      */
-    private String getSafeLocalIP() {
+    private static String getLocalIPForGeneration() {
         try {
             String ip = IPUtil.getLocalIP();
             if (ip == null || ip.trim().isEmpty()) {
@@ -107,4 +91,5 @@ public class ObjectNameGenerator {
             return UNKNOWN_HOST + "-" + UUID.randomUUID().toString().substring(0, 8);
         }
     }
+
 }

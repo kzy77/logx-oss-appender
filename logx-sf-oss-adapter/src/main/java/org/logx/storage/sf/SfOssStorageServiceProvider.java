@@ -39,6 +39,11 @@ public class SfOssStorageServiceProvider implements StorageService {
     }
 
     @Override
+    public String getKeyPrefix() {
+        throw new IllegalStateException("This SPI provider should not be used directly. Use StorageServiceFactory instead.");
+    }
+
+    @Override
     public void close() {
         // 无需关闭资源
     }

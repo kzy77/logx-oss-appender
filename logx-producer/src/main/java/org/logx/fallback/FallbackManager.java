@@ -17,31 +17,28 @@ import java.nio.file.Paths;
  * @since 1.0.0
  */
 public class FallbackManager {
-    
+
     private static final Logger logger = LoggerFactory.getLogger(FallbackManager.class);
-    
+
     private final String fallbackPath;
     private final String absoluteFallbackPath;
-    private final ObjectNameGenerator nameGenerator;
-    
+    private final String keyPrefix;
+
     /**
      * 构造兜底文件管理器
-     * 
+     *
      * @param fallbackPath 兜底文件存储路径
-     * @param fileName 文件名前缀
+     * @param keyPrefix 对象键前缀
      * @throws IllegalArgumentException 如果参数为null或空
      */
-    public FallbackManager(String fallbackPath, String fileName) {
+    public FallbackManager(String fallbackPath, String keyPrefix) {
         if (fallbackPath == null || fallbackPath.trim().isEmpty()) {
             throw new IllegalArgumentException("Fallback path cannot be null or empty");
         }
-        if (fileName == null || fileName.trim().isEmpty()) {
-            throw new IllegalArgumentException("File name cannot be null or empty");
-        }
-        
+
         this.fallbackPath = fallbackPath.trim();
         this.absoluteFallbackPath = FallbackPathResolver.resolveAbsolutePath(this.fallbackPath);
-        this.nameGenerator = new ObjectNameGenerator(fileName.trim());
+        this.keyPrefix = keyPrefix;
         FallbackPathResolver.ensureFallbackDirectoryExists(this.fallbackPath);
     }
     
@@ -62,7 +59,7 @@ public class FallbackManager {
         }
         
         try {
-            String fallbackObjectName = nameGenerator.generateObjectName();
+            String fallbackObjectName = ObjectNameGenerator.generateObjectName(keyPrefix);
             Path fallbackFile = Paths.get(absoluteFallbackPath, fallbackObjectName);
             
             // 确保目录存在
