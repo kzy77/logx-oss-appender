@@ -68,7 +68,6 @@ public final class SfOssStorageAdapter implements StorageInterface, AutoCloseabl
             return future;
         }
 
-
         // 执行标准上传，不处理分片和重试，这些由核心层处理
         return CompletableFuture.runAsync(() -> {
             try {
