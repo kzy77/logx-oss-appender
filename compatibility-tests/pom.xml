@@ -16,9 +16,9 @@
     <modules>
         <module>spring-boot-test</module>
         <module>spring-mvc-test</module>
-        <module>jsp-servlet-test</module>
         <module>multi-framework-test</module>
         <module>config-consistency-test</module>
+        <module>test-runner</module>
     </modules>
 
     <properties>

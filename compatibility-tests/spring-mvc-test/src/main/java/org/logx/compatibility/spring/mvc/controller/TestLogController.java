@@ -61,7 +61,7 @@ public class TestLogController {
 
             if ("all".equals(level) || "error".equals(level)) {
                 if (i % 5 == 0) {
-                    logger.error("[{}][{}] 业务错误 - 库存不足: 商品ID={}, 请求数量={}, 剩余库存={}",
+                    logger.error("[{}][{}] 业务错误 - 库存不足（测试错误日志）: 商品ID={}, 请求数量={}, 剩余库存={}",
                                sessionId, requestId, ThreadLocalRandom.current().nextInt(1000, 9999),
                                ThreadLocalRandom.current().nextInt(1, 10), ThreadLocalRandom.current().nextInt(0, 5));
                 }
@@ -94,9 +94,9 @@ public class TestLogController {
             simulateBusinessProcess(sessionId);
         } catch (Exception e) {
             if (includeStackTrace) {
-                logger.error("[{}] 业务处理异常 - 订单处理失败", sessionId, e);
+                logger.error("[{}] 业务处理异常（测试错误日志） - 订单处理失败", sessionId, e);
             } else {
-                logger.error("[{}] 业务处理异常 - 订单处理失败: {}", sessionId, e.getMessage());
+                logger.error("[{}] 业务处理异常（测试错误日志） - 订单处理失败: {}", sessionId, e.getMessage());
             }
         }
 
