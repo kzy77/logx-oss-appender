@@ -1,5 +1,7 @@
 package org.logx.compatibility.spring.boot;
 
+import java.nio.charset.StandardCharsets;
+import java.util.concurrent.ThreadLocalRandom;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -69,19 +71,53 @@ public class BusinessLogGenerationTest {
         long test2Start = System.currentTimeMillis();
 
         // 生成大消息以快速达到10MB
-        StringBuilder sb = new StringBuilder(2048);
-        for (int j = 0; j < 2048; j++) {
-            sb.append("X");
-        }
-        String largeMessage = sb.toString(); // 2KB消息
-        int messagesFor10MB = (10 * 1024 * 1024) / 2048 + 100; // 约5200条消息
+        // 每条消息100KB，确保消息数量远小于8192，必定由字节数触发
+        // 使用随机中文汉字模拟真实业务日志，更准确地测试压缩效果
+        StringBuilder sb = new StringBuilder(100 * 1024);
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        String[] chineseWords = {
+            "订单", "用户", "商品", "支付", "配送", "退款", "库存", "价格", "优惠", "会员",
+            "交易", "物流", "仓库", "发货", "收货", "评价", "客服", "系统", "处理", "成功",
+            "失败", "异常", "请求", "响应", "时间", "金额", "数量", "状态", "编号", "信息",
+            "创建", "更新", "删除", "查询", "确认", "取消", "完成", "待处理", "进行中", "已结束"
+        };
+        String[] actionPhrases = {
+            "状态更新成功", "自动重试完成", "等待支付确认", "已进入拣货流程", "完成库存校验",
+            "同步风控规则", "准备配送发出", "消费者确认收货", "客服已介入处理", "系统自动补偿中",
+            "触发风控复核", "消息队列入站", "异步任务执行完成", "开始生成对账", "完成售后登记"
+        };
+        String[] punctuationMarks = {"，", "、"};
 
-        logger.info("生成{}条大消息(2KB/条)测试字节数触发...", messagesFor10MB);
+        for (int j = 0; j < 5000; j++) {
+            sb.append(chineseWords[random.nextInt(chineseWords.length)]);
+            sb.append("：");
+            int chunkCount = random.nextInt(2, 5);
+            for (int k = 0; k < chunkCount; k++) {
+                if (random.nextInt(10) < 3) {
+                    sb.append(actionPhrases[random.nextInt(actionPhrases.length)]);
+                } else {
+                    sb.append(randomChineseChunk(random, 3, 9));
+                }
+                if (k < chunkCount - 1) {
+                    sb.append(punctuationMarks[random.nextInt(punctuationMarks.length)]);
+                }
+            }
+            sb.append("；");
+        }
+        String largeMessage = sb.toString(); // 约100KB中文业务日志消息（内容随机略有浮动）
+        byte[] messageBytes = largeMessage.getBytes(StandardCharsets.UTF_8);
+
+        int messagesFor10MB = (int) Math.ceil((10 * 1024 * 1024) / (double) messageBytes.length) + 5;
+
+        logger.info("单条消息大小约 {} KB，生成 {} 条大消息测试字节数触发...",
+                    String.format("%.2f", messageBytes.length / 1024.0), messagesFor10MB);
+        logger.info("消息数量: {} << 8192 (maxBatchCount)，确保由字节数触发", messagesFor10MB);
+
         for (int i = 0; i < messagesFor10MB; i++) {
             logger.info("字节数触发测试 #{} - 大消息: {}", i + 1, largeMessage);
 
-            if (i % 500 == 0) {
-                Thread.sleep(30);
+            if (i % 20 == 0) {
+                Thread.sleep(50);
             }
         }
 
@@ -416,4 +452,22 @@ public class BusinessLogGenerationTest {
                    qpsPass ? "✅" : "⚠️", String.format("%.0f", actualQPS));
         logger.info("消费线程数配置: 1 (核心线程数: 1, 最大线程数: 1)");
     }
+
+    private static String randomChineseChunk(ThreadLocalRandom random, int minLength, int maxLength) {
+        int targetLength = random.nextInt(minLength, maxLength + 1);
+        StringBuilder chunk = new StringBuilder(targetLength);
+        while (chunk.length() < targetLength) {
+            int codePoint = randomChineseCodePoint(random);
+            chunk.appendCodePoint(codePoint);
+        }
+        if (chunk.length() > targetLength) {
+            chunk.setLength(targetLength);
+        }
+        return chunk.toString();
+    }
+
+    private static int randomChineseCodePoint(ThreadLocalRandom random) {
+        return random.nextInt(0x4E00, 0x9FA6);
+    }
+
 }

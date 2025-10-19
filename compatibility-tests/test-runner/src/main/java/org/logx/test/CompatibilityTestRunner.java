@@ -17,6 +17,7 @@ public class CompatibilityTestRunner {
 
     private static final String[] TEST_MODULES = {
         "config-consistency-test",
+        "jsp-servlet-test",
         "multi-framework-test",
         "spring-boot-test",
         "spring-mvc-test"

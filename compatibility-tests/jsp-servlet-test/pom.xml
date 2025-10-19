@@ -35,6 +35,10 @@
             <groupId>org.logx</groupId>
             <artifactId>logback-oss-appender</artifactId>
         </dependency>
+        <dependency>
+            <groupId>log4j</groupId>
+            <artifactId>log4j</artifactId>
+        </dependency>
         <!-- SLF4J API -->
         <dependency>
             <groupId>org.slf4j</groupId>

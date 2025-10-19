@@ -27,7 +27,7 @@ public class TestExceptionServlet extends HttpServlet {
             // 模拟一个异常
             throw new RuntimeException("测试异常");
         } catch (Exception e) {
-            logger.error("捕获到异常", e);
+            logger.error("测试错误日志 - 捕获到异常: " + e.toString());
         }
 
         response.setContentType("text/html;charset=UTF-8");
