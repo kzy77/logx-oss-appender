@@ -609,7 +609,7 @@ export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
@@ -633,7 +633,7 @@ logx.oss.storage.accessKeyId=your-access-key-id
 logx.oss.storage.accessKeySecret=your-access-key-secret
 logx.oss.storage.bucket=your-bucket-name
 logx.oss.storage.region=cn-hangzhou
-logx.oss.storage.keyPrefix=logx/app/
+logx.oss.storage.keyPrefix=logx/
 
 # 引擎配置（可选）
 logx.oss.engine.batch.count=8192
