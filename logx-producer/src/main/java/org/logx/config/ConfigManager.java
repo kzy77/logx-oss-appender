@@ -9,6 +9,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.logx.config.properties.LogxOssProperties;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 统一配置管理器
@@ -29,6 +31,7 @@ import org.logx.config.properties.LogxOssProperties;
  */
 public class ConfigManager {
 
+    private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
     private static final String DEFAULT_CONFIG_FILE = "logx.properties";
 
     private final Map<String, String> configCache = new ConcurrentHashMap<>();
@@ -445,6 +448,7 @@ public class ConfigManager {
             String productionConfigPath = "/app/deploy/conf/" + DEFAULT_CONFIG_FILE;
             try (FileInputStream input = new FileInputStream(productionConfigPath)) {
                 fileProperties.load(input);
+                logger.info("配置文件加载成功: {}", productionConfigPath);
                 return;
             } catch (IOException e) {
                 // 文件不存在，继续尝试其他路径
@@ -455,6 +459,7 @@ public class ConfigManager {
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(configFilePath)) {
             if (input != null) {
                 fileProperties.load(input);
+                logger.info("配置文件加载成功: classpath:{}", configFilePath);
                 return;
             }
         } catch (IOException e) {
@@ -464,8 +469,10 @@ public class ConfigManager {
         // 尝试从文件系统加载
         try (FileInputStream input = new FileInputStream(configFilePath)) {
             fileProperties.load(input);
+            logger.info("配置文件加载成功: {}", configFilePath);
         } catch (IOException e) {
             // 配置文件不存在或无法读取，使用空属性
+            logger.warn("未找到配置文件: {}，将使用空配置", configFilePath);
             fileProperties = new Properties();
         }
     }
