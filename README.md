@@ -422,7 +422,7 @@ export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
@@ -468,7 +468,7 @@ export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
@@ -501,7 +501,7 @@ export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
@@ -583,9 +583,11 @@ https://cos.ap-shanghai.myqcloud.com    # 上海
 http://localhost:9000                    # 本地MinIO
 ```
 
-### 环境变量配置
+### 环境变量配置或配置文件
 
-建议通过环境变量配置敏感信息。
+支持以下两种配置方式（按优先级）：
+
+#### 方式1：环境变量配置（推荐用于敏感信息）
 
 **环境变量命名规则**：
 将配置键转换为环境变量格式，转换规则如下：
@@ -601,16 +603,53 @@ http://localhost:9000                    # 本地MinIO
 
 ```bash
 # 设置存储配置环境变量
+export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
 export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
 export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
 export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
+export LOGX_OSS_STORAGE_KEY_PREFIX="logx/app/"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
 export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 ```
+
+#### 方式2：logx.properties配置文件
+
+配置文件加载优先级（针对默认配置文件`logx.properties`）：
+1. `/app/deploy/conf/logx.properties` - 生产环境配置目录（最高优先级）
+2. `classpath:logx.properties` - 类路径下的配置文件
+3. `./logx.properties` - 当前目录下的配置文件
+
+**配置示例（logx.properties）**：
+
+```properties
+# 存储配置
+logx.oss.storage.ossType=SF_S3
+logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
+logx.oss.storage.accessKeyId=your-access-key-id
+logx.oss.storage.accessKeySecret=your-access-key-secret
+logx.oss.storage.bucket=your-bucket-name
+logx.oss.storage.region=cn-hangzhou
+logx.oss.storage.keyPrefix=logx/app/
+
+# 引擎配置（可选）
+logx.oss.engine.batch.count=8192
+logx.oss.engine.batch.maxAgeMs=60000
+logx.oss.engine.queue.capacity=524288
+logx.oss.engine.retry.maxRetries=3
+```
+
+**配置文件位置选择**：
+- **开发环境**：使用`src/main/resources/logx.properties`（打包到classpath）
+- **生产环境**：使用`/app/deploy/conf/logx.properties`（便于运维管理，无需重新打包）
+
+**注意事项**：
+- 环境变量优先级高于配置文件
+- 敏感信息（如accessKeyId、accessKeySecret）建议使用环境变量
+- 非敏感配置可使用配置文件，便于管理
 
 ### Java代码示例
 
@@ -707,7 +746,7 @@ logback-oss-appender
             <maxBatchCount>5000</maxBatchCount>     <!-- 增大批量大小 -->
             <maxMessageAgeMs>10000</maxMessageAgeMs> <!-- 降低消息年龄阈值，更快触发批处理 -->
             <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小（必须是2的幂） -->
-            <keyPrefix>logx/app/</keyPrefix>
+            <keyPrefix>logx/</keyPrefix>
 
             <!-- 重试策略 -->
             <maxRetries>3</maxRetries>
