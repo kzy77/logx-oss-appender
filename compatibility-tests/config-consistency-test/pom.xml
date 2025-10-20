@@ -39,11 +39,6 @@
             <artifactId>logx-s3-adapter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>logx-sf-oss-adapter</artifactId>
-        </dependency>
-
         <!-- Jackson YAML for configuration parsing -->
         <dependency>
             <groupId>com.fasterxml.jackson.dataformat</groupId>

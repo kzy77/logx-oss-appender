@@ -79,12 +79,6 @@
                 <version>${logx.version}</version>
             </dependency>
 
-            <dependency>
-                <groupId>org.logx</groupId>
-                <artifactId>logx-sf-oss-adapter</artifactId>
-                <version>${logx.version}</version>
-            </dependency>
-
             <!-- Spring Dependencies -->
             <dependency>
                 <groupId>org.springframework</groupId>

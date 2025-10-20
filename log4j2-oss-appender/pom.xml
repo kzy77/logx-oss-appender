@@ -57,12 +57,6 @@
             <artifactId>logx-s3-adapter</artifactId>
             <scope>test</scope>
         </dependency>
-        <!-- 添加SF OSS适配器依赖用于测试 -->
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>logx-sf-oss-adapter</artifactId>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
 
     <build>

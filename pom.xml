@@ -50,10 +50,10 @@
     <modules>
         <module>logx-producer</module>
         <module>logx-s3-adapter</module>
-        <module>logx-sf-oss-adapter</module>
         <module>log4j-oss-appender</module>
         <module>log4j2-oss-appender</module>
         <module>logback-oss-appender</module>
+        <module>all-in-one</module>
         <module>compatibility-tests</module>
     </modules>
 
@@ -95,13 +95,7 @@
                 <artifactId>logx-s3-adapter</artifactId>
                 <version>${project.version}</version>
             </dependency>
-            
-            <dependency>
-                <groupId>org.logx</groupId>
-                <artifactId>logx-sf-oss-adapter</artifactId>
-                <version>${project.version}</version>
-            </dependency>
-            
+
             <dependency>
                 <groupId>org.logx</groupId>
                 <artifactId>log4j-oss-appender</artifactId>

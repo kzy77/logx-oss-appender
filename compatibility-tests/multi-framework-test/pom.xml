@@ -39,11 +39,6 @@
             <artifactId>logx-s3-adapter</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>logx-sf-oss-adapter</artifactId>
-        </dependency>
-
         <!-- Logging frameworks for compatibility testing -->
         <dependency>
             <groupId>log4j</groupId>
