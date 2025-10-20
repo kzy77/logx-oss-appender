@@ -425,12 +425,31 @@ public class ConfigManager {
 
     /**
      * 加载指定配置文件
+     * <p>
+     * 对于默认配置文件（logx.properties），按以下优先级加载：
+     * <ol>
+     * <li>/app/deploy/conf/logx.properties - 生产环境配置目录（最高优先级）</li>
+     * <li>classpath:logx.properties - 类路径下的配置文件</li>
+     * <li>./logx.properties - 当前目录下的配置文件</li>
+     * </ol>
+     * 对于自定义配置文件路径，保持原有加载逻辑。
      *
      * @param configFilePath
      *            配置文件路径
      */
     private void loadFileProperties(String configFilePath) {
         fileProperties = new Properties();
+
+        // 如果是默认配置文件，优先从生产环境目录加载
+        if (DEFAULT_CONFIG_FILE.equals(configFilePath)) {
+            String productionConfigPath = "/app/deploy/conf/" + DEFAULT_CONFIG_FILE;
+            try (FileInputStream input = new FileInputStream(productionConfigPath)) {
+                fileProperties.load(input);
+                return;
+            } catch (IOException e) {
+                // 文件不存在，继续尝试其他路径
+            }
+        }
 
         // 尝试从类路径加载
         try (InputStream input = getClass().getClassLoader().getResourceAsStream(configFilePath)) {
