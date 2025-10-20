@@ -130,8 +130,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             return future;
         }
 
-        // 执行标准上传，不处理分片和重试，这些由核心层处理
-        return CompletableFuture.runAsync(() -> {
+        try {
             // 检查客户端是否已关闭
             if (s3Client == null) {
                 throw new IllegalStateException("S3 client has been closed");
@@ -159,27 +158,36 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             }
 
             PutObjectRequest putRequest = requestBuilder.build();
-
             RequestBody requestBody = RequestBody.fromBytes(data);
 
-            try {
-                s3Client.putObject(putRequest, requestBody);
-                logger.debug("Successfully uploaded object: endpoint={}, bucket={}, key={}, size={} bytes",
-                    endpoint, bucketName, key, data.length);
-            } catch (IllegalStateException e) {
-                // 检查是否是连接池关闭的异常
-                if (e.getMessage() != null && e.getMessage().contains("Connection pool shut down")) {
-                    throw new IllegalStateException("S3 client connection pool has been shut down", e);
-                }
-                throw e;
-            } catch (Exception e) {
-                // 记录详细的错误信息用于排查
-                logger.error("Failed to upload object to S3. Endpoint: {}, Bucket: {}, Key: {}, Size: {} bytes, Error: {}",
-                    endpoint, bucketName, key, data.length, e.getMessage());
-                // 直接抛出异常，由核心层处理重试和错误处理
-                throw new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e);
+            // 同步执行上传（调用方已经在uploadExecutor线程中）
+            s3Client.putObject(putRequest, requestBody);
+            
+            logger.debug("Successfully uploaded object: endpoint={}, bucket={}, key={}, size={} bytes",
+                endpoint, bucketName, key, data.length);
+            
+            return CompletableFuture.completedFuture(null);
+            
+        } catch (IllegalStateException e) {
+            // 检查是否是连接池关闭的异常
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            if (e.getMessage() != null && e.getMessage().contains("Connection pool shut down")) {
+                future.completeExceptionally(
+                    new IllegalStateException("S3 client connection pool has been shut down", e));
+            } else {
+                future.completeExceptionally(e);
             }
-        });
+            return future;
+        } catch (Exception e) {
+            // 记录详细的错误信息用于排查
+            logger.error("Failed to upload object to S3. Endpoint: {}, Bucket: {}, Key: {}, Size: {} bytes, Error: {}",
+                endpoint, bucketName, key, data.length, e.getMessage());
+            // 返回失败的Future，由核心层处理重试和错误处理
+            CompletableFuture<Void> future = new CompletableFuture<>();
+            future.completeExceptionally(
+                new RuntimeException("Failed to upload object to S3: " + e.getMessage(), e));
+            return future;
+        }
     }
 
     @Override
