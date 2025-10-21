@@ -153,7 +153,7 @@ public final class S3StorageServiceAdapter implements StorageService, AutoClosea
             // 当ossType为SF_S3时，需要设置X-Delete-After元数据
             if ("SF_S3".equals(ossType)) {
                 Map<String, String> metadata = new HashMap<>();
-                metadata.put("X-Delete-After", "31536000");
+                metadata.put("X-Delete-After", "157680000");
                 requestBuilder.metadata(metadata);
             }
 
