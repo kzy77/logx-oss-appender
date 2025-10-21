@@ -559,6 +559,7 @@ export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
+| **enabled** | Boolean | true | 是否启用appender，为false时appender不会处理任何日志 |
 | **region** | String | ap-guangzhou | 存储区域 |
 | **keyPrefix** | String | logx/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_OSS | 存储后端类型，支持SF_OSS、S3等 |
@@ -634,6 +635,7 @@ http://localhost:9000                    # 本地MinIO
 - `logx.oss.storage.accessKeyId` → `LOGX_OSS_STORAGE_ACCESS_KEY_ID`（驼峰转换）
 - `logx.oss.engine.batch.count` → `LOGX_OSS_ENGINE_BATCH_COUNT`
 - `logx.oss.storage.region` → `LOGX_OSS_STORAGE_REGION`
+- `logx.oss.enabled` → `LOGX_OSS_ENABLED`
 
 ```bash
 # 设置存储配置环境变量

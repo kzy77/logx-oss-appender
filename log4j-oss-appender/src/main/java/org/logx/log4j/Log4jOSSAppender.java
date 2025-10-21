@@ -31,9 +31,16 @@ public class Log4jOSSAppender extends AppenderSkeleton {
             // 应用XML配置（如果有的话）
             applyXmlConfig(properties);
 
+            // 检查enabled开关，如果为false则不初始化任何资源
+            if (!properties.isEnabled()) {
+                getErrorHandler().error("Log4jOSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization", null, 0);
+                return;
+            }
+
             StorageConfig storageConfig = new StorageConfig(properties);
 
             AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
+            engineConfig.enabled(properties.isEnabled());
             engineConfig.queueCapacity(properties.getEngine().getQueue().getCapacity());
             engineConfig.batchMaxMessages(properties.getEngine().getBatch().getCount());
             engineConfig.batchMaxBytes(properties.getEngine().getBatch().getBytes());
@@ -50,6 +57,11 @@ public class Log4jOSSAppender extends AppenderSkeleton {
     }
 
     private void applyXmlConfig(LogxOssProperties properties) {
+        // 全局配置 - enabled开关
+        if (xmlConfig.containsKey("logx.oss.enabled")) {
+            properties.setEnabled(Boolean.parseBoolean(xmlConfig.get("logx.oss.enabled")));
+        }
+
         // 存储配置（占位符已在resolveXmlConfigPlaceholders中解析）
         if (xmlConfig.containsKey("logx.oss.storage.endpoint")) {
             properties.getStorage().setEndpoint(xmlConfig.get("logx.oss.storage.endpoint"));
@@ -205,5 +217,9 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
     public void setPathStyleAccess(String pathStyleAccess) {
         xmlConfig.put("logx.oss.storage.pathStyleAccess", pathStyleAccess);
+    }
+
+    public void setEnabled(String enabled) {
+        xmlConfig.put("logx.oss.enabled", enabled);
     }
 }

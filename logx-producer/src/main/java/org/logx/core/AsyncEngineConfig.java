@@ -2,6 +2,7 @@ package org.logx.core;
 
 public class AsyncEngineConfig {
 
+    private boolean enabled = true;
     private int queueCapacity = 524288;
     private int batchMaxMessages = 8192;
     private int batchMaxBytes = 10 * 1024 * 1024;
@@ -27,6 +28,15 @@ public class AsyncEngineConfig {
 
     public static AsyncEngineConfig defaultConfig() {
         return new AsyncEngineConfig();
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public AsyncEngineConfig enabled(boolean enabled) {
+        this.enabled = enabled;
+        return this;
     }
 
     public int getQueueCapacity() {

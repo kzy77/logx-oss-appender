@@ -2,8 +2,17 @@ package org.logx.config.properties;
 
 public class LogxOssProperties {
 
+    private boolean enabled = true;
     private Storage storage = new Storage();
     private Engine engine = new Engine();
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
 
     public Storage getStorage() {
         return storage;

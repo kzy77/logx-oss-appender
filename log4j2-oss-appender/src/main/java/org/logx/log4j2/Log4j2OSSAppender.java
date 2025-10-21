@@ -42,9 +42,16 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
             applyXmlConfig(properties);
 
+            // 检查enabled开关，如果为false则不初始化任何资源
+            if (!properties.isEnabled()) {
+                LOGGER.error("Log4j2OSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
+                return;
+            }
+
             StorageConfig storageConfig = new StorageConfig(properties);
 
             AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
+            engineConfig.enabled(properties.isEnabled());
             engineConfig.queueCapacity(properties.getEngine().getQueue().getCapacity());
             engineConfig.batchMaxMessages(properties.getEngine().getBatch().getCount());
             engineConfig.batchMaxBytes(properties.getEngine().getBatch().getBytes());
@@ -62,6 +69,9 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     }
 
     private void applyXmlConfig(LogxOssProperties properties) {
+        // 全局配置 - enabled
+        xmlConfig.computeIfPresent("logx.oss.enabled", (k, v) -> { properties.setEnabled(Boolean.parseBoolean(v)); return v; });
+
         // Storage Config
         xmlConfig.computeIfPresent("logx.oss.storage.endpoint", (k, v) -> { properties.getStorage().setEndpoint(v); return v; });
         xmlConfig.computeIfPresent("logx.oss.storage.region", (k, v) -> { properties.getStorage().setRegion(v); return v; });
@@ -92,6 +102,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         if (!isStarted() || adapter == null) {
             return;
         }
+
         adapter.append(event);
     }
 
@@ -120,4 +131,8 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     public void setMaxRetries(String maxRetries) { xmlConfig.put("logx.oss.engine.retry.maxRetries", maxRetries); }
     public void setBaseBackoffMs(String baseBackoffMs) { xmlConfig.put("logx.oss.engine.retry.baseBackoffMs", baseBackoffMs); }
     public void setMaxBackoffMs(String maxBackoffMs) { xmlConfig.put("logx.oss.engine.retry.maxBackoffMs", maxBackoffMs); }
+
+    public void setEnabled(String enabled) {
+        xmlConfig.put("logx.oss.enabled", enabled);
+    }
 }

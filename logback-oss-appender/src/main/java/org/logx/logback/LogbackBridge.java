@@ -52,6 +52,10 @@ public class LogbackBridge extends AbstractUniversalAdapter {
         // Note: In a real implementation, we would need to recreate the asyncEngine
         // when the configuration changes, but for now we're just storing the config
     }
+
+    public AsyncEngineConfig getEngineConfig() {
+        return engineConfig;
+    }
     
     @Override
     public void append(Object event) {
