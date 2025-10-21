@@ -162,7 +162,9 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             }
 
             try {
-                Thread.sleep(1L);
+                synchronized (this) {
+                    wait(1L);
+                }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 return false;
@@ -217,7 +219,9 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 scheduler.shutdownNow();
             }
 
-            Thread.sleep(100);
+            synchronized (this) {
+                wait(100);
+            }
 
             logger.info("Step 3: Processing remaining events in the ring buffer");
             forceProcessAllRemainingEvents();
