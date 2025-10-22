@@ -12,6 +12,7 @@ public class LogxOssConfigResolver {
 
     public LogxOssProperties resolve() {
         LogxOssProperties properties = new LogxOssProperties();
+        resolveEnabled(properties);
         resolveStorage(properties.getStorage());
         resolveEngine(properties.getEngine());
         return properties;
@@ -19,6 +20,10 @@ public class LogxOssConfigResolver {
 
     private String resolve(String value) {
         return configManager.resolvePlaceholders(value);
+    }
+
+    private void resolveEnabled(LogxOssProperties properties) {
+        properties.setEnabled(configManager.getBooleanProperty("logx.oss.enabled", properties.isEnabled()));
     }
 
     private void resolveStorage(LogxOssProperties.Storage storage) {
