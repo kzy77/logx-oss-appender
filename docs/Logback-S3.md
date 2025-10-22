@@ -54,7 +54,6 @@ java -cp s3-logback-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourMainClass
         <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-
     </appender>
 
     <!-- 根日志配置 -->
@@ -106,6 +105,9 @@ logx.oss.storage.bucket=your-bucket-name
 logx.oss.storage.region=cn-hangzhou
 logx.oss.storage.keyPrefix=logx/
 
+# 启用开关配置（需要重启服务生效）
+logx.oss.enabled=true
+
 # 引擎配置（可选）
 logx.oss.engine.batch.count=8192
 logx.oss.engine.batch.maxAgeMs=60000
@@ -152,6 +154,7 @@ public class LogExample {
 
 | 参数名 | 类型 | 默认值 | 说明 |
 |--------|------|--------|------|
+| **enabled** | Boolean | true | 是否启用appender，为false时appender不会处理任何日志（需要重启服务生效） |
 | **region** | String | US | 存储区域 |
 | **keyPrefix** | String | logx/ | 对象存储中的文件路径前缀 |
 | **ossType** | String | SF_S3 | 存储后端类型，支持SF_S3、S3等 |
@@ -239,6 +242,7 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
 export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
 export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
+export LOGX_OSS_ENABLED="true"
 
 # 引擎配置（可选）
 export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
