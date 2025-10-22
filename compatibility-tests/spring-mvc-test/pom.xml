@@ -40,10 +40,6 @@
         <!-- <dependency>
             <groupId>org.logx</groupId>
             <artifactId>logback-oss-appender</artifactId>
-        </dependency> -->
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>log4j-oss-appender</artifactId>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
@@ -53,11 +49,15 @@
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
         </dependency>
+        <dependency>
+            <groupId>org.logx</groupId>
+            <artifactId>log4j-oss-appender</artifactId>
+        </dependency> -->
 
-        <!-- <dependency>
+        <dependency>
             <groupId>org.logx</groupId>
             <artifactId>log4j2-oss-appender</artifactId>
-        </dependency> -->
+        </dependency>
 
         <dependency>
             <groupId>org.logx</groupId>

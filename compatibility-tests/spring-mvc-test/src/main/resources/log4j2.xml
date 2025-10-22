@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Console>
+
+        <!-- Log4j2 OSS Appender -->
+        <Log4j2OSSAppender name="LogX-OSS">
+            <!-- appender配置将通过logx.properties文件进行 -->
+        </Log4j2OSSAppender>
+    </Appenders>
+
+    <Loggers>
+        <!-- 业务日志记录器 -->
+        <Logger name="org.logx.compatibility" level="INFO" additivity="false">
+            <AppenderRef ref="LogX-OSS"/>
+            <AppenderRef ref="Console"/>
+        </Logger>
+
+        <Root level="INFO">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="LogX-OSS"/>
+        </Root>
+    </Loggers>
+</Configuration>
