@@ -44,7 +44,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
             // 检查enabled开关，如果为false则不初始化任何资源
             if (!properties.isEnabled()) {
-                LOGGER.error("Log4j2OSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
+                LOGGER.info("Log4j2OSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
                 return;
             }
 

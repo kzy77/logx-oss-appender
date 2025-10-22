@@ -51,16 +51,6 @@
             <version>1.7.36</version>
         </dependency>
 
-        <!-- <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>log4j2-oss-appender</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>org.logx</groupId>
-            <artifactId>log4j-oss-appender</artifactId>
-        </dependency> -->
-
         <dependency>
             <groupId>org.logx</groupId>
             <artifactId>logx-s3-adapter</artifactId>
