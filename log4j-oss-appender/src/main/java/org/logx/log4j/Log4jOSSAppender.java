@@ -1,6 +1,7 @@
 package org.logx.log4j;
 
 import org.apache.log4j.AppenderSkeleton;
+import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.config.ConfigManager;
 import org.logx.config.properties.LogxOssProperties;
@@ -11,6 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Log4jOSSAppender extends AppenderSkeleton {
+
+    private static final Logger logger = Logger.getLogger(Log4jOSSAppender.class);
 
     private Log4j1xBridge adapter;
 
@@ -33,7 +36,7 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
             // 检查enabled开关，如果为false则不初始化任何资源
             if (!properties.isEnabled()) {
-                getErrorHandler().error("Log4jOSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization", null, 0);
+                logger.info("Log4jOSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
                 return;
             }
 
