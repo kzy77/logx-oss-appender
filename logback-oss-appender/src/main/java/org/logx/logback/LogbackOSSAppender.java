@@ -43,7 +43,8 @@ public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
             // 检查enabled开关，如果为false则不初始化任何资源
             if (!properties.isEnabled()) {
-                addError("LogbackOSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
+                addWarn("LogbackOSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
+                super.start();
                 return;
             }
 
