@@ -103,3 +103,5 @@ dist/
 *.log.gz
 .sdkmanrc
 
+application.log.*
+
