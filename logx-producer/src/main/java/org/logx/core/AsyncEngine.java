@@ -59,7 +59,7 @@ public interface AsyncEngine {
      * @return AsyncEngine的实例
      */
     static AsyncEngine create(StorageService storage, AsyncEngineConfig config) {
-        return new AsyncEngineImpl(config);
+        return new AsyncEngineImpl(config, storage);
     }
     
     /**

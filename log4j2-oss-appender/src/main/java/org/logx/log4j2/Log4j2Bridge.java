@@ -36,11 +36,11 @@ public class Log4j2Bridge extends AbstractUniversalAdapter {
         // 设置StorageConfig到引擎配置
         if (engineConfig != null) {
             engineConfig.setStorageConfig(config);
-            this.asyncEngine = AsyncEngine.create(engineConfig);
+            this.asyncEngine = AsyncEngine.create(storageService, engineConfig);
         } else {
             AsyncEngineConfig defaultConfig = AsyncEngineConfig.defaultConfig();
             defaultConfig.setStorageConfig(config);
-            this.asyncEngine = AsyncEngine.create(defaultConfig);
+            this.asyncEngine = AsyncEngine.create(storageService, defaultConfig);
         }
     }
     
