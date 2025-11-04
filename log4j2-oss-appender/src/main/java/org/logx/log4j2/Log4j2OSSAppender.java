@@ -17,6 +17,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
@@ -24,12 +25,27 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     private Log4j2Bridge adapter;
     private final Map<String, String> xmlConfig = new HashMap<>();
 
+    // 全局初始化标志，防止重复初始化
+    private static final AtomicBoolean alreadyInitialized = new AtomicBoolean(false);
+
     public Log4j2OSSAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout) {
         super(name, filter, layout, true, null);
     }
 
     @Override
     public void start() {
+        // 检查是否已经初始化过
+        if (alreadyInitialized.get()) {
+            LOGGER.info("Log4j2OSSAppender already initialized, skipping initialization");
+            return;
+        }
+
+        // 尝试设置为已初始化状态
+        if (!alreadyInitialized.compareAndSet(false, true)) {
+            LOGGER.info("Log4j2OSSAppender already initialized by another thread, skipping initialization");
+            return;
+        }
+
         if (getLayout() == null) {
             LOGGER.error("No layout set for the appender named \"{}\".", getName());
             return;

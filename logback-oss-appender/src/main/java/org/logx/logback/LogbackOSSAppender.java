@@ -10,17 +10,33 @@ import org.logx.storage.StorageConfig;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class LogbackOSSAppender extends AppenderBase<ILoggingEvent> {
 
     private Encoder<ILoggingEvent> encoder;
     private LogbackBridge adapter;
 
+    // 全局初始化标志，防止重复初始化
+    private static final AtomicBoolean alreadyInitialized = new AtomicBoolean(false);
+
     // XML配置字段
     private final Map<String, String> xmlConfig = new HashMap<>();
 
     @Override
     public void start() {
+        // 检查是否已经初始化过
+        if (alreadyInitialized.get()) {
+            addInfo("LogbackOSSAppender already initialized, skipping initialization");
+            return;
+        }
+
+        // 尝试设置为已初始化状态
+        if (!alreadyInitialized.compareAndSet(false, true)) {
+            addInfo("LogbackOSSAppender already initialized by another thread, skipping initialization");
+            return;
+        }
+
         if (encoder == null) {
             addError("No encoder set for the appender named \"" + name + "\"");
             return;

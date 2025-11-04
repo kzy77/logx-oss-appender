@@ -10,6 +10,7 @@ import org.logx.storage.StorageConfig;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class Log4jOSSAppender extends AppenderSkeleton {
 
@@ -17,12 +18,27 @@ public class Log4jOSSAppender extends AppenderSkeleton {
 
     private Log4j1xBridge adapter;
 
+    // 全局初始化标志，防止重复初始化
+    private static final AtomicBoolean alreadyInitialized = new AtomicBoolean(false);
+
     // XML配置字段
     private final Map<String, String> xmlConfig = new HashMap<>();
 
     @Override
     public void activateOptions() {
         super.activateOptions();
+
+        // 检查是否已经初始化过
+        if (alreadyInitialized.get()) {
+            logger.info("Log4jOSSAppender already initialized, skipping initialization");
+            return;
+        }
+
+        // 尝试设置为已初始化状态
+        if (!alreadyInitialized.compareAndSet(false, true)) {
+            logger.info("Log4jOSSAppender already initialized by another thread, skipping initialization");
+            return;
+        }
 
         try {
             ConfigManager configManager = new ConfigManager();
