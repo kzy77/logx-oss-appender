@@ -20,6 +20,9 @@
         <module>multi-framework-test</module>
         <module>config-consistency-test</module>
         <module>test-runner</module>
+        <module>all-in-one-test/s3-all-in-one-logback-test</module>
+        <module>all-in-one-test/s3-all-in-one-log4j2-test</module>
+        <module>all-in-one-test/s3-all-in-one-log4j-test</module>
     </modules>
 
     <properties>

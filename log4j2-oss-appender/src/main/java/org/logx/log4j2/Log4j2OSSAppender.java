@@ -8,6 +8,8 @@ import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
+import org.apache.logging.log4j.core.config.plugins.PluginFactory;
+import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.logx.config.ConfigManager;
 import org.logx.config.properties.LogxOssProperties;
 import org.logx.core.AsyncEngineConfig;
@@ -19,7 +21,7 @@ import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-@Plugin(name = "OSS", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
+@Plugin(name = "Log4j2OSSAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE, printObject = true)
 public final class Log4j2OSSAppender extends AbstractAppender {
 
     private Log4j2Bridge adapter;
@@ -29,7 +31,22 @@ public final class Log4j2OSSAppender extends AbstractAppender {
     private static final AtomicBoolean alreadyInitialized = new AtomicBoolean(false);
 
     public Log4j2OSSAppender(final String name, final Filter filter, final Layout<? extends Serializable> layout) {
-        super(name, filter, layout, true, null);
+        super(name, filter, layout != null ? layout : createDefaultLayout(), true, null);
+    }
+
+    // 创建默认的PatternLayout
+    private static Layout<? extends Serializable> createDefaultLayout() {
+        return org.apache.logging.log4j.core.layout.PatternLayout.newBuilder()
+            .withPattern("%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n")
+            .build();
+    }
+
+    @PluginFactory
+    public static Log4j2OSSAppender createAppender(
+            @PluginAttribute("name") final String name,
+            @PluginElement("Layout") final Layout<? extends Serializable> layout,
+            @PluginElement("Filter") final Filter filter) {
+        return new Log4j2OSSAppender(name, filter, layout);
     }
 
     @Override

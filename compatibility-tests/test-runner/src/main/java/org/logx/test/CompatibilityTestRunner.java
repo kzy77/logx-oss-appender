@@ -20,7 +20,10 @@ public class CompatibilityTestRunner {
         "jsp-servlet-test",
         "multi-framework-test",
         "spring-boot-test",
-        "spring-mvc-test"
+        "spring-mvc-test",
+        "all-in-one-test/s3-all-in-one-logback-test",
+        "all-in-one-test/s3-all-in-one-log4j-test",
+        "all-in-one-test/s3-all-in-one-log4j2-test"
     };
 
     private static final String ANSI_RESET = "\u001B[0m";
@@ -65,8 +68,10 @@ public class CompatibilityTestRunner {
         System.out.println(ANSI_BLUE + "=== 清理旧的日志文件和兜底文件 ===" + ANSI_RESET);
 
         for (String module : TEST_MODULES) {
-            Path logDir = rootPath.resolve("compatibility-tests").resolve(module).resolve("logs");
-            Path logxDir = rootPath.resolve("compatibility-tests").resolve(module).resolve("logx");
+            // 处理嵌套模块路径
+            String cleanModulePath = module.replace("/", File.separator);
+            Path logDir = rootPath.resolve("compatibility-tests").resolve(cleanModulePath).resolve("logs");
+            Path logxDir = rootPath.resolve("compatibility-tests").resolve(cleanModulePath).resolve("logx");
 
             if (Files.exists(logDir)) {
                 try {
@@ -125,8 +130,10 @@ public class CompatibilityTestRunner {
 
     private void checkErrorLogs() {
         for (String module : TEST_MODULES) {
+            // 处理嵌套模块路径
+            String cleanModulePath = module.replace("/", File.separator);
             Path errorLog = rootPath.resolve("compatibility-tests")
-                .resolve(module)
+                .resolve(cleanModulePath)
                 .resolve("logs")
                 .resolve("application-error.log");
 
@@ -154,7 +161,7 @@ public class CompatibilityTestRunner {
             List<String> lines = Files.readAllLines(errorLog);
 
             for (String line : lines) {
-                if (line.contains("ERROR") && !line.contains("测试错误日志")) {
+                if (line.contains("ERROR") && !line.contains("测试日志") && !line.contains("测试错误日志")) {
                     return true;
                 }
             }
@@ -254,8 +261,10 @@ public class CompatibilityTestRunner {
         boolean foundFallbackFiles = false;
 
         for (String module : TEST_MODULES) {
+            // 处理嵌套模块路径
+            String cleanModulePath = module.replace("/", File.separator);
             Path logxDir = rootPath.resolve("compatibility-tests")
-                .resolve(module)
+                .resolve(cleanModulePath)
                 .resolve("logx");
 
             if (Files.exists(logxDir) && Files.isDirectory(logxDir)) {
@@ -295,11 +304,16 @@ public class CompatibilityTestRunner {
                 ? "mvn.cmd"
                 : "mvn";
 
+            // 处理嵌套模块路径
+            String modulePath = "compatibility-tests/" + module;
+
+            System.out.println(ANSI_YELLOW + "  执行命令: " + mvnCommand + " test -pl " + modulePath + ANSI_RESET);
+
             ProcessBuilder pb = new ProcessBuilder(
                 mvnCommand,
                 "test",
                 "-pl",
-                "compatibility-tests/" + module
+                modulePath
             );
 
             pb.directory(rootPath.toFile());
@@ -345,8 +359,10 @@ public class CompatibilityTestRunner {
     private void checkAndReportFailureDetails(String module) {
         System.out.println(ANSI_YELLOW + "检查失败详情..." + ANSI_RESET);
 
+        // 处理嵌套模块路径
+        String cleanModulePath = module.replace("/", File.separator);
         Path errorLog = rootPath.resolve("compatibility-tests")
-            .resolve(module)
+            .resolve(cleanModulePath)
             .resolve("logs")
             .resolve("application-error.log");
 
@@ -384,7 +400,7 @@ public class CompatibilityTestRunner {
         }
 
         Path surefireReports = rootPath.resolve("compatibility-tests")
-            .resolve(module)
+            .resolve(cleanModulePath)
             .resolve("target")
             .resolve("surefire-reports");
 

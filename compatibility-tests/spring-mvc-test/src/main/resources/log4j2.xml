@@ -27,7 +27,7 @@
         </RollingFile>
 
         <!-- Log4j2 OSS Appender -->
-        <Log4j2OSSAppender name="LogX-OSS">
+        <Log4j2OSSAppender name="OSS_APPENDER">
             <!-- appender配置将通过logx.properties文件进行 -->
         </Log4j2OSSAppender>
     </Appenders>
@@ -35,7 +35,7 @@
     <Loggers>
         <!-- 业务日志记录器 -->
         <Logger name="org.logx.compatibility" level="INFO" additivity="false">
-            <AppenderRef ref="LogX-OSS"/>
+            <AppenderRef ref="OSS_APPENDER"/>
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
             <AppenderRef ref="ErrorFile"/>
@@ -45,7 +45,7 @@
             <AppenderRef ref="Console"/>
             <AppenderRef ref="File"/>
             <AppenderRef ref="ErrorFile"/>
-            <AppenderRef ref="LogX-OSS"/>
+            <AppenderRef ref="OSS_APPENDER"/>
         </Root>
     </Loggers>
 </Configuration>
