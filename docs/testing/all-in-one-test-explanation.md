@@ -15,25 +15,18 @@ compatibility-tests/all-in-one-test/
 
 ## 测试特点
 
-### 1. System Scope依赖
-All-in-One测试使用Maven的`system`作用域依赖，直接引用本地JAR文件：
+### 1. 项目依赖
+All-in-One测试使用标准的Maven项目依赖，直接引用构建生成的All-in-One JAR文件：
 
 ```xml
 <dependency>
     <groupId>org.logx</groupId>
     <artifactId>s3-log4j2-oss-appender</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <scope>system</scope>
-    <systemPath>${project.basedir}/lib/s3-log4j2-oss-appender-1.0.0-SNAPSHOT.jar</systemPath>
 </dependency>
 ```
 
-### 2. IDE集成限制
-由于使用system依赖，IDE（如VSCode的Java测试运行器）无法直接解析这些依赖，导致：
-- 无法直接点击运行测试类或测试方法
-- 需要使用命令行方式运行测试
-
-### 3. 运行方式
+### 2. 运行方式
 
 #### 推荐方式（命令行）
 ```bash
@@ -117,18 +110,14 @@ logx.oss.storage.enableSsl=${LOGX_OSS_STORAGE_ENABLE_SSL:false}
 **问题**：测试构建失败，提示找不到JAR文件
 **解决**：先构建整个项目或相关all-in-one模块
 
-### 2. IDE无法运行测试
-**问题**：VSCode无法直接运行All-in-One测试
-**解决**：使用命令行方式运行，参考"运行方式"章节
-
-### 3. 版本升级
+### 2. 版本升级
 当升级主项目版本时，需要同时更新以下位置的版本号：
 - All-in-One测试模块的pom.xml中的依赖版本
-- 系统依赖路径中的版本号
 
 ## 设计哲学
 
-选择system作用域依赖的设计是为了：
-1. 真实模拟非Maven项目的使用环境
-2. 验证All-in-One JAR在真实场景下的兼容性
-3. 确保集成包的完整性和独立性
+选择标准项目依赖的设计是为了：
+1. 符合Maven最佳实践，避免使用已废弃的system scope
+2. 真实模拟非Maven项目的使用环境
+3. 验证All-in-One JAR在真实场景下的兼容性
+4. 确保集成包的完整性和独立性

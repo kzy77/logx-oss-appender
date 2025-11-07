@@ -13,7 +13,7 @@
 
 ### 根本原因
 
-All-in-One测试模块使用了 `<scope>system</scope>` 依赖，这类依赖无法通过VSCode的Java语言服务器直接解析和执行。
+All-in-One测试模块使用了标准项目依赖，这类依赖需要确保所有依赖项都正确构建和安装。
 
 ### 技术细节
 
@@ -23,8 +23,6 @@ All-in-One测试模块使用了 `<scope>system</scope>` 依赖，这类依赖无
     <groupId>org.logx</groupId>
     <artifactId>s3-log4j2-oss-appender</artifactId>
     <version>1.0.0-SNAPSHOT</version>
-    <scope>system</scope>
-    <systemPath>${project.basedir}/lib/s3-log4j2-oss-appender-1.0.0-SNAPSHOT.jar</systemPath>
 </dependency>
 ```
 
