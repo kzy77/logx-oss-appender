@@ -43,9 +43,9 @@
         </RollingFile>
 
         <!-- OSS Appender配置 -->
-        <OSS name="OSS_APPENDER">
+        <Log4j2OSSAppender name="OSS_APPENDER">
             <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
-        </OSS>
+        </Log4j2OSSAppender>
 
         <!-- Error File Appender -->
         <RollingFile name="ERROR_FILE" fileName="logs/application-error.log" filePattern="logs/application-error-%d{yyyy-MM-dd}-%i.log">

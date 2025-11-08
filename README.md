@@ -136,21 +136,27 @@ logx-oss-appender/
 - Java 8 或更高版本
 - Maven 3.6+
 
-### SDK使用快速开始
+### 三步快速集成
 
-以下是以Logback和SF_S3为主要示例的快速开始指南：
+LogX OSS Appender 提供两种使用方式：Maven/Gradle依赖（推荐）和All-in-One Fat JAR（非Maven用户）。
 
-#### 主要示例：Logback + S3快速开始
+#### 方式一：Maven/Gradle依赖（推荐）
 
-1. **添加依赖**
+**1. 添加依赖**
+
+根据你使用的日志框架选择对应的依赖：
+
+**Logback + S3兼容存储**:
 ```xml
 <dependencies>
+    <!-- 日志框架适配器 -->
     <dependency>
         <groupId>org.logx</groupId>
         <artifactId>logback-oss-appender</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
+    <!-- 存储服务适配器 -->
     <dependency>
         <groupId>org.logx</groupId>
         <artifactId>logx-s3-adapter</artifactId>
@@ -159,85 +165,17 @@ logx-oss-appender/
 </dependencies>
 ```
 
-
-2. **最简配置**
-```xml
-<configuration>
-  <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
-    <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-      <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-    </encoder>
-  </appender>
-  <root level="INFO"><appender-ref ref="OSS_APPENDER"/></root>
-</configuration>
-```
-
-3. **环境变量配置**
-```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
-```
-
-#### 其他框架示例
-
-##### Log4j 1.x + S3快速开始
-
-1. **添加依赖**
+**Log4j2 + S3兼容存储**:
 ```xml
 <dependencies>
-    <dependency>
-        <groupId>org.logx</groupId>
-        <artifactId>log4j-oss-appender</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-
-    <dependency>
-        <groupId>org.logx</groupId>
-        <artifactId>logx-s3-adapter</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-```
-
-
-2. **最简配置**
-```xml
-<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
-  <appender name="OSS_APPENDER" class="org.logx.log4j.Log4jOSSAppender">
-    <layout class="org.apache.log4j.PatternLayout">
-      <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5p %c{1.} - %m%ex{full}"/>
-    </layout>
-  </appender>
-  <root>
-    <priority value="info"/>
-    <appender-ref ref="OSS_APPENDER"/>
-  </root>
-</log4j:configuration>
-```
-
-3. **环境变量配置**
-```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
-```
-
-##### Log4j2 + S3快速开始
-
-1. **添加依赖**
-```xml
-<dependencies>
+    <!-- 日志框架适配器 -->
     <dependency>
         <groupId>org.logx</groupId>
         <artifactId>log4j2-oss-appender</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </dependency>
 
+    <!-- 存储服务适配器 -->
     <dependency>
         <groupId>org.logx</groupId>
         <artifactId>logx-s3-adapter</artifactId>
@@ -246,31 +184,157 @@ export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
 </dependencies>
 ```
 
+**Log4j 1.x + S3兼容存储**:
+```xml
+<dependencies>
+    <!-- 日志框架适配器 -->
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>log4j-oss-appender</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
 
-2. **最简配置**
+    <!-- 存储服务适配器 -->
+    <dependency>
+        <groupId>org.logx</groupId>
+        <artifactId>logx-s3-adapter</artifactId>
+        <version>1.0.0-SNAPSHOT</version>
+    </dependency>
+</dependencies>
+```
+
+**2. 在日志框架中注册 Appender**
+
+根据你使用的日志框架，选择对应的配置方式。所有连接信息、性能参数等通过 `logx.properties` 统一管理。
+
+**Logback 配置** (logback.xml):
+```xml
+<configuration>
+    <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+    <root level="INFO">
+        <appender-ref ref="OSS_APPENDER"/>
+    </root>
+</configuration>
+```
+
+**Log4j2 配置** (log4j2.xml):
 ```xml
 <Configuration>
-  <Appenders>
-    <OSS name="OSS_APPENDER">
-      <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} - %msg%n" charset="UTF-8"/>
-    </OSS>
-  </Appenders>
-
-  <Loggers>
-    <Root level="info">
-      <AppenderRef ref="OSS_APPENDER"/>
-    </Root>
-  </Loggers>
+    <Appenders>
+        <Log4j2OSSAppender name="OSS_APPENDER">
+            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n"/>
+        </Log4j2OSSAppender>
+    </Appenders>
+    <Loggers>
+        <Root level="INFO">
+            <AppenderRef ref="OSS_APPENDER"/>
+        </Root>
+    </Loggers>
 </Configuration>
 ```
 
-3. **环境变量配置**
+**Log4j 1.x 配���** (log4j.xml):
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration>
+    <appender name="OSS_APPENDER" class="org.logx.log4j.Log4jOSSAppender">
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5p %c{1} - %m%n"/>
+        </layout>
+    </appender>
+    <root>
+        <level value="INFO"/>
+        <appender-ref ref="OSS_APPENDER"/>
+    </root>
+</log4j:configuration>
+```
+
+**3. 创建 `logx.properties` 控制所有参数**
+
+默认按 `/app/deploy/conf/logx.properties` → `classpath:logx.properties` → `./logx.properties` 顺序查找。推荐开发环境放在 `src/main/resources/logx.properties`，生产环境放在外部配置目录。
+
+**必需配置**:
+```properties
+# 启用开关
+logx.oss.enabled=true
+
+# 存储服务配置
+logx.oss.storage.ossType=SF_S3
+logx.oss.storage.endpoint=https://oss-cn-hangzhou.aliyuncs.com
+logx.oss.storage.accessKeyId=your-access-key-id
+logx.oss.storage.accessKeySecret=your-access-key-secret
+logx.oss.storage.bucket=your-bucket-name
+logx.oss.storage.region=cn-hangzhou
+logx.oss.storage.keyPrefix=logx/
+```
+
+**可选优化配置**:
+```properties
+# 引擎与重试配置（可选，按需调��）
+logx.oss.engine.batch.count=8192
+logx.oss.engine.batch.maxAgeMs=60000
+logx.oss.engine.queue.capacity=524288
+logx.oss.engine.retry.maxRetries=3
+```
+
+#### 方式二：All-in-One Fat JAR（非Maven用户）
+
+下载预编译的All-in-One包，开箱即用，无需管理复杂依赖关系：
+
+- `s3-logback-oss-appender-1.0.0-SNAPSHOT.jar` - Logback + S3适配器（~25MB）
+- `s3-log4j2-oss-appender-1.0.0-SNAPSHOT.jar` - Log4j2 + S3适配器（~25MB）
+- `s3-log4j-oss-appender-1.0.0-SNAPSHOT.jar` - Log4j 1.x + S3适配器（~25MB）
+
+**使用步骤**：
+
+**1. 选择对应的All-in-One包并添加到classpath**
+
+**Logback 用户**:
 ```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="http://xxx.oss.com:8080"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
+# 将JAR添加到classpath
+java -cp s3-logback-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
+```
+
+**Log4j2 用户**:
+```bash
+# 将JAR添加到classpath
+java -cp s3-log4j2-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
+```
+
+**Log4j 1.x 用户**:
+```bash
+# 将JAR添加到classpath
+java -cp s3-log4j-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
+```
+
+**2. 配置日志框架**（与方式一步骤2完全相同）
+
+使用相同的XML配置文件，All-in-One包已包含所有必要的类和依赖。
+
+**3. 创建 `logx.properties`**（与方式一步骤3完全相同）
+
+配置方式与Maven/Gradle方式完全一致，确保统一的用户体验。
+
+### Java代码示例
+
+```java
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class LogExample {
+    private static final Logger logger = LoggerFactory.getLogger(LogExample.class);
+
+    public void doSomething() {
+        logger.info("开始处理业务逻辑");
+        logger.warn("这是一个警告信息");
+        logger.error("发生了错误", new RuntimeException("示例异常"));
+    }
+}
 ```
 
 ### 构建项目
@@ -423,128 +487,9 @@ java -cp s3-logback-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
   - Log4j2 2.22.1或更高版本
   - Logback 1.2.13或更高版本
 
-### 基本使用
-
-在完成快速开始的配置后，你可以按照以下方式使用LogX OSS Appender：
-
-#### Log4j 1.x 示例
-
-```xml
-<!-- log4j.xml -->
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
-<log4j:configuration>
-    <appender name="OSS_APPENDER" class="org.logx.log4j.Log4jOSSAppender">
-        <layout class="org.apache.log4j.PatternLayout">
-            <param name="ConversionPattern" value="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n"/>
-        </layout>
-    </appender>
-
-    <root>
-        <level value="INFO"/>
-        <appender-ref ref="OSS_APPENDER"/>
-    </root>
-</log4j:configuration>
-```
-
-**环境变量配置：**
-
-```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
-export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
-
-# 引擎配置（可选）
-export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
-export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
-```
-
-**Log4j 1.x properties文件配置：**
-
-```properties
-# log4j.properties
-log4j.rootLogger=INFO, OSS_APPENDER
-
-# OSS Appender配置
-log4j.appender.OSS_APPENDER=org.logx.log4j.Log4jOSSAppender
-log4j.appender.OSS_APPENDER.layout=org.apache.log4j.PatternLayout
-log4j.appender.OSS_APPENDER.layout.ConversionPattern=%d{yyyy-MM-dd HH:mm:ss} [%t] %-5p %c{1} - %m%n
-```
-
-#### Log4j2 示例
-
-```xml
-<!-- log4j2.xml -->
-<Configuration>
-    <Appenders>
-        <OSS name="OSS_APPENDER">
-            <PatternLayout pattern="%d{yyyy-MM-dd HH:mm:ss} [%t] %-5level %logger{36} - %msg%n"/>
-        </OSS>
-    </Appenders>
-    <Loggers>
-        <Root level="INFO">
-            <AppenderRef ref="OSS_APPENDER"/>
-        </Root>
-    </Loggers>
-</Configuration>
-```
-
-**环境变量配置：**
-
-```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
-export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
-
-# 引擎配置（可选）
-export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
-export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
-```
-
-#### Logback 示例
-
-```xml
-<!-- logback.xml -->
-<configuration>
-    <appender name="OSS_APPENDER" class="org.logx.logback.LogbackOSSAppender">
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </encoder>
-    </appender>
-
-    <root level="INFO">
-        <appender-ref ref="OSS_APPENDER"/>
-    </root>
-</configuration>
-```
-
-**环境变量配置：**
-
-```bash
-export LOGX_OSS_STORAGE_OSS_TYPE="SF_S3"
-export LOGX_OSS_STORAGE_ENDPOINT="https://oss-cn-hangzhou.aliyuncs.com"
-export LOGX_OSS_STORAGE_ACCESS_KEY_ID="your-access-key-id"
-export LOGX_OSS_STORAGE_ACCESS_KEY_SECRET="your-access-key-secret"
-export LOGX_OSS_STORAGE_BUCKET="your-bucket-name"
-export LOGX_OSS_STORAGE_REGION="cn-hangzhou"
-export LOGX_OSS_STORAGE_KEY_PREFIX="logx/"
-
-# 引擎配置（可选）
-export LOGX_OSS_ENGINE_BATCH_COUNT="8192"
-export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="60000"
-```
-
 ### 配置参数说明
 
-所有Appender都支持以下配置参数：
+所有配置都通过 `logx.properties` 统一管理，支持以下配置参数：
 
 #### 必需参数
 
@@ -778,7 +723,7 @@ logback-oss-appender
 <!-- 高性能配置示例 (Log4j2) -->
 <Configuration>
     <Appenders>
-        <OSS name="OSS">
+        <Log4j2OSSAppender name="OSS">
             <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
             <accessKeyId>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
             <accessKeySecret>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
@@ -963,7 +908,7 @@ ENTRYPOINT ["java", "-jar", "/app.jar"]
 
 | 配置项 | 默认值 | 说明 | 决策记录 |
 |--------|--------|------|----------|
-| region | US | 默认存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
+| region | ap-guangzhou | 存储区域 | [ADR-003](docs/DECISIONS.md#adr-003-默认region值使用ap-guangzhou) |
 | maxBatchCount | 8192 | 批处理大小 | 性能测试验证 |
 | maxBatchBytes | 10MB | 批处理字节数 | 性能测试验证 |
 | maxMessageAgeMs | 60000 (1分钟) | 消息年龄阈值 | 平衡延迟和吞吐 |
