@@ -1,7 +1,7 @@
 # jdk-support Specification
 
 ## Purpose
-TBD - created by archiving change jdk21-compatibility. Update Purpose after archive.
+定义团队如何在保持JDK 8向后兼容的同时，使项目在JDK 21上可靠编译、测试和运行，并提供构建配置与版本切换指南。
 ## Requirements
 ### Requirement: 项目在JDK 21上编译和运行
 系统 SHALL在JDK 21上成功编译并运行所有模块
@@ -54,4 +54,3 @@ TBD - created by archiving change jdk21-compatibility. Update Purpose after arch
 - **WHEN** 开发者需要在JDK 8和JDK 21之间切换
 - **THEN** 应能使用SDKMAN命令轻松切换版本
 - **AND** 切换后应能正确编译和运行项目
-
