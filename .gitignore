@@ -96,6 +96,7 @@ target/
 .gemini/
 .iflow/
 .claude/
+.codex/
 .roomodes
 AGENTS.md
 CLAUDE.md
