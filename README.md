@@ -22,44 +22,6 @@ LogX OSS Appender 为Java应用程序提供了一套完整的日志上传解决�
 - **[s3-log4j2-oss-appender](all-in-one/s3-log4j2-oss-appender)** - Log4j2 + S3适配器 + 所有依赖（~25MB Fat JAR）
 - **[s3-logback-oss-appender](all-in-one/s3-logback-oss-appender)** - Logback + S3适配器 + 所有依赖（~25MB Fat JAR）
 
-### 使用方式
-
-#### 方式一：Maven/Gradle依赖（推荐）
-
-使用两个核心依赖集成，简单清晰：
-
-```xml
-<dependencies>
-    <!-- 日志框架适配器 -->
-    <dependency>
-        <groupId>org.logx</groupId>
-        <artifactId>logback-oss-appender</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-
-    <!-- 存储服务适配器 -->
-    <dependency>
-        <groupId>org.logx</groupId>
-        <artifactId>logx-s3-adapter</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-    </dependency>
-</dependencies>
-```
-
-#### 方式二：All-in-One Fat JAR（非Maven用户）
-
-下载预编译的All-in-One包，开箱即用：
-
-- `s3-logback-oss-appender-1.0.0-SNAPSHOT.jar` - Logback + S3适配器（~25MB）
-- `s3-log4j2-oss-appender-1.0.0-SNAPSHOT.jar` - Log4j2 + S3适配器（~25MB）
-- `s3-log4j-oss-appender-1.0.0-SNAPSHOT.jar` - Log4j 1.x + S3适配器（~25MB）
-
-**使用示例**：
-```bash
-# 将JAR添加到classpath
-java -cp s3-logback-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
-```
-
 所有模块都遵循统一的包命名规范和配置Key标准，确保系统的一致性和可维护性。
 
 ## 项目结构
@@ -237,7 +199,7 @@ LogX OSS Appender 提供两种使用方式：Maven/Gradle依赖（推荐）和Al
 </Configuration>
 ```
 
-**Log4j 1.x 配���** (log4j.xml):
+**Log4j 1.x 配置** (log4j.xml):
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
@@ -275,7 +237,7 @@ logx.oss.storage.keyPrefix=logx/
 
 **可选优化配置**:
 ```properties
-# 引擎与重试配置（可选，按需调��）
+# 引擎与重试配置（可选，按需调整）
 logx.oss.engine.batch.count=8192
 logx.oss.engine.batch.maxAgeMs=60000
 logx.oss.engine.queue.capacity=524288
@@ -529,18 +491,17 @@ java -cp s3-logback-oss-appender-1.0.0-SNAPSHOT.jar:your-app.jar YourApp
 
 #### 配置优先级
 
-系统支持多种配置源，按以下优先级顺序读取配置：
+系统支持多种配置源，按以下优先级顺序读取配置（从高到低）：
 1. JVM系统属性（支持两种命名风格）
-   - `-Dlogx.oss.storage.region=us` （点号格式，优先）
+   - `-Dlogx.oss.storage.region=us` （点号格式）
    - `-DLOGX_OSS_STORAGE_REGION=us` （大写下划线格式）
 2. 环境变量（只支持大写下划线格式）
    - `LOGX_OSS_STORAGE_REGION=us`
 3. 配置文件属性 (logx.properties中的logx.oss.storage.region=ap-guangzhou)
-4. XML/配置文件中设置的字段值
-5. 代码默认值
+4. 代码默认值
 
 **命名风格兼容性**：
-- **JVM系统属性**：同时支持点号格式和大写下划线格式，点号格式优先
+- **JVM系统属性**：同时支持点号格式和大写下划线格式
 - **环境变量**：只支持大写下划线格式（因为大多数shell不支持点号作为环境变量名）
 
 #### 云服务商端点示例
@@ -719,36 +680,25 @@ logback-oss-appender
 
 ### 性能优化建议
 
-```xml
-<!-- 高性能配置示例 (Log4j2) -->
-<Configuration>
-    <Appenders>
-        <Log4j2OSSAppender name="OSS">
-            <endpoint>https://oss-cn-hangzhou.aliyuncs.com</endpoint>
-            <accessKeyId>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_ID}</accessKeyId>
-            <accessKeySecret>${sys:LOGX_OSS_STORAGE_ACCESS_KEY_SECRET}</accessKeySecret>
-            <bucket>my-log-bucket</bucket>
-            <region>cn-hangzhou</region>
+通过 `logx.properties` 文件或环境变量进行性能调优：
 
-            <!-- 性能调优参数 -->
-            <maxBatchCount>5000</maxBatchCount>     <!-- 增大批量大小 -->
-            <maxMessageAgeMs>10000</maxMessageAgeMs> <!-- 降低消息年龄阈值，更快触发批处理 -->
-            <maxQueueSize>131072</maxQueueSize>      <!-- 增大队列大小（必须是2的幂） -->
-            <keyPrefix>logx/</keyPrefix>
+**logx.properties 性能优化配置**:
+```properties
+# 引擎与重试配置（可选，按需调整）
+logx.oss.engine.batch.count=5000        # 增大批量大小
+logx.oss.engine.batch.maxAgeMs=10000    # 降低消息年龄阈值，更快触发批处理
+logx.oss.engine.queue.capacity=131072   # 增大队列大小（必须是2的幂）
+logx.oss.engine.retry.maxRetries=3      # 设置重试次数
+logx.oss.engine.retry.baseBackoffMs=500 # 基础退避时间
+logx.oss.engine.retry.maxBackoffMs=5000 # 最大退避时间
+```
 
-            <!-- 重试策略 -->
-            <maxRetries>3</maxRetries>
-            <baseBackoffMs>500</baseBackoffMs>
-            <maxBackoffMs>5000</maxBackoffMs>
-        </OSS>
-    </Appenders>
-    <Loggers>
-        <!-- 使用异步Logger提升性能 -->
-        <AsyncRoot level="INFO">
-            <AppenderRef ref="OSS"/>
-        </AsyncRoot>
-    </Loggers>
-</Configuration>
+**环境变量性能配置**:
+```bash
+# 性能调优参数
+export LOGX_OSS_ENGINE_BATCH_COUNT="5000"
+export LOGX_OSS_ENGINE_BATCH_MAX_AGE_MS="10000"
+export LOGX_OSS_ENGINE_QUEUE_CAPACITY="131072"
 ```
 
 ### 生产环境最佳实践
@@ -760,10 +710,10 @@ logback-oss-appender
 - ✅ 定期轮换访问密钥
 
 #### 2. 性能优化
-- ✅ 根据日志量调整`batchSize`和`maxMessageAgeMs`
+- ✅ 根据日志量调整`logx.oss.engine.batch.count`和`logx.oss.engine.batch.maxAgeMs`
 - ✅ 使用异步Logger减少应用延迟
-- ✅ 启用压缩节省存储和带宽成本
-- ✅ 合理设置文件大小避免小文件问题
+- ✅ 启用压缩（`logx.oss.engine.enableCompression=true`）节省存储和带宽成本
+- ✅ 合理设置文件大小（`logx.oss.engine.maxUploadSizeMb`）避免小文件问题
 
 #### 3. 监控告警
 - ✅ 监控OSS上传成功率
@@ -787,21 +737,22 @@ logback-oss-appender
 curl -I https://oss-cn-hangzhou.aliyuncs.com
 
 # 验证密钥权限
-ossutil ls oss://your-bucket-name --config-file ~/.ossutilconfig
 ```
 
 **问题2: 性能问题**
-```xml
-<!-- 调整批量参数 -->
-<batchSize>1000</batchSize>
-<maxMessageAgeMs>30000</maxMessageAgeMs>
+通过调整配置参数优化性能：
+```properties
+# 调整批量参数
+logx.oss.engine.batch.count=1000
+logx.oss.engine.batch.maxAgeMs=30000
 ```
 
 **问题3: 内存占用过高**
-```xml
-<!-- 减少缓冲区大小 -->
-<bufferSize>4096</bufferSize>
-<maxFileSize>10MB</maxFileSize>
+通过调整配置参数降低内存使用：
+```properties
+# 减少队列大小和上传文件大小
+logx.oss.engine.queue.capacity=65536
+logx.oss.engine.maxUploadSizeMb=5
 ```
 
 ### 集成示例
