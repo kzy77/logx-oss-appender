@@ -6,8 +6,11 @@ import org.logx.storage.StorageService;
 import org.logx.storage.StorageServiceFactory;
 import org.logx.core.AsyncEngine;
 import org.logx.core.AsyncEngineConfig;
+import org.logx.core.LogPayloadSanitizer;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.Encoder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 /**
@@ -15,6 +18,7 @@ import ch.qos.logback.core.encoder.Encoder;
  * 实现通用适配器接口，处理Logback特定的逻辑
  */
 public class LogbackBridge extends AbstractUniversalAdapter {
+    private static final Logger logger = LoggerFactory.getLogger(LogbackBridge.class);
     private Encoder<ILoggingEvent> encoder;
     private AsyncEngineConfig engineConfig;
     
@@ -66,7 +70,14 @@ public class LogbackBridge extends AbstractUniversalAdapter {
         try {
             String logLine = convertEvent(event);
             if (logLine != null) {
-                asyncEngine.put(logLine.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                int maxBytes = engineConfig != null ? engineConfig.getPayloadMaxBytes() : 512 * 1024;
+                LogPayloadSanitizer.SanitizedPayload sanitized =
+                        LogPayloadSanitizer.sanitize(logLine, maxBytes);
+                if (sanitized.sanitized || sanitized.truncated) {
+                    logger.warn("Logback payload sanitized={}, truncated={}, originalBytes={}",
+                            sanitized.sanitized, sanitized.truncated, sanitized.originalBytes);
+                }
+                asyncEngine.put(sanitized.bytes);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to process log event", e);
@@ -83,18 +94,14 @@ public class LogbackBridge extends AbstractUniversalAdapter {
         
         ILoggingEvent loggingEvent = (ILoggingEvent) event;
         
-        // 使用Encoder编码日志
         if (encoder != null) {
             try {
                 byte[] encoded = encoder.encode(loggingEvent);
                 return new String(encoded, java.nio.charset.StandardCharsets.UTF_8);
             } catch (Exception e) {
-                // 编码失败时返回默认格式
                 return loggingEvent.getFormattedMessage() + "\n";
             }
-        } else {
-            // 默认格式
-            return loggingEvent.getFormattedMessage() + "\n";
         }
+        return loggingEvent.getFormattedMessage() + "\n";
     }
 }

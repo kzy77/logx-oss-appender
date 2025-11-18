@@ -12,6 +12,7 @@ import org.apache.logging.log4j.core.config.plugins.PluginFactory;
 import org.apache.logging.log4j.core.config.plugins.PluginAttribute;
 import org.logx.config.ConfigManager;
 import org.logx.config.properties.LogxOssProperties;
+import org.logx.config.validation.ConfigValidationUtils;
 import org.logx.core.AsyncEngineConfig;
 import org.logx.storage.StorageConfig;
 
@@ -75,11 +76,12 @@ public final class Log4j2OSSAppender extends AbstractAppender {
 
             applyXmlConfig(properties);
 
-            // 检查enabled开关，如果为false则不初始化任何资源
             if (!properties.isEnabled()) {
                 LOGGER.info("Log4j2OSSAppender is disabled by configuration (logx.oss.enabled=false), skipping initialization");
                 return;
             }
+
+            ConfigValidationUtils.validateRequiredStorage(properties, msg -> LOGGER.error(msg));
 
             StorageConfig storageConfig = new StorageConfig(properties);
 
@@ -90,6 +92,8 @@ public final class Log4j2OSSAppender extends AbstractAppender {
             engineConfig.batchMaxBytes(properties.getEngine().getBatch().getBytes());
             engineConfig.maxMessageAgeMs(properties.getEngine().getBatch().getMaxAgeMs());
             engineConfig.blockOnFull(!properties.getEngine().getQueue().isDropWhenFull());
+            engineConfig.uploadTimeoutMs(properties.getStorage().getUploadTimeoutMs());
+            engineConfig.payloadMaxBytes(properties.getEngine().getPayloadMaxBytes());
 
             this.adapter = new Log4j2Bridge(storageConfig, engineConfig);
             this.adapter.setLayout(getLayout());
@@ -114,6 +118,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         xmlConfig.computeIfPresent("logx.oss.storage.keyPrefix", (k, v) -> { properties.getStorage().setKeyPrefix(v); return v; });
         xmlConfig.computeIfPresent("logx.oss.storage.ossType", (k, v) -> { properties.getStorage().setOssType(v); return v; });
         xmlConfig.computeIfPresent("logx.oss.storage.pathStyleAccess", (k, v) -> { properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(v)); return v; });
+        xmlConfig.computeIfPresent("logx.oss.storage.uploadTimeoutMs", (k, v) -> { properties.getStorage().setUploadTimeoutMs(Long.parseLong(v)); return v; });
 
         // Engine Batch Config
         xmlConfig.computeIfPresent("logx.oss.engine.batch.count", (k, v) -> { properties.getEngine().getBatch().setCount(Integer.parseInt(v)); return v; });
@@ -128,6 +133,7 @@ public final class Log4j2OSSAppender extends AbstractAppender {
         xmlConfig.computeIfPresent("logx.oss.engine.retry.maxRetries", (k, v) -> { properties.getEngine().getRetry().setMaxRetries(Integer.parseInt(v)); return v; });
         xmlConfig.computeIfPresent("logx.oss.engine.retry.baseBackoffMs", (k, v) -> { properties.getEngine().getRetry().setBaseBackoffMs(Long.parseLong(v)); return v; });
         xmlConfig.computeIfPresent("logx.oss.engine.retry.maxBackoffMs", (k, v) -> { properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(v)); return v; });
+        xmlConfig.computeIfPresent("logx.oss.engine.payload.maxBytes", (k, v) -> { properties.getEngine().setPayloadMaxBytes(Integer.parseInt(v)); return v; });
     }
 
     @Override

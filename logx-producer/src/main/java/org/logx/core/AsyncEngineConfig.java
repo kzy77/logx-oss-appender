@@ -21,10 +21,12 @@ public class AsyncEngineConfig {
     private int fallbackScanIntervalSeconds = 60;
     private int emergencyMemoryThresholdMb = 512;
     private int parallelUploadThreads = 2;
+    private long uploadTimeoutMs = 30000L;
     private boolean enableDynamicBatching = true;
     private long queuePressureMonitorIntervalMs = 1000;
     private double highPressureThreshold = 0.8;
     private double lowPressureThreshold = 0.3;
+    private int payloadMaxBytes = 512 * 1024;
 
     public static AsyncEngineConfig defaultConfig() {
         return new AsyncEngineConfig();
@@ -201,6 +203,15 @@ public class AsyncEngineConfig {
         return this;
     }
 
+    public long getUploadTimeoutMs() {
+        return uploadTimeoutMs;
+    }
+
+    public AsyncEngineConfig uploadTimeoutMs(long uploadTimeoutMs) {
+        this.uploadTimeoutMs = uploadTimeoutMs;
+        return this;
+    }
+
     public boolean isEnableDynamicBatching() {
         return enableDynamicBatching;
     }
@@ -234,6 +245,15 @@ public class AsyncEngineConfig {
 
     public AsyncEngineConfig lowPressureThreshold(double lowPressureThreshold) {
         this.lowPressureThreshold = Math.max(0.01, Math.min(0.9, lowPressureThreshold));
+        return this;
+    }
+
+    public int getPayloadMaxBytes() {
+        return payloadMaxBytes;
+    }
+
+    public AsyncEngineConfig payloadMaxBytes(int payloadMaxBytes) {
+        this.payloadMaxBytes = payloadMaxBytes;
         return this;
     }
 

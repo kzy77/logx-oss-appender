@@ -23,6 +23,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.zip.GZIPOutputStream;
+import java.util.zip.CRC32;
 
 public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
 
@@ -74,11 +75,17 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     private final AtomicLong totalBytesCompressed = new AtomicLong(0);
     private final AtomicLong totalCompressionSavings = new AtomicLong(0);
     private final AtomicLong totalShardsCreated = new AtomicLong(0);
+    private final AtomicLong totalDroppedMessages = new AtomicLong(0);
+    private final AtomicLong lastDropLogTimeMs = new AtomicLong(0);
+    private volatile java.util.concurrent.ExecutorService shardExecutor;
+    private volatile long uploadTimeoutMs = 30000L;
 
     public EnhancedDisruptorBatchingQueue(Config config, BatchConsumer consumer, StorageService storageService) {
         this.config = config;
         this.consumer = consumer;
         this.storageService = storageService;
+        this.shardExecutor = config.getShardExecutor();
+        this.uploadTimeoutMs = config.getUploadTimeoutMs();
 
         logger.debug("Initializing EnhancedDisruptorBatchingQueue with config: queueCapacity={}, batchMaxMessages={}, batchMaxBytes={}, maxMessageAgeMs={}",
                 config.queueCapacity, config.batchMaxMessages, config.batchMaxBytes, config.maxMessageAgeMs);
@@ -156,8 +163,15 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             }
 
             if (!config.blockOnFull) {
-                logger.error("[DATA_LOSS_ALERT] Queue is full, dropping message. Message size: {} bytes. Queue status: {}",
-                        payload != null ? payload.length : 0, getQueueStatusInfo());
+                long drops = totalDroppedMessages.incrementAndGet();
+                long now = System.currentTimeMillis();
+                long lastLog = lastDropLogTimeMs.get();
+                if (now - lastLog > 1000 && lastDropLogTimeMs.compareAndSet(lastLog, now)) {
+                    double usage = getQueueUsageRatio();
+                    long fingerprint = fingerprintPayload(payload);
+                    logger.warn("[DATA_LOSS_ALERT] Queue drop detected. totalDropped={}, queueUsage={}%, payloadFingerprint={}",
+                            drops, String.format("%.2f", usage * 100), fingerprint);
+                }
                 return false;
             }
 
@@ -487,11 +501,16 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     }
 
     private boolean processSharding(byte[] data) {
+        java.util.List<CompletableFuture<Void>> futures = new java.util.ArrayList<>();
         try {
             int shardCount = (int) Math.ceil((double) data.length / config.getShardSize());
 
             if (shardCount <= 1) {
                 return consumer.processBatch(data, data.length, false, 1);
+            }
+
+            if (shardExecutor == null) {
+                logger.warn("Shard executor not configured, falling back to synchronous upload on consumer thread");
             }
 
             for (int i = 0; i < shardCount; i++) {
@@ -502,26 +521,66 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 byte[] shardData = new byte[length];
                 System.arraycopy(data, start, shardData, 0, length);
 
-                // Compress each shard individually
                 byte[] finalShardData = config.enableCompression ? compressData(shardData) : shardData;
-
-                // Generate a unique object name for each shard using the static generator
                 String shardKey = ObjectNameGenerator.generateObjectName(storageService.getKeyPrefix());
                 totalShardsCreated.incrementAndGet();
 
-                CompletableFuture<Void> future = storageService.putObject(shardKey, finalShardData);
-                future.get(30, TimeUnit.SECONDS);
+                java.util.concurrent.Executor executor = shardExecutor != null
+                        ? shardExecutor
+                        : java.util.concurrent.ForkJoinPool.commonPool();
+
+                CompletableFuture<Void> uploadFuture = CompletableFuture.runAsync(() -> {
+                    try {
+                        storageService.putObject(shardKey, finalShardData).get(uploadTimeoutMs, TimeUnit.MILLISECONDS);
+                    } catch (Exception ex) {
+                        throw new RuntimeException("Shard upload failed for key " + shardKey, ex);
+                    }
+                }, executor);
+
+                futures.add(uploadFuture);
             }
 
+            CompletableFuture<Void> all = CompletableFuture.allOf(futures.toArray(new CompletableFuture[0]));
+            all.get(uploadTimeoutMs, TimeUnit.MILLISECONDS);
             return true;
         } catch (InterruptedException e) {
             logger.error("Sharding process interrupted: {}", e.getMessage());
             Thread.currentThread().interrupt();
             return false;
+        } catch (java.util.concurrent.TimeoutException e) {
+            logger.error("Sharding process timeout after {} ms", uploadTimeoutMs);
+            futures.forEach(f -> f.cancel(true));
+            return false;
         } catch (Exception e) {
             logger.error("Sharding process failed: {}", e.getMessage(), e);
+            futures.forEach(f -> f.cancel(true));
             return false;
         }
+    }
+
+    public void setShardExecutor(java.util.concurrent.ExecutorService shardExecutor, long uploadTimeoutMs) {
+        this.shardExecutor = shardExecutor;
+        this.uploadTimeoutMs = uploadTimeoutMs;
+    }
+
+    private double getQueueUsageRatio() {
+        long remainingCapacity = ringBuffer.remainingCapacity();
+        long bufferSize = ringBuffer.getBufferSize();
+        if (bufferSize <= 0) {
+            return 0;
+        }
+        long occupied = bufferSize - remainingCapacity;
+        return Math.max(0, Math.min(1, (double) occupied / bufferSize));
+    }
+
+    private long fingerprintPayload(byte[] payload) {
+        if (payload == null || payload.length == 0) {
+            return 0L;
+        }
+        java.util.zip.CRC32 crc32 = new java.util.zip.CRC32();
+        int length = Math.min(payload.length, 1024);
+        crc32.update(payload, 0, length);
+        return crc32.getValue();
     }
 
     public static class Config {
@@ -536,6 +595,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         private boolean enableSharding = true;
         private int maxUploadSizeMb = 10;
         private int consumerThreadCount = 1;
+        private java.util.concurrent.ExecutorService shardExecutor;
+        private long uploadTimeoutMs = 30000L;
 
         public static Config defaultConfig() {
             return new Config();
@@ -591,6 +652,16 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             return this;
         }
 
+        public Config shardExecutor(java.util.concurrent.ExecutorService shardExecutor) {
+            this.shardExecutor = shardExecutor;
+            return this;
+        }
+
+        public Config uploadTimeoutMs(long uploadTimeoutMs) {
+            this.uploadTimeoutMs = uploadTimeoutMs;
+            return this;
+        }
+
         public int getQueueCapacity() {
             return queueCapacity;
         }
@@ -637,6 +708,14 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
 
         public int getShardSize() {
             return maxUploadSizeMb * 1024 * 1024;
+        }
+
+        public java.util.concurrent.ExecutorService getShardExecutor() {
+            return shardExecutor;
+        }
+
+        public long getUploadTimeoutMs() {
+            return uploadTimeoutMs;
         }
     }
 

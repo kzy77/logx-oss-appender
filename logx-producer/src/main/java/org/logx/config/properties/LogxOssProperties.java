@@ -39,6 +39,7 @@ public class LogxOssProperties {
         private String keyPrefix = "logx/";
         private String ossType = "SF_S3";
         private boolean pathStyleAccess;
+        private long uploadTimeoutMs = 30000L;
 
         public String getEndpoint() {
             return endpoint;
@@ -102,6 +103,14 @@ public class LogxOssProperties {
 
         public void setPathStyleAccess(boolean pathStyleAccess) {
             this.pathStyleAccess = pathStyleAccess;
+        }
+
+        public long getUploadTimeoutMs() {
+            return uploadTimeoutMs;
+        }
+
+        public void setUploadTimeoutMs(long uploadTimeoutMs) {
+            this.uploadTimeoutMs = uploadTimeoutMs;
         }
     }
 
@@ -209,6 +218,7 @@ public class LogxOssProperties {
         private int compressionThreshold = 1024;
         private boolean enableSharding = true;
         private int maxUploadSizeMb = 10;
+        private int payloadMaxBytes = 512 * 1024;
 
         public Batch getBatch() {
             return batch;
@@ -328,6 +338,14 @@ public class LogxOssProperties {
 
         public void setMaxUploadSizeMb(int maxUploadSizeMb) {
             this.maxUploadSizeMb = maxUploadSizeMb;
+        }
+
+        public int getPayloadMaxBytes() {
+            return payloadMaxBytes;
+        }
+
+        public void setPayloadMaxBytes(int payloadMaxBytes) {
+            this.payloadMaxBytes = payloadMaxBytes;
         }
     }
 

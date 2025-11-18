@@ -47,6 +47,8 @@ public class AsyncEngineConfigBuilder {
         config.maxShutdownWaitMs(configManager.getLongProperty(CONFIG_PREFIX + "shutdown.wait.ms", config.getMaxShutdownWaitMs()));
         config.logFileName(configManager.getProperty(CONFIG_PREFIX + "log.file.name", config.getLogFileName()));
         config.emergencyMemoryThresholdMb(configManager.getIntProperty(CONFIG_PREFIX + "emergency.memory.threshold.mb", config.getEmergencyMemoryThresholdMb()));
+        config.uploadTimeoutMs(configManager.getLongProperty("logx.oss.storage.uploadTimeoutMs", config.getUploadTimeoutMs()));
+        config.payloadMaxBytes(configManager.getIntProperty(CONFIG_PREFIX + "payload.max.bytes", config.getPayloadMaxBytes()));
         
         return config;
     }

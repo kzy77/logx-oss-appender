@@ -39,6 +39,18 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
         this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
 
+        int maxUploadSizeMb = 10;
+        boolean enableSharding = true;
+        boolean enableCompression = true;
+        org.logx.config.properties.LogxOssProperties props = config.getStorageConfig() != null
+                ? config.getStorageConfig().getProperties()
+                : null;
+        if (props != null) {
+            enableSharding = props.getEngine().isEnableSharding();
+            enableCompression = props.getEngine().isEnableCompression();
+            maxUploadSizeMb = props.getEngine().getMaxUploadSizeMb();
+        }
+
         EnhancedDisruptorBatchingQueue.Config queueConfig = new EnhancedDisruptorBatchingQueue.Config()
                 .queueCapacity(config.getQueueCapacity())
                 .batchMaxMessages(config.getBatchMaxMessages())
@@ -46,9 +58,10 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 .maxMessageAgeMs(config.getMaxMessageAgeMs())
                 .blockOnFull(config.isBlockOnFull())
                 .multiProducer(config.isMultiProducer())
-                .enableCompression(true)
-                .enableSharding(true)
-                .maxUploadSizeMb(10);
+                .enableCompression(enableCompression)
+                .enableSharding(enableSharding)
+                .maxUploadSizeMb(maxUploadSizeMb)
+                .uploadTimeoutMs(config.getUploadTimeoutMs());
 
         this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
         this.shutdownHandler = new ShutdownHookHandler();
@@ -79,6 +92,18 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
         this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
 
+        int maxUploadSizeMb = 10;
+        boolean enableSharding = true;
+        boolean enableCompression = true;
+        org.logx.config.properties.LogxOssProperties props = config.getStorageConfig() != null
+                ? config.getStorageConfig().getProperties()
+                : null;
+        if (props != null) {
+            enableSharding = props.getEngine().isEnableSharding();
+            enableCompression = props.getEngine().isEnableCompression();
+            maxUploadSizeMb = props.getEngine().getMaxUploadSizeMb();
+        }
+
         EnhancedDisruptorBatchingQueue.Config queueConfig = new EnhancedDisruptorBatchingQueue.Config()
                 .queueCapacity(config.getQueueCapacity())
                 .batchMaxMessages(config.getBatchMaxMessages())
@@ -86,9 +111,10 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 .maxMessageAgeMs(config.getMaxMessageAgeMs())
                 .blockOnFull(config.isBlockOnFull())
                 .multiProducer(config.isMultiProducer())
-                .enableCompression(true)
-                .enableSharding(true)
-                .maxUploadSizeMb(10);
+                .enableCompression(enableCompression)
+                .enableSharding(enableSharding)
+                .maxUploadSizeMb(maxUploadSizeMb)
+                .uploadTimeoutMs(config.getUploadTimeoutMs());
 
         this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
         this.shutdownHandler = new ShutdownHookHandler();
@@ -121,6 +147,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         batchingQueue.start();
         startFallbackScheduler();
         startUploadExecutor();
+        batchingQueue.setShardExecutor(uploadExecutor, config.getUploadTimeoutMs());
 
         if (config.isEnableDynamicBatching()) {
             startQueuePressureMonitor();
@@ -230,7 +257,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
         if (uploadExecutor != null && !uploadExecutor.isShutdown()) {
             uploadExecutor.submit(() -> {
                 try {
-                    storageService.putObject(key, batchData).get(30, TimeUnit.SECONDS);
+                    storageService.putObject(key, batchData).get(config.getUploadTimeoutMs(), TimeUnit.MILLISECONDS);
                     currentMemoryUsage.addAndGet(-originalSize);
                 } catch (Exception e) {
                     logger.error("Parallel upload failed for {}: {}", key, e.getMessage(), e);
@@ -247,7 +274,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
 
     private boolean onBatchSync(byte[] batchData, int originalSize, boolean compressed, int messageCount, String key) {
         try {
-            storageService.putObject(key, batchData).get(30, TimeUnit.SECONDS);
+            storageService.putObject(key, batchData).get(config.getUploadTimeoutMs(), TimeUnit.MILLISECONDS);
             currentMemoryUsage.addAndGet(-originalSize);
             return true;
         } catch (Exception e) {

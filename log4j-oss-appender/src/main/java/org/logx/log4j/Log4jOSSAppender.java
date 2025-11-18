@@ -5,6 +5,7 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.spi.LoggingEvent;
 import org.logx.config.ConfigManager;
 import org.logx.config.properties.LogxOssProperties;
+import org.logx.config.validation.ConfigValidationUtils;
 import org.logx.core.AsyncEngineConfig;
 import org.logx.storage.StorageConfig;
 
@@ -56,6 +57,8 @@ public class Log4jOSSAppender extends AppenderSkeleton {
                 return;
             }
 
+            ConfigValidationUtils.validateRequiredStorage(properties, msg -> logger.error(msg));
+
             StorageConfig storageConfig = new StorageConfig(properties);
 
             AsyncEngineConfig engineConfig = AsyncEngineConfig.defaultConfig();
@@ -65,6 +68,8 @@ public class Log4jOSSAppender extends AppenderSkeleton {
             engineConfig.batchMaxBytes(properties.getEngine().getBatch().getBytes());
             engineConfig.maxMessageAgeMs(properties.getEngine().getBatch().getMaxAgeMs());
             engineConfig.blockOnFull(!properties.getEngine().getQueue().isDropWhenFull());
+            engineConfig.uploadTimeoutMs(properties.getStorage().getUploadTimeoutMs());
+            engineConfig.payloadMaxBytes(properties.getEngine().getPayloadMaxBytes());
 
             this.adapter = new Log4j1xBridge(storageConfig, engineConfig);
             this.adapter.setLayout(layout);
@@ -106,6 +111,9 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         if (xmlConfig.containsKey("logx.oss.storage.pathStyleAccess")) {
             properties.getStorage().setPathStyleAccess(Boolean.parseBoolean(xmlConfig.get("logx.oss.storage.pathStyleAccess")));
         }
+        if (xmlConfig.containsKey("logx.oss.storage.uploadTimeoutMs")) {
+            properties.getStorage().setUploadTimeoutMs(Long.parseLong(xmlConfig.get("logx.oss.storage.uploadTimeoutMs")));
+        }
 
         // 引擎配置 - 批处理
         if (xmlConfig.containsKey("logx.oss.engine.batch.count")) {
@@ -135,6 +143,10 @@ public class Log4jOSSAppender extends AppenderSkeleton {
         }
         if (xmlConfig.containsKey("logx.oss.engine.retry.maxBackoffMs")) {
             properties.getEngine().getRetry().setMaxBackoffMs(Long.parseLong(xmlConfig.get("logx.oss.engine.retry.maxBackoffMs")));
+        }
+
+        if (xmlConfig.containsKey("logx.oss.engine.payload.maxBytes")) {
+            properties.getEngine().setPayloadMaxBytes(Integer.parseInt(xmlConfig.get("logx.oss.engine.payload.maxBytes")));
         }
     }
 

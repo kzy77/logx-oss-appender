@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.logx.config.exception.MissingPlaceholderException;
 import org.logx.config.properties.LogxOssProperties;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -516,9 +517,8 @@ public class ConfigManager {
             String placeholder = result.substring(placeholderStart + 2, placeholderEnd);
             String resolvedValue = resolveSinglePlaceholder(placeholder);
 
-            // 如果解析失败，使用空字符串替换占位符
             if (resolvedValue == null) {
-                resolvedValue = "";
+                throw new MissingPlaceholderException("Cannot resolve required placeholder ${" + placeholder + "}");
             }
 
             result = result.substring(0, placeholderStart) + resolvedValue + result.substring(placeholderEnd + 1);

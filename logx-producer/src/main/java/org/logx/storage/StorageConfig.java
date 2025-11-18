@@ -15,6 +15,7 @@ public class StorageConfig {
     private String bucket;
     private String keyPrefix;
     private boolean pathStyleAccess;
+    private long uploadTimeoutMs = 30000L;
 
     // 无参构造函数，用于测试和Builder模式
     public StorageConfig() {
@@ -34,6 +35,7 @@ public class StorageConfig {
         this.bucket = properties.getStorage().getBucket();
         this.keyPrefix = properties.getStorage().getKeyPrefix();
         this.pathStyleAccess = properties.getStorage().isPathStyleAccess();
+        this.uploadTimeoutMs = properties.getStorage().getUploadTimeoutMs();
     }
 
     public String getOssType() {
@@ -121,6 +123,17 @@ public class StorageConfig {
         this.pathStyleAccess = pathStyleAccess;
         if (properties != null) {
             properties.getStorage().setPathStyleAccess(pathStyleAccess);
+        }
+    }
+
+    public long getUploadTimeoutMs() {
+        return uploadTimeoutMs != 0 ? uploadTimeoutMs : properties.getStorage().getUploadTimeoutMs();
+    }
+
+    public void setUploadTimeoutMs(long uploadTimeoutMs) {
+        this.uploadTimeoutMs = uploadTimeoutMs;
+        if (properties != null) {
+            properties.getStorage().setUploadTimeoutMs(uploadTimeoutMs);
         }
     }
 

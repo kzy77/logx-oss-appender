@@ -8,6 +8,9 @@ import org.logx.core.AsyncEngine;
 import org.logx.core.AsyncEngineConfig;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.logx.core.LogPayloadSanitizer;
 
 import java.io.Serializable;
 
@@ -16,6 +19,7 @@ import java.io.Serializable;
  * 实现通用适配器接口，处理Log4j2特定的逻辑
  */
 public class Log4j2Bridge extends AbstractUniversalAdapter {
+    private static final Logger logger = LogManager.getLogger(Log4j2Bridge.class);
     private Layout<? extends Serializable> layout;
     private AsyncEngineConfig engineConfig;
     
@@ -67,7 +71,13 @@ public class Log4j2Bridge extends AbstractUniversalAdapter {
         try {
             String logLine = convertEvent(event);
             if (logLine != null) {
-                asyncEngine.put(logLine.getBytes(java.nio.charset.StandardCharsets.UTF_8));
+                int maxBytes = engineConfig != null ? engineConfig.getPayloadMaxBytes() : 512 * 1024;
+                LogPayloadSanitizer.SanitizedPayload sanitized = LogPayloadSanitizer.sanitize(logLine, maxBytes);
+                if (sanitized.sanitized || sanitized.truncated) {
+                    logger.warn("Log4j2 payload sanitized={}, truncated={}, originalBytes={}",
+                            sanitized.sanitized, sanitized.truncated, sanitized.originalBytes);
+                }
+                asyncEngine.put(sanitized.bytes);
             }
         } catch (Exception e) {
             throw new RuntimeException("Failed to process log event", e);
