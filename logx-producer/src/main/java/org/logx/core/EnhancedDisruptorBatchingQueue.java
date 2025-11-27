@@ -4,6 +4,7 @@ import com.lmax.disruptor.EventFactory;
 import com.lmax.disruptor.EventHandler;
 import com.lmax.disruptor.RingBuffer;
 import com.lmax.disruptor.YieldingWaitStrategy;
+import com.lmax.disruptor.BlockingWaitStrategy;
 import com.lmax.disruptor.dsl.Disruptor;
 import com.lmax.disruptor.dsl.ProducerType;
 import org.logx.fallback.ObjectNameGenerator;
@@ -103,7 +104,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                     return t;
                 },
                 type,
-                new YieldingWaitStrategy());
+                new BlockingWaitStrategy());
 
         this.batchEventHandler = new BatchEventHandler();
         disruptor.handleEventsWith(batchEventHandler);
