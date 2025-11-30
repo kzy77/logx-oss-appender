@@ -16,11 +16,11 @@ import java.util.concurrent.*;
 public class CompatibilityTestRunner {
 
     private static final String[] TEST_MODULES = {
-        // "config-consistency-test",
-        // "jsp-servlet-test",
-        // "multi-framework-test",
-        // "spring-boot-test",
-        // "spring-mvc-test",
+        "config-consistency-test",
+        "jsp-servlet-test",
+        "multi-framework-test",
+        "spring-boot-test",
+        "spring-mvc-test",
         "all-in-one-test/s3-all-in-one-logback-test",
         "all-in-one-test/s3-all-in-one-log4j-test",
         "all-in-one-test/s3-all-in-one-log4j2-test"
