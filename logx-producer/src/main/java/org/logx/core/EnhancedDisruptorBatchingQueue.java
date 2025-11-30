@@ -80,6 +80,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
     private final AtomicLong lastDropLogTimeMs = new AtomicLong(0);
     private volatile java.util.concurrent.ExecutorService shardExecutor;
     private volatile long uploadTimeoutMs = 30000L;
+    private final Object capacityMonitor = new Object();
 
     public EnhancedDisruptorBatchingQueue(Config config, BatchConsumer consumer, StorageService storageService) {
         this.config = config;
@@ -177,8 +178,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             }
 
             try {
-                synchronized (this) {
-                    wait(1L);
+                synchronized (capacityMonitor) {
+                    capacityMonitor.wait(5L);
                 }
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
@@ -350,6 +351,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                     flushRequested.set(false);
                 }
                 ev.clear();
+                signalCapacityAvailable();
                 return;
             }
 
@@ -364,6 +366,7 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
             totalBytes += event.payload.length;
 
             ev.clear();
+            signalCapacityAvailable();
 
             checkAndProcessBatchByCountAndSize();
         }
@@ -457,6 +460,12 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
         }
     }
 
+    private void signalCapacityAvailable() {
+        synchronized (capacityMonitor) {
+            capacityMonitor.notifyAll();
+        }
+    }
+
     private byte[] serializeToPatternFormat(LogEvent[] events, int head, int count) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         try {
@@ -466,10 +475,8 @@ public final class EnhancedDisruptorBatchingQueue implements AutoCloseable {
                 byte[] payload = event.payload;
 
                 if (payload.length > 0 && payload[payload.length - 1] != '\n') {
-                    byte[] newPayload = new byte[payload.length + 1];
-                    System.arraycopy(payload, 0, newPayload, 0, payload.length);
-                    newPayload[newPayload.length - 1] = '\n';
-                    baos.write(newPayload);
+                    baos.write(payload);
+                    baos.write('\n');
                 } else {
                     baos.write(payload);
                 }

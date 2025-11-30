@@ -10,6 +10,7 @@ import org.logx.storage.StorageServiceFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -34,64 +35,21 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private final AtomicLong currentMemoryUsage = new AtomicLong(0);
 
     public AsyncEngineImpl(AsyncEngineConfig config) {
-        this.config = config;
-        this.storageService = StorageServiceFactory.createStorageService(config.getStorageConfig());
-        this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
-        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
-
-        int maxUploadSizeMb = 10;
-        boolean enableSharding = true;
-        boolean enableCompression = true;
-        org.logx.config.properties.LogxOssProperties props = config.getStorageConfig() != null
-                ? config.getStorageConfig().getProperties()
-                : null;
-        if (props != null) {
-            enableSharding = props.getEngine().isEnableSharding();
-            enableCompression = props.getEngine().isEnableCompression();
-            maxUploadSizeMb = props.getEngine().getMaxUploadSizeMb();
-        }
-
-        EnhancedDisruptorBatchingQueue.Config queueConfig = new EnhancedDisruptorBatchingQueue.Config()
-                .queueCapacity(config.getQueueCapacity())
-                .batchMaxMessages(config.getBatchMaxMessages())
-                .batchMaxBytes(config.getBatchMaxBytes())
-                .maxMessageAgeMs(config.getMaxMessageAgeMs())
-                .blockOnFull(config.isBlockOnFull())
-                .multiProducer(config.isMultiProducer())
-                .enableCompression(enableCompression)
-                .enableSharding(enableSharding)
-                .maxUploadSizeMb(maxUploadSizeMb)
-                .uploadTimeoutMs(config.getUploadTimeoutMs());
-
-        this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
-        this.shutdownHandler = new ShutdownHookHandler();
-        this.shutdownHandler.registerCallback(new ShutdownHookHandler.ShutdownCallback() {
-            @Override
-            public boolean shutdown(long timeoutSeconds) {
-                try {
-                    AsyncEngineImpl.this.stop(timeoutSeconds, TimeUnit.SECONDS);
-                    return true;
-                } catch (Exception e) {
-                    logger.error("Failed to shutdown AsyncEngine: {}", e.getMessage(), e);
-                    return false;
-                }
-            }
-
-            @Override
-            public String getComponentName() {
-                return "AsyncEngine";
-            }
-        });
-        this.shutdownHandler.registerShutdownHook();
+        this(config, StorageServiceFactory.createStorageService(config.getStorageConfig()));
     }
 
     // 包级别可见的测试构造函数，允许传入Mock的StorageService
     AsyncEngineImpl(AsyncEngineConfig config, StorageService storageService) {
-        this.config = config;
-        this.storageService = storageService;
+        this.config = Objects.requireNonNull(config, "config cannot be null");
+        this.storageService = Objects.requireNonNull(storageService, "storageService cannot be null");
         this.emergencyMemoryThreshold = (long) config.getEmergencyMemoryThresholdMb() * 1024 * 1024;
-        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), storageService.getKeyPrefix());
+        this.fallbackManager = new FallbackManager(config.getLogFilePrefix(), this.storageService.getKeyPrefix());
+        this.shutdownHandler = new ShutdownHookHandler();
+        this.batchingQueue = createQueue();
+        registerShutdownHook();
+    }
 
+    private EnhancedDisruptorBatchingQueue createQueue() {
         int maxUploadSizeMb = 10;
         boolean enableSharding = true;
         boolean enableCompression = true;
@@ -116,8 +74,10 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 .maxUploadSizeMb(maxUploadSizeMb)
                 .uploadTimeoutMs(config.getUploadTimeoutMs());
 
-        this.batchingQueue = new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
-        this.shutdownHandler = new ShutdownHookHandler();
+        return new EnhancedDisruptorBatchingQueue(queueConfig, this::onBatch, storageService);
+    }
+
+    private void registerShutdownHook() {
         this.shutdownHandler.registerCallback(new ShutdownHookHandler.ShutdownCallback() {
             @Override
             public boolean shutdown(long timeoutSeconds) {
@@ -258,12 +218,19 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
             uploadExecutor.submit(() -> {
                 try {
                     storageService.putObject(key, batchData).get(config.getUploadTimeoutMs(), TimeUnit.MILLISECONDS);
-                    currentMemoryUsage.addAndGet(-originalSize);
                 } catch (Exception e) {
                     logger.error("Parallel upload failed for {}: {}", key, e.getMessage(), e);
-                    if (fallbackManager.writeFallbackFile(batchData)) {
-                        currentMemoryUsage.addAndGet(-originalSize);
+                    boolean fallbackSuccess = false;
+                    try {
+                        fallbackSuccess = fallbackManager.writeFallbackFile(batchData);
+                    } catch (Exception fallbackEx) {
+                        logger.error("Fallback write failed with exception for key {}: {}", key, fallbackEx.getMessage(), fallbackEx);
                     }
+                    if (!fallbackSuccess) {
+                        logger.error("Fallback write failed for key {}", key);
+                    }
+                } finally {
+                    currentMemoryUsage.addAndGet(-originalSize);
                 }
             });
             return true;
@@ -275,16 +242,20 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private boolean onBatchSync(byte[] batchData, int originalSize, boolean compressed, int messageCount, String key) {
         try {
             storageService.putObject(key, batchData).get(config.getUploadTimeoutMs(), TimeUnit.MILLISECONDS);
-            currentMemoryUsage.addAndGet(-originalSize);
             return true;
         } catch (Exception e) {
             logger.error("Sync upload failed for {}: {}", key, e.getMessage(), e);
-            if (fallbackManager.writeFallbackFile(batchData)) {
-                currentMemoryUsage.addAndGet(-originalSize);
-                return true;
+            try {
+                if (fallbackManager.writeFallbackFile(batchData)) {
+                    return true;
+                }
+                logger.error("Fallback write failed for key {}", key);
+            } catch (Exception fallbackEx) {
+                logger.error("Fallback write failed with exception for key {}: {}", key, fallbackEx.getMessage(), fallbackEx);
             }
-            currentMemoryUsage.addAndGet(-originalSize);
             return false;
+        } finally {
+            currentMemoryUsage.addAndGet(-originalSize);
         }
     }
 

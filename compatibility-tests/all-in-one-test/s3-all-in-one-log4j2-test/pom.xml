@@ -9,6 +9,7 @@
         <groupId>org.logx</groupId>
         <artifactId>integration-compatibility-tests-parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
+        <relativePath>../../pom.xml</relativePath>
     </parent>
 
     <artifactId>s3-all-in-one-log4j2-integration-test</artifactId>

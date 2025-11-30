@@ -12,6 +12,7 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.*;
 
+import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 
 
@@ -39,6 +40,7 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
 
     private static final Logger logger = LoggerFactory.getLogger(S3StorageAdapter.class);
     private static final ProtocolType PROTOCOL_TYPE = ProtocolType.S3;
+    private static final Region DEFAULT_REGION = Region.US_EAST_1;
 
     private final S3Client s3Client;
     private final String bucketName;
@@ -50,17 +52,44 @@ public final class S3StorageAdapter implements StorageInterface, AutoCloseable {
      * @param config 存储配置
      */
     public S3StorageAdapter(StorageConfig config) {
-        String region = config.getRegion();
-        String accessKeyId = config.getAccessKeyId();
-        String secretAccessKey = config.getAccessKeySecret();
-        this.bucketName = config.getBucket();
-        this.keyPrefix = config.getKeyPrefix() != null ? config.getKeyPrefix().replaceAll("^/+|/+$", "") : "logx";
+        Objects.requireNonNull(config, "StorageConfig cannot be null");
+
+        String accessKeyId = requireNonBlank(config.getAccessKeyId(), "AccessKeyId");
+        String secretAccessKey = requireNonBlank(config.getAccessKeySecret(), "AccessKeySecret");
+        this.bucketName = requireNonBlank(config.getBucket(), "Bucket");
+        this.keyPrefix = normalizeKeyPrefix(config.getKeyPrefix());
+
+        Region awsRegion = resolveRegion(config.getRegion());
 
         // 构建S3客户端 - 标准AWS S3配置
         this.s3Client = S3Client.builder()
                 .credentialsProvider(
                         StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKeyId, secretAccessKey)))
-                .region(Region.of(region != null ? region : "US")).build();
+                .region(awsRegion).build();
+    }
+
+    private Region resolveRegion(String regionValue) {
+        String trimmed = requireNonBlank(regionValue, "Region");
+        try {
+            return Region.of(trimmed);
+        } catch (Exception e) {
+            logger.warn("Invalid region '{}', falling back to {}", trimmed, DEFAULT_REGION.id());
+            return DEFAULT_REGION;
+        }
+    }
+
+    private static String requireNonBlank(String value, String fieldName) {
+        if (value == null || value.trim().isEmpty()) {
+            throw new IllegalArgumentException(fieldName + " cannot be null or empty");
+        }
+        return value.trim();
+    }
+
+    private static String normalizeKeyPrefix(String keyPrefix) {
+        if (keyPrefix == null || keyPrefix.trim().isEmpty()) {
+            return "logx";
+        }
+        return keyPrefix.trim().replaceAll("^/+|/+$", "");
     }
 
     @Override
