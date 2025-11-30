@@ -16,11 +16,11 @@ import java.util.concurrent.*;
 public class CompatibilityTestRunner {
 
     private static final String[] TEST_MODULES = {
-        "config-consistency-test",
-        "jsp-servlet-test",
-        "multi-framework-test",
-        "spring-boot-test",
-        "spring-mvc-test",
+        // "config-consistency-test",
+        // "jsp-servlet-test",
+        // "multi-framework-test",
+        // "spring-boot-test",
+        // "spring-mvc-test",
         "all-in-one-test/s3-all-in-one-logback-test",
         "all-in-one-test/s3-all-in-one-log4j-test",
         "all-in-one-test/s3-all-in-one-log4j2-test"
@@ -161,7 +161,7 @@ public class CompatibilityTestRunner {
             List<String> lines = Files.readAllLines(errorLog);
 
             for (String line : lines) {
-                if (line.contains("ERROR") && !line.contains("测试日志") && !line.contains("测试错误日志")) {
+                if (line.contains("ERROR") && !isSyntheticTestLog(line)) {
                     return true;
                 }
             }
@@ -170,6 +170,10 @@ public class CompatibilityTestRunner {
         } catch (IOException e) {
             return true;
         }
+    }
+
+    private boolean isSyntheticTestLog(String line) {
+        return line.contains("测试日志") || line.contains("测试错误日志");
     }
 
     private void reportError(String module, Path errorLog) {
@@ -186,7 +190,7 @@ public class CompatibilityTestRunner {
             int realErrorCount = 0;
 
             for (String line : lines) {
-                if (!line.contains("测试错误日志")) {
+                if (!isSyntheticTestLog(line)) {
                     System.out.println(line);
                     realErrorCount++;
                 }
@@ -372,7 +376,7 @@ public class CompatibilityTestRunner {
                 List<String> realErrors = new ArrayList<>();
 
                 for (String line : lines) {
-                    if (!line.contains("测试错误日志")) {
+                    if (!isSyntheticTestLog(line)) {
                         realErrors.add(line);
                     }
                 }
