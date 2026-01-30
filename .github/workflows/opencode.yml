@@ -24,17 +24,17 @@ jobs:
       - name: Debug Parameters
         env:
           ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         run: |
           echo "Debugging Parameters..."
-          echo "ANTHROPIC_BASE_URL (first 10): ${ANTHROPIC_BASE_URL:0:10}..."
-          echo "ANTHROPIC_AUTH_TOKEN (first 10): ${ANTHROPIC_AUTH_TOKEN:0:10}..."
+          echo "ANTHROPIC_BASE_URL (first 15): ${ANTHROPIC_BASE_URL:0:15}..."
+          echo "ANTHROPIC_API_KEY (first 10): ${ANTHROPIC_API_KEY:0:10}..."
 
       - name: Run OpenCode
         uses: anomalyco/opencode/github@latest
         env:
           ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
-          ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
         with:
           model: anthropic/claude-sonnet-4-20250514
           # share: true
