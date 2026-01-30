@@ -35,7 +35,14 @@ public class ConfigManager {
     private static final Logger logger = LoggerFactory.getLogger(ConfigManager.class);
     private static final String DEFAULT_CONFIG_FILE = "logx.properties";
 
-    private final Map<String, String> configCache = new ConcurrentHashMap<>();
+    private static final int MAX_CACHE_SIZE = 1000;
+    private final Map<String, String> configCache = java.util.Collections.synchronizedMap(
+            new java.util.LinkedHashMap<String, String>(16, 0.75f, true) {
+                @Override
+                protected boolean removeEldestEntry(Map.Entry<String, String> eldest) {
+                    return size() > MAX_CACHE_SIZE;
+                }
+            });
     private Properties fileProperties;
     // 配置文件路径
     private String configFilePath;

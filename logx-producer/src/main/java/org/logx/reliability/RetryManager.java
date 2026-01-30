@@ -326,40 +326,59 @@ public class RetryManager {
      * 创建自定义重试策略
      */
     public static RetryPolicy createCustomPolicy(Class<?>[] retryableExceptions, long[] delays) {
-        return new RetryPolicy() {
-            @Override
-            public boolean shouldRetry(Exception exception, int attemptNumber) {
-                for (Class<?> retryableException : retryableExceptions) {
-                    if (retryableException.isInstance(exception)) {
-                        return true;
-                    }
-                }
-                return false;
-            }
+        return new CustomRetryPolicy(retryableExceptions, delays);
+    }
 
-            @Override
-            public long calculateDelay(int attemptNumber, long baseDelayMs) {
-                int index = Math.min(attemptNumber - 1, delays.length - 1);
-                return delays[index];
+    private static class CustomRetryPolicy implements RetryPolicy {
+        private final Class<?>[] retryableExceptions;
+        private final long[] delays;
+
+        public CustomRetryPolicy(Class<?>[] retryableExceptions, long[] delays) {
+            this.retryableExceptions = retryableExceptions;
+            this.delays = delays;
+        }
+
+        @Override
+        public boolean shouldRetry(Exception exception, int attemptNumber) {
+            for (Class<?> retryableException : retryableExceptions) {
+                if (retryableException.isInstance(exception)) {
+                    return true;
+                }
             }
-        };
+            return false;
+        }
+
+        @Override
+        public long calculateDelay(int attemptNumber, long baseDelayMs) {
+            int index = Math.min(attemptNumber - 1, delays.length - 1);
+            return delays[index];
+        }
     }
 
     /**
      * 创建固定延迟重试策略
      */
     public static RetryPolicy createFixedDelayPolicy(long delayMs) {
-        return new RetryPolicy() {
-            @Override
-            public boolean shouldRetry(Exception exception, int attemptNumber) {
-                return new DefaultRetryPolicy().shouldRetry(exception, attemptNumber);
-            }
+        return new FixedDelayRetryPolicy(delayMs);
+    }
 
-            @Override
-            public long calculateDelay(int attemptNumber, long baseDelayMs) {
-                return delayMs;
-            }
-        };
+    private static class FixedDelayRetryPolicy implements RetryPolicy {
+        private final long delayMs;
+        private final RetryPolicy defaultPolicy = new DefaultRetryPolicy();
+
+        public FixedDelayRetryPolicy(long delayMs) {
+            this.delayMs = delayMs;
+        }
+
+        @Override
+        public boolean shouldRetry(Exception exception, int attemptNumber) {
+            return defaultPolicy.shouldRetry(exception, attemptNumber);
+        }
+
+        @Override
+        public long calculateDelay(int attemptNumber, long baseDelayMs) {
+            return delayMs;
+        }
     }
 
     /**

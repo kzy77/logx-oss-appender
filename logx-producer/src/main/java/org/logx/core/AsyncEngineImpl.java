@@ -33,6 +33,7 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     private final AtomicBoolean started = new AtomicBoolean(false);
     private final AtomicBoolean stopped = new AtomicBoolean(false);
     private final AtomicLong currentMemoryUsage = new AtomicLong(0);
+    private ShutdownHookHandler.ShutdownCallback shutdownCallback;
 
     public AsyncEngineImpl(AsyncEngineConfig config) {
         this(config, StorageServiceFactory.createStorageService(config.getStorageConfig()));
@@ -78,24 +79,33 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
     }
 
     private void registerShutdownHook() {
-        this.shutdownHandler.registerCallback(new ShutdownHookHandler.ShutdownCallback() {
-            @Override
-            public boolean shutdown(long timeoutSeconds) {
-                try {
-                    AsyncEngineImpl.this.stop(timeoutSeconds, TimeUnit.SECONDS);
-                    return true;
-                } catch (Exception e) {
-                    logger.error("Failed to shutdown AsyncEngine: {}", e.getMessage(), e);
-                    return false;
-                }
-            }
-
-            @Override
-            public String getComponentName() {
-                return "AsyncEngine";
-            }
-        });
+        this.shutdownCallback = new AsyncEngineShutdownCallback(this);
+        this.shutdownHandler.registerCallback(this.shutdownCallback);
         this.shutdownHandler.registerShutdownHook();
+    }
+
+    private static class AsyncEngineShutdownCallback implements ShutdownHookHandler.ShutdownCallback {
+        private final AsyncEngineImpl engine;
+
+        AsyncEngineShutdownCallback(AsyncEngineImpl engine) {
+            this.engine = engine;
+        }
+
+        @Override
+        public boolean shutdown(long timeoutSeconds) {
+            try {
+                engine.stop(timeoutSeconds, TimeUnit.SECONDS);
+                return true;
+            } catch (Exception e) {
+                logger.error("Failed to shutdown AsyncEngine: {}", e.getMessage(), e);
+                return false;
+            }
+        }
+
+        @Override
+        public String getComponentName() {
+            return "AsyncEngine";
+        }
     }
 
     @Override
@@ -178,6 +188,10 @@ public class AsyncEngineImpl implements AsyncEngine, AutoCloseable {
                 } catch (Exception e) {
                     logger.error("Error closing storage service: {}", e.getMessage());
                 }
+            }
+
+            if (shutdownHandler != null && shutdownCallback != null) {
+                shutdownHandler.unregisterCallback(shutdownCallback);
             }
 
             logger.info("AsyncEngine stopped successfully");
