@@ -91,6 +91,20 @@ public class ShutdownHookHandler {
     }
 
     /**
+     * 注销关闭回调
+     *
+     * @param callback
+     *            要注销的回调
+     * @return 如果回调存在并被移除，返回true
+     */
+    public synchronized boolean unregisterCallback(ShutdownCallback callback) {
+        if (shutdownInProgress.get()) {
+            return false;
+        }
+        return callbacks.remove(callback);
+    }
+
+    /**
      * 注册JVM关闭钩子
      */
     public synchronized void registerShutdownHook() {
