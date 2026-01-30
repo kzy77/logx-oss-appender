@@ -97,6 +97,7 @@ target/
 .iflow/
 .claude/
 .codex/
+.opencode/
 .roomodes
 AGENTS.md
 CLAUDE.md
