@@ -27,6 +27,6 @@ jobs:
           ANTHROPIC_BASE_URL: ${{ secrets.ANTHROPIC_BASE_URL }}
           ANTHROPIC_AUTH_TOKEN: ${{ secrets.ANTHROPIC_AUTH_TOKEN }}
         with:
-          model: anthropic/claude-sonnet-4-20250514
+          model: claude-sonnet-4-20250514
           # share: true
           # github_token: xxxx
